@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="个人技术博客 | 记录成长与思考">
+  <title>🌱 你的博客名称 | 用代码丈量世界</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #333333;
+      --card-bg: #f8f9fa;
+      --border: #eaeaea;
+      --primary: #4361ee;
+      --shadow: 0 2px 10px rgba(0,0,0,0.08);
+      --transition: all 0.3s ease;
+    }
+    [data-theme="dark"] {
+      --bg: #121212;
+      --text: #e6e6e6;
+      --card-bg: #1e1e1e;
+      --border: #333333;
+      --primary: #5e72e4;
+      --shadow: 0 2px 15px rgba(0,0,0,0.3);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      transition: var(--transition);
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2.5rem;
+    }
+    h1 {
+      font-size: 2.8rem;
+      margin: 0.5rem 0;
+      background: linear-gradient(90deg, var(--primary), #3a0ca3);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-weight: 800;
+    }
+    .subtitle {
+      color: #6c757d;
+      font-size: 1.2rem;
+      max-width: 600px;
+      text-align: center;
+      margin-top: 0.5rem;
+    }
+    nav {
+      display: flex;
+      gap: 1.8rem;
+      margin-top: 1.2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    a {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 500;
+      padding: 4px 0;
+      position: relative;
+      transition: var(--transition);
+    }
+    a:hover { color: var(--primary); }
+    a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--primary);
+      transition: var(--transition);
+    }
+    a:hover::after { width: 100%; }
+    .theme-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: var(--shadow);
+    }
+    .theme-toggle:hover { transform: rotate(20deg); }
+    .posts {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+    .post-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      border: 1px solid var(--border);
+    }
+    .post-card:hover { transform: translateY(-5px); box-shadow: 0 5px 20px rgba(0,0,0,0.15); }
+    .post-date {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      margin-bottom: 12px;
+    }
+    .post-title {
+      font-size: 1.5rem;
+      margin: 0.5rem 0;
+      line-height: 1.4;
+      color: var(--text);
+      transition: var(--transition);
+    }
+    .post-card:hover .post-title { color: var(--primary); }
+    .post-excerpt {
+      color: #888;
+      margin: 12px 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .read-more {
+      display: inline-block;
+      color: var(--primary);
+      font-weight: 500;
+      margin-top: 8px;
+      position: relative;
+      padding-right: 20px;
+    }
+    .read-more::after {
+      content: "→";
+      position: absolute;
+      right: 0;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .read-more:hover::after { opacity: 1; }
+    footer {
+      text-align: center;
+      padding: 2.5rem 1rem 1.5rem;
+      color: #888;
+      border-top: 1px solid var(--border);
+      font-size: 0.95rem;
+      margin-top: 2rem;
+    }
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.2rem;
+      margin-top: 12px;
+    }
+    .social-icon {
+      width: 28px;
+      height: 28px;
+      fill: currentColor;
+      opacity: 0.7;
+      transition: var(--transition);
+    }
+    .social-icon:hover { opacity: 1; transform: translateY(-2px); }
+    @media (max-width: 768px) {
+      .posts { grid-template-columns: 1fr; }
+      nav { gap: 1.2rem; flex-direction: column; align-items: center; }
+      h1 { font-size: 2.3rem; }
+      .theme-toggle { top: 15px; right: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 暗色模式切换按钮 -->
+  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <header>
+    <h1>🌱 你的博客名称</h1>
+    <p class="subtitle">用文字记录思考，用代码丈量世界 · 分享技术、成长与生活点滴</p>
+    <nav>
+      <a href="index.html">首页</a>
+      <a href="about.html">关于</a>
+      <a href="archives.html">归档</a>
+      <a href="tags.html">标签</a>
+      <a href="https://github.com/你的用户名" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </header>
+
+  <main class="posts">
+    <!-- 示例文章卡片 - 实际使用时由博客生成器动态生成 -->
+    <article class="post-card">
+      <div style="padding: 1.5rem;">
+        <div class="post-date">2026-02-07</div>
+        <h2 class="post-title">如何用 GitHub Pages 搭建个人博客（超详细指南）</h2>
+        <p class="post-excerpt">从零开始配置仓库、选择主题、自动化部署，手把手教你打造专业博客。包含常见问题解决方案与性能优化技巧...</p>
+        <a href="#" class="read-more">阅读更多</a>
+      </div>
+    </article>
+
+    <article class="post-card">
+      <div style="padding: 1.5rem;">
+        <div class="post-date">2026-02-05</div>
+        <h2 class="post-title">前端性能优化的 10 个关键实践</h2>
+        <p class="post-excerpt">深入探讨懒加载、代码分割、资源预加载等实战技巧，结合 Lighthouse 评分提升真实用户体验...</p>
+        <a href="#" class="read-more">阅读更多</a>
+      </div>
+    </article>
+
+    <article class="post-card">
+      <div style="padding: 1.5rem;">
+        <div class="post-date">2026-02-01</div>
+        <h2 class="post-title">2026 年，我为什么选择回归 Markdown 写作？</h2>
+        <p class="post-excerpt">在富文本编辑器泛滥的时代，重新发现纯文本写作的专注力与自由。附高效写作工作流与工具链分享...</p>
+        <a href="#" class="read-more">阅读更多</a>
+      </div>
+    </article>
+  </main>
+
+  <footer>
+    <p>© 2026 你的名字 · 保持好奇，持续成长</p>
+    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
+      源码托管于 <a href="https://github.com/你的用户名/仓库名" style="color: var(--primary);">GitHub</a>
+    </p>
+    <div class="social-links">
+      <a href="https://github.com/你的用户名" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg class="social-icon" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+      </a>
+      <a href="mailto:your.email@example.com" aria-label="邮箱">
+        <svg class="social-icon" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+      </a>
+    </div>
+  </footer>
+
+  <script>
+    // 主题切换逻辑
+    const themeToggle = document.getElementById('themeToggle');
+    const htmlEl = document.documentElement;
+    
+    // 初始化主题
+    const savedTheme = localStorage.getItem('theme') || 
+                      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    if (savedTheme === 'dark') {
+      htmlEl.setAttribute('data-theme', 'dark');
+      themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>`;
+    }
+    
+    // 切换主题
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = htmlEl.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      
+      htmlEl.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      
+      // 切换图标
+      if (newTheme === 'dark') {
+        themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>`;
+      } else {
+        themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+      }
+    });
+  </script>
+</body>
+</html>
