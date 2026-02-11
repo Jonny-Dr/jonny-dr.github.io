@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>📚 归档 | 北辰</title>
   <style>
+    /* 复用您现有的样式（已优化为月份分组） */
     :root {
       --bg: #ffffff;
       --text: #333333;
@@ -106,11 +107,25 @@
       margin: 0 auto;
     }
     .archive-year {
-      font-size: 1.6rem;
+      font-size: 1.8rem;
       margin: 2.5rem 0 1.5rem;
       color: var(--primary);
       border-left: 4px solid var(--primary);
       padding-left: 10px;
+    }
+    .archive-month {
+      font-size: 1.3rem;
+      margin: 1.5rem 0 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      color: var(--primary);
+    }
+    .archive-month .count {
+      background: rgba(67, 97, 238, 0.2);
+      padding: 0 0.5rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      color: var(--primary);
     }
     .archive-list {
       list-style: none;
@@ -148,87 +163,93 @@
   </style>
 </head>
 <body>
-  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-    </svg>
-  </button>
+<button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
 
-  <header>
-    <h1>📚 归档</h1>
-    <p class="subtitle">按时间顺序整理的博客文章</p>
-    <nav>
-      <a href="index.html">首页</a>
-      <a href="project.html">项目</a>
-      <a href="about.html">关于</a>
-      <a href="archives.html">归档</a>
-      <a href="days.html">日常</a>
-      <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
-    </nav>
-  </header>
+<header>
+  <h1>📚 归档</h1>
+  <p class="subtitle">按时间顺序整理的博客文章</p>
+  <nav>
+    <a href="index.html">首页</a>
+    <a href="project.html">项目</a>
+    <a href="about.html">关于</a>
+    <a href="archives.html">归档</a>
+    <a href="days.html">日常</a>
+    <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+  </nav>
+</header>
 
-  <main class="archive-container">
-    <div class="archive-year">2026年</div>
-    <ul class="archive-list">
-      <li class="archive-item">
-        <div class="archive-title">如何用 GitHub Pages 搭建个人博客（超详细指南）</div>
-        <div class="archive-date">2026-02-07</div>
-      </li>
-      <li class="archive-item">
-        <div class="archive-title">前端性能优化的 10 个关键实践</div>
-        <div class="archive-date">2026-02-05</div>
-      </li>
-      <li class="archive-item">
-        <div class="archive-title">2026 年，我为什么选择回归 Markdown 写作？</div>
-        <div class="archive-date">2026-02-01</div>
-      </li>
-    </ul>
+<main class="archive-container">
+  <div class="archive-year">2026年</div>
 
-    <div class="archive-year">2025年</div>
-    <ul class="archive-list">
-      <li class="archive-item">
-        <div class="archive-title">从零开始学习 React Hooks</div>
-        <div class="archive-date">2025-11-15</div>
-      </li>
-      <li class="archive-item">
-        <div class="archive-title">CSS 变量的高级用法与实战</div>
-        <div class="archive-date">2025-09-22</div>
-      </li>
-    </ul>
-  </main>
+  <div class="archive-month">
+    2月 <span class="count">(3)</span>
+  </div>
+  <ul class="archive-list">
+    <li class="archive-item">
+      <div class="archive-title">如何用 GitHub Pages 搭建个人博客（超详细指南）</div>
+      <div class="archive-date">2026-02-01</div>
+    </li>
+    <li class="archive-item">
+      <div class="archive-title">前端性能优化的 10 个关键实践</div>
+      <div class="archive-date">2026-02-05</div>
+    </li>
+    <li class="archive-item">
+      <div class="archive-title">晨跑与城市初醒</div>
+      <div class="archive-date">2026-02-11</div>
+    </li>
+  </ul>
 
-  <footer>
-    <p>© 2026 北辰 · 保持好奇，持续成长</p>
-    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
-      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 |
-      源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
-    </p>
-  </footer>
+  <div class="archive-month">
+    1月 <span class="count">(2)</span>
+  </div>
+  <ul class="archive-list">
+    <li class="archive-item">
+      <div class="archive-title">从零开始学习 React Hooks</div>
+      <div class="archive-date">2026-01-15</div>
+    </li>
+    <li class="archive-item">
+      <div class="archive-title">CSS 变量的高级用法与实战</div>
+      <div class="archive-date">2026-01-22</div>
+    </li>
+  </ul>
+</main>
 
-  <script>
-    const themeToggle = document.getElementById('themeToggle');
-    const htmlEl = document.documentElement;
+<footer>
+  <p>© 2026 北辰 · 保持好奇，持续成长</p>
+  <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
+    本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 |
+    源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
+  </p>
+</footer>
 
-    const savedTheme = localStorage.getItem('theme') ||
-                      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    if (savedTheme === 'dark') {
-      htmlEl.setAttribute('data-theme', 'dark');
+<script>
+  const themeToggle = document.getElementById('themeToggle');
+  const htmlEl = document.documentElement;
+
+  const savedTheme = localStorage.getItem('theme') ||
+          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  if (savedTheme === 'dark') {
+    htmlEl.setAttribute('data-theme', 'dark');
+    themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>`;
+  }
+
+  themeToggle.addEventListener('click', () => {
+    const currentTheme = htmlEl.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+    htmlEl.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+
+    if (newTheme === 'dark') {
       themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>`;
+    } else {
+      themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
     }
-
-    themeToggle.addEventListener('click', () => {
-      const currentTheme = htmlEl.getAttribute('data-theme');
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-      htmlEl.setAttribute('data-theme', newTheme);
-      localStorage.setItem('theme', newTheme);
-
-      if (newTheme === 'dark') {
-        themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>`;
-      } else {
-        themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
-      }
-    });
-  </script>
+  });
+</script>
 </body>
 </html>

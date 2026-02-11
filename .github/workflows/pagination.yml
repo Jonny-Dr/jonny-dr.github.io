@@ -1,0 +1,28 @@
+name: Auto Generate Pagination
+on:
+  push:
+    paths:
+      - '_posts/**'
+      - 'generate-pagination.js'
+  workflow_dispatch:
+
+jobs:
+  generate-pagination:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm install
+      - name: Generate pagination pages
+        run: node generate-pagination.js
+      - name: Commit changes
+        run: |
+          git config user.name 'GitHub Actions'
+          git config user.email 'actions@github.com'
+          git add index.html index-*.html
+          git commit -m "Auto-generate pagination pages"
+          git push

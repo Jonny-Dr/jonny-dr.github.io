@@ -1,4 +1,30 @@
+const fs = require('fs');
+const path = require('path');
 
+// 读取 _posts 目录下的所有文章
+const postsDir = path.join(__dirname, '_posts');
+const files = fs.readdirSync(postsDir);
+const markdownFiles = files.filter(file => file.endsWith('.md'));
+
+// 按日期排序（最新在前）
+markdownFiles.sort((a, b) => {
+    const dateA = a.substring(0, 10);
+    const dateB = b.substring(0, 10);
+    return dateB.localeCompare(dateA);
+});
+
+// 每页显示5篇文章
+const postsPerPage = 5;
+const totalPages = Math.ceil(markdownFiles.length / postsPerPage);
+
+// 生成分页文件
+for (let page = 1; page <= totalPages; page++) {
+    const start = (page - 1) * postsPerPage;
+    const end = start + postsPerPage;
+    const currentPosts = markdownFiles.slice(start, end);
+
+    // 生成页面内容
+    const htmlContent = `
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -190,51 +216,26 @@
   </header>
 
   <main class="post-list">
-    
+    ${currentPosts.map(post => {
+        const [date, title] = post.split('-');
+        const cleanTitle = title.replace('.md', '').replace(/-/g, ' ');
+        return `
       <article class="post-item">
-        <h2 class="post-title"><a href="_posts/2026-02-11-daily-morning-run.html" style="color: var(--primary); text-decoration: none;">02</a></h2>
-        <div class="post-date">2026</div>
+        <h2 class="post-title"><a href="_posts/${post.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h2>
+        <div class="post-date">${date}</div>
         <div class="post-excerpt">
           这里是文章摘要...（实际内容由 Markdown 生成）
         </div>
       </article>
-      
-      <article class="post-item">
-        <h2 class="post-title"><a href="_posts/2026-02-05-performance-optimization.html" style="color: var(--primary); text-decoration: none;">02</a></h2>
-        <div class="post-date">2026</div>
-        <div class="post-excerpt">
-          这里是文章摘要...（实际内容由 Markdown 生成）
-        </div>
-      </article>
-      
-      <article class="post-item">
-        <h2 class="post-title"><a href="_posts/2026-02-01-github-pages-guide.html" style="color: var(--primary); text-decoration: none;">02</a></h2>
-        <div class="post-date">2026</div>
-        <div class="post-excerpt">
-          这里是文章摘要...（实际内容由 Markdown 生成）
-        </div>
-      </article>
-      
-      <article class="post-item">
-        <h2 class="post-title"><a href="_posts/2026-02-01-github-pages-guide_副本.html" style="color: var(--primary); text-decoration: none;">02</a></h2>
-        <div class="post-date">2026</div>
-        <div class="post-excerpt">
-          这里是文章摘要...（实际内容由 Markdown 生成）
-        </div>
-      </article>
-      
-      <article class="post-item">
-        <h2 class="post-title"><a href="_posts/2026-02-01-github-pages-guide_副本2.html" style="color: var(--primary); text-decoration: none;">02</a></h2>
-        <div class="post-date">2026</div>
-        <div class="post-excerpt">
-          这里是文章摘要...（实际内容由 Markdown 生成）
-        </div>
-      </article>
-      
+      `;
+    }).join('')}
   </main>
 
   <div class="pagination">
-    <a href="index.html" class="page-link active">1</a><a href="index-2.html" class="page-link ">2</a>
+    ${Array.from({ length: totalPages }, (_, i) => {
+        const pageNumber = i + 1;
+        return `<a href="index${pageNumber === 1 ? '' : '-' + pageNumber}.html" class="page-link ${pageNumber === page ? 'active' : ''}">${pageNumber}</a>`;
+    }).join('')}
   </div>
 
   <footer>
@@ -253,7 +254,7 @@
                       (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     if (savedTheme === 'dark') {
       htmlEl.setAttribute('data-theme', 'dark');
-      themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>`;
+      themeToggle.innerHTML = \`<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>\`;
     }
     
     themeToggle.addEventListener('click', () => {
@@ -264,12 +265,19 @@
       localStorage.setItem('theme', newTheme);
       
       if (newTheme === 'dark') {
-        themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>`;
+        themeToggle.innerHTML = \`<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>\`;
       } else {
-        themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+        themeToggle.innerHTML = \`<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>\`;
       }
     });
   </script>
 </body>
 </html>
-  
+  `;
+
+    // 写入文件
+    const filename = page === 1 ? 'index.html' : `index-${page}.html`;
+    fs.writeFileSync(filename, htmlContent);
+}
+
+console.log(`Generated ${totalPages} pagination pages.`);
