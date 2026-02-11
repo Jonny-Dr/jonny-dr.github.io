@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>📝 关于我 | 你的博客名称</title>
+  <title>📝 关于我 | 北辰</title>
   <style>
     :root {
       --bg: #ffffff;
@@ -179,10 +179,11 @@
     <p class="subtitle">用文字记录思考，用代码丈量世界 · 一个热爱技术的探索者</p>
     <nav>
       <a href="index.html">首页</a>
-      <a href="projects.html">项目</a>
+      <a href="project.html">项目</a>
       <a href="about.html">关于</a>
       <a href="archives.html">归档</a>
-      <a href="https://github.com/你的用户名" target="_blank" rel="noopener">GitHub</a>
+      <a href="days.html">日常</a>
+      <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
     </nav>
   </header>
 
@@ -190,7 +191,7 @@
     <section class="about-section">
       <h2 class="section-title">关于我</h2>
       <p>
-        我是 <strong>你的名字</strong>，一名专注于 <strong>前端开发</strong> 和 <strong>技术写作</strong> 的开发者。
+        我是 <strong>北辰</strong>，一名专注于 <strong>前端开发</strong> 和 <strong>技术写作</strong> 的开发者。
         毕业于 <em>XX大学</em> 计算机科学专业，拥有 3 年 Web 开发经验。
       </p>
       <p>
@@ -234,9 +235,9 @@
   </main>
 
   <footer>
-    <p>© 2026 你的名字 · 保持好奇，持续成长</p>
+    <p>© 2026 北辰 · 保持好奇，持续成长</p>
     <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
-      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 |
       源码托管于 <a href="https://github.com/你的用户名/仓库名" style="color: var(--primary);">GitHub</a>
     </p>
   </footer>
@@ -244,21 +245,21 @@
   <script>
     const themeToggle = document.getElementById('themeToggle');
     const htmlEl = document.documentElement;
-    
-    const savedTheme = localStorage.getItem('theme') || 
+
+    const savedTheme = localStorage.getItem('theme') ||
                       (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     if (savedTheme === 'dark') {
       htmlEl.setAttribute('data-theme', 'dark');
       themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>`;
     }
-    
+
     themeToggle.addEventListener('click', () => {
       const currentTheme = htmlEl.getAttribute('data-theme');
       const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      
+
       htmlEl.setAttribute('data-theme', newTheme);
       localStorage.setItem('theme', newTheme);
-      
+
       if (newTheme === 'dark') {
         themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>`;
       } else {
