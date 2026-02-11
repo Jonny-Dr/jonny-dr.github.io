@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📝 关于我 | 你的博客名称</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #333333;
+      --card-bg: #f8f9fa;
+      --border: #eaeaea;
+      --primary: #4361ee;
+      --shadow: 0 2px 10px rgba(0,0,0,0.08);
+      --transition: all 0.3s ease;
+    }
+    [data-theme="dark"] {
+      --bg: #121212;
+      --text: #e6e6e6;
+      --card-bg: #1e1e1e;
+      --border: #333333;
+      --primary: #5e72e4;
+      --shadow: 0 2px 15px rgba(0,0,0,0.3);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      transition: var(--transition);
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2.5rem;
+    }
+    h1 {
+      font-size: 2.8rem;
+      margin: 0.5rem 0;
+      background: linear-gradient(90deg, var(--primary), #3a0ca3);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-weight: 800;
+    }
+    .subtitle {
+      color: #6c757d;
+      font-size: 1.2rem;
+      max-width: 600px;
+      text-align: center;
+      margin-top: 0.5rem;
+    }
+    nav {
+      display: flex;
+      gap: 1.8rem;
+      margin-top: 1.2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    a {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 500;
+      padding: 4px 0;
+      position: relative;
+      transition: var(--transition);
+    }
+    a:hover { color: var(--primary); }
+    a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--primary);
+      transition: var(--transition);
+    }
+    a:hover::after { width: 100%; }
+    .theme-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: var(--shadow);
+    }
+    .theme-toggle:hover { transform: rotate(20deg); }
+    .about-content {
+      line-height: 1.8;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .about-section {
+      margin-bottom: 2.5rem;
+    }
+    .section-title {
+      font-size: 1.8rem;
+      margin-bottom: 1.2rem;
+      color: var(--primary);
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--primary);
+    }
+    .profile-img {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--primary);
+      margin: 1.5rem auto;
+      display: block;
+      box-shadow: var(--shadow);
+    }
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .social-icon {
+      width: 36px;
+      height: 36px;
+      fill: currentColor;
+      opacity: 0.7;
+      transition: var(--transition);
+    }
+    .social-icon:hover { opacity: 1; transform: translateY(-2px); }
+    .skill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .skill-item {
+      background: var(--primary);
+      color: white;
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+    }
+    footer {
+      text-align: center;
+      padding: 2.5rem 1rem 1.5rem;
+      color: #888;
+      border-top: 1px solid var(--border);
+      font-size: 0.95rem;
+      margin-top: 2rem;
+    }
+    @media (max-width: 768px) {
+      .about-content { padding: 0 1rem; }
+      .profile-img { width: 120px; height: 120px; }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <header>
+    <h1>📝 关于我</h1>
+    <p class="subtitle">用文字记录思考，用代码丈量世界 · 一个热爱技术的探索者</p>
+    <nav>
+      <a href="index.html">首页</a>
+      <a href="projects.html">项目</a>
+      <a href="about.html">关于</a>
+      <a href="archives.html">归档</a>
+      <a href="https://github.com/你的用户名" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </header>
+
+  <main class="about-content">
+    <section class="about-section">
+      <h2 class="section-title">关于我</h2>
+      <p>
+        我是 <strong>你的名字</strong>，一名专注于 <strong>前端开发</strong> 和 <strong>技术写作</strong> 的开发者。
+        毕业于 <em>XX大学</em> 计算机科学专业，拥有 3 年 Web 开发经验。
+      </p>
+      <p>
+        我相信 <strong>技术应该让生活更简单</strong>，因此致力于分享实用的技术方案和成长经验。
+        业余时间喜欢研究 <em>开源项目</em>、<em>设计模式</em> 和 <em>性能优化</em>。
+      </p>
+      <img src="https://via.placeholder.com/150" alt="个人头像" class="profile-img">
+    </section>
+
+    <section class="about-section">
+      <h2 class="section-title">技术栈</h2>
+      <div class="skill-list">
+        <span class="skill-item">JavaScript</span>
+        <span class="skill-item">React</span>
+        <span class="skill-item">Vue.js</span>
+        <span class="skill-item">Node.js</span>
+        <span class="skill-item">TypeScript</span>
+        <span class="skill-item">Git</span>
+        <span class="skill-item">Docker</span>
+      </div>
+    </section>
+
+    <section class="about-section">
+      <h2 class="section-title">联系方式</h2>
+      <p>
+        期待与你交流技术、合作项目或探讨未来方向。
+        你可以通过以下方式联系我：
+      </p>
+      <div class="social-links">
+        <a href="https://github.com/你的用户名" target="_blank" rel="noopener" aria-label="GitHub">
+          <svg class="social-icon" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        </a>
+        <a href="mailto:your.email@example.com" aria-label="邮箱">
+          <svg class="social-icon" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+        </a>
+        <a href="https://linkedin.com/in/你的用户名" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <svg class="social-icon" viewBox="0 0 24 24"><path d="M19 0H5a2 2 0 00-2 2v16a2 2 0 002 2h14a2 2 0 002-2V2a2 2 0 00-2-2zm-6.75 13.25h-1.5v-3.75h-1.5v-1.5h3v3.75h1.5v1.5h-3z"/></svg>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2026 你的名字 · 保持好奇，持续成长</p>
+    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
+      源码托管于 <a href="https://github.com/你的用户名/仓库名" style="color: var(--primary);">GitHub</a>
+    </p>
+  </footer>
+
+  <script>
+    const themeToggle = document.getElementById('themeToggle');
+    const htmlEl = document.documentElement;
+    
+    const savedTheme = localStorage.getItem('theme') || 
+                      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    if (savedTheme === 'dark') {
+      htmlEl.setAttribute('data-theme', 'dark');
+      themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>`;
+    }
+    
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = htmlEl.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      
+      htmlEl.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      
+      if (newTheme === 'dark') {
+        themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>`;
+      } else {
+        themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+      }
+    });
+  </script>
+</body>
+</html>

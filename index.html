@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="个人技术博客 | 记录成长与思考">
-  <title>🌱 你的博客名称 | 用代码丈量世界</title>
+  <title>🌱 北辰 ｜ 个人博客</title>
   <style>
     :root {
       --bg: #ffffff;
@@ -196,14 +196,15 @@
   </button>
 
   <header>
-    <h1>🌱 你的博客名称</h1>
+    <h1>🌱 北辰</h1>
     <p class="subtitle">用文字记录思考，用代码丈量世界 · 分享技术、成长与生活点滴</p>
     <nav>
       <a href="index.html">首页</a>
+      <a href="projects.html">项目</a>
       <a href="about.html">关于</a>
       <a href="archives.html">归档</a>
-      <a href="tags.html">标签</a>
-      <a href="https://github.com/你的用户名" target="_blank" rel="noopener">GitHub</a>
+      <a href="days.html">日常</a>
+      <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
     </nav>
   </header>
 
@@ -238,16 +239,16 @@
   </main>
 
   <footer>
-    <p>© 2026 你的名字 · 保持好奇，持续成长</p>
+    <p>© 2026 北辰 · 保持好奇，持续成长</p>
     <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
-      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
-      源码托管于 <a href="https://github.com/你的用户名/仓库名" style="color: var(--primary);">GitHub</a>
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 |
+      源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
     </p>
     <div class="social-links">
-      <a href="https://github.com/你的用户名" target="_blank" rel="noopener" aria-label="GitHub">
+      <a href="https://github.com/" target="_blank" rel="noopener" aria-label="GitHub">
         <svg class="social-icon" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
       </a>
-      <a href="mailto:your.email@example.com" aria-label="邮箱">
+      <a href="mailto:15535526550@163.com" aria-label="邮箱">
         <svg class="social-icon" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
       </a>
     </div>
@@ -257,23 +258,23 @@
     // 主题切换逻辑
     const themeToggle = document.getElementById('themeToggle');
     const htmlEl = document.documentElement;
-    
+
     // 初始化主题
-    const savedTheme = localStorage.getItem('theme') || 
+    const savedTheme = localStorage.getItem('theme') ||
                       (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     if (savedTheme === 'dark') {
       htmlEl.setAttribute('data-theme', 'dark');
       themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>`;
     }
-    
+
     // 切换主题
     themeToggle.addEventListener('click', () => {
       const currentTheme = htmlEl.getAttribute('data-theme');
       const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      
+
       htmlEl.setAttribute('data-theme', newTheme);
       localStorage.setItem('theme', newTheme);
-      
+
       // 切换图标
       if (newTheme === 'dark') {
         themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>`;
