@@ -1,213 +1,13 @@
 const fs = require('fs');
 const path = require('path');
-
-// 解析Markdown文件内容的函数
-function parseMarkdown(filePath) {
-    const content = fs.readFileSync(filePath, 'utf8');
-    
-    // 提取标题（支持YAML front matter格式）
-    let title = '无标题';
-    const yamlTitleMatch = content.match(/^---[\s\S]*?title:\s+([^\n]+)[\s\S]*?---/m);
-    if (yamlTitleMatch) {
-        title = yamlTitleMatch[1].trim();
-    } else {
-        // 尝试从#开头的标题中提取
-        const hashTitleMatch = content.match(/^#\s+(.*)$/m);
-        if (hashTitleMatch) {
-            title = hashTitleMatch[1];
-        } else {
-            // 如果没有提取到标题，使用文件名作为标题
-            const fileName = path.basename(filePath, '.md');
-            title = fileName.replace(/-/g, ' ');
-        }
-    }
-    
-    // 提取日期（支持YAML front matter格式）
-    let date = '';
-    const yamlDateMatch = content.match(/^---[\s\S]*?date:\s+(\d{4}-\d{2}-\d{2})[\s\S]*?---/m);
-    if (yamlDateMatch) {
-        date = yamlDateMatch[1];
-    } else {
-        // 尝试从date: 格式中提取
-        const dateMatch = content.match(/^date:\s+(\d{4}-\d{2}-\d{2})$/m);
-        if (dateMatch) {
-            date = dateMatch[1];
-        } else {
-            // 如果没有提取到日期，从文件名中提取日期
-            const fileName = path.basename(filePath, '.md');
-            const dateMatchFromFile = fileName.match(/^(\d{4}-\d{2}-\d{2})/);
-            if (dateMatchFromFile) {
-                date = dateMatchFromFile[1];
-            }
-        }
-    }
-    
-    // 提取摘要（假设摘要在YAML front matter之后，直到第一个二级标题之前）
-    let excerpt = '';
-    const yamlContentMatch = content.match(/^---[\s\S]*?---[\s\S]*?(?=^##|$)/m);
-    if (yamlContentMatch) {
-        excerpt = yamlContentMatch[0].replace(/^---[\s\S]*?---/m, '').trim();
-    }
-    
-    // 如果没有提取到摘要，使用前100个字符作为摘要
-    if (!excerpt) {
-        const cleanContent = content.replace(/^---[\s\S]*?---/m, '').replace(/^#\s+.*$/m, '').trim();
-        excerpt = cleanContent.substring(0, 100) + (cleanContent.length > 100 ? '...' : '');
-    }
-    
-    // 移除YAML front matter，只保留文章正文
-    const cleanContent = content.replace(/^---[\s\S]*?---/m, '').trim();
-    
-    return { title, date, excerpt, content: cleanContent };
-}
-
-// 将Markdown转换为HTML的函数（简单实现）
-function markdownToHtml(markdown) {
-    // 转换标题
-    let html = markdown.replace(/^###\s+(.*)$/gm, '<h3>$1</h3>');
-    html = html.replace(/^##\s+(.*)$/gm, '<h2>$1</h2>');
-    html = html.replace(/^#\s+(.*)$/gm, '<h1>$1</h1>');
-    
-    // 转换段落
-    html = html.replace(/^(?!<h[1-6]>)(.*)$/gm, '<p>$1</p>');
-    
-    // 转换链接
-    html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>');
-    
-    // 转换粗体
-    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    
-    // 转换斜体
-    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
-    
-    return html;
-}
+const MarkdownParser = require('./markdown-parser');
 
 // 为Markdown文件生成HTML文件的函数
 function generateHtmlFromMarkdown(markdownPath, htmlPath) {
-    // 如果HTML文件已存在，则不再重复生成
-    if (fs.existsSync(htmlPath)) {
-        console.log(`HTML file already exists: ${htmlPath}. Skipping generation.`);
-        return;
-    }
-    
-    const { title, date, content } = parseMarkdown(markdownPath);
-    const htmlContent = markdownToHtml(content);
-    
-    const htmlTemplate = `
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${title} | 北辰</title>
-  <link rel="stylesheet" href="../../css/common.css">
-  <style>
-    .post-content {
-      max-width: 800px;
-      margin: 0 auto;
-      line-height: 1.8;
-    }
-    .post-header {
-      margin-bottom: 2rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid var(--border);
-    }
-    .post-header h1 {
-      font-size: 2.2rem;
-      margin-bottom: 1rem;
-      color: var(--primary);
-    }
-    .post-meta {
-      color: #888;
-      font-size: 0.95rem;
-    }
-    .post-body {
-      margin-bottom: 2rem;
-    }
-    .post-body h2 {
-      font-size: 1.8rem;
-      margin: 2rem 0 1rem;
-      color: var(--primary);
-    }
-    .post-body h3 {
-      font-size: 1.4rem;
-      margin: 1.5rem 0 0.8rem;
-      color: var(--primary);
-    }
-    .post-body p {
-      margin-bottom: 1.2rem;
-    }
-    .post-body a {
-      color: var(--primary);
-      text-decoration: none;
-    }
-    .post-body a:hover {
-      text-decoration: underline;
-    }
-    @media (max-width: 768px) {
-      .post-content {
-        padding: 0 1rem;
-      }
-      .post-header h1 {
-        font-size: 1.8rem;
-      }
-    }
-  </style>
-</head>
-<body>
-  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-    </svg>
-  </button>
-
-  <header>
-    <h1>📝 北辰的博客</h1>
-    <p class="subtitle">记录思考，分享成长 | 一个热爱技术的探索者</p>
-    <nav>
-      <a href="../../index.html">首页</a>
-      <a href="../../project.html">项目</a>
-      <a href="../../about.html">关于</a>
-      <a href="../../archives.html">归档</a>
-      <a href="../../daily.html">日常</a>
-      <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
-    </nav>
-  </header>
-
-  <main class="post-content">
-    <article>
-      <div class="post-header">
-        <h1>${title}</h1>
-        ${date ? `<div class="post-meta">发布日期：${date}</div>` : ''}
-      </div>
-      <div class="post-body">
-        ${htmlContent}
-      </div>
-    </article>
-  </main>
-
-  <footer>
-    <p>© 2026 北辰 · 保持好奇，持续成长</p>
-    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
-      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
-      源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
-    </p>
-  </footer>
-
-  <script src="../../js/theme.js"></script>
-</body>
-</html>
-  `;
-    
-    // 确保目录存在
-    const htmlDir = path.dirname(htmlPath);
-    if (!fs.existsSync(htmlDir)) {
-        fs.mkdirSync(htmlDir, { recursive: true });
-    }
-    
-    fs.writeFileSync(htmlPath, htmlTemplate);
-    console.log(`Generated HTML file: ${htmlPath}`);
+    // 使用新的MarkdownParser模块生成HTML
+    MarkdownParser.generateHtmlFromMarkdown(markdownPath, htmlPath, {
+        navTemplate: readNavTemplate()
+    });
 }
 
 // 页面配置
@@ -239,6 +39,19 @@ const pageConfigs = [
         directory: '_posts/project'
     },
     {
+        name: 'skill',
+        title: '🛠️ 技术 | 北辰',
+        headerTitle: '🛠️ 技术',
+        headerSubtitle: '技术分享与实践 | 前端、后端、运维等',
+        contentClass: 'skill-container',
+        itemClass: 'skill-card',
+        itemTitleClass: 'skill-title',
+        itemDateClass: 'skill-date',
+        itemExcerptClass: 'skill-excerpt',
+        postsPerPage: 6,
+        directory: '_posts/skill'
+    },
+    {
         name: 'daily',
         title: '✨ 日常 | 北辰',
         headerTitle: '✨ 日常',
@@ -251,6 +64,7 @@ const pageConfigs = [
         postsPerPage: 4,
         directory: '_posts/daily'
     },
+
     {
         name: 'archives',
         title: '📚 文章归档 | 北辰',
@@ -372,7 +186,7 @@ function generatePage(pageConfig) {
     <div class="posts-grid">
       ${currentPosts.map(item => {
                     const markdownPath = path.join(__dirname, item.path, item.file);
-                    const { title: postTitle, date: postDate, excerpt } = parseMarkdown(markdownPath);
+                    const { title: postTitle, date: postDate, excerpt } = MarkdownParser.parseMarkdown(markdownPath);
                     const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
                     
                     return `
@@ -399,7 +213,7 @@ function generatePage(pageConfig) {
                 // 按年份和月份分组文章
                 currentPosts.forEach(item => {
                     const markdownPath = path.join(__dirname, item.path, item.file);
-                    const { title: postTitle, date: postDate } = parseMarkdown(markdownPath);
+                    const { title: postTitle, date: postDate } = MarkdownParser.parseMarkdown(markdownPath);
                     const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
                     
                     // 从文件名或日期中提取年份和月份
@@ -449,11 +263,71 @@ function generatePage(pageConfig) {
                     });
                 });
                 break;
+            case 'skill':
+                // 技术栏目的特殊处理
+                contentHtml = currentPosts.map(item => {
+                    const markdownPath = path.join(__dirname, item.path, item.file);
+                    const { title: postTitle, date: postDate, categories, languages, excerpt } = MarkdownParser.parseMarkdown(markdownPath);
+                    const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
+                    
+                    let itemHtml = `
+      <article class="${itemClass}">
+        <div class="skill-header">
+          <h2 class="${itemTitleClass}"><a href="${item.path}/${item.file.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h2>
+          <div class="skill-meta">`;
+                    
+                    if (itemDateClass && postDate) {
+                        itemHtml += `
+            <div class="skill-meta-item">
+              <span class="label">日期：</span>
+              <span>${postDate || item.file.substring(0, 10)}</span>
+            </div>`;
+                    }
+                    
+                    if (categories.length > 0) {
+                        itemHtml += `
+            <div class="skill-meta-item">
+              <span class="label">类别：</span>
+              <span>${categories.join(' · ')}</span>
+            </div>`;
+                    }
+                    
+                    if (languages.length > 0) {
+                        itemHtml += `
+            <div class="skill-meta-item">
+              <span class="label">语言：</span>
+              <span>${languages.join(' · ')}</span>
+            </div>`;
+                    }
+                    
+                    itemHtml += `
+          </div>`;
+                    
+                    if (categories.length > 0 || languages.length > 0) {
+                        itemHtml += `
+          <div class="skill-tags">
+            ${categories.map(cat => `<span class="skill-tag">${cat}</span>`).join(' ')}
+            ${languages.map(lang => `<span class="skill-tag">${lang}</span>`).join(' ')}
+          </div>`;
+                    }
+                    
+                    itemHtml += `
+        </div>
+        <div class="${itemExcerptClass}">
+          ${excerpt || '这里是文章摘要...'}
+        </div>
+        <a href="${item.path}/${item.file.replace('.md', '.html')}" class="skill-read-more">阅读更多 →</a>
+      </article>
+      `;
+                    
+                    return itemHtml;
+                }).join('');
+                break;
             default:
                 // 其他栏目的默认处理
                 contentHtml = currentPosts.map(item => {
                     const markdownPath = path.join(__dirname, item.path, item.file);
-                    const { title: postTitle, date: postDate, excerpt } = parseMarkdown(markdownPath);
+                    const { title: postTitle, date: postDate, excerpt } = MarkdownParser.parseMarkdown(markdownPath);
                     const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
                     
                     let itemHtml = `
@@ -526,9 +400,32 @@ function readTemplate(templateName) {
     return null;
 }
 
+// 读取导航栏模板的函数
+function readNavTemplate() {
+    const navTemplatePath = path.join(__dirname, 'templates', 'nav-template.html');
+    if (fs.existsSync(navTemplatePath)) {
+        return fs.readFileSync(navTemplatePath, 'utf8');
+    }
+    // 默认导航栏
+    return `
+<nav>
+  <a href="index.html">首页</a>
+  <a href="project.html">项目</a>
+  <a href="skill.html">技术</a>
+  <a href="daily.html">日常</a>
+  <a href="about.html">关于</a>
+  <a href="archives.html">归档</a>
+  <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+</nav>`;
+}
+
 // 渲染模板的函数
 function renderTemplate(template, data) {
     let rendered = template;
+    // 添加导航栏
+    const navTemplate = readNavTemplate();
+    rendered = rendered.replace(/\{\{nav\}\}/g, navTemplate);
+    // 添加其他数据
     Object.keys(data).forEach(key => {
         const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
         rendered = rendered.replace(regex, data[key]);
@@ -547,7 +444,7 @@ pageConfigs.forEach(config => {
 const workflowPath = path.join(__dirname, '.github', 'workflows', 'pagination.yml');
 if (fs.existsSync(workflowPath)) {
     let workflowContent = fs.readFileSync(workflowPath, 'utf8');
-    workflowContent = workflowContent.replace(/git add index.html index-\*.html.*?/g, 'git add index.html index-*.html project.html project-*.html daily.html daily-*.html archives.html archives-*.html _posts/**/*.html ');
+    workflowContent = workflowContent.replace(/git add index.html index-\*.html.*?/g, 'git add index.html index-*.html project.html project-*.html skill.html skill-*.html daily.html daily-*.html archives.html archives-*.html _posts/**/*.html ');
     fs.writeFileSync(workflowPath, workflowContent);
     console.log('Updated GitHub Actions workflow file');
 }

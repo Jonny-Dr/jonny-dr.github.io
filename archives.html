@@ -122,11 +122,18 @@
       color: var(--primary);
     }
     .archive-month .count {
-      background: rgba(67, 97, 238, 0.2);
-      padding: 0 0.5rem;
-      border-radius: 10px;
-      font-size: 0.85rem;
+      background: rgba(67, 97, 238, 0.1);
+      padding: 0.2rem 0.6rem;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      font-weight: 600;
       color: var(--primary);
+      transition: var(--transition);
+      box-shadow: 0 1px 3px rgba(67, 97, 238, 0.1);
+    }
+    .archive-month .count:hover {
+      background: rgba(67, 97, 238, 0.2);
+      box-shadow: 0 2px 6px rgba(67, 97, 238, 0.2);
     }
     .archive-list {
       list-style: none;
@@ -174,13 +181,14 @@
     <h1>📚 文章归档</h1>
     <p class="subtitle">所有文章的历史记录</p>
     <nav>
-      <a href="index.html">首页</a>
-      <a href="project.html">项目</a>
-      <a href="about.html">关于</a>
-      <a href="archives.html">归档</a>
-      <a href="daily.html">日常</a>
-      <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
-    </nav>
+  <a href="index.html">首页</a>
+  <a href="project.html">项目</a>
+  <a href="skill.html">技术</a>
+  <a href="daily.html">日常</a>
+  <a href="about.html">关于</a>
+  <a href="archives.html">归档</a>
+  <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+</nav>
   </header>
 
   <main class="archive-container">

@@ -1,0 +1,1502 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>分布式锁Redis | 北辰</title>
+  <link rel="stylesheet" href="../../../css/common.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <style>
+    .post-content {
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+    .post-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    .post-meta {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .post-tag {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .post-tag.category {
+      background: rgba(72, 187, 120, 0.1);
+      color: #48bb78;
+    }
+    .post-tag.language {
+      background: rgba(237, 137, 54, 0.1);
+      color: #ed8936;
+    }
+    .post-body {
+      margin-bottom: 2rem;
+    }
+    .post-body h2 {
+      font-size: 1.8rem;
+      margin: 2rem 0 1rem;
+      color: var(--primary);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-body h3 {
+      font-size: 1.4rem;
+      margin: 1.5rem 0 0.8rem;
+      color: var(--primary);
+    }
+    .post-body p {
+      margin-bottom: 1.2rem;
+    }
+    .post-body a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-body a:hover {
+      text-decoration: underline;
+    }
+    .post-body ul,
+    .post-body ol {
+      margin: 1rem 0 1.5rem 1.5rem;
+    }
+    .post-body li {
+      margin-bottom: 0.5rem;
+    }
+    .post-body pre {
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border);
+    }
+    .post-body code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.9rem;
+    }
+    .post-body pre code {
+      background: none;
+      padding: 0;
+    }
+    .post-body img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .post-original-link {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+      color: #6c757d;
+    }
+    .post-original-link a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-original-link a:hover {
+      text-decoration: underline;
+    }
+    @media (max-width: 768px) {
+      .post-content {
+        padding: 0 1rem;
+      }
+      .post-header h1 {
+        font-size: 1.8rem;
+      }
+      .post-tags {
+        gap: 0.5rem;
+      }
+      .post-tag {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      .post-body pre {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <header>
+    <h1>📝 北辰的博客</h1>
+    <p class="subtitle">记录思考，分享成长 | 一个热爱技术的探索者</p>
+    <nav>
+  <a href="../../index.html">首页</a>
+  <a href="../../project.html">项目</a>
+  <a href="../../skill.html">技术</a>
+  <a href="../../daily.html">日常</a>
+  <a href="../../about.html">关于</a>
+  <a href="../../archives.html">归档</a>
+  <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+</nav>
+  </header>
+
+  <main class="post-content">
+    <article>
+      <div class="post-header">
+        <h1>分布式锁Redis</h1>
+        <div class="post-meta">发布日期：2025-01-02</div>
+        
+        
+      </div>
+      <div class="post-body">
+        <h1>分布式锁Redis</h1>
+<p></p>
+<h1>2 Redis分布式锁</h1>
+<p></p>
+<p>用到分布式锁说明遇到了多个进程共同访问同一个资源的问题， 一般是在两个场景下会防止对同一个资源的重复访问：</p>
+<p></p>
+<ul><ol><li>提高效率。比如多个节点计算同一批任务，如果某个任务已经有节点在计算了，那其他节点就不用重复计算了，以免浪费计算资源。不过重复计算也没事，不会造成其他更大的损失。也就是允许偶尔的失败。</li>
+<p></p>
+<p>  例如：调用某个开发平台，获取访问令牌（有有效期），缓存到redis中，如果redis没有调用方法获取访问令牌。集群环境下回出现重复获取访问令牌导致账户被封禁。</p>
+<p></p>
+<li>保证正确性。加分布式锁同样可以避免破坏正确性的发生，如果两个节点在同一条数据进行操作（update增加/减少），比如多个节点机器对同一个订单操作不同的流程有可能会导致该笔订单最后状态出现错误，造成损失。这种情况对锁的要求就很高了，如果重复计算，会对正确性造成影响。这种不允许失败。-----举例：关闭超时未支付订单，恢复库存</li>
+<p></p>
+<p>实现分布式锁：</p>
+<p></p>
+<li>数据库</li>
+<p>  - 表：提供一张表 通过是否有记录表示锁是否被其他进程获取了</p>
+<p>  - 悲观锁：for update   ；            select 库存 for update;    更新库存 update 库存</p>
+<p>  - 乐观锁：线程一：查询库存 得到记录版本号：1   修改库存：update 库存+1  where 当前版本号=记录版本号。线程二：查询修改之间修改记录 版本号：2</p>
+<li>redis</li>
+<p></p>
+<p>因为Redis具备高性能、高可用、高并发的特性，这里，我们会采用Redis来实现分布式锁。</p>
+<p></p>
+<h2>2.1 Redis分布式锁原理</h2>
+<p></p>
+<p>上面讲过，分布式锁的关键是<strong>多进程共享的内存标记(锁)</strong>，因此只要我们在Redis中放置一个这样的标记(数据)就可以了。不过在实现过程中，不要忘了我们需要实现下列目标：</p>
+<p></p>
+<li>多进程可见：多进程可见，否则就无法实现分布式效果</li>
+<p></p>
+<li>避免死锁：死锁的情况有很多，我们要思考各种异常导致死锁的情况，保证锁可以被释放</li>
+<p></p>
+<p>  尝试获取锁</p>
+<p></p>
+<p>   成功：执行业务代码    执行业务  try（）{业务代码-宕机} catch() finally{ 释放锁}</p>
+<p></p>
+<p>   失败：等待；失效；下次</p>
+<p></p>
+<li>排它：同一时刻，只能有一个进程获得锁</li>
+<p></p>
+<li>高可用：避免锁服务宕机或处理好宕机的补救措施(redis集群架构：1.主从复制 2.哨兵 3.cluster集群)</li>
+<p></p>
+<p>在Redis中我们可以用下面的方式来解决上述问题：</p>
+<p></p>
+<li><strong>多进程可见</strong>：多进程可见，否则就无法实现分布式效果</li>
+<p></p>
+<p>  - redis本身就是多服务共享的，因此自然满足</p>
+<p></p>
+<li><strong>排它</strong>：同一时刻，只能有一个进程获得锁</li>
+<p></p>
+<p>  - 我们需要利用Redis的setnx命令来实现，setnx是set when not exits的意思。当多次执行setnx命令时，只有第一次执行的才会成功并返回1，其它情况返回0：</p>
+<p>  - <img src="assets/1555935393771.png" alt="1555935393771" class="markdown-image"> </p>
+<p>  - 我们定义一个固定的key，多个进程都执行setnx，设置这个key的值，返回1的服务获取锁，0则没有获取</p>
+<p></p>
+<li><strong>避免死锁</strong>：死锁的情况有很多，我们要思考各种异常导致死锁的情况</li>
+<p></p>
+<p>  - 比如服务宕机后的锁释放问题，我们设置锁时最好设置锁的有效期，如果服务宕机，有效期到时自动删除锁。</p>
+<p></p>
+<p>    <img src="assets/1555935852042.png" alt="1555935852042" class="markdown-image"> </p>
+<p></p>
+<li><strong>高可用</strong>：避免锁服务宕机或处理好宕机的补救措施</li>
+<p></p>
+<p>  - 利用Redis的主从、哨兵、集群，保证高可用</p>
+<p></p>
+<h2>2.2 分布式锁版本1</h2>
+<p></p>
+<h3>2.2.1 流程</h3>
+<p></p>
+<p>按照上面所述的理论，分布式锁的流程大概如下：</p>
+<p></p>
+<p><img src="assets/1555942085021.png" alt="1555942085021" class="markdown-image"> </p>
+<p></p>
+<p>基本流程：</p>
+<p></p>
+<li>1、通过setnx命令设置锁</li>
+<li>2、判断返回结果是否是OK</li>
+<p>  - 1）Nil，获取失败，结束或重试（自旋锁）</p>
+<p>  - 2）OK，获取锁成功</p>
+<p>    - 执行业务</p>
+<p>    - 释放锁，DEL 删除key即可</p>
+<li>3、异常情况，服务宕机。超时时间EX结束，会自动释放锁</li>
+<p></p>
+<h3>2.2.2 代码实现</h3>
+<p></p>
+<li>创建demo工程<code> redis_lock_demo</code></li>
+<p></p>
+<li>在redis_lock_demo工程中引入依赖</li>
+<p></p>
+<p>   <pre><code class="language-xml">    &lt;parent&gt;</p>
+<p>        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</p>
+<p>        &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;</p>
+<p>        &lt;version&gt;2.1.7.RELEASE&lt;/version&gt;</p>
+<p>        &lt;relativePath/&gt;</p>
+<p>   &lt;/parent&gt;</p>
+<p>   </p>
+<p>   &lt;dependencies&gt;</p>
+<p>       &lt;dependency&gt;</p>
+<p>           &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</p>
+<p>           &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;</p>
+<p>       &lt;/dependency&gt;</p>
+<p>       &lt;dependency&gt;</p>
+<p>           &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</p>
+<p>           &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;</p>
+<p>           &lt;scope&gt;test&lt;/scope&gt;</p>
+<p>       &lt;/dependency&gt;</p>
+<p>   </p>
+<p>       &lt;dependency&gt;</p>
+<p>           &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</p>
+<p>           &lt;artifactId&gt;spring-boot-starter-data-redis&lt;/artifactId&gt;</p>
+<p>       &lt;/dependency&gt;</p>
+<p>   </p>
+<p>       &lt;dependency&gt;</p>
+<p>           &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;</p>
+<p>           &lt;artifactId&gt;lombok&lt;/artifactId&gt;</p>
+<p>       &lt;/dependency&gt;</p>
+<p>   </p>
+<p>       &lt;dependency&gt;</p>
+<p>           &lt;groupId&gt;org.redisson&lt;/groupId&gt;</p>
+<p>           &lt;artifactId&gt;redisson&lt;/artifactId&gt;</p>
+<p>           &lt;version&gt;3.10.6&lt;/version&gt;</p>
+<p>       &lt;/dependency&gt;</p>
+<p>   &lt;/dependencies&gt;</p>
+<p>   </code></pre></p>
+<p></p>
+<li>在redis_lock_demo工程创建com.itheima包 新建启动类</li>
+<p></p>
+<p>   <pre><code class="language-java">   package com.itheima;</p>
+<p>   </p>
+<p>   import org.springframework.boot.SpringApplication;</p>
+<p>   import org.springframework.boot.autoconfigure.SpringBootApplication;</p>
+<p>   import org.springframework.scheduling.annotation.EnableScheduling;</p>
+<p>   </p>
+<p>   @EnableScheduling</p>
+<p>   @SpringBootApplication</p>
+<p>   public class LockRedisApplication {</p>
+<p>       public static void main(String[] args) {</p>
+<p>           SpringApplication.run(LockRedisApplication.class, args);</p>
+<p>       }</p>
+<p>   </p>
+<p>   }</p>
+<p>   </p>
+<p>   </code></pre></p>
+<p></p>
+<li>在redis_lock_demo工程定义一个锁接口：</li>
+<p></p>
+<pre><code class="language-java">package com.itheima.lock;
+<p></p>
+<p>public interface RedisLock {</p>
+<p></p>
+<p>    /*<em></p>
+<p>     </em> 尝试获取锁</p>
+<p>     <em></p>
+<p>     </em> @param expiretime 锁释放时间 单位为秒</p>
+<p>     <em> @return</p>
+<p>     </em>/</p>
+<p>    public Boolean tryLock(Long expiretime);</p>
+<p></p>
+<p></p>
+<p>    /*<em></p>
+<p>     </em> 释放锁方法</p>
+<p>     <em>/</p>
+<p>    public void unLock();</p>
+<p></p>
+<p>}</p>
+<p></code></pre></p>
+<p></p>
+<li>在redis_lock_demo工程在com.itheima.lock.impl中定义实现类实现版本一分布式锁</li>
+<p></p>
+<pre><code class="language-java">package com.itheima.lock.impl;
+<p></p>
+<p>import com.itheima.lock.RedisLock;</p>
+<p>import jdk.nashorn.internal.runtime.FindProperty;</p>
+<p>import org.springframework.data.redis.core.StringRedisTemplate;</p>
+<p></p>
+<p>import java.nio.channels.Pipe;</p>
+<p>import java.util.concurrent.TimeUnit;</p>
+<p></p>
+<p>/</em><em></p>
+<p> </em> @author: itheima</p>
+<p> <em> @create: 2021-11-08 09:51</p>
+<p> </em>/</p>
+<p>public class RedisLockV1 implements RedisLock {</p>
+<p></p>
+<p>    public StringRedisTemplate redisTemplate;</p>
+<p></p>
+<p></p>
+<p>    private static final String redisKey = &quot;lock&quot;;</p>
+<p>    private static final String redisVal = &quot;lock&quot;;</p>
+<p></p>
+<p>    /*<em></p>
+<p>     </em> 通过构造传入操作redis的RedisTemplate对象</p>
+<p>     <em>/</p>
+<p>    public RedisLockV1(StringRedisTemplate redisTemplate) {</p>
+<p>        this.redisTemplate = redisTemplate;</p>
+<p>    }</p>
+<p></p>
+<p>    /</em><em></p>
+<p>     </em> 尝试获取锁方法  执行redis指令 setnx</p>
+<p>     <em></p>
+<p>     </em> @param expiretime 锁释放时间 单位为秒</p>
+<p>     <em> @return</p>
+<p>     </em>/</p>
+<p>    @Override</p>
+<p>    public Boolean tryLock(Long expiretime) {</p>
+<p>        Boolean flag = redisTemplate.opsForValue().setIfAbsent(redisKey, redisVal, expiretime, TimeUnit.SECONDS);</p>
+<p>        return flag;</p>
+<p>    }</p>
+<p></p>
+<p>    /*<em></p>
+<p>     </em> 释放锁方法</p>
+<p>     <em>/</p>
+<p>    @Override</p>
+<p>    public void unLock() {</p>
+<p>        redisTemplate.delete(redisKey);</p>
+<p>    }</p>
+<p>}</p>
+<p></code></pre></p>
+<p></p>
+<li>在<code>redis_lock_demo</code>模块中com.itheima.task包下定时任务中使用锁：</li>
+<p></p>
+<pre><code class="language-java">package com.itheima.task;
+<p></p>
+<p>import com.itheima.lock.RedisLock;</p>
+<p>import com.itheima.lock.impl.RedisLockV1;</p>
+<p>import lombok.extern.slf4j.Slf4j;</p>
+<p>import org.springframework.beans.factory.annotation.Autowired;</p>
+<p>import org.springframework.data.redis.core.StringRedisTemplate;</p>
+<p>import org.springframework.scheduling.annotation.Scheduled;</p>
+<p>import org.springframework.stereotype.Component;</p>
+<p></p>
+<p>/</em><em></p>
+<p> </em> @author: itheima</p>
+<p> <em> @create: 2021-09-26 09:42</p>
+<p> </em>/</p>
+<p>@Slf4j</p>
+<p>//@Component</p>
+<p>public class DemoTask {</p>
+<p></p>
+<p></p>
+<p>    @Autowired</p>
+<p>    private StringRedisTemplate redisTemplate;</p>
+<p></p>
+<p>    /*<em></p>
+<p>     </em> 模拟定时查询待审核文档，调用阿里云内容安全审核内容，增加积分</p>
+<p>     <em>/</p>
+<p>    @Scheduled(cron = &quot;0/1 </em> <em> </em> <em> ?&quot;)</p>
+<p>    public void task(){</p>
+<p>        //1.尝试获取锁</p>
+<p>        RedisLock lock = new RedisLockV1(redisTemplate);</p>
+<p>        //2.获取锁结果</p>
+<p>        Boolean flag = lock.tryLock(5L);</p>
+<p>        //2.1 失败，下次继续尝试获取</p>
+<p>        if(!flag){</p>
+<p>            log.error(&quot;获取锁失败，下次继续尝试获取！&quot;);</p>
+<p>            return;</p>
+<p>        }</p>
+<p>        //2.2 成功，执行业务</p>
+<p>        try {</p>
+<p>            log.info(&quot;获取锁成功&quot;);</p>
+<p>            log.info(&quot;-------执行任务-----&quot;);</p>
+<p>            Thread.sleep(500);</p>
+<p>        } catch (Exception e) {</p>
+<p>            e.printStackTrace();</p>
+<p>            lock.unLock();</p>
+<p>        } finally {</p>
+<p>            //3.释放锁</p>
+<p>            log.info(&quot;释放锁&quot;);</p>
+<p>            lock.unLock();</p>
+<p>        }</p>
+<p>    }</p>
+<p>}</p>
+<p></code></pre></p>
+<p></p>
+<p> <img src="assets/image-20210905104037385.png" alt="" class="markdown-image"> </p>
+<p></p>
+<p></p>
+<p></p>
+<h2>2.3 分布式锁版本2</h2>
+<p></p>
+<p>刚才的锁有没有什么问题？</p>
+<p></p>
+<h3>2.3.1 释放锁的问题</h3>
+<p></p>
+<p>大家思考一下，释放锁就是用DEL语句把锁对应的key给删除，有没有这么一种可能性：</p>
+<p></p>
+<li>三个进程：A和B和C，在执行任务，并行争抢锁，此时A获取了锁，并设置自动过期时间为10s</li>
+<li>A开始执行业务，因为某种原因，业务阻塞，耗时超过了10秒，此时锁自动释放了</li>
+<li>B恰好此时开始尝试获取锁，因为锁已经自动释放，成功获取锁</li>
+<li>A此时业务执行完毕，执行释放锁逻辑（删除key），于是B的锁被释放了，而B其实还在执行业务</li>
+<li>此时进程C尝试获取锁，也成功了，因为A把B的锁删除了。</li>
+<p></p>
+<p>问题出现了：B和C同时获取了锁，<strong>违反了排它性</strong>！</p>
+<p></p>
+<p><img src="assets/image-20210802110514954.png" alt="image-20210802110514954" class="markdown-image"></p>
+<p></p>
+<p>如何解决这个问题呢？我们应该在删除锁之前，判断这个锁是否是自己设置的锁，如果不是（例如自己的锁已经超时释放），那么就不要删除了。</p>
+<p></p>
+<p></p>
+<p></p>
+<p>那么问题来了：<strong>如何得知当前获取锁的是不是自己</strong>呢？</p>
+<p></p>
+<p>对了，我们可以在set 锁（val）时，存入自己的线程信息！删除锁前，判断下里面的值是不是与自己相等，如果不等，就不要删除了。</p>
+<p></p>
+<h3>2.3.2 流程图</h3>
+<p></p>
+<p>来看下流程的变化：</p>
+<p></p>
+<p><img src="assets/1555944884321.png" alt="1555944884321" class="markdown-image"> </p>
+<p></p>
+<p>在释放锁之前，多了一步根据判断，判断锁的value释放跟自己存进去的一致。</p>
+<p></p>
+<p>改进--存入redis值</p>
+<p></p>
+<li>key:lock</li>
+<li>value:加入当前执行任务线程信息</li>
+<p></p>
+<h3>2.3.4 代码实现</h3>
+<p></p>
+<p>在<code>redis_lock_demo</code>模块中com.itheima.lock.impl包下新建SimpleRedisLockV2实现方式二</p>
+<p></p>
+<pre><code class="language-java">package com.itheima.lock.impl;
+<p></p>
+<p>import com.itheima.lock.RedisLock;</p>
+<p>import lombok.extern.slf4j.Slf4j;</p>
+<p>import org.springframework.data.redis.core.StringRedisTemplate;</p>
+<p></p>
+<p>import java.util.UUID;</p>
+<p>import java.util.concurrent.TimeUnit;</p>
+<p></p>
+<p>/</em><em></p>
+<p> </em> @author: itheima</p>
+<p> <em> @create: 2021-11-08 09:51</p>
+<p> </em>/</p>
+<p>@Slf4j</p>
+<p>public class RedisLockV2 implements RedisLock {</p>
+<p></p>
+<p>    public StringRedisTemplate redisTemplate;</p>
+<p></p>
+<p></p>
+<p>    private static final String redisKey = &quot;lock&quot;;</p>
+<p></p>
+<p></p>
+<p>    private static final String redisVal_prefix = UUID.randomUUID().toString();</p>
+<p></p>
+<p>    /*<em></p>
+<p>     </em> 通过构造传入操作redis的RedisTemplate对象</p>
+<p>     <em>/</p>
+<p>    public RedisLockV2(StringRedisTemplate redisTemplate) {</p>
+<p>        this.redisTemplate = redisTemplate;</p>
+<p>    }</p>
+<p></p>
+<p>    /</em><em></p>
+<p>     </em> 尝试获取锁方法  执行redis指令 setnx</p>
+<p>     <em></p>
+<p>     </em> @param expiretime 锁释放时间 单位为秒</p>
+<p>     <em> @return</p>
+<p>     </em>/</p>
+<p>    @Override</p>
+<p>    public Boolean tryLock(Long expiretime) {</p>
+<p>        //存入线程信息</p>
+<p>        String redisVal = redisVal_prefix+Thread.currentThread().getId()+&quot;-&quot;+Thread.currentThread().getName();</p>
+<p>        Boolean flag = redisTemplate.opsForValue().setIfAbsent(redisKey, redisVal, expiretime, TimeUnit.SECONDS);</p>
+<p>        return flag;</p>
+<p>    }</p>
+<p></p>
+<p>    /*<em></p>
+<p>     </em> 释放锁方法</p>
+<p>     <em>/</p>
+<p>    @Override</p>
+<p>    public void unLock() {</p>
+<p>        /</em><em></p>
+<p>         </em> 删除锁判断锁是否为当前线程的</p>
+<p>         <em>/</p>
+<p>        //1.先从redis中获取目前存在锁的值</p>
+<p>        String redisLoclVal = redisTemplate.opsForValue().get(redisKey);</p>
+<p>        //2.获取当前线程锁的值</p>
+<p>        String currentThreadLockVal = redisVal_prefix + Thread.currentThread().getId() + &quot;-&quot; + Thread.currentThread().getName();</p>
+<p>        if(currentThreadLockVal.equals(redisLoclVal)){</p>
+<p>            log.info(&quot;锁是自己线程，释放锁&quot;);</p>
+<p>            redisTemplate.delete(redisKey);</p>
+<p>        }else{</p>
+<p>            log.error(&quot;锁不是自己的，不处理&quot;);</p>
+<p>        }</p>
+<p></p>
+<p>    }</p>
+<p>}</p>
+<p></code></pre></p>
+<p></p>
+<p></p>
+<p></p>
+<p>修改任务中锁对象改为V2</p>
+<p></p>
+<p><img src="assets/image-20210603123749578.png" alt="image-20210603123749578" class="markdown-image"></p>
+<p></p>
+<h2>2.4 分布式锁版本3</h2>
+<p></p>
+<p>刚才的锁有没有什么问题？</p>
+<p></p>
+<p>如果我们在获取锁以后，执行代码的过程中，再次尝试获取锁，执行setnx肯定会失败，因为锁已经存在了。这样就是<strong>不可重入锁</strong>，有可能导致死锁。</p>
+<p></p>
+<p>如何解决呢？</p>
+<p></p>
+<p>当然是想办法改造成<strong>可重入锁</strong>。</p>
+<p></p>
+<h3>2.4.1 重入锁</h3>
+<p></p>
+<p>什么叫做可重入锁呢？</p>
+<p></p>
+<p>> 可重入锁，也叫做递归锁，指的是在同一线程内，外层函数获得锁之后，内层递归函数仍然可以获取到该锁。换一种说法：<strong>同一个线程再次进入同步代码时，可以使用自己已获取到的锁。</strong></p>
+<p></p>
+<p></p>
+<p></p>
+<p>可重入锁可以避免因同一线程中多次获取锁而导致死锁发生。</p>
+<p></p>
+<p></p>
+<p></p>
+<p>那么，如何实现可重入锁呢？</p>
+<p></p>
+<p>其中的关键，就是<strong>在锁已经被使用时，判断这个锁是否是自己的，如果是则再次获取</strong>。</p>
+<p></p>
+<p></p>
+<p></p>
+<p>我们可以在set锁的值是，<strong>存入获取锁的线程的信息</strong>，这样下次再来时，就能知道当前持有锁的是不是自己，如果是就允许再次获取锁。</p>
+<p></p>
+<p></p>
+<p></p>
+<p>要注意，因为锁的获取是<strong>可重入</strong>的，因此必须记录重入的次数，这样不至于在释放锁时一下就释放掉，而是逐层释放。因此，不能再使用简单的key-value结构，这里推荐使用hash结构：</p>
+<p></p>
+<p></p>
+<p></p>
+<p><strong>Map<String（redisKey）, Map<String(hashKey),String(hashval)>></strong></p>
+<p></p>
+<li>key：lock锁名称</li>
+<li>hashKey：线程信息</li>
+<li>hashValue：重入次数，默认1</li>
+<p></p>
+<p>释放锁时，每次都把<strong>重入次数减一</strong>，减到0说明多次获取锁的逻辑都执行完毕，才可以删除key，释放锁</p>
+<p></p>
+<h3>2.4.2 流程图</h3>
+<p></p>
+<p>这里重点是获取锁的流程：</p>
+<p></p>
+<p><img src="assets/1556164092317.png" alt="1556164092317" class="markdown-image"></p>
+<p></p>
+<p>下面我们假设锁的key为“<code>lock</code>”，hashKey是当前线程的id：“<code>threadId</code>”，锁自动释放时间假设为20</p>
+<p></p>
+<p>获取锁的步骤：</p>
+<p></p>
+<li>1、判断lock是否存在 <code>EXISTS lock</code></li>
+<p>  - 存在，说明有人获取锁了，下面判断是不是自己的锁</p>
+<p>    - 判断当前线程id作为hashKey是否存在：<code>HEXISTS lock threadId</code></p>
+<p>      - 不存在，说明锁已经有了，且不是自己获取的，锁获取失败，end</p>
+<p>      - 存在，说明是自己获取的锁，重入次数+1：<code>HINCRBY lock threadId 1</code>，去到步骤3</p>
+<p>  - 2、不存在，说明可以获取锁，<code>HSET key threadId 1</code></p>
+<p>  - 3、设置锁自动释放时间，<code>EXPIRE lock 20</code></p>
+<p></p>
+<p>释放锁的步骤：</p>
+<p></p>
+<li>1、判断当前线程id作为hashKey是否存在：<code>HEXISTS lock threadId</code></li>
+<p>  - 不存在，说明锁已经失效，不用管了</p>
+<p>  - 存在，说明锁还在，重入次数减1：<code>HINCRBY lock threadId -1</code>，获取新的重入次数</p>
+<li>2、判断重入次数是否为0：</li>
+<p>  - 为0，说明锁全部释放，删除key：<code>DEL lock</code></p>
+<p>  - 大于0，说明锁还在使用，重置有效时间：<code>EXPIRE lock 20</code></p>
+<p></p>
+<p></p>
+<p></p>
+<h3>2.4.3 实现分析</h3>
+<p></p>
+<p>上述流程有一个最大的问题，就是有大量的判断，这样在多线程运行时，会有线程安全问题，除非能保证<strong>执行</strong></p>
+<p></p>
+<p><strong>命令的原子性</strong>。</p>
+<p></p>
+<p>因此，这里使用java代码无法实现，那该怎么办呢？</p>
+<p></p>
+<p>Redis支持一种特殊的执行方式：lua脚本执行，lua脚本中可以定义多条语句，语句执行具备原子性。</p>
+<p></p>
+<h2>2.5 Redis的Lua脚本（了解）</h2>
+<p></p>
+<p>其实实现Redis的原子操作有多种方式，比如Redis事务，但是相比而言，使用Redis的Lua脚本更加优秀，具有不可替代的好处：</p>
+<p></p>
+<li>原子性：redis会将整个脚本作为一个整体执行，不会被其他命令插入。</li>
+<li>复用：客户端发送的脚本会永久存在redis中，以后可以重复使用，而且各个Redis客户端可以共用。</li>
+<li>高效：Lua脚本解析后会形成缓存，不用每次执行都解析。</li>
+<li>减少网络开销：Lua脚本缓存后，可以形成SHA值，作为缓存的key，以后调用可以直接根据SHA值来调用脚本，不用每次发送完整脚本，较少网络占用和时延</li>
+<p></p>
+<h3>2.5.1 Redis脚本命令：</h3>
+<p></p>
+<p>通过下面这个命令，可以看到所有脚本相关命令：</p>
+<p></p>
+<pre><code class="language-plaintext">help @scripting
+<p></code></pre></p>
+<p></p>
+<p></p>
+<p></p>
+<p>我们看一些常用命令</p>
+<p></p>
+<p>> EVAL命令：</p>
+<p></p>
+<p><img src="assets/1556029159652.png" alt="1556029159652" class="markdown-image"> </p>
+<p></p>
+<p>直接执行一段脚本，参数包括：</p>
+<p></p>
+<li>script：脚本内容，或者脚本地址</li>
+<li>numkeys：脚本中用到的key的数量，接下来的numkeys个参数会作为key参数，剩下的作为arg参数</li>
+<li>key：作为key的参数，会被存入脚本环境中的KEYS数组，角标从1开始</li>
+<li>arg：其它参数，会被存入脚本环境中的ARGV数组，角标从1开始</li>
+<p></p>
+<p></p>
+<p></p>
+<p>示例：<code>EVAL "return 'hello world!'" 0</code>，其中：</p>
+<p></p>
+<li><code>"return 'hello world!'"</code>：就是脚本的内容，直接返回字符串，没有别的命令</li>
+<li><code>0</code>：就是说没有用key参数，直接返回</li>
+<p></p>
+<p>效果：</p>
+<p></p>
+<p><img src="assets/1556030139226.png" alt="1556030139226" class="markdown-image"> </p>
+<p></p>
+<p></p>
+<p></p>
+<p>> SCRIPT LOAD命令</p>
+<p></p>
+<p><img src="assets/1556029464469.png" alt="1556029464469" class="markdown-image"> </p>
+<p></p>
+<p>将一段脚本编译并缓存起来，生成一个SHA1值并返回，作为脚本字典的key，方便下次使用。</p>
+<p></p>
+<p>参数script就是脚本内容或地址。</p>
+<p></p>
+<p>以之前案例中的的脚本为例：</p>
+<p></p>
+<p><img src="assets/1556030196610.png" alt="1556030196610" class="markdown-image"> </p>
+<p></p>
+<p>此处返回的<code>ada0bc9efe2392bdcc0083f7f8deaca2da7f32ec</code>就是脚本缓存后得到的sha1值。</p>
+<p></p>
+<p>在脚本字典中，每一个这样的sha1值，对应一段解析好的脚本：</p>
+<p></p>
+<p><img src="assets/1556030293491.png" alt="1556030293491" class="markdown-image"> </p>
+<p></p>
+<p></p>
+<p></p>
+<p>> EVALSHA 命令：</p>
+<p></p>
+<p><img src="assets/1556029524238.png" alt="1556029524238" class="markdown-image"> </p>
+<p></p>
+<p>与EVAL类似，执行一段脚本，区别是通过脚本的sha1值，去脚本缓存中查找，然后执行，参数：</p>
+<p></p>
+<li>sha1：就是脚本对应的sha1值</li>
+<p></p>
+<p>我们用刚刚缓存的脚本为例：</p>
+<p></p>
+<p><img src="assets/1556030354363.png" alt="1556030354363" class="markdown-image"> </p>
+<p></p>
+<p></p>
+<p></p>
+<h3>2.5.2 Lua基本语法</h3>
+<p></p>
+<p>Lua脚本遵循Lua的基本语法，这里我们简单介绍几个常用的：</p>
+<p></p>
+<p>> redis.call()和redis.pcall()</p>
+<p></p>
+<p>这两个函数是调用redis命令的函数，区别在于call执行过程中出现错误会直接返回错误；pcall则在遇到错误后，会继续向下执行。基本语法类似：</p>
+<p></p>
+<pre><code class="language-lua">redis.call(&quot;命令名称&quot;, 参数1， 参数2 ...)
+<p></code></pre></p>
+<p></p>
+<p>例如这样的脚本：<code>return redis.call('set', KEYS[1], ARGV[1])</code></p>
+<p></p>
+<li>'set'：就是执行set 命令</li>
+<li>KEYS[1]：从脚本环境中KEYS数组里取第一个key参数</li>
+<li>ARGV[1]：从脚本环境中ARGV数组里取第一个arg参数</li>
+<p></p>
+<p>完整示例：</p>
+<p></p>
+<p><img src="assets/1556031114634.png" alt="1556031114634" class="markdown-image"> </p>
+<p></p>
+<p>执行这段脚本时传入的参数：</p>
+<p></p>
+<li>1：声明key只有一个，接下来的第一个参数作为key参数</li>
+<li>name：key参数，会被存入到KEYS数组</li>
+<li>Jack：arg参数，会被存入ARGV数组</li>
+<p></p>
+<p></p>
+<p></p>
+<p>> 条件判断和变量</p>
+<p></p>
+<p>条件判断语法：<code>if (条件语句) then ...; else ...; end;</code></p>
+<p></p>
+<p>变量接收语法：<code>local num = 123;</code></p>
+<p></p>
+<p>示例：</p>
+<p></p>
+<pre><code class="language-lua">local val = redis.call(&#039;get&#039;, KEYS[1]);
+<p>if (val &gt; ARGV[1]) then </p>
+<p>    return 1; </p>
+<p>else </p>
+<p>	return 0; </p>
+<p>end;</p>
+<p></code></pre></p>
+<p></p>
+<p>基本逻辑：获取指定key的值，判断是否大于指定参数，如果大于则返回1，否则返回0</p>
+<p></p>
+<p>执行：</p>
+<p></p>
+<p><img src="assets/1556032181883.png" alt="1556032181883" class="markdown-image"></p>
+<p></p>
+<li>可以看到num一开始是321。</li>
+<li>我们保存脚本，</li>
+<li>然后执行并传递num，400。判断num是否大于400，</li>
+<li>结果返回0.</li>
+<p></p>
+<h3>2.5.3 编写分布式锁脚本</h3>
+<p></p>
+<p>这里我们假设有3个参数：</p>
+<p></p>
+<li>KEYS[1]：就是锁的名称key  redisKey</li>
+<li>ARGV[1]：就是线程id信息  hashKey</li>
+<li>ARGV[2]：锁过期时长  </li>
+<p></p>
+<p>首先是获取锁：</p>
+<p></p>
+<pre><code class="language-lua">if (redis.call(&#039;EXISTS&#039;, KEYS[1]) == 0) then  //判断锁不存在
+<p>    redis.call(&#039;HSET&#039;, KEYS[1], ARGV[1], 1);</p>
+<p>    redis.call(&#039;EXPIRE&#039;, KEYS[1], ARGV[2]);</p>
+<p>    return 1;</p>
+<p>end;</p>
+<p>if (redis.call(&#039;HEXISTS&#039;, KEYS[1], ARGV[1]) == 1) then  //判断锁是否是线程自己的</p>
+<p>    redis.call(&#039;HINCRBY&#039;, KEYS[1], ARGV[1], 1);</p>
+<p>    redis.call(&#039;EXPIRE&#039;, KEYS[1], ARGV[2]);</p>
+<p>    return 1;</p>
+<p>end;</p>
+<p>return 0;</p>
+<p></code></pre></p>
+<p></p>
+<p>然后是释放锁：</p>
+<p></p>
+<pre><code class="language-lua">if (redis.call(&#039;HEXISTS&#039;, KEYS[1], ARGV[1]) == 0) then
+<p>    return nil;</p>
+<p>end;</p>
+<p>local count = redis.call(&#039;HINCRBY&#039;, KEYS[1], ARGV[1], -1);</p>
+<p>if (count &gt; 0) then</p>
+<p>    redis.call(&#039;EXPIRE&#039;, KEYS[1], ARGV[2]);</p>
+<p>    return nil;</p>
+<p>else</p>
+<p>    redis.call(&#039;DEL&#039;, KEYS[1]);</p>
+<p>    return nil;</p>
+<p>end;</p>
+<p></code></pre></p>
+<p></p>
+<p></p>
+<p></p>
+<h3>2.5.4 Java执行Lua脚本</h3>
+<p></p>
+<code>RedisTemplate</code>中提供了一个方法，用来执行Lua脚本：
+<p></p>
+<p><img src="assets/1556162076875.png" alt="1556162076875" class="markdown-image"></p>
+<p></p>
+<p>包含3个参数：</p>
+<p></p>
+<li><code>RedisScript<T> script</code>：封装了Lua脚本的对象</li>
+<li><code>List<K> keys</code>：脚本中的key的值</li>
+<li><code>Object ... args</code>：脚本中的参数的值</li>
+<p></p>
+<p>因此，要执行Lua脚本，我们需要先把脚本封装到<code>RedisScript</code>对象中，有两种方式来构建<code>RedisScript</code>对象：</p>
+<p></p>
+<p>> 方式1：</p>
+<p></p>
+<p>通过RedisScript中的静态方法：</p>
+<p></p>
+<p><img src="assets/1556162311151.png" alt="1556162311151" class="markdown-image"></p>
+<p></p>
+<p>这个方法接受两个参数：</p>
+<p></p>
+<li><code>String script</code>：Lua脚本</li>
+<li><code>Class<T> resultType</code>：返回值类型</li>
+<p></p>
+<p>需要把脚本内容写到代码中，作为参数传递，不够优雅。</p>
+<p></p>
+<p>> 方式二</p>
+<p></p>
+<p>另一种方式，就是自己去创建<code>RedisScript</code>的实现类<code>DefaultRedisScript</code>的对象：</p>
+<p></p>
+<p><img src="assets/1556162540499.png" alt="1556162540499" class="markdown-image"></p>
+<p></p>
+<p>可以把脚本文件写到classpath下的某个位置，然后通过加载这个文件来获取脚本内容，并设置给<code>DefaultRedisScript</code>实例。</p>
+<p></p>
+<p>此处我们选择方式二。</p>
+<p></p>
+<h3>2.5.5 可重入分布式锁的实现</h3>
+<p></p>
+<p>首先在classpath中编写两个Lua脚本文件：</p>
+<p></p>
+<p><img src="assets/1556162696842.png" alt="1556162696842" class="markdown-image"> </p>
+<p></p>
+<p>然后编写一个新的RedisLock实现：ReentrantRedisLock，利用静态代码块来加载脚本并初始化：</p>
+<p></p>
+<p><img src="assets/1556163851408.png" alt="1556163851408" class="markdown-image"> </p>
+<p></p>
+<pre><code class="language-java">public class ReentrantRedisLock {
+<p>    // 获取锁的脚本</p>
+<p>    private static final DefaultRedisScript&lt;Long&gt; LOCK_SCRIPT;</p>
+<p>    // 释放锁的脚本</p>
+<p>    private static final DefaultRedisScript&lt;Object&gt; UNLOCK_SCRIPT;</p>
+<p>    static {</p>
+<p>        // 加载获取锁的脚本</p>
+<p>        LOCK_SCRIPT = new DefaultRedisScript&lt;&gt;();</p>
+<p>        LOCK_SCRIPT.setScriptSource(new ResourceScriptSource(new ClassPathResource(&quot;lock.lua&quot;)));</p>
+<p>        LOCK_SCRIPT.setResultType(Long.class);</p>
+<p></p>
+<p>        // 加载释放锁的脚本</p>
+<p>        UNLOCK_SCRIPT = new DefaultRedisScript&lt;&gt;();</p>
+<p>        UNLOCK_SCRIPT.setScriptSource(new ResourceScriptSource(new ClassPathResource(&quot;unlock.lua&quot;)));</p>
+<p>    }</p>
+<p>    </p>
+<p>    // 其它代码略</p>
+<p>}</p>
+<p></code></pre></p>
+<p></p>
+<p></p>
+<p></p>
+<p>然后实现RedisLock并实现lock和unlock方法，完整代码如下：</p>
+<p></p>
+<pre><code class="language-java">public class ReentrantRedisLock implements RedisLock {
+<p></p>
+<p>    private StringRedisTemplate redisTemplate;</p>
+<p>    /</em><em></p>
+<p>     </em> 设定好锁对应的 key</p>
+<p>     <em>/</p>
+<p>    private String key;</p>
+<p></p>
+<p>    /</em><em></p>
+<p>     </em> 存入的线程信息的前缀，防止与其它JVM中线程信息冲突</p>
+<p>     <em>/</p>
+<p>    private final String ID_PREFIX = UUID.randomUUID().toString();</p>
+<p></p>
+<p>    public ReentrantRedisLock(StringRedisTemplate redisTemplate, String key) {</p>
+<p>        this.redisTemplate = redisTemplate;</p>
+<p>        this.key = key;</p>
+<p>    }</p>
+<p></p>
+<p>    private static final DefaultRedisScript&lt;Long&gt; LOCK_SCRIPT;</p>
+<p>    private static final DefaultRedisScript&lt;Object&gt; UNLOCK_SCRIPT;</p>
+<p>    static {</p>
+<p>        // 加载获取锁的脚本</p>
+<p>        LOCK_SCRIPT = new DefaultRedisScript&lt;&gt;();</p>
+<p>        LOCK_SCRIPT.setScriptSource(new ResourceScriptSource(new ClassPathResource(&quot;lock.lua&quot;)));</p>
+<p>        LOCK_SCRIPT.setResultType(Long.class);</p>
+<p></p>
+<p>        // 加载释放锁的脚本</p>
+<p>        UNLOCK_SCRIPT = new DefaultRedisScript&lt;&gt;();</p>
+<p>        UNLOCK_SCRIPT.setScriptSource(new ResourceScriptSource(new ClassPathResource(&quot;unlock.lua&quot;)));</p>
+<p>    }</p>
+<p>    // 锁释放时间</p>
+<p>    private String releaseTime;</p>
+<p></p>
+<p>    @Override</p>
+<p>    public boolean lock(long releaseTime) {</p>
+<p>        // 记录释放时间</p>
+<p>        this.releaseTime = String.valueOf(releaseTime);</p>
+<p>        // 执行脚本</p>
+<p>        Long result = redisTemplate.execute(</p>
+<p>                LOCK_SCRIPT,</p>
+<p>                Collections.singletonList(key),</p>
+<p>                ID_PREFIX + Thread.currentThread().getId(), this.releaseTime);</p>
+<p>        // 判断结果</p>
+<p>        return result != null &amp;&amp; result.intValue() == 1;</p>
+<p>    }</p>
+<p></p>
+<p>    @Override</p>
+<p>    public void unlock() {</p>
+<p>        // 执行脚本</p>
+<p>        redisTemplate.execute(</p>
+<p>                UNLOCK_SCRIPT,</p>
+<p>                Collections.singletonList(key),</p>
+<p>                ID_PREFIX + Thread.currentThread().getId(), this.releaseTime);</p>
+<p>    }</p>
+<p>}</p>
+<p></code></pre></p>
+<p></p>
+<p>完成！</p>
+<p></p>
+<h3>2.5.6 测试</h3>
+<p></p>
+<p>新建一个定时任务，测试重入锁：</p>
+<p></p>
+<pre><code class="language-java">package com.itheima.task.job;
+<p></p>
+<p>import com.itheima.task.utils.RedisLock;</p>
+<p>import com.itheima.task.utils.ReentrantRedisLock;</p>
+<p>import lombok.extern.slf4j.Slf4j;</p>
+<p>import org.springframework.beans.factory.annotation.Autowired;</p>
+<p>import org.springframework.data.redis.core.StringRedisTemplate;</p>
+<p>import org.springframework.scheduling.annotation.Scheduled;</p>
+<p>import org.springframework.stereotype.Component;</p>
+<p></p>
+<p></p>
+<p>@Slf4j</p>
+<p>@Component</p>
+<p>public class ReentrantJob {</p>
+<p></p>
+<p>    @Autowired</p>
+<p>    private StringRedisTemplate redisTemplate;</p>
+<p></p>
+<p>    private int max = 2;</p>
+<p></p>
+<p>    @Scheduled(cron = &quot;0/10 </em> <em> </em> <em> ?&quot;)</p>
+<p>    public void hello() {</p>
+<p>        // 创建锁对象</p>
+<p>        RedisLock lock = new ReentrantRedisLock(redisTemplate, &quot;lock&quot;);</p>
+<p>        // 执行任务</p>
+<p>        runTaskWithLock(lock, 1);</p>
+<p>    }</p>
+<p></p>
+<p>    private void runTaskWithLock(RedisLock lock, int count) {</p>
+<p>        // 获取锁,设置自动失效时间为50s</p>
+<p>        boolean isLock = lock.lock(50);</p>
+<p>        // 判断是否获取锁</p>
+<p>        if (!isLock) {</p>
+<p>            // 获取失败</p>
+<p>            log.info(&quot;{}层 获取锁失败，停止定时任务&quot;, count);</p>
+<p>            return;</p>
+<p>        }</p>
+<p>        try {</p>
+<p>            // 执行业务</p>
+<p>            log.info(&quot;{}层 获取锁成功，执行定时任务。&quot;, count);</p>
+<p>            Thread.sleep(500);</p>
+<p>            if(count &lt; max){</p>
+<p>                runTaskWithLock(lock, count + 1);</p>
+<p>            }</p>
+<p>        } catch (InterruptedException e) {</p>
+<p>            log.error(&quot;{}层 任务执行失败&quot;, count, e);</p>
+<p>        } finally {</p>
+<p>            // 释放锁</p>
+<p>            lock.unlock();</p>
+<p>            log.info(&quot;{}层 任务执行完毕，释放锁&quot;, count);</p>
+<p>        }</p>
+<p>    }</p>
+<p>}</p>
+<p></code></pre></p>
+<p></p>
+<p>DEBUG运行，打断点在获取锁后，执行任务前。</p>
+<p></p>
+<h2>2.6 Redisson</h2>
+<p></p>
+<p>Redisson是redis客户端，跟之前使用Jedis，虽然我们已经实现了分布式锁，能够满足大多数情况下的需求，不过我们的代码并不是万无一失。</p>
+<p></p>
+<p>某些场景下，可能需要实现分布式的不同类型锁，比如：公平锁、互斥锁、可重入锁、读写锁、红锁（redLock）等等。实现起来比较麻烦。</p>
+<p></p>
+<p>而开源框架Redisson就帮我们实现了上述的这些 锁功能，而且还有很多其它的强大功能。</p>
+<p></p>
+<h3>2.6.1 什么是Redisson</h3>
+<p></p>
+<p>来自官网的一段介绍：</p>
+<p></p>
+<p>Redisson是一个在Redis的基础上实现的Java驻内存数据网格（In-Memory Data Grid）。它不仅提供了一系列的分布式的Java常用对象，还提供了许多分布式服务。其中包括(<code>BitSet</code>, <code>Set</code>, <code>Multimap</code>, <code>SortedSet</code>, <code>Map</code>, <code>List</code>, <code>Queue</code>, <code>BlockingQueue</code>, <code>Deque</code>, <code>BlockingDeque</code>, <code>Semaphore</code>, <code>Lock</code>, <code>AtomicLong</code>, <code>CountDownLatch</code>, <code>Publish / Subscribe</code>, <code>Bloom filter</code>, <code>Remote service</code>, <code>Spring cache</code>, <code>Executor service</code>, <code>Live Object service</code>, <code>Scheduler service</code>) Redisson提供了使用Redis的最简单和最便捷的方法。Redisson的宗旨是促进使用者对Redis的关注分离（Separation of Concern），从而让使用者能够将精力更集中地放在处理业务逻辑上。</p>
+<p></p>
+<p><a href="https://redisson.org/" target="_blank" rel="noopener">官网地址</a>：https://redisson.org/</p>
+<p></p>
+<p><a href="https://github.com/redisson/redisson" target="_blank" rel="noopener">GitHub地址</a>：https://github.com/redisson/redisson</p>
+<p></p>
+<p>看看Redission能实现的功能：</p>
+<p></p>
+<p><img src="assets/1556163395067.png" alt="1556163395067" class="markdown-image"> </p>
+<p></p>
+<p><img src="assets/1556163419648.png" alt="1556163419648" class="markdown-image"> </p>
+<p></p>
+<p> <img src="assets/1556163437101.png" alt="1556163437101" class="markdown-image"></p>
+<p></p>
+<p><img src="assets/1556163483872.png" alt="1556163483872" class="markdown-image"> </p>
+<p></p>
+<p>非常强大而且丰富！</p>
+<p></p>
+<h3>2.6.2 使用Redisson分布式锁</h3>
+<p></p>
+<p>Redisson中的分布式锁种类丰富，功能强大，因此使用Redisson的分布式锁功能是开发时的首选方案。我们一起来试一下。</p>
+<p></p>
+<h4>2.6.2.1 依赖</h4>
+<p></p>
+<p>在<code>redis_lock_demo</code>模块中引入Redission依赖：</p>
+<p></p>
+<pre><code class="language-xml">&lt;dependency&gt;
+<p>    &lt;groupId&gt;org.redisson&lt;/groupId&gt;</p>
+<p>    &lt;artifactId&gt;redisson&lt;/artifactId&gt;</p>
+<p>    &lt;version&gt;3.10.6&lt;/version&gt;</p>
+<p>&lt;/dependency&gt;</p>
+<p></code></pre></p>
+<p></p>
+<p>在在<code>redis_lock_demo</code>模块中application.yml中指定redis服务器地址信息</p>
+<p></p>
+<pre><code class="language-yaml">spring:
+<p>  redis:</p>
+<p>    host: localhost</p>
+<p>    port: 6379</p>
+<p></code></pre></p>
+<p></p>
+<h4>配置</h4>
+<p></p>
+<p>在<code>redis_lock_demo</code>测试工程中模块中配置Redisson客户端：</p>
+<p></p>
+<pre><code class="language-java">package com.itheima.config;
+<p></p>
+<p>import org.redisson.Redisson;</p>
+<p>import org.redisson.api.RedissonClient;</p>
+<p>import org.redisson.config.Config;</p>
+<p>import org.springframework.boot.autoconfigure.data.redis.RedisProperties;</p>
+<p>import org.springframework.context.annotation.Bean;</p>
+<p>import org.springframework.context.annotation.Configuration;</p>
+<p></p>
+<p></p>
+<p>@Configuration</p>
+<p>public class RedisConfig {</p>
+<p></p>
+<p>    @Bean</p>
+<p>    public RedissonClient redissonClient(RedisProperties prop) {</p>
+<p>        String address = &quot;redis://%s:%d&quot;;</p>
+<p>        Config config = new Config();</p>
+<p>        config.useSingleServer()</p>
+<p>                .setAddress(String.format(address, prop.getHost(), prop.getPort()));</p>
+<p>        return Redisson.create(config);</p>
+<p>    }</p>
+<p>}</p>
+<p></code></pre></p>
+<p></p>
+<p>注意：这里读取了一个名为RedisProperties的属性，因为我们引入了SpringDataRedis，Spring已经自动加载了RedisProperties，并且读取了配置文件中的Redis信息。</p>
+<p></p>
+<h4>常用API</h4>
+<p></p>
+<p>RedissClient中定义了常见的锁：</p>
+<p></p>
+<p><img src="assets/1556169332323.png" alt="1556169332323" class="markdown-image"> </p>
+<p></p>
+<pre><code class="language-java">// 创建锁对象，并制定锁的名称
+<p>RLock lock = redissonClient.getLock(&quot;taskLock&quot;);</p>
+<p></code></pre></p>
+<p></p>
+<p></p>
+<p></p>
+<p>获取锁对象后，可以通过<code>tryLock()</code>方法获取锁：</p>
+<p></p>
+<p><img src="assets/1556169690541.png" alt="1556169690541" class="markdown-image"></p>
+<p></p>
+<p>有3个重载的方法：</p>
+<p></p>
+<li>三个参数：获取锁，设置锁等待时间<code>waitTime</code>、释放时间<code>leaseTime</code>，时间单位<code>unit</code>。</li>
+<p>  - 如果获取锁失败后，会在<code>waitTime  </code>减去获取锁用时的剩余时间段内继续尝试获取锁，如果依然获取失败，则认为获取锁失败；</p>
+<p>  - 获取锁后，如果超过<code>leaseTime</code>未释放，为避免死锁会自动释放。</p>
+<li>两个参数：获取锁，设置锁等待时间<code>time</code>、时间单位<code>unit</code>。释放时间<code>leaseTime</code>按照默认的30s</li>
+<li>空参：获取锁，<code>waitTime</code>默认0s，即获取锁失败不重试，<code>leaseTime</code>默认30s</li></ul>
+<p></p>
+<p></p>
+<p></p>
+<p>任务执行完毕，使用<code>unlock()</code>方法释放锁：</p>
+<p></p>
+<p><img src="assets/1556170353278.png" alt="1556170353278" class="markdown-image"> </p>
+<p></p>
+<p></p>
+<p></p>
+<h4>完整测试代码</h4>
+<p></p>
+<p>在<code>redis_lock_demo</code>测试工程中新增任务类</p>
+<p></p>
+<pre><code class="language-java">package com.itheima.task;
+<p></p>
+<p>import com.itheima.lock.RedisLock;</p>
+<p>import com.itheima.lock.impl.RedisLockV1;</p>
+<p>import com.itheima.lock.impl.RedisLockV2;</p>
+<p>import lombok.extern.slf4j.Slf4j;</p>
+<p>import org.redisson.api.RLock;</p>
+<p>import org.redisson.api.RedissonClient;</p>
+<p>import org.springframework.beans.factory.annotation.Autowired;</p>
+<p>import org.springframework.data.redis.core.StringRedisTemplate;</p>
+<p>import org.springframework.scheduling.annotation.Scheduled;</p>
+<p>import org.springframework.stereotype.Component;</p>
+<p></p>
+<p>/</em><em></p>
+<p> </em> @author: itheima</p>
+<p> <em> @create: 2021-09-26 09:42</p>
+<p> </em>/</p>
+<p>@Slf4j</p>
+<p>@Component</p>
+<p>public class DemoTask {</p>
+<p></p>
+<p></p>
+<p>    @Autowired</p>
+<p>    private StringRedisTemplate redisTemplate;</p>
+<p></p>
+<p>    /*<em></p>
+<p>     </em>/</p>
+<p>    //@Scheduled(cron = &quot;0/1 <em> </em> <em> </em> ?&quot;)</p>
+<p>    //public void task(){</p>
+<p>    //    //1.尝试获取锁</p>
+<p>    //    RedisLock lock = new RedisLockV2(redisTemplate);</p>
+<p>    //    //2.获取锁结果</p>
+<p>    //    Boolean flag = lock.tryLock(5L);</p>
+<p>    //    //2.1 失败，下次继续尝试获取</p>
+<p>    //    if(!flag){</p>
+<p>    //        log.error(&quot;获取锁失败，下次继续尝试获取！&quot;);</p>
+<p>    //        return;</p>
+<p>    //    }</p>
+<p>    //    //2.2 成功，执行业务</p>
+<p>    //    try {</p>
+<p>    //        log.info(&quot;获取锁成功&quot;);</p>
+<p>    //        log.info(&quot;-------执行任务-查询需要关闭订单-恢复库存---&quot;);</p>
+<p>    //        task();</p>
+<p>    //        Thread.sleep(500);</p>
+<p>    //    } catch (Exception e) {</p>
+<p>    //        e.printStackTrace();</p>
+<p>    //        lock.unLock();</p>
+<p>    //    } finally {</p>
+<p>    //        //3.释放锁</p>
+<p>    //        log.info(&quot;释放锁&quot;);</p>
+<p>    //        lock.unLock();</p>
+<p>    //    }</p>
+<p>    //}</p>
+<p></p>
+<p></p>
+<p>    @Autowired</p>
+<p>    private RedissonClient redissonClient;</p>
+<p></p>
+<p></p>
+<p>    @Scheduled(cron = &quot;0/1 <em> </em> <em> </em> ?&quot;)</p>
+<p>    public void task(){</p>
+<p>        //1.尝试获取锁</p>
+<p>        RLock lock = redissonClient.getLock(&quot;alock&quot;);</p>
+<p>        //2.获取锁结果</p>
+<p>        Boolean flag = lock.tryLock();</p>
+<p>        //2.1 失败，下次继续尝试获取</p>
+<p>        if(!flag){</p>
+<p>            log.error(&quot;获取锁失败，下次继续尝试获取！&quot;);</p>
+<p>            return;</p>
+<p>        }</p>
+<p>        //2.2 成功，执行业务</p>
+<p>        try {</p>
+<p>            log.info(&quot;获取锁成功&quot;);</p>
+<p>            log.info(&quot;-------执行任务-查询需要关闭订单-恢复库存---&quot;);</p>
+<p>            Thread.sleep(500);</p>
+<p>        } catch (Exception e) {</p>
+<p>            e.printStackTrace();</p>
+<p>            lock.unlock();</p>
+<p>        } finally {</p>
+<p>            //3.释放锁</p>
+<p>            log.info(&quot;释放锁&quot;);</p>
+<p>            lock.unlock();</p>
+<p>        }</p>
+<p>    }</p>
+<p>}</p>
+<p></code></pre></p>
+<p></p>
+<p></p>
+<p></p>
+<h1>3 分布式锁面试题</h1>
+<p></p>
+<p>由于是做商城业务，要频繁的对商品库存进行扣减，应用是集群部署，为避免并发造成库存<code>超买超卖</code>等问题，采用 <code>redis</code> 分布式锁加以控制。本以为给扣库存的代码加上锁<code>lock.tryLock</code>就万事大吉了</p>
+<p></p>
+<pre><code class="language-java">    /*<em>
+<p>     </em> @author itheima</p>
+<p>     */</p>
+<p>   public String stockLock() {</p>
+<p>        RLock lock = redissonClient.getLock(&quot;stockLock&quot;);</p>
+<p>        try {</p>
+<p>            //获取锁</p>
+<p>            if (lock.tryLock(10, TimeUnit.SECONDS)) {</p>
+<p>                //扣减库存</p>
+<p>                。。。。。。</p>
+<p>            } else {</p>
+<p>                log.info(&quot;未获取到锁业务结束..&quot;);</p>
+<p>            }</p>
+<p>        } catch (Exception e) {</p>
+<p>             log.info(&quot;处理异常&quot;, e);</p>
+<p>        } </p>
+<p>        return &quot;ok&quot;;</p>
+<p>  }</p>
+<p></p>
+<p></code></pre></p>
+<p></p>
+<p>结果业务代码执行完以后我忘了释放锁<code>lock.unlock()</code>，导致<code>redis</code>线程池被打满，<code>redis</code>服务大面积故障，造成库存数据扣减混乱</p>
+<p></p>
+<p>随着 使用<code>redis</code> 锁的时间越长，发现 <code>redis</code> 锁的坑远比想象中要多。就算在面试题当中<code>redis</code>分布式锁的出镜率也比较高，比如：“用锁遇到过哪些问题？” ，“又是如何解决的？” 基本都是一套连招问出来的。</p>
+<p></p>
+<h4>锁未被释放</h4>
+<p></p>
+<p>这种情况是一种低级错误，由于当前线程 获取到<code>redis</code> 锁，处理完业务后未及时释放锁，导致其它线程会一直尝试获取锁阻塞，例如：用<code>Jedis</code>客户端会报如下的错误信息</p>
+<p></p>
+<pre><code class="language-java">redis.clients.jedis.exceptions.JedisConnectionException: Could not get a resource from the pool
+<p></p>
+<p></code></pre></p>
+<p></p>
+<code>redis线程池</code>已经没有空闲线程来处理客户端命令。
+<p></p>
+<p>解决的方法也很简单，只要我们细心一点，拿到锁的线程处理完业务及时释放锁，如果是重入锁未拿到锁后，线程可以释放当前连接并且<code>sleep</code>一段时间。</p>
+<p></p>
+<pre><code class="language-java">  public void lock() {
+<p>      while (true) {</p>
+<p>          boolean flag = this.getLock(key);</p>
+<p>          if (flag) {</p>
+<p>                TODO .........</p>
+<p>          } else {</p>
+<p>                // 释放当前redis连接</p>
+<p>                redis.close();</p>
+<p>                // 休眠1000毫秒</p>
+<p>                sleep(1000);</p>
+<p>          }</p>
+<p>        }</p>
+<p>    }</p>
+<p></code></pre></p>
+<p></p>
+<h4>锁互相释放</h4>
+<p></p>
+<p>我们知道<code>Redis</code>实现锁的原理在于 <code>SETNX</code>命令。当 <code>key</code>不存在时将 <code>key</code>的值设为 <code>value</code> ，返回值为 <code>1</code>；若给定的 <code>key</code> 已经存在，则 <code>SETNX</code>不做任何动作，返回值为 <code>0</code> 。</p>
+<p></p>
+<pre><code class="language-plaintext">SETNX key value
+<p></code></pre></p>
+<p></p>
+<p>我们来设想一下这个场景：<code>A</code>、<code>B</code>两个线程来尝试给<code>key</code> <code>myLock</code>加锁，<code>A线程</code>先拿到锁（假如锁<code>3秒</code>后过期），<code>B线程</code>就在等待尝试获取锁，到这一点毛病没有。</p>
+<p></p>
+<p>那如果此时业务逻辑比较耗时，执行时间已经超过<code>redis</code>锁过期时间，这时<code>A线程</code>的锁自动释放（删除<code>key</code>），<code>B线程</code>检测到<code>myLock</code>这个<code>key</code>不存在，执行 <code>SETNX</code>命令也拿到了锁。</p>
+<p></p>
+<p>但是，此时<code>A线程</code>执行完业务逻辑之后，还是会去释放锁（删除<code>key</code>），这就导致<code>B线程</code>的锁被<code>A线程</code>给释放了。</p>
+<p></p>
+<p>为避免上边的情况，一般我们在每个线程加锁时要带上自己独有的<code>value</code>值来标识，只释放指定<code>value</code>的<code>key</code>，否则就会出现释放锁混乱的场景。</p>
+<p></p>
+<h4>数据库事务超时</h4>
+<p></p>
+<code>redis</code>锁咋还扯到数据库事务上来了？看下边这段代码：
+<p></p>
+<pre><code class="language-java">   @Transaction
+<p>   public void lock() {</p>
+<p>   </p>
+<p>        while (true) {</p>
+<p>            boolean flag = this.getLock(key);</p>
+<p>            if (flag) {</p>
+<p>                insert();  //采用自动管理事务，业务耗时比较长，抛出异常回滚</p>
+<p>            }</p>
+<p>        }</p>
+<p>    }</p>
+<p></code></pre></p>
+<p></p>
+<p>给这个方法添加一个<code>@Transaction</code>注解开启事务，如代码中抛出异常进行回滚，要知道数据库事务可是有超时时间限制的，并不会无条件的一直等一个耗时的数据库操作。</p>
+<p></p>
+<p>比如：我们解析一个大文件，再将数据存入到数据库，如果执行时间太长，就会导致事务超时自动回滚。</p>
+<p></p>
+<p>一旦你的<code>key</code>长时间获取不到锁，获取锁<code>等待的时间</code>远超过数据库事务<code>超时时间</code>，程序就会报异常。</p>
+<p></p>
+<p>一般为解决这种问题，我们就需要将数据库事务改为手动提交、回滚事务。</p>
+<p></p>
+<pre><code class="language-java">    @Autowired
+<p>    DataSourceTransactionManager dataSourceTransactionManager;</p>
+<p></p>
+<p>    @Transaction</p>
+<p>    public void lock() {</p>
+<p>        //手动开启事务</p>
+<p>        TransactionStatus transactionStatus = dataSourceTransactionManager.getTransaction(transactionDefinition);</p>
+<p>        try {</p>
+<p>            while (true) {</p>
+<p>                boolean flag = this.getLock(key);</p>
+<p>                if (flag) {</p>
+<p>                    insert();</p>
+<p>                    //手动提交事务</p>
+<p>                    dataSourceTransactionManager.commit(transactionStatus);</p>
+<p>                }</p>
+<p>            }</p>
+<p>        } catch (Exception e) {</p>
+<p>            //手动回滚事务</p>
+<p>            dataSourceTransactionManager.rollback(transactionStatus);</p>
+<p>        }</p>
+<p>    }</p>
+<p></code></pre></p>
+<p></p>
+<h4>锁过期了业务还没执行完  </h4>
+<p></p>
+<p>这种情况和我们上边提到的第二种比较类似，但解决思路上略有不同。</p>
+<p></p>
+<p>同样是<code>redis</code>分布式锁过期，而业务逻辑没执行完的场景，不过，这里换一种思路想问题，<strong>把<code>redis</code>锁的过期时间再弄长点不就解决了吗？</strong></p>
+<p></p>
+<p>那还是有问题，我们可以在加锁的时候，手动调长<code>redis</code>锁的过期时间，可这个时间多长合适？业务逻辑的执行时间是不可控的，调的过长又会影响操作性能。</p>
+<p></p>
+<p>如何解决这个问题呢？</p>
+<p></p>
+<p><strong>要是<code>redis</code>锁的过期时间能够自动续期就好了。</strong>如果达到了超时时间，但业务代码还没执行完，需要给锁自动续期。</p>
+<p></p>
+<p>获取锁成功后，我们可以使用<code>TimerTask</code>类，来实现自动续期的功能：</p>
+<p></p>
+<pre><code class="language-java">Timer timer = new Timer(); 
+<p>timer.schedule(new TimerTask() {</p>
+<p>    @Override</p>
+<p>    public void run(Timeout timeout) throws Exception {</p>
+<p>      //自动续期逻辑</p>
+<p>    }</p>
+<p>}, 10000, TimeUnit.MILLISECONDS);</p>
+<p></code></pre></p>
+<p></p>
+<p></p>
+<p></p>
+<p>获取锁之后，自动开启一个定时任务，每隔10秒钟，自动刷新一次过期时间。这种机制在redisson框架中，有个比较霸气的名字：<code>watch dog</code>，即传说中的<code>看门狗</code>。当然自动续期功能，我们还是优先推荐使用lua脚本实现，比如：</p>
+<p></p>
+<pre><code class="language-plaintext">if (redis.call(&#039;hexists&#039;, KEYS[1], ARGV[2]) == 1) then 
+<p>   redis.call(&#039;pexpire&#039;, KEYS[1], ARGV[1]);</p>
+<p>  return 1; </p>
+<p>end;</p>
+<p>return 0;</p>
+<p></code></pre></p>
+<p></p>
+<p>需要注意的地方是：在实现自动续期功能时，还需要设置一个总的过期时间，可以跟redisson保持一致，设置成30秒。如果业务代码到了这个总的过期时间，还没有执行完，就不再自动续期了。</p>
+<p></p>
+<p></p>
+<p></p>
+<p>为了解决这个问题我们使用<code>redis</code>客户端<code>redisson</code>，<code>redisson</code>很好的解决了<code>redis</code>在分布式环境下的一些棘手问题，它的宗旨就是让使用者减少对<code>Redis</code>的关注，将更多精力用在处理业务逻辑上。</p>
+<p></p>
+<code>redisson</code>对分布式锁做了很好封装，只需调用<code>API</code>即可。
+<p></p>
+<pre><code class="language-java">RLock lock = redissonClient.getLock(&quot;stockLock&quot;);
+<p></code></pre></p>
+<p></p>
+<code>redisson</code>在加锁成功后，会注册一个定时任务监听这个锁，每隔10秒就去查看这个锁，如果还持有锁，就对<code>过期时间</code>进行续期。默认过期续期时间30秒。这个机制也被叫做：“<code>看门狗</code>”。
+<p></p>
+<p><strong>举例子</strong>：假如加锁的时间是30秒，过10秒检查一次，一旦加锁的业务没有执行完，就会进行一次续期，把锁的过期时间再次重置成10秒。如果超过30秒就不再续期了。</p>
+<p></p>
+<p>通过分析下边<code>redisson</code>的源码实现可以发现，不管是<code>加锁</code>、<code>解锁</code>、<code>续约</code>都是客户端把一些复杂的业务逻辑，通过封装在<code>Lua</code>脚本中发送给<code>redis</code>，保证这段复杂业务逻辑执行的<code>原子性</code>。</p>
+<p></p>
+<p></p>
+<p></p>
+<p><img src="assets/image-20210926121905404.png" alt="image-20210926121905404" class="markdown-image"></p>
+<p></p>
+<h4>锁竞争问题</h4>
+<p></p>
+<p>​	如果有大量需要写入数据的业务场景，使用普通的redis分布式锁是没有问题的。但如果有些业务场景，写入的操作比较少，反而有大量读取的操作。这样直接使用普通的redis分布式锁，会不会有点浪费性能？</p>
+<p></p>
+<p>我们都知道，锁的粒度越粗，多个线程抢锁时竞争就越激烈，造成多个线程锁等待的时间也就越长，性能也就越差。所以，提升redis分布式锁性能的第一步，就是要把锁的粒度变细。</p>
+<p></p>
+<p><strong>方案一：读写锁</strong></p>
+<p></p>
+<p>加锁的目的是为了保证，在并发环境中读写数据的安全性，即不会出现数据错误或者不一致的情况。</p>
+<p></p>
+<p>但在绝大多数实际业务场景中，一般是读数据的频率远远大于写数据。而线程间的并发读操作是并不涉及并发安全问题，我们没有必要给读操作加互斥锁，只要保证读写、写写并发操作上锁是互斥的就行，这样可以提升系统的性能。</p>
+<p></p>
+<p>我们以redisson框架为例，它内部已经实现了读写锁的功能。读锁的伪代码如下：</p>
+<p></p>
+<pre><code class="language-java">RReadWriteLock readWriteLock = redisson.getReadWriteLock(&quot;readWriteLock&quot;);
+<p>RLock rLock = readWriteLock.readLock();</p>
+<p>try {</p>
+<p>    rLock.lock();</p>
+<p>    //业务操作</p>
+<p>} catch (Exception e) {</p>
+<p>    log.error(e);</p>
+<p>} finally {</p>
+<p>    rLock.unlock();</p>
+<p>}</p>
+<p></code></pre></p>
+<p></p>
+<p>写锁的伪代码如下：</p>
+<p></p>
+<pre><code class="language-java">RReadWriteLock readWriteLock = redisson.getReadWriteLock(&quot;readWriteLock&quot;);
+<p>RLock rLock = readWriteLock.writeLock();</p>
+<p>try {</p>
+<p>    rLock.lock();</p>
+<p>    //业务操作</p>
+<p>} catch (InterruptedException e) {</p>
+<p>   log.error(e);</p>
+<p>} finally {</p>
+<p>    rLock.unlock();</p>
+<p>}</p>
+<p></code></pre></p>
+<p></p>
+<p>将读锁和写锁分开，最大的好处是提升读操作的性能，因为读和读之间是共享的，不存在互斥性。而我们的实际业务场景中，绝大多数数据操作都是读操作。所以，如果提升了读操作的性能，也就会提升整个锁的性能。</p>
+<p></p>
+<p><strong>方案二：锁分段</strong></p>
+<p></p>
+<p>此外，为了减小锁的粒度，比较常见的做法是将大锁：<code>分段</code>。在java中<code>ConcurrentHashMap</code>，就是将数据分为<code>16段</code>，每一段都有单独的锁，并且处于不同锁段的数据互不干扰，以此来提升锁的性能。放在实际业务场景中，我们可以这样做：</p>
+<p></p>
+<p>​	比如在秒杀扣库存的场景中，现在的库存中有2000个商品，用户可以秒杀。为了防止出现超卖的情况，通常情况下，可以对库存加锁。如果有1W的用户竞争同一把锁，显然系统吞吐量会非常低。</p>
+<p></p>
+<p>为了提升系统性能，我们可以将库存分段，比如：分为100段，这样每段就有20个商品可以参与秒杀。</p>
+<p></p>
+<p>在秒杀的过程中，先把用户id获取hash值，然后除以100取模。模为1的用户访问第1段库存，模为2的用户访问第2段库存，模为3的用户访问第3段库存，后面以此类推，到最后模为100的用户访问第100段库存</p>
+<p></p>
+<p><img src="assets/image-20211201104222602.png" alt="image-20211201104222602" class="markdown-image"></p>
+<p></p>
+<p>如此一来，在多线程环境中，可以大大的减少锁的冲突。以前多个线程只能同时竞争1把锁，尤其在秒杀的场景中，竞争太激烈了，其后果是导致绝大数线程在锁等待。现在多个线程同时竞争100把锁，等待的线程变少了，从而系统吞吐量也就提升了。</p>
+<p></p>
+<h4>主从复制的问题</h4>
+<p></p>
+<p>如果redis存在多个实例。比如：做了主从，或者使用了哨兵模式，基于redis的分布式锁的功能，就会出现问题。</p>
+<p></p>
+<p>具体是什么问题？</p>
+<p></p>
+<p>假设redis现在用的主从模式，1个master节点，3个slave节点。master节点负责写数据，slave节点负责读数据。</p>
+<p></p>
+<p><img src="assets/image-20211201093303917.png" alt="image-20211201093303917" class="markdown-image"></p>
+<p></p>
+<p>本来是和谐共处，相安无事的。redis加锁操作，都在master上进行，加锁成功后，再异步同步给所有的slave。突然有一天，master节点由于某些不可逆的原因，挂掉了。</p>
+<p></p>
+<p>这样需要找一个slave升级为新的master节点，假如slave1被选举出来了。</p>
+<p></p>
+<p><img src="assets/image-20211201093332526.png" alt="image-20211201093332526" class="markdown-image"></p>
+<p></p>
+<p>如果有个锁A比较寸，刚加锁成功master就挂了，还没来得及同步到slave1。这样会导致新master节点中的锁A丢失了。后面，如果有新的线程，使用锁A加锁，依然可以成功，分布式锁失效了。</p>
+<p></p>
+<p>那么，如何解决这个问题呢？</p>
+<p></p>
+<p>答：redisson框架为了解决这个问题，提供了一个专门的类：<code>RedissonRedLock</code>，使用了Redlock算法。</p>
+<p></p>
+<li>需要搭建几套相互独立的redis环境，假如我们在这里搭建了5套。</li>
+<li>每套环境都有一个redisson node节点。</li>
+<li>多个redisson node节点组成了RedissonRedLock。</li>
+<li>环境包含：单机、主从、哨兵和集群模式，可以是一种或者多种混合。</li>
+<p></p>
+<p><img src="assets/image-20211201093449672.png" alt="image-20211201093449672" class="markdown-image"></p>
+<p></p>
+<p>RedissonRedLock加锁过程如下：</p>
+<p></p>
+<li>获取所有的redisson node节点信息，循环向所有的redisson node节点加锁，假设节点数为N，例子中N等于5。</li>
+<li>如果在N个节点当中，有N/2 + 1个节点加锁成功了，那么整个RedissonRedLock加锁是成功的。</li>
+<li>如果在N个节点当中，小于N/2 + 1个节点加锁成功，那么整个RedissonRedLock加锁是失败的。</li>
+<li>如果中途发现各个节点加锁的总耗时，大于等于设置的最大等待时间，则直接返回失败。</li></ol>
+<p></p>
+<p>使用Redlock算法，确实能解决多实例场景中，假如master节点挂了，导致分布式锁失效的问题。</p>
+      </div>
+    </article>
+  </main>
+
+  <footer>
+    <p>© 2026 北辰 · 保持好奇，持续成长</p>
+    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
+      源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
+    </p>
+  </footer>
+
+  <script src="../../../js/theme.js"></script>
+</body>
+</html>
+  
