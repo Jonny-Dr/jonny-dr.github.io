@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -7,36 +6,41 @@
   <title>☕️ 个人项目 | 北辰</title>
   <link rel="stylesheet" href="css/common.css">
   <style>
-    .project-container {
+    .empty-container {
       max-width: 800px;
       margin: 0 auto;
+      text-align: center;
+      padding: 4rem 1rem;
     }
-    .project-card {
-      background: var(--card-bg);
-      border-radius: 12px;
-      padding: 1.5rem;
-      margin-bottom: 1.8rem;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+      color: var(--primary);
+      opacity: 0.7;
+    }
+    .empty-title {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+    .empty-description {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      color: #888;
+    }
+    .empty-action {
+      display: inline-block;
+      padding: 0.8rem 1.8rem;
+      background: var(--primary);
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 500;
       transition: var(--transition);
     }
-    .project-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-    }
-    .project-title {
-      font-size: 1.6rem;
-      margin-bottom: 0.8rem;
-      color: var(--primary);
-      font-weight: 600;
-    }
-
-    .project-desc {
-      line-height: 1.7;
-      color: #555;
-    }
-    @media (max-width: 768px) {
-      .project-container { padding: 0 1rem; }
+    .empty-action:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
     }
   </style>
 </head>
@@ -60,80 +64,17 @@
     </nav>
   </header>
 
-  <main class="project-container">
-
-      <article class="project-card">
-        <h2 class="project-title"><a href="_posts/archives/2026-02-11-daily-morning-run.html" style="color: var(--primary); text-decoration: none;">2026 02 11 daily morning run</a></h2>
-        <div class="project-desc">
-          这里是文章摘要...
-        </div>
-      </article>
-
-      <article class="project-card">
-        <h2 class="project-title"><a href="_posts/archives/2026-02-05-performance-optimization.html" style="color: var(--primary); text-decoration: none;">2026 02 05 performance optimization</a></h2>
-        <div class="project-desc">
-          这里是文章摘要...
-        </div>
-      </article>
-
-      <article class="project-card">
-        <h2 class="project-title"><a href="_posts/archives/2026-02-01-github-pages-guide.html" style="color: var(--primary); text-decoration: none;">如何用 GitHub Pages 搭建个人博客</a></h2>
-        <div class="project-desc">
-          本文介绍如何使用 GitHub Pages 搭建一个静态博客，无需服务器，免费且简单。
-
-## 步骤
-1. 创建 GitHub 仓库
-2. 在仓库中创建 `index.html` 文件
-3. 配置 G...
-        </div>
-      </article>
-
-      <article class="project-card">
-        <h2 class="project-title"><a href="_posts/archives/2026-02-01-github-pages-guide_副本.html" style="color: var(--primary); text-decoration: none;">如何用 GitHub Pages 搭建个人博客</a></h2>
-        <div class="project-desc">
-          本文介绍如何使用 GitHub Pages 搭建一个静态博客，无需服务器，免费且简单。
-
-## 步骤
-1. 创建 GitHub 仓库
-2. 在仓库中创建 `index.html` 文件
-3. 配置 G...
-        </div>
-      </article>
-
-      <article class="project-card">
-        <h2 class="project-title"><a href="_posts/archives/2026-02-01-github-pages-guide_副本2.html" style="color: var(--primary); text-decoration: none;">如何用 GitHub Pages 搭建个人博客</a></h2>
-        <div class="project-desc">
-          本文介绍如何使用 GitHub Pages 搭建一个静态博客，无需服务器，免费且简单。
-
-## 步骤
-1. 创建 GitHub 仓库
-2. 在仓库中创建 `index.html` 文件
-3. 配置 G...
-        </div>
-      </article>
-
-      <article class="project-card">
-        <h2 class="project-title"><a href="_posts/archives/2026-02-01-github-pages-guide_副本3.html" style="color: var(--primary); text-decoration: none;">如何用 GitHub Pages 搭建个人博客</a></h2>
-        <div class="project-desc">
-          本文介绍如何使用 GitHub Pages 搭建一个静态博客，无需服务器，免费且简单。
-
-## 步骤
-1. 创建 GitHub 仓库
-2. 在仓库中创建 `index.html` 文件
-3. 配置 G...
-        </div>
-      </article>
-
+  <main class="empty-container">
+    <div class="empty-icon">📭</div>
+    <h2 class="empty-title">暂无内容</h2>
+    <p class="empty-description">该栏目下目前还没有任何内容，敬请期待后续更新！</p>
+    <a href="index.html" class="empty-action">返回首页</a>
   </main>
-
-  <div class="pagination">
-    <a href="project.html" class="page-link active">1</a>
-  </div>
 
   <footer>
     <p>© 2026 北辰 · 保持好奇，持续成长</p>
     <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
-      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 |
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
       源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
     </p>
   </footer>

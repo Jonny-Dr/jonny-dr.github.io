@@ -85,6 +85,12 @@ function markdownToHtml(markdown) {
 
 // 为Markdown文件生成HTML文件的函数
 function generateHtmlFromMarkdown(markdownPath, htmlPath) {
+    // 如果HTML文件已存在，则不再重复生成
+    if (fs.existsSync(htmlPath)) {
+        console.log(`HTML file already exists: ${htmlPath}. Skipping generation.`);
+        return;
+    }
+    
     const { title, date, content } = parseMarkdown(markdownPath);
     const htmlContent = markdownToHtml(content);
     
@@ -217,7 +223,7 @@ const pageConfigs = [
         itemDateClass: 'post-date',
         itemExcerptClass: 'post-excerpt',
         postsPerPage: 5,
-        directory: '_posts/blog'
+        directory: '_posts/index'
     },
     {
         name: 'project',
@@ -230,7 +236,7 @@ const pageConfigs = [
         itemDateClass: '',
         itemExcerptClass: 'project-desc',
         postsPerPage: 6,
-        directory: '_posts/blog'
+        directory: '_posts/project'
     },
     {
         name: 'daily',
@@ -243,9 +249,31 @@ const pageConfigs = [
         itemDateClass: 'daily-date',
         itemExcerptClass: 'daily-content',
         postsPerPage: 4,
-        directory: '_posts/blog'
+        directory: '_posts/daily'
+    },
+    {
+        name: 'archives',
+        title: '📚 文章归档 | 北辰',
+        headerTitle: '📚 文章归档',
+        headerSubtitle: '所有文章的历史记录',
+        contentClass: 'archives-container',
+        itemClass: 'archives-item',
+        itemTitleClass: 'archives-title',
+        itemDateClass: 'archives-date',
+        itemExcerptClass: 'archives-excerpt',
+        postsPerPage: 10,
+        directory: '_posts/archives'
     }
 ];
+
+// 确保所有必要的目录都存在
+pageConfigs.forEach(config => {
+    const dirPath = path.join(__dirname, config.directory);
+    if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, { recursive: true });
+        console.log(`Created directory: ${config.directory}`);
+    }
+});
 
 // 生成页面函数
 function generatePage(pageConfig) {
@@ -268,9 +296,6 @@ function generatePage(pageConfig) {
         return dateB.localeCompare(dateA);
     });
 
-    // 计算总页数
-    const totalPages = Math.ceil(markdownFiles.length / postsPerPage);
-
     // 为每个Markdown文件生成HTML文件
     markdownFiles.forEach(post => {
         const markdownPath = path.join(postsDir, post);
@@ -278,7 +303,33 @@ function generatePage(pageConfig) {
         generateHtmlFromMarkdown(markdownPath, htmlPath);
     });
 
+    // 如果没有Markdown文件，生成对应模板的页面
+    if (markdownFiles.length === 0) {
+        let template;
+        if (name === 'index') {
+            // 首页使用专用模板
+            template = readTemplate('index');
+        } else {
+            // 其他页面使用默认模板
+            template = readTemplate('default');
+        }
+        
+        if (template) {
+            const renderedHtml = renderTemplate(template, {
+                title: title,
+                headerTitle: headerTitle,
+                headerSubtitle: headerSubtitle,
+                content: ''
+            });
+            const filename = `${name}.html`;
+            fs.writeFileSync(filename, renderedHtml);
+            console.log(`Generated default page: ${filename}`);
+        }
+        return 0;
+    }
 
+    // 计算总页数
+    const totalPages = Math.ceil(markdownFiles.length / postsPerPage);
 
     // 生成分页文件
     for (let page = 1; page <= totalPages; page++) {
@@ -286,126 +337,174 @@ function generatePage(pageConfig) {
         const end = start + postsPerPage;
         const currentPosts = markdownFiles.slice(start, end);
 
-        // 生成页面内容
-        const htmlContent = `
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${title}</title>
-  <link rel="stylesheet" href="css/common.css">
-  <style>
-    .${contentClass} {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    .${itemClass} {
-      background: var(--card-bg);
-      border-radius: 12px;
-      padding: 1.5rem;
-      margin-bottom: 1.8rem;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-      transition: var(--transition);
-    }
-    .${itemClass}:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-    }
-    .${itemTitleClass} {
-      font-size: 1.6rem;
-      margin-bottom: 0.8rem;
-      color: var(--primary);
-      font-weight: 600;
-    }
-    ${itemDateClass ? `.${itemDateClass} {
-      color: #888;
-      font-size: 0.95rem;
-      margin-bottom: 0.5rem;
-    }` : ''}
-    .${itemExcerptClass} {
-      line-height: 1.7;
-      color: #555;
-    }
-    @media (max-width: 768px) {
-      .${contentClass} { padding: 0 1rem; }
-    }
-  </style>
-</head>
-<body>
-  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-    </svg>
-  </button>
-
-  <header>
-    <h1>${headerTitle}</h1>
-    <p class="subtitle">${headerSubtitle}</p>
-    <nav>
-      <a href="index.html">首页</a>
-      <a href="project.html">项目</a>
-      <a href="about.html">关于</a>
-      <a href="archives.html">归档</a>
-      <a href="daily.html">日常</a>
-      <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
-    </nav>
-  </header>
-
-  <main class="${contentClass}">
-    ${currentPosts.map(post => {
-        const markdownPath = path.join(postsDir, post);
-        const { title: postTitle, date: postDate, excerpt } = parseMarkdown(markdownPath);
-        const cleanTitle = postTitle || post.replace('.md', '').replace(/-/g, ' ');
-        
-        let itemHtml = `
+        // 生成内容部分
+        let contentHtml = '';
+        switch (name) {
+            case 'index':
+                // 首页的特殊处理
+                contentHtml = currentPosts.length > 0 ? `
+    <div class="posts-grid">
+      ${currentPosts.map(post => {
+                    const markdownPath = path.join(postsDir, post);
+                    const { title: postTitle, date: postDate, excerpt } = parseMarkdown(markdownPath);
+                    const cleanTitle = postTitle || post.replace('.md', '').replace(/-/g, ' ');
+                    
+                    return `
+      <div class="post-card">
+        <h3 class="post-title"><a href="${directory}/${post.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h3>
+        <div class="post-date">${postDate || post.substring(0, 10)}</div>
+        <p class="post-excerpt">${excerpt || '这里是文章摘要...'}</p>
+        <a href="${directory}/${post.replace('.md', '.html')}" class="post-link">阅读更多 →</a>
+      </div>
+      `;
+                }).join('')}
+    </div>` : `
+    <div class="empty-container" style="text-align: center; padding: 4rem 1rem;">
+      <div style="font-size: 4rem; margin-bottom: 1.5rem; color: var(--primary); opacity: 0.7;">📝</div>
+      <h2 style="font-size: 1.8rem; margin-bottom: 1rem; color: var(--text);">暂无文章</h2>
+      <p style="font-size: 1.1rem; margin-bottom: 2rem; color: #888;">博客刚起步，正在准备精彩内容，敬请期待！</p>
+      <a href="archives.html" style="display: inline-block; padding: 0.8rem 1.8rem; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 500; transition: var(--transition);">浏览归档</a>
+    </div>`;
+                break;
+            case 'archives':
+                // 归档栏目的特殊处理：按年份和月份分组
+                const groupedPosts = {};
+                
+                // 按年份和月份分组文章
+                currentPosts.forEach(post => {
+                    const markdownPath = path.join(postsDir, post);
+                    const { title: postTitle, date: postDate } = parseMarkdown(markdownPath);
+                    const cleanTitle = postTitle || post.replace('.md', '').replace(/-/g, ' ');
+                    
+                    // 从文件名或日期中提取年份和月份
+                    const postDateStr = postDate || post.substring(0, 10);
+                    const year = postDateStr.substring(0, 4);
+                    const month = postDateStr.substring(5, 7);
+                    
+                    if (!groupedPosts[year]) {
+                        groupedPosts[year] = {};
+                    }
+                    if (!groupedPosts[year][month]) {
+                        groupedPosts[year][month] = [];
+                    }
+                    
+                    groupedPosts[year][month].push({
+                        post,
+                        title: cleanTitle,
+                        date: postDateStr,
+                        path: `${directory}/${post.replace('.md', '.html')}`
+                    });
+                });
+                
+                // 生成按年份和月份分组的 HTML
+                contentHtml = '';
+                Object.keys(groupedPosts).sort((a, b) => b.localeCompare(a)).forEach(year => {
+                    contentHtml += `
+    <div class="archive-year">${year}年</div>`;
+                    
+                    Object.keys(groupedPosts[year]).sort((a, b) => b.localeCompare(a)).forEach(month => {
+                        const monthPosts = groupedPosts[year][month];
+                        contentHtml += `
+    <div class="archive-month">
+      ${parseInt(month)}月 <span class="count">(${monthPosts.length})</span>
+    </div>
+    <ul class="archive-list">`;
+                        
+                        monthPosts.forEach(postItem => {
+                            contentHtml += `
+      <li class="archive-item">
+        <div class="archive-title"><a href="${postItem.path}" style="color: var(--primary); text-decoration: none;">${postItem.title}</a></div>
+        <div class="archive-date">${postItem.date}</div>
+      </li>`;
+                        });
+                        
+                        contentHtml += `
+    </ul>`;
+                    });
+                });
+                break;
+            default:
+                // 其他栏目的默认处理
+                contentHtml = currentPosts.map(post => {
+                    const markdownPath = path.join(postsDir, post);
+                    const { title: postTitle, date: postDate, excerpt } = parseMarkdown(markdownPath);
+                    const cleanTitle = postTitle || post.replace('.md', '').replace(/-/g, ' ');
+                    
+                    let itemHtml = `
       <article class="${itemClass}">
         <h2 class="${itemTitleClass}"><a href="${directory}/${post.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h2>`;
-        
-        if (itemDateClass) {
-            itemHtml += `
+                    
+                    if (itemDateClass) {
+                        itemHtml += `
         <div class="${itemDateClass}">${postDate || post.substring(0, 10)}</div>`;
-        }
-        
-        itemHtml += `
+                    }
+                    
+                    itemHtml += `
         <div class="${itemExcerptClass}">
           ${excerpt || '这里是文章摘要...'}
         </div>
       </article>
       `;
-        
-        return itemHtml;
-    }).join('')}
-  </main>
+                    
+                    return itemHtml;
+                }).join('');
+                break;
+        }
 
+        // 生成分页部分
+        const paginationHtml = `
   <div class="pagination">
     ${Array.from({ length: totalPages }, (_, i) => {
         const pageNumber = i + 1;
         return `<a href="${name}${pageNumber === 1 ? '' : '-' + pageNumber}.html" class="page-link ${pageNumber === page ? 'active' : ''}">${pageNumber}</a>`;
     }).join('')}
   </div>
+`;
 
-  <footer>
-    <p>© 2026 北辰 · 保持好奇，持续成长</p>
-    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
-      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
-      源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
-    </p>
-  </footer>
+        // 读取对应栏目的模板
+        let template = readTemplate(name);
+        if (!template) {
+            // 如果没有对应栏目的模板，使用默认模板
+            template = readTemplate('default');
+        }
 
-  <script src="js/theme.js"></script>
-</body>
-</html>
-  `;
+        if (template) {
+            // 渲染模板
+            const renderedHtml = renderTemplate(template, {
+                title: title,
+                headerTitle: headerTitle,
+                headerSubtitle: headerSubtitle,
+                content: contentHtml,
+                pagination: paginationHtml
+            });
 
-    // 写入文件
-    const filename = page === 1 ? `${name}.html` : `${name}-${page}.html`;
-    fs.writeFileSync(filename, htmlContent);
-    console.log(`Generated ${filename}`);
-  }
+            // 写入文件
+            const filename = page === 1 ? `${name}.html` : `${name}-${page}.html`;
+            fs.writeFileSync(filename, renderedHtml);
+            console.log(`Generated ${filename}`);
+        }
+    }
 
-  return totalPages;
+    return totalPages;
+}
+
+// 读取模板文件的函数
+function readTemplate(templateName) {
+    const templatePath = path.join(__dirname, 'templates', `${templateName}-template.html`);
+    if (fs.existsSync(templatePath)) {
+        return fs.readFileSync(templatePath, 'utf8');
+    }
+    return null;
+}
+
+// 渲染模板的函数
+function renderTemplate(template, data) {
+    let rendered = template;
+    Object.keys(data).forEach(key => {
+        const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+        rendered = rendered.replace(regex, data[key]);
+    });
+    return rendered;
 }
 
 // 为每个页面生成分页
@@ -419,7 +518,7 @@ pageConfigs.forEach(config => {
 const workflowPath = path.join(__dirname, '.github', 'workflows', 'pagination.yml');
 if (fs.existsSync(workflowPath)) {
     let workflowContent = fs.readFileSync(workflowPath, 'utf8');
-    workflowContent = workflowContent.replace(/git add index.html index-\*.html.*?/g, 'git add index.html index-*.html project.html project-*.html daily.html daily-*.html _posts/**/*.html ');
+    workflowContent = workflowContent.replace(/git add index.html index-\*.html.*?/g, 'git add index.html index-*.html project.html project-*.html daily.html daily-*.html archives.html archives-*.html _posts/**/*.html ');
     fs.writeFileSync(workflowPath, workflowContent);
     console.log('Updated GitHub Actions workflow file');
 }
