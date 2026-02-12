@@ -280,31 +280,57 @@ function generatePage(pageConfig) {
     const { name, title, headerTitle, headerSubtitle, contentClass, itemClass, itemTitleClass, itemDateClass, itemExcerptClass, postsPerPage, directory } = pageConfig;
 
     // 读取目录下的所有文章
-    const postsDir = path.join(__dirname, directory);
-    if (!fs.existsSync(postsDir)) {
-        console.log(`Directory ${directory} does not exist. Skipping ${name} page.`);
-        return 0;
+    let postsDir = path.join(__dirname, directory);
+    let allMarkdownFiles = [];
+    
+    if (name === 'index') {
+        // 首页从所有栏目中获取最新文章
+        const allDirs = ['_posts/archives', '_posts/project', '_posts/daily', '_posts/index'];
+        allDirs.forEach(dir => {
+            const fullPath = path.join(__dirname, dir);
+            if (fs.existsSync(fullPath)) {
+                const files = fs.readdirSync(fullPath);
+                const mdFiles = files.filter(file => file.endsWith('.md')).map(file => {
+                    return {
+                        file,
+                        path: dir
+                    };
+                });
+                allMarkdownFiles = allMarkdownFiles.concat(mdFiles);
+            }
+        });
+    } else {
+        // 其他页面从对应目录获取文章
+        if (!fs.existsSync(postsDir)) {
+            console.log(`Directory ${directory} does not exist. Skipping ${name} page.`);
+            return 0;
+        }
+
+        const files = fs.readdirSync(postsDir);
+        allMarkdownFiles = files.filter(file => file.endsWith('.md')).map(file => {
+            return {
+                file,
+                path: directory
+            };
+        });
     }
 
-    const files = fs.readdirSync(postsDir);
-    const markdownFiles = files.filter(file => file.endsWith('.md'));
-
     // 按日期排序（最新在前）
-    markdownFiles.sort((a, b) => {
-        const dateA = a.substring(0, 10);
-        const dateB = b.substring(0, 10);
+    allMarkdownFiles.sort((a, b) => {
+        const dateA = a.file.substring(0, 10);
+        const dateB = b.file.substring(0, 10);
         return dateB.localeCompare(dateA);
     });
 
     // 为每个Markdown文件生成HTML文件
-    markdownFiles.forEach(post => {
-        const markdownPath = path.join(postsDir, post);
-        const htmlPath = path.join(__dirname, directory, post.replace('.md', '.html'));
+    allMarkdownFiles.forEach(item => {
+        const markdownPath = path.join(__dirname, item.path, item.file);
+        const htmlPath = path.join(__dirname, item.path, item.file.replace('.md', '.html'));
         generateHtmlFromMarkdown(markdownPath, htmlPath);
     });
 
     // 如果没有Markdown文件，生成对应模板的页面
-    if (markdownFiles.length === 0) {
+    if (allMarkdownFiles.length === 0) {
         let template;
         if (name === 'index') {
             // 首页使用专用模板
@@ -329,13 +355,13 @@ function generatePage(pageConfig) {
     }
 
     // 计算总页数
-    const totalPages = Math.ceil(markdownFiles.length / postsPerPage);
+    const totalPages = name === 'index' ? 1 : Math.ceil(allMarkdownFiles.length / postsPerPage);
 
     // 生成分页文件
     for (let page = 1; page <= totalPages; page++) {
         const start = (page - 1) * postsPerPage;
-        const end = start + postsPerPage;
-        const currentPosts = markdownFiles.slice(start, end);
+        const end = name === 'index' ? allMarkdownFiles.length : start + postsPerPage;
+        const currentPosts = allMarkdownFiles.slice(start, end);
 
         // 生成内容部分
         let contentHtml = '';
@@ -344,17 +370,17 @@ function generatePage(pageConfig) {
                 // 首页的特殊处理
                 contentHtml = currentPosts.length > 0 ? `
     <div class="posts-grid">
-      ${currentPosts.map(post => {
-                    const markdownPath = path.join(postsDir, post);
+      ${currentPosts.map(item => {
+                    const markdownPath = path.join(__dirname, item.path, item.file);
                     const { title: postTitle, date: postDate, excerpt } = parseMarkdown(markdownPath);
-                    const cleanTitle = postTitle || post.replace('.md', '').replace(/-/g, ' ');
+                    const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
                     
                     return `
       <div class="post-card">
-        <h3 class="post-title"><a href="${directory}/${post.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h3>
-        <div class="post-date">${postDate || post.substring(0, 10)}</div>
+        <h3 class="post-title"><a href="${item.path}/${item.file.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h3>
+        <div class="post-date">${postDate || item.file.substring(0, 10)}</div>
         <p class="post-excerpt">${excerpt || '这里是文章摘要...'}</p>
-        <a href="${directory}/${post.replace('.md', '.html')}" class="post-link">阅读更多 →</a>
+        <a href="${item.path}/${item.file.replace('.md', '.html')}" class="post-link">阅读更多 →</a>
       </div>
       `;
                 }).join('')}
@@ -371,13 +397,13 @@ function generatePage(pageConfig) {
                 const groupedPosts = {};
                 
                 // 按年份和月份分组文章
-                currentPosts.forEach(post => {
-                    const markdownPath = path.join(postsDir, post);
+                currentPosts.forEach(item => {
+                    const markdownPath = path.join(__dirname, item.path, item.file);
                     const { title: postTitle, date: postDate } = parseMarkdown(markdownPath);
-                    const cleanTitle = postTitle || post.replace('.md', '').replace(/-/g, ' ');
+                    const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
                     
                     // 从文件名或日期中提取年份和月份
-                    const postDateStr = postDate || post.substring(0, 10);
+                    const postDateStr = postDate || item.file.substring(0, 10);
                     const year = postDateStr.substring(0, 4);
                     const month = postDateStr.substring(5, 7);
                     
@@ -389,10 +415,10 @@ function generatePage(pageConfig) {
                     }
                     
                     groupedPosts[year][month].push({
-                        post,
+                        post: item.file,
                         title: cleanTitle,
                         date: postDateStr,
-                        path: `${directory}/${post.replace('.md', '.html')}`
+                        path: `${item.path}/${item.file.replace('.md', '.html')}`
                     });
                 });
                 
@@ -425,18 +451,18 @@ function generatePage(pageConfig) {
                 break;
             default:
                 // 其他栏目的默认处理
-                contentHtml = currentPosts.map(post => {
-                    const markdownPath = path.join(postsDir, post);
+                contentHtml = currentPosts.map(item => {
+                    const markdownPath = path.join(__dirname, item.path, item.file);
                     const { title: postTitle, date: postDate, excerpt } = parseMarkdown(markdownPath);
-                    const cleanTitle = postTitle || post.replace('.md', '').replace(/-/g, ' ');
+                    const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
                     
                     let itemHtml = `
       <article class="${itemClass}">
-        <h2 class="${itemTitleClass}"><a href="${directory}/${post.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h2>`;
+        <h2 class="${itemTitleClass}"><a href="${item.path}/${item.file.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h2>`;
                     
                     if (itemDateClass) {
                         itemHtml += `
-        <div class="${itemDateClass}">${postDate || post.substring(0, 10)}</div>`;
+        <div class="${itemDateClass}">${postDate || item.file.substring(0, 10)}</div>`;
                     }
                     
                     itemHtml += `
@@ -452,7 +478,9 @@ function generatePage(pageConfig) {
         }
 
         // 生成分页部分
-        const paginationHtml = `
+        let paginationHtml = '';
+        if (name !== 'index' && totalPages > 1) {
+            paginationHtml = `
   <div class="pagination">
     ${Array.from({ length: totalPages }, (_, i) => {
         const pageNumber = i + 1;
@@ -460,6 +488,7 @@ function generatePage(pageConfig) {
     }).join('')}
   </div>
 `;
+        }
 
         // 读取对应栏目的模板
         let template = readTemplate(name);
