@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{title}}</title>
+  <link rel="stylesheet" href="css/common.css">
+  <style>
+    /* 日常页面特有样式 */
+    .daily-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .daily-item {
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      margin-bottom: 2rem;
+    }
+    .daily-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    .daily-title {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+      font-weight: 700;
+    }
+    .daily-date {
+      color: #6c757d;
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+    }
+    .daily-content {
+      line-height: 1.7;
+      color: var(--text);
+      margin-bottom: 1.5rem;
+    }
+    .daily-read-more {
+      display: inline-block;
+      padding: 0.8rem 1.5rem;
+      background: var(--primary);
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+    .daily-read-more:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow);
+    }
+    @media (max-width: 768px) {
+      .daily-container {
+        padding: 0 1rem;
+      }
+      .daily-item {
+        padding: 1.5rem;
+      }
+      .daily-title {
+        font-size: 1.5rem;
+      }
+    }
+    @media (max-width: 480px) {
+      .daily-title {
+        font-size: 1.3rem;
+      }
+      .daily-date {
+        font-size: 0.85rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <header>
+    <h1>{{headerTitle}}</h1>
+    <p class="subtitle">{{headerSubtitle}}</p>
+    {{nav}}
+  </header>
+
+  <main class="daily-container">
+    {{content}}
+  </main>
+
+  <footer>
+    <p>© 2026 北辰 · 保持好奇，持续成长</p>
+    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
+      源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
+    </p>
+  </footer>
+
+  <script>
+    const themeToggle = document.getElementById('themeToggle');
+    const htmlEl = document.documentElement;
+
+    const savedTheme = localStorage.getItem('theme') ||
+                      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    if (savedTheme === 'dark') {
+      htmlEl.setAttribute('data-theme', 'dark');
+      themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>`;
+    }
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = htmlEl.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+      htmlEl.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+
+      if (newTheme === 'dark') {
+        themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>`;
+      } else {
+        themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+      }
+    });
+  </script>
+</body>
+</html>

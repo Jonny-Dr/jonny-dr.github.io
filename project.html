@@ -6,6 +6,7 @@
   <title>☕️ 个人项目 | 北辰</title>
   <link rel="stylesheet" href="css/common.css">
   <style>
+    /* 通用样式 */
     .empty-container {
       max-width: 800px;
       margin: 0 auto;
@@ -42,6 +43,134 @@
       transform: translateY(-2px);
       box-shadow: var(--shadow);
     }
+    
+    /* 日常页面特有样式 */
+    .daily-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .daily-item {
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      margin-bottom: 2rem;
+    }
+    .daily-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    .daily-title {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+      font-weight: 700;
+    }
+    .daily-date {
+      color: #6c757d;
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+    }
+    .daily-content {
+      line-height: 1.7;
+      color: var(--text);
+      margin-bottom: 1.5rem;
+    }
+    .daily-read-more {
+      display: inline-block;
+      padding: 0.8rem 1.5rem;
+      background: var(--primary);
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+    .daily-read-more:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow);
+    }
+    @media (max-width: 768px) {
+      .daily-container {
+        padding: 0 1rem;
+      }
+      .daily-item {
+        padding: 1.5rem;
+      }
+      .daily-title {
+        font-size: 1.5rem;
+      }
+    }
+    @media (max-width: 480px) {
+      .daily-title {
+        font-size: 1.3rem;
+      }
+      .daily-date {
+        font-size: 0.85rem;
+      }
+    }
+    
+    /* 项目页面特有样式 */
+    .project-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .project-card {
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      margin-bottom: 2rem;
+    }
+    .project-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    .project-title {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+      font-weight: 700;
+    }
+    .project-desc {
+      line-height: 1.7;
+      color: var(--text);
+      margin-bottom: 1.5rem;
+    }
+    .project-read-more {
+      display: inline-block;
+      padding: 0.8rem 1.5rem;
+      background: var(--primary);
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+    .project-read-more:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow);
+    }
+    @media (max-width: 768px) {
+      .project-container {
+        padding: 0 1rem;
+      }
+      .project-card {
+        padding: 1.5rem;
+      }
+      .project-title {
+        font-size: 1.5rem;
+      }
+    }
+    @media (max-width: 480px) {
+      .project-title {
+        font-size: 1.3rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -65,11 +194,14 @@
 </nav>
   </header>
 
-  <main class="empty-container">
-    <div class="empty-icon">📭</div>
-    <h2 class="empty-title">暂无内容</h2>
-    <p class="empty-description">该栏目下目前还没有任何内容，敬请期待后续更新！</p>
-    <a href="index.html" class="empty-action">返回首页</a>
+  <main class="project-container">
+    
+    <div class="empty-container" style="display: 'block'">
+      <div class="empty-icon">📭</div>
+      <h2 class="empty-title">暂无内容</h2>
+      <p class="empty-description">该栏目下目前还没有任何内容，敬请期待后续更新！</p>
+      <a href="index.html" class="empty-action">返回首页</a>
+    </div>
   </main>
 
   <footer>

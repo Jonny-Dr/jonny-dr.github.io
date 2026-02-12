@@ -143,6 +143,14 @@ function generatePage(pageConfig) {
         generateHtmlFromMarkdown(markdownPath, htmlPath);
     });
 
+    // 打印调试信息
+    console.log(`Processing ${name} page:`);
+    console.log(`- Directory: ${directory}`);
+    console.log(`- Found ${allMarkdownFiles.length} Markdown files`);
+    allMarkdownFiles.forEach(file => {
+        console.log(`  - ${file.file}`);
+    });
+
     // 如果没有Markdown文件，生成对应模板的页面
     if (allMarkdownFiles.length === 0) {
         let template;
@@ -159,7 +167,8 @@ function generatePage(pageConfig) {
                 title: title,
                 headerTitle: headerTitle,
                 headerSubtitle: headerSubtitle,
-                content: ''
+                content: '',
+                contentClass: contentClass
             });
             const filename = `${name}.html`;
             fs.writeFileSync(filename, renderedHtml);
@@ -343,6 +352,7 @@ function generatePage(pageConfig) {
         <div class="${itemExcerptClass}">
           ${excerpt || '这里是文章摘要...'}
         </div>
+        <a href="${item.path}/${item.file.replace('.md', '.html')}" class="${name}-read-more">阅读更多 →</a>
       </article>
       `;
                     
@@ -378,6 +388,7 @@ function generatePage(pageConfig) {
                 headerTitle: headerTitle,
                 headerSubtitle: headerSubtitle,
                 content: contentHtml,
+                contentClass: contentClass,
                 pagination: paginationHtml
             });
 
@@ -427,9 +438,16 @@ function renderTemplate(template, data) {
     rendered = rendered.replace(/\{\{nav\}\}/g, navTemplate);
     // 添加其他数据
     Object.keys(data).forEach(key => {
-        const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+        const regex = new RegExp(`\\{\\{${key}\\}\}`, 'g');
         rendered = rendered.replace(regex, data[key]);
     });
+    
+    // 处理条件语法 {{content ? 'none' : 'block'}}
+    rendered = rendered.replace(/\{\{([^}]+) \? ([^}]+) : ([^}]+)\}\}/g, (match, condition, trueValue, falseValue) => {
+        const value = data[condition.trim()];
+        return value ? trueValue : falseValue;
+    });
+    
     return rendered;
 }
 
