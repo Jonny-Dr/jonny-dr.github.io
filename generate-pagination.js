@@ -275,13 +275,16 @@ function generatePage(pageConfig) {
                 contentHtml = '';
                 Object.keys(groupedPosts).sort((a, b) => b.localeCompare(a)).forEach(year => {
                     contentHtml += `
-    <div class="archive-year">${year}年</div>`;
+    <div class="archive-year-container">
+      <div class="archive-year-decoration"></div>
+      <div class="archive-year">${year}年</div>
+    </div>`;
                     
                     Object.keys(groupedPosts[year]).sort((a, b) => b.localeCompare(a)).forEach(month => {
                         const monthPosts = groupedPosts[year][month];
                         contentHtml += `
     <div class="archive-month">
-      ${parseInt(month)}月 <span class="count">(${monthPosts.length})</span>
+      ${parseInt(month)}月 <span class="count">${monthPosts.length}</span>
     </div>
     <ul class="archive-list">`;
                         
