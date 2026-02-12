@@ -33,18 +33,8 @@
 
 ### 本地开发
 ```bash
-# 克隆仓库
-git clone https://github.com/your-username/your-username.github.io.git
-cd your-username.github.io
-
-# 安装依赖
-npm install
-
-# 启动开发服务器
-npm run dev
-
-# 构建生产版本
-npm run build
+# 提交前运行
+node generate-posts.js
 ```
 
 ### 部署到 GitHub Pages

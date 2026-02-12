@@ -5,103 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>📝 博客首页 | 北辰</title>
+  <link rel="stylesheet" href="css/common.css">
   <style>
-    :root {
-      --bg: #ffffff;
-      --text: #333333;
-      --card-bg: #f8f9fa;
-      --border: #eaeaea;
-      --primary: #4361ee;
-      --shadow: 0 2px 10px rgba(0,0,0,0.08);
-      --transition: all 0.3s ease;
-    }
-    [data-theme="dark"] {
-      --bg: #121212;
-      --text: #e6e6e6;
-      --card-bg: #1e1e1e;
-      --border: #333333;
-      --primary: #5e72e4;
-      --shadow: 0 2px 15px rgba(0,0,0,0.3);
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      transition: var(--transition);
-      padding: 20px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    header {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem 1rem;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 2.5rem;
-    }
-    h1 {
-      font-size: 2.8rem;
-      margin: 0.5rem 0;
-      background: linear-gradient(90deg, var(--primary), #3a0ca3);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      font-weight: 800;
-    }
-    .subtitle {
-      color: #6c757d;
-      font-size: 1.2rem;
-      max-width: 600px;
-      text-align: center;
-      margin-top: 0.5rem;
-    }
-    nav {
-      display: flex;
-      gap: 1.8rem;
-      margin-top: 1.2rem;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    a {
-      color: var(--text);
-      text-decoration: none;
-      font-weight: 500;
-      padding: 4px 0;
-      position: relative;
-      transition: var(--transition);
-    }
-    a:hover { color: var(--primary); }
-    a::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background: var(--primary);
-      transition: var(--transition);
-    }
-    a:hover::after { width: 100%; }
-    .theme-toggle {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: var(--transition);
-      box-shadow: var(--shadow);
-    }
-    .theme-toggle:hover { transform: rotate(20deg); }
     .post-list {
       max-width: 800px;
       margin: 0 auto;
@@ -134,36 +39,6 @@
       line-height: 1.7;
       color: #555;
     }
-    .pagination {
-      display: flex;
-      justify-content: center;
-      gap: 0.8rem;
-      margin-top: 2rem;
-    }
-    .page-link {
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      background: var(--primary);
-      color: white;
-      text-decoration: none;
-      font-weight: 500;
-      transition: var(--transition);
-    }
-    .page-link.active {
-      background: var(--primary);
-      opacity: 0.8;
-    }
-    .page-link:hover {
-      background: #3a55d3;
-    }
-    footer {
-      text-align: center;
-      padding: 2.5rem 1rem 1.5rem;
-      color: #888;
-      border-top: 1px solid var(--border);
-      font-size: 0.95rem;
-      margin-top: 2rem;
-    }
     @media (max-width: 768px) {
       .post-list { padding: 0 1rem; }
     }
@@ -184,53 +59,68 @@
       <a href="project.html">项目</a>
       <a href="about.html">关于</a>
       <a href="archives.html">归档</a>
-      <a href="days.html">日常</a>
+      <a href="daily.html">日常</a>
       <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
     </nav>
   </header>
 
   <main class="post-list">
-    
+
       <article class="post-item">
-        <h2 class="post-title"><a href="_posts/2026-02-11-daily-morning-run.html" style="color: var(--primary); text-decoration: none;">02</a></h2>
-        <div class="post-date">2026</div>
+        <h2 class="post-title"><a href="_posts/archives/2026-02-11-daily-morning-run.html" style="color: var(--primary); text-decoration: none;">2026 02 11 daily morning run</a></h2>
+        <div class="post-date">2026-02-11</div>
         <div class="post-excerpt">
-          这里是文章摘要...（实际内容由 Markdown 生成）
+          这里是文章摘要...
         </div>
       </article>
-      
+
       <article class="post-item">
-        <h2 class="post-title"><a href="_posts/2026-02-05-performance-optimization.html" style="color: var(--primary); text-decoration: none;">02</a></h2>
-        <div class="post-date">2026</div>
+        <h2 class="post-title"><a href="_posts/archives/2026-02-05-performance-optimization.html" style="color: var(--primary); text-decoration: none;">2026 02 05 performance optimization</a></h2>
+        <div class="post-date">2026-02-05</div>
         <div class="post-excerpt">
-          这里是文章摘要...（实际内容由 Markdown 生成）
+          这里是文章摘要...
         </div>
       </article>
-      
+
       <article class="post-item">
-        <h2 class="post-title"><a href="_posts/2026-02-01-github-pages-guide.html" style="color: var(--primary); text-decoration: none;">02</a></h2>
-        <div class="post-date">2026</div>
+        <h2 class="post-title"><a href="_posts/archives/2026-02-01-github-pages-guide.html" style="color: var(--primary); text-decoration: none;">如何用 GitHub Pages 搭建个人博客</a></h2>
+        <div class="post-date">2026-02-01</div>
         <div class="post-excerpt">
-          这里是文章摘要...（实际内容由 Markdown 生成）
+          本文介绍如何使用 GitHub Pages 搭建一个静态博客，无需服务器，免费且简单。
+
+## 步骤
+1. 创建 GitHub 仓库
+2. 在仓库中创建 `index.html` 文件
+3. 配置 G...
         </div>
       </article>
-      
+
       <article class="post-item">
-        <h2 class="post-title"><a href="_posts/2026-02-01-github-pages-guide_副本.html" style="color: var(--primary); text-decoration: none;">02</a></h2>
-        <div class="post-date">2026</div>
+        <h2 class="post-title"><a href="_posts/archives/2026-02-01-github-pages-guide_副本.html" style="color: var(--primary); text-decoration: none;">如何用 GitHub Pages 搭建个人博客</a></h2>
+        <div class="post-date">2026-02-01</div>
         <div class="post-excerpt">
-          这里是文章摘要...（实际内容由 Markdown 生成）
+          本文介绍如何使用 GitHub Pages 搭建一个静态博客，无需服务器，免费且简单。
+
+## 步骤
+1. 创建 GitHub 仓库
+2. 在仓库中创建 `index.html` 文件
+3. 配置 G...
         </div>
       </article>
-      
+
       <article class="post-item">
-        <h2 class="post-title"><a href="_posts/2026-02-01-github-pages-guide_副本2.html" style="color: var(--primary); text-decoration: none;">02</a></h2>
-        <div class="post-date">2026</div>
+        <h2 class="post-title"><a href="_posts/archives/2026-02-01-github-pages-guide_副本2.html" style="color: var(--primary); text-decoration: none;">如何用 GitHub Pages 搭建个人博客</a></h2>
+        <div class="post-date">2026-02-01</div>
         <div class="post-excerpt">
-          这里是文章摘要...（实际内容由 Markdown 生成）
+          本文介绍如何使用 GitHub Pages 搭建一个静态博客，无需服务器，免费且简单。
+
+## 步骤
+1. 创建 GitHub 仓库
+2. 在仓库中创建 `index.html` 文件
+3. 配置 G...
         </div>
       </article>
-      
+
   </main>
 
   <div class="pagination">
@@ -240,36 +130,11 @@
   <footer>
     <p>© 2026 北辰 · 保持好奇，持续成长</p>
     <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
-      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 |
       源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
     </p>
   </footer>
 
-  <script>
-    const themeToggle = document.getElementById('themeToggle');
-    const htmlEl = document.documentElement;
-    
-    const savedTheme = localStorage.getItem('theme') || 
-                      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    if (savedTheme === 'dark') {
-      htmlEl.setAttribute('data-theme', 'dark');
-      themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>`;
-    }
-    
-    themeToggle.addEventListener('click', () => {
-      const currentTheme = htmlEl.getAttribute('data-theme');
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      
-      htmlEl.setAttribute('data-theme', newTheme);
-      localStorage.setItem('theme', newTheme);
-      
-      if (newTheme === 'dark') {
-        themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>`;
-      } else {
-        themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
-      }
-    });
-  </script>
+  <script src="js/theme.js"></script>
 </body>
 </html>
-  
