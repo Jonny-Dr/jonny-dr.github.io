@@ -98,8 +98,8 @@ function generatePage(pageConfig) {
     let allMarkdownFiles = [];
     
     if (name === 'index') {
-        // 首页从所有栏目中获取最新文章
-        const allDirs = ['_posts/archives', '_posts/project', '_posts/daily', '_posts/index'];
+        // 首页从所有栏目中获取最新文章，但排除归档目录
+        const allDirs = ['_posts/project', '_posts/daily', '_posts/index', '_posts/skill'];
         allDirs.forEach(dir => {
             const fullPath = path.join(__dirname, dir);
             if (fs.existsSync(fullPath)) {
@@ -191,14 +191,32 @@ function generatePage(pageConfig) {
         switch (name) {
             case 'index':
                 // 首页的特殊处理
-                contentHtml = currentPosts.length > 0 ? `
-    <div class="posts-grid">
-      ${currentPosts.map(item => {
-                    const markdownPath = path.join(__dirname, item.path, item.file);
-                    const { title: postTitle, date: postDate, excerpt } = MarkdownParser.parseMarkdown(markdownPath);
-                    const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
+                if (currentPosts.length > 0) {
+                    // 最多显示6条内容
+                    const maxPosts = 6;
+                    const displayPosts = currentPosts.slice(0, maxPosts);
+                    const hasMorePosts = currentPosts.length > maxPosts;
                     
-                    return `
+                    // 生成文章卡片
+                    const postCards = displayPosts.map((item, index) => {
+                        // 检查是否是第六条且有更多文章
+                        if (hasMorePosts && index === maxPosts - 1) {
+                            // 第六条显示更多内容
+                            return `
+      <div class="post-card" style="cursor: pointer;" onclick="alert('详情请看具体栏目');">
+        <h3 class="post-title" style="color: var(--primary);">查看更多文章 →</h3>
+        <div class="post-date">共 ${currentPosts.length} 篇文章</div>
+        <p class="post-excerpt">还有 ${currentPosts.length - maxPosts + 1} 篇文章未显示，详情请查看具体栏目。</p>
+        <div class="post-link" style="color: var(--primary); font-weight: 600;">点击查看 →</div>
+      </div>
+      `;
+                        } else {
+                            // 正常显示文章
+                            const markdownPath = path.join(__dirname, item.path, item.file);
+                            const { title: postTitle, date: postDate, excerpt } = MarkdownParser.parseMarkdown(markdownPath);
+                            const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
+                            
+                            return `
       <div class="post-card">
         <h3 class="post-title"><a href="${item.path}/${item.file.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h3>
         <div class="post-date">${postDate || item.file.substring(0, 10)}</div>
@@ -206,14 +224,22 @@ function generatePage(pageConfig) {
         <a href="${item.path}/${item.file.replace('.md', '.html')}" class="post-link">阅读更多 →</a>
       </div>
       `;
-                }).join('')}
-    </div>` : `
+                        }
+                    }).join('');
+                    
+                    contentHtml = `
+    <div class="posts-grid">
+      ${postCards}
+    </div>`;
+                } else {
+                    contentHtml = `
     <div class="empty-container" style="text-align: center; padding: 4rem 1rem;">
       <div style="font-size: 4rem; margin-bottom: 1.5rem; color: var(--primary); opacity: 0.7;">📝</div>
       <h2 style="font-size: 1.8rem; margin-bottom: 1rem; color: var(--text);">暂无文章</h2>
       <p style="font-size: 1.1rem; margin-bottom: 2rem; color: #888;">博客刚起步，正在准备精彩内容，敬请期待！</p>
       <a href="archives.html" style="display: inline-block; padding: 0.8rem 1.8rem; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 500; transition: var(--transition);">浏览归档</a>
     </div>`;
+                }
                 break;
             case 'archives':
                 // 归档栏目的特殊处理：按年份和月份分组
