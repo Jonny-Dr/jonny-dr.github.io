@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>✨ 日常 | 北辰</title>
+  <link rel="stylesheet" href="css/common.css">
+  <style>
+    .daily-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .daily-item {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.8rem;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+    }
+    .daily-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    .daily-title {
+      font-size: 1.6rem;
+      margin-bottom: 0.8rem;
+      color: var(--primary);
+      font-weight: 600;
+    }
+    .daily-date {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+    }
+    .daily-content {
+      line-height: 1.7;
+      color: #555;
+    }
+    @media (max-width: 768px) {
+      .daily-container { padding: 0 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <header>
+    <h1>✨ 日常</h1>
+    <p class="subtitle">生活点滴记录 | 感悟与思考</p>
+    <nav>
+      <a href="index.html">首页</a>
+      <a href="project.html">项目</a>
+      <a href="about.html">关于</a>
+      <a href="archives.html">归档</a>
+      <a href="daily.html">日常</a>
+      <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </header>
+
+  <main class="daily-container">
+
+      <article class="daily-item">
+        <h2 class="daily-title"><a href="_posts/archives/2026-02-11-daily-morning-run.html" style="color: var(--primary); text-decoration: none;">2026 02 11 daily morning run</a></h2>
+        <div class="daily-date">2026-02-11</div>
+        <div class="daily-content">
+          这里是文章摘要...
+        </div>
+      </article>
+
+      <article class="daily-item">
+        <h2 class="daily-title"><a href="_posts/archives/2026-02-05-performance-optimization.html" style="color: var(--primary); text-decoration: none;">2026 02 05 performance optimization</a></h2>
+        <div class="daily-date">2026-02-05</div>
+        <div class="daily-content">
+          这里是文章摘要...
+        </div>
+      </article>
+
+      <article class="daily-item">
+        <h2 class="daily-title"><a href="_posts/archives/2026-02-01-github-pages-guide.html" style="color: var(--primary); text-decoration: none;">如何用 GitHub Pages 搭建个人博客</a></h2>
+        <div class="daily-date">2026-02-01</div>
+        <div class="daily-content">
+          本文介绍如何使用 GitHub Pages 搭建一个静态博客，无需服务器，免费且简单。
+
+## 步骤
+1. 创建 GitHub 仓库
+2. 在仓库中创建 `index.html` 文件
+3. 配置 G...
+        </div>
+      </article>
+
+      <article class="daily-item">
+        <h2 class="daily-title"><a href="_posts/archives/2026-02-01-github-pages-guide_副本.html" style="color: var(--primary); text-decoration: none;">如何用 GitHub Pages 搭建个人博客</a></h2>
+        <div class="daily-date">2026-02-01</div>
+        <div class="daily-content">
+          本文介绍如何使用 GitHub Pages 搭建一个静态博客，无需服务器，免费且简单。
+
+## 步骤
+1. 创建 GitHub 仓库
+2. 在仓库中创建 `index.html` 文件
+3. 配置 G...
+        </div>
+      </article>
+
+  </main>
+
+  <div class="pagination">
+    <a href="daily.html" class="page-link active">1</a><a href="daily-2.html" class="page-link ">2</a>
+  </div>
+
+  <footer>
+    <p>© 2026 北辰 · 保持好奇，持续成长</p>
+    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 |
+      源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
+    </p>
+  </footer>
+
+  <script src="js/theme.js"></script>
+</body>
+</html>
