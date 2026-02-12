@@ -14,8 +14,9 @@ function generateHtmlFromMarkdown(markdownPath, htmlPath) {
 const pageConfigs = [
     {
         name: 'index',
-        title: '📝 博客首页 | 北辰',
-        headerTitle: '📝 北辰的博客',
+        title: '🌱 博客首页 | 北辰',
+        icon: '🌱',
+        headerTitle: '北辰的博客',
         headerSubtitle: '记录思考，分享成长 | 一个热爱技术的探索者',
         contentClass: 'post-list',
         itemClass: 'post-item',
@@ -28,7 +29,8 @@ const pageConfigs = [
     {
         name: 'project',
         title: '☕️ 个人项目 | 北辰',
-        headerTitle: '☕️ 个人项目',
+        icon: '☕️',
+        headerTitle: '个人项目',
         headerSubtitle: '分享我开发的项目和技术实践',
         contentClass: 'project-container',
         itemClass: 'project-card',
@@ -41,7 +43,8 @@ const pageConfigs = [
     {
         name: 'skill',
         title: '🛠️ 技术 | 北辰',
-        headerTitle: '🛠️ 技术',
+        icon: '🛠️',
+        headerTitle: '技术',
         headerSubtitle: '技术分享与实践 | 前端、后端、运维等',
         contentClass: 'skill-container',
         itemClass: 'skill-card',
@@ -54,7 +57,8 @@ const pageConfigs = [
     {
         name: 'daily',
         title: '✨ 日常 | 北辰',
-        headerTitle: '✨ 日常',
+        icon: '✨',
+        headerTitle: '日常',
         headerSubtitle: '生活点滴记录 | 感悟与思考',
         contentClass: 'daily-container',
         itemClass: 'daily-item',
@@ -68,7 +72,8 @@ const pageConfigs = [
     {
         name: 'archives',
         title: '📚 文章归档 | 北辰',
-        headerTitle: '📚 文章归档',
+        icon: '📚',
+        headerTitle: '文章归档',
         headerSubtitle: '所有文章的历史记录',
         contentClass: 'archives-container',
         itemClass: 'archives-item',
@@ -91,12 +96,12 @@ pageConfigs.forEach(config => {
 
 // 生成页面函数
 function generatePage(pageConfig) {
-    const { name, title, headerTitle, headerSubtitle, contentClass, itemClass, itemTitleClass, itemDateClass, itemExcerptClass, postsPerPage, directory } = pageConfig;
+    const { name, title, icon, headerTitle, headerSubtitle, contentClass, itemClass, itemTitleClass, itemDateClass, itemExcerptClass, postsPerPage, directory } = pageConfig;
 
     // 读取目录下的所有文章
     let postsDir = path.join(__dirname, directory);
     let allMarkdownFiles = [];
-    
+
     if (name === 'index') {
         // 首页从所有栏目中获取最新文章，但排除归档目录
         const allDirs = ['_posts/project', '_posts/daily', '_posts/index', '_posts/skill'];
@@ -161,10 +166,11 @@ function generatePage(pageConfig) {
             // 其他页面使用默认模板
             template = readTemplate('default');
         }
-        
+
         if (template) {
             const renderedHtml = renderTemplate(template, {
                 title: title,
+                icon: icon,
                 headerTitle: headerTitle,
                 headerSubtitle: headerSubtitle,
                 content: '',
@@ -196,7 +202,7 @@ function generatePage(pageConfig) {
                     const maxPosts = 6;
                     const displayPosts = currentPosts.slice(0, maxPosts);
                     const hasMorePosts = currentPosts.length > maxPosts;
-                    
+
                     // 生成文章卡片
                     const postCards = displayPosts.map((item, index) => {
                         // 检查是否是第六条且有更多文章
@@ -215,7 +221,7 @@ function generatePage(pageConfig) {
                             const markdownPath = path.join(__dirname, item.path, item.file);
                             const { title: postTitle, date: postDate, excerpt } = MarkdownParser.parseMarkdown(markdownPath);
                             const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
-                            
+
                             return `
       <div class="post-card">
         <h3 class="post-title"><a href="${item.path}/${item.file.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h3>
@@ -226,7 +232,7 @@ function generatePage(pageConfig) {
       `;
                         }
                     }).join('');
-                    
+
                     contentHtml = `
     <div class="posts-grid">
       ${postCards}
@@ -244,25 +250,25 @@ function generatePage(pageConfig) {
             case 'archives':
                 // 归档栏目的特殊处理：按年份和月份分组
                 const groupedPosts = {};
-                
+
                 // 按年份和月份分组文章
                 currentPosts.forEach(item => {
                     const markdownPath = path.join(__dirname, item.path, item.file);
                     const { title: postTitle, date: postDate } = MarkdownParser.parseMarkdown(markdownPath);
                     const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
-                    
+
                     // 从文件名或日期中提取年份和月份
                     const postDateStr = postDate || item.file.substring(0, 10);
                     const year = postDateStr.substring(0, 4);
                     const month = postDateStr.substring(5, 7);
-                    
+
                     if (!groupedPosts[year]) {
                         groupedPosts[year] = {};
                     }
                     if (!groupedPosts[year][month]) {
                         groupedPosts[year][month] = [];
                     }
-                    
+
                     groupedPosts[year][month].push({
                         post: item.file,
                         title: cleanTitle,
@@ -270,7 +276,7 @@ function generatePage(pageConfig) {
                         path: `${item.path}/${item.file.replace('.md', '.html')}`
                     });
                 });
-                
+
                 // 生成按年份和月份分组的 HTML
                 contentHtml = '';
                 Object.keys(groupedPosts).sort((a, b) => b.localeCompare(a)).forEach(year => {
@@ -279,7 +285,7 @@ function generatePage(pageConfig) {
       <div class="archive-year-decoration"></div>
       <div class="archive-year">${year}年</div>
     </div>`;
-                    
+
                     Object.keys(groupedPosts[year]).sort((a, b) => b.localeCompare(a)).forEach(month => {
                         const monthPosts = groupedPosts[year][month];
                         contentHtml += `
@@ -287,7 +293,7 @@ function generatePage(pageConfig) {
       ${parseInt(month)}月 <span class="count">${monthPosts.length}</span>
     </div>
     <ul class="archive-list">`;
-                        
+
                         monthPosts.forEach(postItem => {
                             contentHtml += `
       <li class="archive-item">
@@ -295,7 +301,7 @@ function generatePage(pageConfig) {
         <div class="archive-date">${postItem.date}</div>
       </li>`;
                         });
-                        
+
                         contentHtml += `
     </ul>`;
                     });
@@ -307,13 +313,13 @@ function generatePage(pageConfig) {
                     const markdownPath = path.join(__dirname, item.path, item.file);
                     const { title: postTitle, date: postDate, categories, languages, excerpt } = MarkdownParser.parseMarkdown(markdownPath);
                     const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
-                    
+
                     let itemHtml = `
       <article class="${itemClass}">
         <div class="skill-header">
           <h2 class="${itemTitleClass}"><a href="${item.path}/${item.file.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h2>
           <div class="skill-meta">`;
-                    
+
                     if (itemDateClass && postDate) {
                         itemHtml += `
             <div class="skill-meta-item">
@@ -321,7 +327,7 @@ function generatePage(pageConfig) {
               <span>${postDate || item.file.substring(0, 10)}</span>
             </div>`;
                     }
-                    
+
                     if (categories.length > 0) {
                         itemHtml += `
             <div class="skill-meta-item">
@@ -329,7 +335,7 @@ function generatePage(pageConfig) {
               <span>${categories.join(' · ')}</span>
             </div>`;
                     }
-                    
+
                     if (languages.length > 0) {
                         itemHtml += `
             <div class="skill-meta-item">
@@ -337,10 +343,10 @@ function generatePage(pageConfig) {
               <span>${languages.join(' · ')}</span>
             </div>`;
                     }
-                    
+
                     itemHtml += `
           </div>`;
-                    
+
                     if (categories.length > 0 || languages.length > 0) {
                         itemHtml += `
           <div class="skill-tags">
@@ -348,7 +354,7 @@ function generatePage(pageConfig) {
             ${languages.map(lang => `<span class="skill-tag">${lang}</span>`).join(' ')}
           </div>`;
                     }
-                    
+
                     itemHtml += `
         </div>
         <div class="${itemExcerptClass}">
@@ -357,7 +363,7 @@ function generatePage(pageConfig) {
         <a href="${item.path}/${item.file.replace('.md', '.html')}" class="skill-read-more">阅读更多 →</a>
       </article>
       `;
-                    
+
                     return itemHtml;
                 }).join('');
                 break;
@@ -367,16 +373,16 @@ function generatePage(pageConfig) {
                     const markdownPath = path.join(__dirname, item.path, item.file);
                     const { title: postTitle, date: postDate, excerpt } = MarkdownParser.parseMarkdown(markdownPath);
                     const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
-                    
+
                     let itemHtml = `
       <article class="${itemClass}">
         <h2 class="${itemTitleClass}"><a href="${item.path}/${item.file.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h2>`;
-                    
+
                     if (itemDateClass) {
                         itemHtml += `
         <div class="${itemDateClass}">${postDate || item.file.substring(0, 10)}</div>`;
                     }
-                    
+
                     itemHtml += `
         <div class="${itemExcerptClass}">
           ${excerpt || '这里是文章摘要...'}
@@ -384,7 +390,7 @@ function generatePage(pageConfig) {
         <a href="${item.path}/${item.file.replace('.md', '.html')}" class="${name}-read-more">阅读更多 →</a>
       </article>
       `;
-                    
+
                     return itemHtml;
                 }).join('');
                 break;
@@ -414,6 +420,7 @@ function generatePage(pageConfig) {
             // 渲染模板
             const renderedHtml = renderTemplate(template, {
                 title: title,
+                icon: icon,
                 headerTitle: headerTitle,
                 headerSubtitle: headerSubtitle,
                 content: contentHtml,
@@ -470,13 +477,13 @@ function renderTemplate(template, data) {
         const regex = new RegExp(`\\{\\{${key}\\}\}`, 'g');
         rendered = rendered.replace(regex, data[key]);
     });
-    
+
     // 处理条件语法 {{content ? 'none' : 'block'}}
     rendered = rendered.replace(/\{\{([^}]+) \? ([^}]+) : ([^}]+)\}\}/g, (match, condition, trueValue, falseValue) => {
         const value = data[condition.trim()];
         return value ? trueValue : falseValue;
     });
-    
+
     return rendered;
 }
 

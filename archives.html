@@ -45,11 +45,23 @@
     h1 {
       font-size: 2.8rem;
       margin: 0.5rem 0;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .header-icon {
+      font-size: 2.5rem;
+      color: inherit;
+      background: none;
+      -webkit-background-clip: unset;
+      background-clip: unset;
+    }
+    .header-title {
       background: linear-gradient(90deg, var(--primary), #3a0ca3);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      font-weight: 800;
     }
     .subtitle {
       color: #6c757d;
@@ -191,7 +203,10 @@
   </button>
 
   <header>
-    <h1>📚 文章归档</h1>
+    <h1>
+      <span class="header-icon">📚</span>
+      <span class="header-title">文章归档</span>
+    </h1>
     <p class="subtitle">所有文章的历史记录</p>
     <nav>
   <a href="index.html">首页</a>
