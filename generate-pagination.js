@@ -28,8 +28,8 @@ const pageConfigs = [
     },
     {
         name: 'project',
-        title: '☕️ 个人项目 | 北辰',
-        icon: '☕️',
+        title: '☘️ 个人项目 | 北辰',
+        icon: '☘️',
         headerTitle: '个人项目',
         headerSubtitle: '分享我开发的项目和技术实践',
         contentClass: 'project-container',
@@ -42,8 +42,8 @@ const pageConfigs = [
     },
     {
         name: 'skill',
-        title: '🛠️ 技术 | 北辰',
-        icon: '🛠️',
+        title: '🍀 技术 | 北辰',
+        icon: '🍀',
         headerTitle: '技术',
         headerSubtitle: '技术分享与实践 | 前端、后端、运维等',
         contentClass: 'skill-container',
@@ -71,8 +71,8 @@ const pageConfigs = [
 
     {
         name: 'archives',
-        title: '📚 文章归档 | 北辰',
-        icon: '📚',
+        title: '☕️ 文章归档 | 北辰',
+        icon: '☕️',
         headerTitle: '文章归档',
         headerSubtitle: '所有文章的历史记录',
         contentClass: 'archives-container',
