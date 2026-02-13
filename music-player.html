@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>音乐播放器</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    // 背景音乐播放器
+    const audio = new Audio('/images/music/background.mp3');
+    audio.loop = true;
+    audio.volume = 0.3;
+    
+    // 从localStorage恢复播放状态
+    const savedMusicTime = localStorage.getItem('musicTime');
+    const savedMusicPlaying = localStorage.getItem('musicPlaying') === 'true';
+    
+    if (savedMusicTime) {
+      audio.currentTime = parseFloat(savedMusicTime);
+    }
+    
+    // 尝试恢复播放状态
+    if (savedMusicPlaying) {
+      audio.play().catch(function(error) {
+        console.log('自动播放被阻止:', error);
+      });
+    } else {
+      // 默认尝试自动播放
+      audio.play().catch(function(error) {
+        console.log('自动播放被阻止:', error);
+      });
+    }
+
+    // 存储播放状态
+    function saveMusicState() {
+      localStorage.setItem('musicTime', audio.currentTime);
+      localStorage.setItem('musicPlaying', !audio.paused);
+    }
+
+    // 定期保存播放状态
+    setInterval(saveMusicState, 1000);
+
+    // 页面卸载时保存播放状态
+    window.addEventListener('beforeunload', saveMusicState);
+
+    // 提供控制方法给父窗口
+    window.playMusic = function() {
+      audio.play().catch(function(error) {
+        console.log('播放被阻止:', error);
+      });
+      saveMusicState();
+    };
+
+    window.pauseMusic = function() {
+      audio.pause();
+      saveMusicState();
+    };
+
+    window.isPlaying = function() {
+      return !audio.paused;
+    };
+  </script>
+</body>
+</html>

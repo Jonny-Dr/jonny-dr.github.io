@@ -5,7 +5,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>如何用 GitHub Pages 搭建个人博客 | 北辰</title>
-  <link rel="stylesheet" href="../../css/common.css">
+  <link rel="stylesheet" href="../../../css/common.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
   <style>
     .post-content {
       max-width: 800px;
@@ -25,6 +28,29 @@
     .post-meta {
       color: #888;
       font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .post-tag {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .post-tag.category {
+      background: rgba(72, 187, 120, 0.1);
+      color: #48bb78;
+    }
+    .post-tag.language {
+      background: rgba(237, 137, 54, 0.1);
+      color: #ed8936;
     }
     .post-body {
       margin-bottom: 2rem;
@@ -33,6 +59,8 @@
       font-size: 1.8rem;
       margin: 2rem 0 1rem;
       color: var(--primary);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
     }
     .post-body h3 {
       font-size: 1.4rem;
@@ -49,12 +77,65 @@
     .post-body a:hover {
       text-decoration: underline;
     }
+    .post-body ul,
+    .post-body ol {
+      margin: 1rem 0 1.5rem 1.5rem;
+    }
+    .post-body li {
+      margin-bottom: 0.5rem;
+    }
+    .post-body pre {
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border);
+    }
+    .post-body code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.9rem;
+    }
+    .post-body pre code {
+      background: none;
+      padding: 0;
+    }
+    .post-body img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .post-original-link {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+      color: #6c757d;
+    }
+    .post-original-link a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-original-link a:hover {
+      text-decoration: underline;
+    }
     @media (max-width: 768px) {
       .post-content {
         padding: 0 1rem;
       }
       .post-header h1 {
         font-size: 1.8rem;
+      }
+      .post-tags {
+        gap: 0.5rem;
+      }
+      .post-tag {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      .post-body pre {
+        padding: 1rem;
       }
     }
   </style>
@@ -66,17 +147,24 @@
     </svg>
   </button>
 
+  <button class="music-toggle" id="musicToggle" aria-label="控制音乐">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+    </svg>
+  </button>
+
   <header>
     <h1>📝 北辰的博客</h1>
     <p class="subtitle">记录思考，分享成长 | 一个热爱技术的探索者</p>
     <nav>
-      <a href="../../index.html">首页</a>
-      <a href="../../project.html">项目</a>
-      <a href="../../about.html">关于</a>
-      <a href="../../archives.html">归档</a>
-      <a href="../../daily.html">日常</a>
-      <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
-    </nav>
+  <a href="../../index.html">首页</a>
+  <a href="../../project.html">项目</a>
+  <a href="../../skill.html">技术</a>
+  <a href="../../daily.html">日常</a>
+  <a href="../../about.html">关于</a>
+  <a href="../../archives.html">归档</a>
+  <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+</nav>
   </header>
 
   <main class="post-content">
@@ -84,14 +172,16 @@
       <div class="post-header">
         <h1>如何用 GitHub Pages 搭建个人博客</h1>
         <div class="post-meta">发布日期：2026-02-01</div>
+        
+        
       </div>
       <div class="post-body">
         <p>本文介绍如何使用 GitHub Pages 搭建一个静态博客，无需服务器，免费且简单。</p>
 <p></p>
 <h2>步骤</h2>
-<p>1. 创建 GitHub 仓库</p>
-<p>2. 在仓库中创建 `index.html` 文件</p>
-<p>3. 配置 GitHub Pages</p>
+<ol><li>创建 GitHub 仓库</li>
+<li>在仓库中创建 <code>index.html</code> 文件</li>
+<li>配置 GitHub Pages</li></ol>
       </div>
     </article>
   </main>
@@ -104,7 +194,7 @@
     </p>
   </footer>
 
-  <script src="../../js/theme.js"></script>
+  <script src="../../../js/theme.js"></script>
 </body>
 </html>
   
