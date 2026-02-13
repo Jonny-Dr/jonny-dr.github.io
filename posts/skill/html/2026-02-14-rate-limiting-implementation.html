@@ -1,0 +1,545 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>限流技术详解与实践 | 北辰</title>
+  <link rel="stylesheet" href="../../../../css/common.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <style>
+    .post-content {
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+    .post-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    .post-meta {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .post-tag {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .post-tag.category {
+      background: rgba(72, 187, 120, 0.1);
+      color: #48bb78;
+    }
+    .post-tag.language {
+      background: rgba(237, 137, 54, 0.1);
+      color: #ed8936;
+    }
+    .post-body {
+      margin-bottom: 2rem;
+    }
+    .post-body h2 {
+      font-size: 1.8rem;
+      margin: 2rem 0 1rem;
+      color: var(--primary);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-body h3 {
+      font-size: 1.4rem;
+      margin: 1.5rem 0 0.8rem;
+      color: var(--primary);
+    }
+    .post-body p {
+      margin-bottom: 1.2rem;
+    }
+    .post-body a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-body a:hover {
+      text-decoration: underline;
+    }
+    .post-body ul,
+    .post-body ol {
+      margin: 1rem 0 1.5rem 1.5rem;
+    }
+    .post-body li {
+      margin-bottom: 0.5rem;
+    }
+    .post-body pre {
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border);
+    }
+    .post-body code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.9rem;
+    }
+    .post-body pre code {
+      background: none;
+      padding: 0;
+    }
+    .post-body img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .post-original-link {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+      color: #6c757d;
+    }
+    .post-original-link a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-original-link a:hover {
+      text-decoration: underline;
+    }
+    @media (max-width: 768px) {
+      .post-content {
+        padding: 0 1rem;
+      }
+      .post-header h1 {
+        font-size: 1.8rem;
+      }
+      .post-tags {
+        gap: 0.5rem;
+      }
+      .post-tag {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      .post-body pre {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <button class="music-toggle" id="musicToggle" aria-label="控制音乐">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+  </button>
+
+  <header>
+    <h1>🌱 北辰的博客</h1>
+    <p class="subtitle">记录思考，分享成长 | 一个热爱技术的探索者</p>
+    <nav>
+  <a href="../../../index.html">首页</a>
+  <a href="../../../project.html">项目</a>
+  <a href="../../../skill.html">技术</a>
+  <a href="../../../daily.html">日常</a>
+  <a href="../../../about.html">关于</a>
+  <a href="../../../archives.html">归档</a>
+  <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+</nav>
+  </header>
+
+  <main class="post-content">
+    <article>
+      <div class="post-header">
+        <h1>限流技术详解与实践</h1>
+        <div class="post-meta">发布日期：2026-02-14</div>
+        
+        
+      </div>
+      <div class="post-body">
+        <h1>限流技术详解与实践</h1>
+<p></p>
+<h2>一、限流的基本概念</h2>
+<p></p>
+<h3>1. 什么是限流</h3>
+<p></p>
+<p>限流（Rate Limiting）是一种保护系统的机制，通过限制单位时间内的请求数量，防止系统因流量过载而崩溃。它是高并发系统设计中的重要组成部分，与熔断、降级一起构成了系统的保护屏障。</p>
+<p></p>
+<h3>2. 为什么需要限流</h3>
+<p></p>
+<ul><ol><li><strong>保护系统稳定性</strong>：防止突发流量导致系统资源耗尽</li>
+<li><strong>防止恶意攻击</strong>：抵御DDoS等恶意请求</li>
+<li><strong>合理分配资源</strong>：确保每个用户都能获得公平的服务</li>
+<li><strong>降低运营成本</strong>：避免为应对峰值流量而过度扩容</li>
+<p></p>
+<h3>3. 限流的常见指标</h3>
+<p></p>
+<li><strong>QPS（Queries Per Second）</strong>：每秒查询数</li>
+<li><strong>TPS（Transactions Per Second）</strong>：每秒事务数</li>
+<li><strong>并发连接数</strong>：同时处理的连接数量</li>
+<li><strong>带宽</strong>：网络传输速率</li>
+<p></p>
+<h2>二、常见的限流算法</h2>
+<p></p>
+<h3>1. 计数器算法</h3>
+<p></p>
+<p><strong>原理</strong>：维护一个计数器，每次请求到来时加1，当计数器超过阈值时拒绝请求，定期重置计数器。</p>
+<p></p>
+<p><strong>优点</strong>：实现简单</p>
+<p><strong>缺点</strong>：存在边界问题，可能在重置时瞬间接受大量请求</p>
+<p></p>
+<h3>2. 滑动窗口算法</h3>
+<p></p>
+<p><strong>原理</strong>：将时间窗口分成多个小格子，每个格子对应一个计数器，窗口滑动时移除旧格子并添加新格子，统计窗口内的总请求数。</p>
+<p></p>
+<p><strong>优点</strong>：解决了计数器算法的边界问题</p>
+<p><strong>缺点</strong>：实现相对复杂</p>
+<p></p>
+<h3>3. 令牌桶算法</h3>
+<p></p>
+<p><strong>原理</strong>：系统以固定速率向桶中放入令牌，请求到来时需要获取令牌才能通过，桶满时多余的令牌会被丢弃。</p>
+<p></p>
+<p><strong>优点</strong>：支持突发流量，配置灵活</p>
+<p><strong>缺点</strong>：实现稍复杂</p>
+<p></p>
+<h3>4. 漏桶算法</h3>
+<p></p>
+<p><strong>原理</strong>：请求进入漏桶后，以固定速率流出，桶满时新请求被拒绝。</p>
+<p></p>
+<p><strong>优点</strong>：平滑流量，避免突发</p>
+<p><strong>缺点</strong>：无法应对短时突发流量</p>
+<p></p>
+<h2>三、使用Sentinel实现限流</h2>
+<p></p>
+<h3>1. Sentinel简介</h3>
+<p></p>
+<p>Sentinel是阿里巴巴开源的面向分布式服务架构的高可用流量控制组件，主要功能包括流量控制、熔断降级、系统负载保护等。</p>
+<p></p>
+<h3>2. Sentinel的安装与配置</h3>
+<p></p>
+<h4>2.1 引入依赖</h4>
+<p></p>
+<pre><code class="language-xml">&lt;dependency&gt;
+<p>    &lt;groupId&gt;com.alibaba.csp&lt;/groupId&gt;</p>
+<p>    &lt;artifactId&gt;sentinel-core&lt;/artifactId&gt;</p>
+<p>    &lt;version&gt;1.8.6&lt;/version&gt;</p>
+<p>&lt;/dependency&gt;</p>
+<p></code></pre></p>
+<p></p>
+<h4>2.2 配置Sentinel Dashboard（可选）</h4>
+<p></p>
+<p>Sentinel Dashboard是一个可视化的控制台，可以实时监控资源的流量控制和熔断情况。</p>
+<p></p>
+<pre><code class="language-bash">&lt;h1&gt;下载Sentinel Dashboard&lt;/h1&gt;
+<p>wget https://github.com/alibaba/Sentinel/releases/download/v1.8.6/sentinel-dashboard-1.8.6.jar</p>
+<p></p>
+<p>&lt;h1&gt;启动Dashboard&lt;/h1&gt;</p>
+<p>java -jar sentinel-dashboard-1.8.6.jar</p>
+<p></code></pre></p>
+<p></p>
+<p>访问 <code>http://localhost:8080</code> 即可打开控制台，默认用户名和密码都是 <code>sentinel</code>。</p>
+<p></p>
+<h3>3. Sentinel的基本使用</h3>
+<p></p>
+<h4>3.1 定义资源</h4>
+<p></p>
+<pre><code class="language-java">import com.alibaba.csp.sentinel.slots.block.BlockException;
+<p>import com.alibaba.csp.sentinel.slots.block.RuleConstant;</p>
+<p>import com.alibaba.csp.sentinel.slots.block.flow.FlowRule;</p>
+<p>import com.alibaba.csp.sentinel.slots.block.flow.FlowRuleManager;</p>
+<p></p>
+<p>import java.util.ArrayList;</p>
+<p>import java.util.List;</p>
+<p></p>
+<p>public class SentinelDemo {</p>
+<p></p>
+<p>    public static void main(String[] args) {</p>
+<p>        // 配置流控规则</p>
+<p>        initFlowRules();</p>
+<p></p>
+<p>        // 模拟请求</p>
+<p>        for (int i = 0; i &lt; 20; i++) {</p>
+<p>            try {</p>
+<p>                // 定义资源</p>
+<p>                com.alibaba.csp.sentinel.Entry entry = com.alibaba.csp.sentinel.SphU.entry(&quot;HelloWorld&quot;);</p>
+<p>                try {</p>
+<p>                    // 业务逻辑</p>
+<p>                    System.out.println(&quot;请求通过，时间：&quot; + System.currentTimeMillis());</p>
+<p>                } finally {</p>
+<p>                    entry.exit();</p>
+<p>                }</p>
+<p>            } catch (BlockException e) {</p>
+<p>                // 处理被限流的情况</p>
+<p>                System.out.println(&quot;请求被限流，时间：&quot; + System.currentTimeMillis());</p>
+<p>            }</p>
+<p>            // 休眠100ms</p>
+<p>            try {</p>
+<p>                Thread.sleep(100);</p>
+<p>            } catch (InterruptedException e) {</p>
+<p>                e.printStackTrace();</p>
+<p>            }</p>
+<p>        }</p>
+<p>    }</p>
+<p></p>
+<p>    // 初始化流控规则</p>
+<p>    private static void initFlowRules() {</p>
+<p>        List&lt;FlowRule&gt; rules = new ArrayList&lt;&gt;();</p>
+<p>        FlowRule rule = new FlowRule();</p>
+<p>        // 资源名称</p>
+<p>        rule.setResource(&quot;HelloWorld&quot;);</p>
+<p>        // 限流阈值类型：QPS</p>
+<p>        rule.setGrade(RuleConstant.FLOW_GRADE_QPS);</p>
+<p>        // 限流阈值：每秒5个请求</p>
+<p>        rule.setCount(5);</p>
+<p>        rules.add(rule);</p>
+<p>        FlowRuleManager.loadRules(rules);</p>
+<p>    }</p>
+<p>}</p>
+<p></code></pre></p>
+<p></p>
+<h4>3.2 基于注解的方式</h4>
+<p></p>
+<pre><code class="language-java">import com.alibaba.csp.sentinel.annotation.SentinelResource;
+<p>import com.alibaba.csp.sentinel.slots.block.BlockException;</p>
+<p>import org.springframework.web.bind.annotation.GetMapping;</p>
+<p>import org.springframework.web.bind.annotation.RestController;</p>
+<p></p>
+<p>@RestController</p>
+<p>public class TestController {</p>
+<p></p>
+<p>    @GetMapping(&quot;/test&quot;)</p>
+<p>    @SentinelResource(value = &quot;testResource&quot;, blockHandler = &quot;blockHandlerMethod&quot;)</p>
+<p>    public String test() {</p>
+<p>        return &quot;Hello, Sentinel!&quot;;</p>
+<p>    }</p>
+<p></p>
+<p>    // 处理被限流的情况</p>
+<p>    public String blockHandlerMethod(BlockException ex) {</p>
+<p>        return &quot;请求过于频繁，请稍后再试！&quot;;</p>
+<p>    }</p>
+<p>}</p>
+<p></code></pre></p>
+<p></p>
+<h3>4. Sentinel的高级特性</h3>
+<p></p>
+<h4>4.1 热点参数限流</h4>
+<p></p>
+<p>针对请求中的热点参数进行限流，例如限制某个用户ID的请求频率。</p>
+<p></p>
+<pre><code class="language-java">// 热点参数限流规则
+<p>ParamFlowRule rule = new ParamFlowRule();</p>
+<p>rule.setResource(&quot;hotResource&quot;);</p>
+<p>// 设置参数索引</p>
+<p>rule.setParamIdx(0);</p>
+<p>// 设置限流阈值</p>
+<p>rule.setCount(5);</p>
+<p>// 加载规则</p>
+<p>ParamFlowRuleManager.loadRules(Collections.singletonList(rule));</p>
+<p></code></pre></p>
+<p></p>
+<h4>4.2 集群限流</h4>
+<p></p>
+<p>在分布式环境下，对整个集群的流量进行统一限制。</p>
+<p></p>
+<h4>4.3 熔断降级</h4>
+<p></p>
+<p>当服务出现异常时，自动熔断以避免级联故障。</p>
+<p></p>
+<h2>四、使用代码统计IP以限制流量</h2>
+<p></p>
+<h3>1. 基于内存的IP限流实现</h3>
+<p></p>
+<p><strong>适用于单机部署的小型应用</strong></p>
+<p></p>
+<pre><code class="language-java">import java.util.Map;
+<p>import java.util.concurrent.ConcurrentHashMap;</p>
+<p>import java.util.concurrent.Executors;</p>
+<p>import java.util.concurrent.ScheduledExecutorService;</p>
+<p>import java.util.concurrent.TimeUnit;</p>
+<p></p>
+<p>public class IpRateLimiter {</p>
+<p></p>
+<p>    // 存储每个IP的请求计数</p>
+<p>    private final Map&lt;String, Integer&gt; ipCounter = new ConcurrentHashMap&lt;&gt;();</p>
+<p>    // 限流阈值（每秒请求数）</p>
+<p>    private final int limit;</p>
+<p>    // 定时任务线程池</p>
+<p>    private final ScheduledExecutorService scheduler;</p>
+<p></p>
+<p>    public IpRateLimiter(int limit) {</p>
+<p>        this.limit = limit;</p>
+<p>        this.scheduler = Executors.newSingleThreadScheduledExecutor();</p>
+<p>        // 每秒重置计数器</p>
+<p>        this.scheduler.scheduleAtFixedRate(this::resetCounter, 1, 1, TimeUnit.SECONDS);</p>
+<p>    }</p>
+<p></p>
+<p>    // 检查IP是否允许访问</p>
+<p>    public boolean allowRequest(String ip) {</p>
+<p>        Integer count = ipCounter.getOrDefault(ip, 0);</p>
+<p>        if (count &gt;= limit) {</p>
+<p>            return false;</p>
+<p>        }</p>
+<p>        ipCounter.put(ip, count + 1);</p>
+<p>        return true;</p>
+<p>    }</p>
+<p></p>
+<p>    // 重置计数器</p>
+<p>    private void resetCounter() {</p>
+<p>        ipCounter.clear();</p>
+<p>    }</p>
+<p></p>
+<p>    // 关闭资源</p>
+<p>    public void shutdown() {</p>
+<p>        scheduler.shutdown();</p>
+<p>    }</p>
+<p>}</p>
+<p></code></pre></p>
+<p></p>
+<h3>2. 基于Redis的分布式IP限流实现</h3>
+<p></p>
+<p><strong>适用于分布式部署的大型应用</strong></p>
+<p></p>
+<pre><code class="language-java">import redis.clients.jedis.Jedis;
+<p>import redis.clients.jedis.JedisPool;</p>
+<p></p>
+<p>public class DistributedIpRateLimiter {</p>
+<p></p>
+<p>    private final JedisPool jedisPool;</p>
+<p>    private final int limit;</p>
+<p>    private final int windowSeconds;</p>
+<p></p>
+<p>    public DistributedIpRateLimiter(JedisPool jedisPool, int limit, int windowSeconds) {</p>
+<p>        this.jedisPool = jedisPool;</p>
+<p>        this.limit = limit;</p>
+<p>        this.windowSeconds = windowSeconds;</p>
+<p>    }</p>
+<p></p>
+<p>    // 检查IP是否允许访问</p>
+<p>    public boolean allowRequest(String ip) {</p>
+<p>        try (Jedis jedis = jedisPool.getResource()) {</p>
+<p>            String key = &quot;rate_limit:&quot; + ip;</p>
+<p>            // 原子递增</p>
+<p>            long current = jedis.incr(key);</p>
+<p>            </p>
+<p>            // 设置过期时间（仅第一次设置）</p>
+<p>            if (current == 1) {</p>
+<p>                jedis.expire(key, windowSeconds);</p>
+<p>            }</p>
+<p>            </p>
+<p>            return current &lt;= limit;</p>
+<p>        }</p>
+<p>    }</p>
+<p>}</p>
+<p></code></pre></p>
+<p></p>
+<h3>3. 在Spring Boot中集成IP限流</h3>
+<p></p>
+<pre><code class="language-java">import org.springframework.beans.factory.annotation.Autowired;
+<p>import org.springframework.data.redis.core.RedisTemplate;</p>
+<p>import org.springframework.stereotype.Component;</p>
+<p>import org.springframework.web.servlet.HandlerInterceptor;</p>
+<p></p>
+<p>import javax.servlet.http.HttpServletRequest;</p>
+<p>import javax.servlet.http.HttpServletResponse;</p>
+<p>import java.util.concurrent.TimeUnit;</p>
+<p></p>
+<p>@Component</p>
+<p>public class IpRateLimitInterceptor implements HandlerInterceptor {</p>
+<p></p>
+<p>    @Autowired</p>
+<p>    private RedisTemplate&lt;String, String&gt; redisTemplate;</p>
+<p></p>
+<p>    // 限流阈值</p>
+<p>    private static final int LIMIT = 10;</p>
+<p>    // 时间窗口（秒）</p>
+<p>    private static final int WINDOW_SECONDS = 1;</p>
+<p></p>
+<p>    @Override</p>
+<p>    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {</p>
+<p>        String ip = request.getRemoteAddr();</p>
+<p>        String key = &quot;rate_limit:&quot; + ip;</p>
+<p>        </p>
+<p>        // 原子递增</p>
+<p>        Long current = redisTemplate.opsForValue().increment(key);</p>
+<p>        </p>
+<p>        // 设置过期时间（仅第一次设置）</p>
+<p>        if (current == 1) {</p>
+<p>            redisTemplate.expire(key, WINDOW_SECONDS, TimeUnit.SECONDS);</p>
+<p>        }</p>
+<p>        </p>
+<p>        if (current &gt; LIMIT) {</p>
+<p>            response.setStatus(HttpServletResponse.SC_TOO_MANY_REQUESTS);</p>
+<p>            response.setContentType(&quot;application/json;charset=UTF-8&quot;);</p>
+<p>            response.getWriter().write(&quot;{\&quot;code\&quot;: 429, \&quot;message\&quot;: \&quot;请求过于频繁，请稍后再试\&quot;}&quot;);</p>
+<p>            return false;</p>
+<p>        }</p>
+<p>        </p>
+<p>        return true;</p>
+<p>    }</p>
+<p>}</p>
+<p></code></pre></p>
+<p></p>
+<h2>五、限流的最佳实践</h2>
+<p></p>
+<h3>1. 选择合适的限流策略</h3>
+<p></p>
+<li><strong>API网关层</strong>：使用令牌桶算法，支持突发流量</li>
+<li><strong>应用层</strong>：根据业务场景选择合适的算法</li>
+<li><strong>数据库层</strong>：使用漏桶算法，平滑数据库压力</li>
+<p></p>
+<h3>2. 合理设置限流阈值</h3>
+<p></p>
+<li><strong>基于系统容量</strong>：根据服务器的CPU、内存等资源设置</li>
+<li><strong>基于业务需求</strong>：根据业务的QPS目标设置</li>
+<li><strong>动态调整</strong>：根据系统负载动态调整阈值</li>
+<p></p>
+<h3>3. 限流与熔断、降级配合使用</h3>
+<p></p>
+<li><strong>限流</strong>：控制进入系统的请求数量</li>
+<li><strong>熔断</strong>：当服务异常时断开调用</li>
+<li><strong>降级</strong>：当系统压力过大时，关闭部分非核心功能</li>
+<p></p>
+<h3>4. 监控与告警</h3>
+<p></p>
+<li><strong>实时监控</strong>：监控限流的触发情况</li>
+<li><strong>告警机制</strong>：当限流频繁触发时及时告警</li>
+<li><strong>数据分析</strong>：分析流量模式，优化限流策略</li></ol></ul>
+<p></p>
+<h2>六、总结</h2>
+<p></p>
+<p>限流是保护系统稳定性的重要手段，通过合理的限流策略，可以在保证系统可用性的同时，为用户提供更好的服务体验。本文介绍了常见的限流算法、使用Sentinel实现限流以及基于IP的流量限制实现，希望对您有所帮助。</p>
+<p></p>
+<p>在实际项目中，需要根据具体的业务场景和系统架构选择合适的限流方案，并结合监控和告警机制，不断优化限流策略，以达到最佳的系统保护效果。</p>
+      </div>
+    </article>
+  </main>
+
+  <footer>
+    <p>© 2026 北辰 · 保持好奇，持续成长</p>
+    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
+      源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
+    </p>
+  </footer>
+
+  <script src="../../../../js/theme.js"></script>
+</body>
+</html>
+  
