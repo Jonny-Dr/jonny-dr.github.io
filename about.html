@@ -58,9 +58,68 @@
       border-radius: 20px;
       font-size: 0.9rem;
     }
+    
+    /* 技术类别样式 */
+    .skills-categories {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+    
+    .skill-category {
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+    }
+    
+    .skill-category:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    
+    .skill-category-title {
+      font-size: 1.3rem;
+      margin-bottom: 1.5rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    
+    .skill-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .skill-tag {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 0.8rem 1.5rem;
+      border-radius: 25px;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+    
+    .skill-tag:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-2px);
+    }
+    
     @media (max-width: 768px) {
       .about-content { padding: 0 1rem; }
       .profile-img { width: 120px; height: 120px; }
+      .skills-categories {
+        grid-template-columns: 1fr;
+      }
+      .skill-category {
+        padding: 1.5rem;
+      }
     }
   </style>
 </head>
@@ -105,14 +164,66 @@
 
     <section class="about-section">
       <h2 class="section-title">技术栈</h2>
-      <div class="skill-list">
-        <span class="skill-item">Spring Cloud</span>
-        <span class="skill-item">Mybatis Plus</span>
-        <span class="skill-item">Vue.js</span>
-        <span class="skill-item">Node.js</span>
-        <span class="skill-item">TypeScript</span>
-        <span class="skill-item">Git</span>
-        <span class="skill-item">Docker</span>
+      <div class="skills-categories">
+        <!-- 项目管理 -->
+        <div class="skill-category">
+          <h3 class="skill-category-title">📋 项目管理</h3>
+          <div class="skill-items">
+            <span class="skill-tag">PMP</span>
+            <span class="skill-tag">敏捷开发</span>
+            <span class="skill-tag">WBS 制定</span>
+            <span class="skill-tag">风险管理</span>
+            <span class="skill-tag">沟通管理</span>
+          </div>
+        </div>
+        
+        <!-- 后端技术 -->
+        <div class="skill-category">
+          <h3 class="skill-category-title">⚙️ 后端技术</h3>
+          <div class="skill-items">
+            <span class="skill-tag">Spring Cloud</span>
+            <span class="skill-tag">MyBatis/Plus</span>
+            <span class="skill-tag">线程池</span>
+            <span class="skill-tag">Nacos</span>
+            <span class="skill-tag">Consul</span>
+            <span class="skill-tag">Eureka</span>
+            <span class="skill-tag">Feign</span>
+          </div>
+        </div>
+        
+        <!-- 缓存 & 中间件 -->
+        <div class="skill-category">
+          <h3 class="skill-category-title">📦 缓存 & 中间件</h3>
+          <div class="skill-items">
+            <span class="skill-tag">Redis</span>
+            <span class="skill-tag">RocketMQ</span>
+            <span class="skill-tag">Kafka</span>
+            <span class="skill-tag">RabbitMQ</span>
+            <span class="skill-tag">Seata</span>
+          </div>
+        </div>
+        
+        <!-- 前端技术 -->
+        <div class="skill-category">
+          <h3 class="skill-category-title">🎨 前端技术</h3>
+          <div class="skill-items">
+            <span class="skill-tag">Vue 2/3</span>
+            <span class="skill-tag">Node.js</span>
+            <span class="skill-tag">ElementUI</span>
+            <span class="skill-tag">Uniapp</span>
+          </div>
+        </div>
+        
+        <!-- 运维技术 -->
+        <div class="skill-category">
+          <h3 class="skill-category-title">🔧 运维技术</h3>
+          <div class="skill-items">
+            <span class="skill-tag">Nginx</span>
+            <span class="skill-tag">Docker</span>
+            <span class="skill-tag">K8s (基础)</span>
+            <span class="skill-tag">Jenkins CI/CD</span>
+          </div>
+        </div>
       </div>
     </section>
 
