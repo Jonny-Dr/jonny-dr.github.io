@@ -24,7 +24,7 @@ const pageConfigs = [
         itemDateClass: 'post-date',
         itemExcerptClass: 'post-excerpt',
         postsPerPage: 5,
-        directory: '_posts/index'
+        directory: 'posts/index'
     },
     {
         name: 'project',
@@ -38,7 +38,7 @@ const pageConfigs = [
         itemDateClass: '',
         itemExcerptClass: 'project-desc',
         postsPerPage: 6,
-        directory: '_posts/project'
+        directory: 'posts/project'
     },
     {
         name: 'skill',
@@ -52,7 +52,7 @@ const pageConfigs = [
         itemDateClass: 'skill-date',
         itemExcerptClass: 'skill-excerpt',
         postsPerPage: 6,
-        directory: '_posts/skill'
+        directory: 'posts/skill'
     },
     {
         name: 'daily',
@@ -66,7 +66,7 @@ const pageConfigs = [
         itemDateClass: 'daily-date',
         itemExcerptClass: 'daily-content',
         postsPerPage: 4,
-        directory: '_posts/daily'
+        directory: 'posts/daily'
     },
 
     {
@@ -81,7 +81,7 @@ const pageConfigs = [
         itemDateClass: 'archives-date',
         itemExcerptClass: 'archives-excerpt',
         postsPerPage: 10,
-        directory: '_posts/archives'
+        directory: 'posts/archives'
     }
 ];
 
@@ -104,7 +104,7 @@ function generatePage(pageConfig) {
 
     if (name === 'index') {
         // 首页从所有栏目中获取最新文章，但排除归档目录
-        const allDirs = ['_posts/project', '_posts/daily', '_posts/index', '_posts/skill'];
+        const allDirs = ['posts/project', 'posts/daily', 'posts/index', 'posts/skill'];
         allDirs.forEach(dir => {
             const fullPath = path.join(__dirname, dir);
             if (fs.existsSync(fullPath)) {
@@ -498,7 +498,7 @@ pageConfigs.forEach(config => {
 const workflowPath = path.join(__dirname, '.github', 'workflows', 'pagination.yml');
 if (fs.existsSync(workflowPath)) {
     let workflowContent = fs.readFileSync(workflowPath, 'utf8');
-    workflowContent = workflowContent.replace(/git add index.html index-\*.html.*?/g, 'git add index.html index-*.html project.html project-*.html skill.html skill-*.html daily.html daily-*.html archives.html archives-*.html _posts/**/*.html ');
+    workflowContent = workflowContent.replace(/git add index.html index-\*.html.*?/g, 'git add index.html index-*.html project.html project-*.html skill.html skill-*.html daily.html daily-*.html archives.html archives-*.html posts/**/*.html ');
     fs.writeFileSync(workflowPath, workflowContent);
     console.log('Updated GitHub Actions workflow file');
 }
