@@ -484,7 +484,9 @@ function renderTemplate(template, data) {
     // 处理条件语法 {{content ? 'none' : 'block'}}
     rendered = rendered.replace(/\{\{([^}]+) \? ([^}]+) : ([^}]+)\}\}/g, (match, condition, trueValue, falseValue) => {
         const value = data[condition.trim()];
-        return value ? trueValue : falseValue;
+        // 移除返回值中的引号
+        const result = value ? trueValue : falseValue;
+        return result.replace(/['"]/g, '');
     });
 
     return rendered;
