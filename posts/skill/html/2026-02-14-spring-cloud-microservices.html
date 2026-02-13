@@ -1,0 +1,372 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spring Cloud 微服务架构实战 | 北辰</title>
+  <link rel="stylesheet" href="../../../../css/common.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <style>
+    .post-content {
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+    .post-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    .post-meta {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .post-tag {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .post-tag.category {
+      background: rgba(72, 187, 120, 0.1);
+      color: #48bb78;
+    }
+    .post-tag.language {
+      background: rgba(237, 137, 54, 0.1);
+      color: #ed8936;
+    }
+    .post-body {
+      margin-bottom: 2rem;
+    }
+    .post-body h2 {
+      font-size: 1.8rem;
+      margin: 2rem 0 1rem;
+      color: var(--primary);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-body h3 {
+      font-size: 1.4rem;
+      margin: 1.5rem 0 0.8rem;
+      color: var(--primary);
+    }
+    .post-body p {
+      margin-bottom: 1.2rem;
+    }
+    .post-body a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-body a:hover {
+      text-decoration: underline;
+    }
+    .post-body ul,
+    .post-body ol {
+      margin: 1rem 0 1.5rem 1.5rem;
+    }
+    .post-body li {
+      margin-bottom: 0.5rem;
+    }
+    .post-body pre {
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border);
+    }
+    .post-body code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.9rem;
+    }
+    .post-body pre code {
+      background: none;
+      padding: 0;
+    }
+    .post-body img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .post-original-link {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+      color: #6c757d;
+    }
+    .post-original-link a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-original-link a:hover {
+      text-decoration: underline;
+    }
+    @media (max-width: 768px) {
+      .post-content {
+        padding: 0 1rem;
+      }
+      .post-header h1 {
+        font-size: 1.8rem;
+      }
+      .post-tags {
+        gap: 0.5rem;
+      }
+      .post-tag {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      .post-body pre {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <button class="music-toggle" id="musicToggle" aria-label="控制音乐">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+  </button>
+
+  <header>
+    <h1>🌱 北辰的博客</h1>
+    <p class="subtitle">记录思考，分享成长 | 一个热爱技术的探索者</p>
+    <nav>
+  <a href="../../../index.html">首页</a>
+  <a href="../../../project.html">项目</a>
+  <a href="../../../skill.html">技术</a>
+  <a href="../../../daily.html">日常</a>
+  <a href="../../../about.html">关于</a>
+  <a href="../../../archives.html">归档</a>
+  <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+</nav>
+  </header>
+
+  <main class="post-content">
+    <article>
+      <div class="post-header">
+        <h1>Spring Cloud 微服务架构实战</h1>
+        <div class="post-meta">发布日期：2026-02-14</div>
+        
+        <div class="post-tags">
+          <span class="post-tag category">后端技术</span> <span class="post-tag category">分布式架构</span>
+          <span class="post-tag language">Java</span> <span class="post-tag language">Spring Boot</span>
+        </div>
+        
+      </div>
+      <div class="post-body">
+        <h1>Spring Cloud 微服务架构实战</h1>
+<p></p>
+<h2>项目背景</h2>
+<p></p>
+<p>在传统单体应用面临代码臃肿、部署缓慢、扩展性差等问题的背景下，微服务架构逐渐成为企业级应用的主流选择。本项目旨在通过Spring Cloud技术栈，构建一个完整的微服务架构示例，展示从服务注册发现到配置管理、负载均衡、熔断降级的全流程实现。</p>
+<p></p>
+<h2>技术栈</h2>
+<p></p>
+<ul><ol><li><strong>基础框架</strong>: Spring Boot 3.0+</li>
+<li><strong>微服务框架</strong>: Spring Cloud 2023.x</li>
+<li><strong>注册中心</strong>: Nacos</li>
+<li><strong>配置中心</strong>: Nacos Config</li>
+<li><strong>负载均衡</strong>: Ribbon + OpenFeign</li>
+<li><strong>熔断降级</strong>: Sentinel</li>
+<li><strong>API网关</strong>: Gateway</li>
+<li><strong>服务链路追踪</strong>: Sleuth + Zipkin</li>
+<li><strong>数据库</strong>: MySQL + MyBatis Plus</li>
+<li><strong>容器化</strong>: Docker</li></ul>
+<p></p>
+<h2>架构设计</h2>
+<p></p>
+<h3>模块划分</h3>
+<p></p>
+<li><strong>common</strong>: 公共模块，包含工具类、通用配置等</li>
+<li><strong>api</strong>: API接口定义模块</li>
+<li><strong>service</strong>: 业务服务模块</li>
+<p>   - <strong>service-user</strong>: 用户服务</p>
+<p>   - <strong>service-order</strong>: 订单服务</p>
+<p>   - <strong>service-product</strong>: 产品服务</p>
+<li><strong>gateway</strong>: API网关模块</li>
+<li><strong>config</strong>: 配置管理模块</li>
+<p></p>
+<h2>核心功能实现</h2>
+<p></p>
+<h3>1. 服务注册与发现</h3>
+<p></p>
+<p>使用Nacos作为注册中心，实现服务的自动注册与发现：</p>
+<p></p>
+<pre><code class="language-java">// 配置Nacos注册中心
+<p>@SpringBootApplication</p>
+<p>@EnableDiscoveryClient</p>
+<p>public class UserServiceApplication {</p>
+<p>    public static void main(String[] args) {</p>
+<p>        SpringApplication.run(UserServiceApplication.class, args);</p>
+<p>    }</p>
+<p>}</p>
+<p></code></pre></p>
+<p></p>
+<h3>2. 配置中心</h3>
+<p></p>
+<p>使用Nacos Config管理配置，实现配置的集中管理和动态更新：</p>
+<p></p>
+<pre><code class="language-yaml">&lt;h1&gt;application.yml&lt;/h1&gt;
+<p>spring:</p>
+<p>  cloud:</p>
+<p>    nacos:</p>
+<p>      config:</p>
+<p>        server-addr: localhost:8848</p>
+<p>        namespace: dev</p>
+<p>        group: DEFAULT_GROUP</p>
+<p>        file-extension: yml</p>
+<p></code></pre></p>
+<p></p>
+<h3>3. 远程调用</h3>
+<p></p>
+<p>使用OpenFeign实现服务间的远程调用：</p>
+<p></p>
+<pre><code class="language-java">// 定义Feign客户端
+<p>@FeignClient(name = &quot;service-product&quot;)</p>
+<p>public interface ProductServiceClient {</p>
+<p>    @GetMapping(&quot;/product/{id}&quot;)</p>
+<p>    Product getProductById(@PathVariable(&quot;id&quot;) Long id);</p>
+<p>}</p>
+<p></code></pre></p>
+<p></p>
+<h3>4. 熔断降级</h3>
+<p></p>
+<p>使用Sentinel实现服务的熔断降级，防止服务雪崩：</p>
+<p></p>
+<pre><code class="language-java">// 配置Sentinel熔断
+<p>@SentinelResource(value = &quot;getUser&quot;, fallback = &quot;fallbackGetUser&quot;)</p>
+<p>public User getUserById(Long id) {</p>
+<p>    return userMapper.selectById(id);</p>
+<p>}</p>
+<p></p>
+<p>public User fallbackGetUser(Long id) {</p>
+<p>    return new User(-1L, &quot;默认用户&quot;, &quot;fallback&quot;);</p>
+<p>}</p>
+<p></code></pre></p>
+<p></p>
+<h3>5. API网关</h3>
+<p></p>
+<p>使用Gateway作为API网关，实现请求路由、过滤和限流：</p>
+<p></p>
+<pre><code class="language-yaml">&lt;h1&gt;网关路由配置&lt;/h1&gt;
+<p>spring:</p>
+<p>  cloud:</p>
+<p>    gateway:</p>
+<p>      routes:</p>
+<p>        - id: user-service</p>
+<p>          uri: lb://service-user</p>
+<p>          predicates:</p>
+<p>            - Path=/api/user/<strong></p>
+<p>          filters:</p>
+<p>            - StripPrefix=1</p>
+<p></code></pre></p>
+<p></p>
+<h2>部署方案</h2>
+<p></p>
+<h3>本地开发环境</h3>
+<p></p>
+<li></strong>启动Nacos服务<strong></li>
+<p>   <pre><code class="language-bash">   docker run -d --name nacos -p 8848:8848 nacos/nacos-server:latest</p>
+<p>   </code></pre></p>
+<p></p>
+<li></strong>启动各微服务<strong></li>
+<p>   - 启动config服务</p>
+<p>   - 启动注册中心服务</p>
+<p>   - 启动各业务服务</p>
+<p>   - 启动网关服务</p>
+<p></p>
+<h3>生产环境</h3>
+<p></p>
+<li></strong>Docker容器化<strong></li>
+<p>   - 为每个服务构建Docker镜像</p>
+<p>   - 使用Docker Compose编排服务</p>
+<p></p>
+<li></strong>K8s部署<strong></li>
+<p>   - 编写K8s部署配置文件</p>
+<p>   - 使用Helm管理应用部署</p>
+<p></p>
+<h2>性能优化</h2>
+<p></p>
+<li></strong>服务拆分优化<strong></li>
+<p>   - 合理划分服务边界</p>
+<p>   - 避免服务间过度依赖</p>
+<p></p>
+<li></strong>数据库优化<strong></li>
+<p>   - 使用数据库连接池</p>
+<p>   - 合理设计索引</p>
+<p>   - 读写分离</p>
+<p></p>
+<li></strong>缓存优化<strong></li>
+<p>   - 引入Redis缓存</p>
+<p>   - 实现缓存预热</p>
+<p>   - 缓存一致性保证</p>
+<p></p>
+<li></strong>网络优化<strong></li>
+<p>   - 使用gRPC替代REST</p>
+<p>   - 启用HTTP/2</p>
+<p>   - 压缩传输数据</p>
+<p></p>
+<h2>监控与告警</h2>
+<p></p>
+<li></strong>服务监控<strong></li>
+<p>   - 使用Spring Boot Actuator暴露监控端点</p>
+<p>   - 集成Prometheus + Grafana</p>
+<p></p>
+<li></strong>日志管理<strong></li>
+<p>   - 使用ELK Stack收集和分析日志</p>
+<p>   - 实现分布式链路追踪</p>
+<p></p>
+<li></strong>告警机制<strong></li>
+<p>   - 配置服务健康检查</p>
+<p>   - 实现异常告警</p>
+<p></p>
+<h2>总结与展望</h2>
+<p></p>
+<p>通过本项目的实践，我们成功构建了一个基于Spring Cloud的完整微服务架构，实现了服务注册与发现、配置中心、负载均衡、熔断降级等核心功能。在未来的发展中，我们可以考虑：</p>
+<p></p>
+<li></strong>服务网格<strong>：引入Istio实现更高级的服务管理</li>
+<li></strong>无服务器架构<strong>：探索Spring Cloud Function</li>
+<li></strong>云原生<strong>：进一步优化容器化和K8s部署</li>
+<li></strong>AI集成**：在微服务架构中集成AI能力</li></ol>
+<p></p>
+<p>微服务架构是一个不断演进的过程，需要根据业务需求和技术发展持续优化和调整。</p>
+      </div>
+    </article>
+  </main>
+
+  <footer>
+    <p>© 2026 北辰 · 保持好奇，持续成长</p>
+    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
+      源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
+    </p>
+  </footer>
+
+  <script src="../../../../js/theme.js"></script>
+</body>
+</html>
+  

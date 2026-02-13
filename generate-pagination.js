@@ -106,9 +106,9 @@ function generatePage(pageConfig) {
         // 首页从所有栏目中获取最新文章，但排除归档目录
         const allDirs = ['posts/project', 'posts/daily', 'posts/index', 'posts/skill'];
         allDirs.forEach(dir => {
-            const fullPath = path.join(__dirname, dir);
-            if (fs.existsSync(fullPath)) {
-                const files = fs.readdirSync(fullPath);
+            const mdDir = path.join(__dirname, dir, 'md');
+            if (fs.existsSync(mdDir)) {
+                const files = fs.readdirSync(mdDir);
                 const mdFiles = files.filter(file => file.endsWith('.md')).map(file => {
                     return {
                         file,
@@ -120,12 +120,13 @@ function generatePage(pageConfig) {
         });
     } else {
         // 其他页面从对应目录获取文章
-        if (!fs.existsSync(postsDir)) {
-            console.log(`Directory ${directory} does not exist. Skipping ${name} page.`);
+        const mdDir = path.join(__dirname, directory, 'md');
+        if (!fs.existsSync(mdDir)) {
+            console.log(`Directory ${mdDir} does not exist. Skipping ${name} page.`);
             return 0;
         }
 
-        const files = fs.readdirSync(postsDir);
+        const files = fs.readdirSync(mdDir);
         allMarkdownFiles = files.filter(file => file.endsWith('.md')).map(file => {
             return {
                 file,
@@ -143,8 +144,8 @@ function generatePage(pageConfig) {
 
     // 为每个Markdown文件生成HTML文件
     allMarkdownFiles.forEach(item => {
-        const markdownPath = path.join(__dirname, item.path, item.file);
-        const htmlPath = path.join(__dirname, item.path, item.file.replace('.md', '.html'));
+        const markdownPath = path.join(__dirname, item.path, 'md', item.file);
+        const htmlPath = path.join(__dirname, item.path, 'html', item.file.replace('.md', '.html'));
         generateHtmlFromMarkdown(markdownPath, htmlPath);
     });
 
@@ -218,16 +219,16 @@ function generatePage(pageConfig) {
       `;
                         } else {
                             // 正常显示文章
-                            const markdownPath = path.join(__dirname, item.path, item.file);
+                            const markdownPath = path.join(__dirname, item.path, 'md', item.file);
                             const { title: postTitle, date: postDate, excerpt } = MarkdownParser.parseMarkdown(markdownPath);
                             const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
 
                             return `
       <div class="post-card">
-        <h3 class="post-title"><a href="${item.path}/${item.file.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h3>
+        <h3 class="post-title"><a href="${item.path}/html/${item.file.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h3>
         <div class="post-date">${postDate || item.file.substring(0, 10)}</div>
         <p class="post-excerpt">${excerpt || '这里是文章摘要...'}</p>
-        <a href="${item.path}/${item.file.replace('.md', '.html')}" class="post-link">阅读更多 →</a>
+        <a href="${item.path}/html/${item.file.replace('.md', '.html')}" class="post-link">阅读更多 →</a>
       </div>
       `;
                         }
@@ -253,7 +254,7 @@ function generatePage(pageConfig) {
 
                 // 按年份和月份分组文章
                 currentPosts.forEach(item => {
-                    const markdownPath = path.join(__dirname, item.path, item.file);
+                    const markdownPath = path.join(__dirname, item.path, 'md', item.file);
                     const { title: postTitle, date: postDate } = MarkdownParser.parseMarkdown(markdownPath);
                     const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
 
@@ -295,9 +296,11 @@ function generatePage(pageConfig) {
     <ul class="archive-list">`;
 
                         monthPosts.forEach(postItem => {
+                            // 确保路径指向html目录
+                            const htmlPath = postItem.path.replace(/\.md$/, '.html').replace(/^(posts\/[^\/]+)\//, '$1/html/');
                             contentHtml += `
       <li class="archive-item">
-        <div class="archive-title"><a href="${postItem.path}" style="color: var(--primary); text-decoration: none;">${postItem.title}</a></div>
+        <div class="archive-title"><a href="${htmlPath}" style="color: var(--primary); text-decoration: none;">${postItem.title}</a></div>
         <div class="archive-date">${postItem.date}</div>
       </li>`;
                         });
@@ -310,14 +313,14 @@ function generatePage(pageConfig) {
             case 'skill':
                 // 技术栏目的特殊处理
                 contentHtml = currentPosts.map(item => {
-                    const markdownPath = path.join(__dirname, item.path, item.file);
+                    const markdownPath = path.join(__dirname, item.path, 'md', item.file);
                     const { title: postTitle, date: postDate, categories, languages, excerpt } = MarkdownParser.parseMarkdown(markdownPath);
                     const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
 
                     let itemHtml = `
       <article class="${itemClass}">
         <div class="skill-header">
-          <h2 class="${itemTitleClass}"><a href="${item.path}/${item.file.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h2>
+          <h2 class="${itemTitleClass}"><a href="${item.path}/html/${item.file.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h2>
           <div class="skill-meta">`;
 
                     if (itemDateClass && postDate) {
@@ -360,7 +363,7 @@ function generatePage(pageConfig) {
         <div class="${itemExcerptClass}">
           ${excerpt || '这里是文章摘要...'}
         </div>
-        <a href="${item.path}/${item.file.replace('.md', '.html')}" class="skill-read-more">阅读更多 →</a>
+        <a href="${item.path}/html/${item.file.replace('.md', '.html')}" class="skill-read-more">阅读更多 →</a>
       </article>
       `;
 
@@ -370,13 +373,13 @@ function generatePage(pageConfig) {
             default:
                 // 其他栏目的默认处理
                 contentHtml = currentPosts.map(item => {
-                    const markdownPath = path.join(__dirname, item.path, item.file);
+                    const markdownPath = path.join(__dirname, item.path, 'md', item.file);
                     const { title: postTitle, date: postDate, excerpt } = MarkdownParser.parseMarkdown(markdownPath);
                     const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
 
                     let itemHtml = `
       <article class="${itemClass}">
-        <h2 class="${itemTitleClass}"><a href="${item.path}/${item.file.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h2>`;
+        <h2 class="${itemTitleClass}"><a href="${item.path}/html/${item.file.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h2>`;
 
                     if (itemDateClass) {
                         itemHtml += `
@@ -387,7 +390,7 @@ function generatePage(pageConfig) {
         <div class="${itemExcerptClass}">
           ${excerpt || '这里是文章摘要...'}
         </div>
-        <a href="${item.path}/${item.file.replace('.md', '.html')}" class="${name}-read-more">阅读更多 →</a>
+        <a href="${item.path}/html/${item.file.replace('.md', '.html')}" class="${name}-read-more">阅读更多 →</a>
       </article>
       `;
 

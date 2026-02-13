@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>分布式锁Redis | 北辰</title>
-  <link rel="stylesheet" href="../../../css/common.css">
+  <link rel="stylesheet" href="../../../../css/common.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
@@ -155,12 +155,12 @@
     <h1>🌱 北辰的博客</h1>
     <p class="subtitle">记录思考，分享成长 | 一个热爱技术的探索者</p>
     <nav>
-  <a href="../../index.html">首页</a>
-  <a href="../../project.html">项目</a>
-  <a href="../../skill.html">技术</a>
-  <a href="../../daily.html">日常</a>
-  <a href="../../about.html">关于</a>
-  <a href="../../archives.html">归档</a>
+  <a href="../../../index.html">首页</a>
+  <a href="../../../project.html">项目</a>
+  <a href="../../../skill.html">技术</a>
+  <a href="../../../daily.html">日常</a>
+  <a href="../../../about.html">关于</a>
+  <a href="../../../archives.html">归档</a>
   <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
 </nav>
   </header>
@@ -227,14 +227,14 @@
 <li><strong>排它</strong>：同一时刻，只能有一个进程获得锁</li>
 <p></p>
 <p>  - 我们需要利用Redis的setnx命令来实现，setnx是set when not exits的意思。当多次执行setnx命令时，只有第一次执行的才会成功并返回1，其它情况返回0：</p>
-<p>  - <img src="assets/1555935393771.png" alt="1555935393771" class="markdown-image"> </p>
+<p>  - <img src="../md/assets/1555935393771.png" alt="1555935393771" class="markdown-image"> </p>
 <p>  - 我们定义一个固定的key，多个进程都执行setnx，设置这个key的值，返回1的服务获取锁，0则没有获取</p>
 <p></p>
 <li><strong>避免死锁</strong>：死锁的情况有很多，我们要思考各种异常导致死锁的情况</li>
 <p></p>
 <p>  - 比如服务宕机后的锁释放问题，我们设置锁时最好设置锁的有效期，如果服务宕机，有效期到时自动删除锁。</p>
 <p></p>
-<p>    <img src="assets/1555935852042.png" alt="1555935852042" class="markdown-image"> </p>
+<p>    <img src="../md/assets/1555935852042.png" alt="1555935852042" class="markdown-image"> </p>
 <p></p>
 <li><strong>高可用</strong>：避免锁服务宕机或处理好宕机的补救措施</li>
 <p></p>
@@ -246,7 +246,7 @@
 <p></p>
 <p>按照上面所述的理论，分布式锁的流程大概如下：</p>
 <p></p>
-<p><img src="assets/1555942085021.png" alt="1555942085021" class="markdown-image"> </p>
+<p><img src="../md/assets/1555942085021.png" alt="1555942085021" class="markdown-image"> </p>
 <p></p>
 <p>基本流程：</p>
 <p></p>
@@ -449,7 +449,7 @@
 <p>}</p>
 <p></code></pre></p>
 <p></p>
-<p> <img src="assets/image-20210905104037385.png" alt="" class="markdown-image"> </p>
+<p> <img src="../md/assets/image-20210905104037385.png" alt="" class="markdown-image"> </p>
 <p></p>
 <p></p>
 <p></p>
@@ -469,7 +469,7 @@
 <p></p>
 <p>问题出现了：B和C同时获取了锁，<strong>违反了排它性</strong>！</p>
 <p></p>
-<p><img src="assets/image-20210802110514954.png" alt="image-20210802110514954" class="markdown-image"></p>
+<p><img src="../md/assets/image-20210802110514954.png" alt="image-20210802110514954" class="markdown-image"></p>
 <p></p>
 <p>如何解决这个问题呢？我们应该在删除锁之前，判断这个锁是否是自己设置的锁，如果不是（例如自己的锁已经超时释放），那么就不要删除了。</p>
 <p></p>
@@ -483,7 +483,7 @@
 <p></p>
 <p>来看下流程的变化：</p>
 <p></p>
-<p><img src="assets/1555944884321.png" alt="1555944884321" class="markdown-image"> </p>
+<p><img src="../md/assets/1555944884321.png" alt="1555944884321" class="markdown-image"> </p>
 <p></p>
 <p>在释放锁之前，多了一步根据判断，判断锁的value释放跟自己存进去的一致。</p>
 <p></p>
@@ -568,7 +568,7 @@
 <p></p>
 <p>修改任务中锁对象改为V2</p>
 <p></p>
-<p><img src="assets/image-20210603123749578.png" alt="image-20210603123749578" class="markdown-image"></p>
+<p><img src="../md/assets/image-20210603123749578.png" alt="image-20210603123749578" class="markdown-image"></p>
 <p></p>
 <h2>2.4 分布式锁版本3</h2>
 <p></p>
@@ -618,7 +618,7 @@
 <p></p>
 <p>这里重点是获取锁的流程：</p>
 <p></p>
-<p><img src="assets/1556164092317.png" alt="1556164092317" class="markdown-image"></p>
+<p><img src="../md/assets/1556164092317.png" alt="1556164092317" class="markdown-image"></p>
 <p></p>
 <p>下面我们假设锁的key为“<code>lock</code>”，hashKey是当前线程的id：“<code>threadId</code>”，锁自动释放时间假设为20</p>
 <p></p>
@@ -675,7 +675,7 @@
 <p></p>
 <p>> EVAL命令：</p>
 <p></p>
-<p><img src="assets/1556029159652.png" alt="1556029159652" class="markdown-image"> </p>
+<p><img src="../md/assets/1556029159652.png" alt="1556029159652" class="markdown-image"> </p>
 <p></p>
 <p>直接执行一段脚本，参数包括：</p>
 <p></p>
@@ -693,13 +693,13 @@
 <p></p>
 <p>效果：</p>
 <p></p>
-<p><img src="assets/1556030139226.png" alt="1556030139226" class="markdown-image"> </p>
+<p><img src="../md/assets/1556030139226.png" alt="1556030139226" class="markdown-image"> </p>
 <p></p>
 <p></p>
 <p></p>
 <p>> SCRIPT LOAD命令</p>
 <p></p>
-<p><img src="assets/1556029464469.png" alt="1556029464469" class="markdown-image"> </p>
+<p><img src="../md/assets/1556029464469.png" alt="1556029464469" class="markdown-image"> </p>
 <p></p>
 <p>将一段脚本编译并缓存起来，生成一个SHA1值并返回，作为脚本字典的key，方便下次使用。</p>
 <p></p>
@@ -707,19 +707,19 @@
 <p></p>
 <p>以之前案例中的的脚本为例：</p>
 <p></p>
-<p><img src="assets/1556030196610.png" alt="1556030196610" class="markdown-image"> </p>
+<p><img src="../md/assets/1556030196610.png" alt="1556030196610" class="markdown-image"> </p>
 <p></p>
 <p>此处返回的<code>ada0bc9efe2392bdcc0083f7f8deaca2da7f32ec</code>就是脚本缓存后得到的sha1值。</p>
 <p></p>
 <p>在脚本字典中，每一个这样的sha1值，对应一段解析好的脚本：</p>
 <p></p>
-<p><img src="assets/1556030293491.png" alt="1556030293491" class="markdown-image"> </p>
+<p><img src="../md/assets/1556030293491.png" alt="1556030293491" class="markdown-image"> </p>
 <p></p>
 <p></p>
 <p></p>
 <p>> EVALSHA 命令：</p>
 <p></p>
-<p><img src="assets/1556029524238.png" alt="1556029524238" class="markdown-image"> </p>
+<p><img src="../md/assets/1556029524238.png" alt="1556029524238" class="markdown-image"> </p>
 <p></p>
 <p>与EVAL类似，执行一段脚本，区别是通过脚本的sha1值，去脚本缓存中查找，然后执行，参数：</p>
 <p></p>
@@ -727,7 +727,7 @@
 <p></p>
 <p>我们用刚刚缓存的脚本为例：</p>
 <p></p>
-<p><img src="assets/1556030354363.png" alt="1556030354363" class="markdown-image"> </p>
+<p><img src="../md/assets/1556030354363.png" alt="1556030354363" class="markdown-image"> </p>
 <p></p>
 <p></p>
 <p></p>
@@ -750,7 +750,7 @@
 <p></p>
 <p>完整示例：</p>
 <p></p>
-<p><img src="assets/1556031114634.png" alt="1556031114634" class="markdown-image"> </p>
+<p><img src="../md/assets/1556031114634.png" alt="1556031114634" class="markdown-image"> </p>
 <p></p>
 <p>执行这段脚本时传入的参数：</p>
 <p></p>
@@ -780,7 +780,7 @@
 <p></p>
 <p>执行：</p>
 <p></p>
-<p><img src="assets/1556032181883.png" alt="1556032181883" class="markdown-image"></p>
+<p><img src="../md/assets/1556032181883.png" alt="1556032181883" class="markdown-image"></p>
 <p></p>
 <li>可以看到num一开始是321。</li>
 <li>我们保存脚本，</li>
@@ -831,7 +831,7 @@
 <p></p>
 <code>RedisTemplate</code>中提供了一个方法，用来执行Lua脚本：
 <p></p>
-<p><img src="assets/1556162076875.png" alt="1556162076875" class="markdown-image"></p>
+<p><img src="../md/assets/1556162076875.png" alt="1556162076875" class="markdown-image"></p>
 <p></p>
 <p>包含3个参数：</p>
 <p></p>
@@ -845,7 +845,7 @@
 <p></p>
 <p>通过RedisScript中的静态方法：</p>
 <p></p>
-<p><img src="assets/1556162311151.png" alt="1556162311151" class="markdown-image"></p>
+<p><img src="../md/assets/1556162311151.png" alt="1556162311151" class="markdown-image"></p>
 <p></p>
 <p>这个方法接受两个参数：</p>
 <p></p>
@@ -858,7 +858,7 @@
 <p></p>
 <p>另一种方式，就是自己去创建<code>RedisScript</code>的实现类<code>DefaultRedisScript</code>的对象：</p>
 <p></p>
-<p><img src="assets/1556162540499.png" alt="1556162540499" class="markdown-image"></p>
+<p><img src="../md/assets/1556162540499.png" alt="1556162540499" class="markdown-image"></p>
 <p></p>
 <p>可以把脚本文件写到classpath下的某个位置，然后通过加载这个文件来获取脚本内容，并设置给<code>DefaultRedisScript</code>实例。</p>
 <p></p>
@@ -868,11 +868,11 @@
 <p></p>
 <p>首先在classpath中编写两个Lua脚本文件：</p>
 <p></p>
-<p><img src="assets/1556162696842.png" alt="1556162696842" class="markdown-image"> </p>
+<p><img src="../md/assets/1556162696842.png" alt="1556162696842" class="markdown-image"> </p>
 <p></p>
 <p>然后编写一个新的RedisLock实现：ReentrantRedisLock，利用静态代码块来加载脚本并初始化：</p>
 <p></p>
-<p><img src="assets/1556163851408.png" alt="1556163851408" class="markdown-image"> </p>
+<p><img src="../md/assets/1556163851408.png" alt="1556163851408" class="markdown-image"> </p>
 <p></p>
 <pre><code class="language-java">public class ReentrantRedisLock {
 <p>    // 获取锁的脚本</p>
@@ -1038,13 +1038,13 @@
 <p></p>
 <p>看看Redission能实现的功能：</p>
 <p></p>
-<p><img src="assets/1556163395067.png" alt="1556163395067" class="markdown-image"> </p>
+<p><img src="../md/assets/1556163395067.png" alt="1556163395067" class="markdown-image"> </p>
 <p></p>
-<p><img src="assets/1556163419648.png" alt="1556163419648" class="markdown-image"> </p>
+<p><img src="../md/assets/1556163419648.png" alt="1556163419648" class="markdown-image"> </p>
 <p></p>
-<p> <img src="assets/1556163437101.png" alt="1556163437101" class="markdown-image"></p>
+<p> <img src="../md/assets/1556163437101.png" alt="1556163437101" class="markdown-image"></p>
 <p></p>
-<p><img src="assets/1556163483872.png" alt="1556163483872" class="markdown-image"> </p>
+<p><img src="../md/assets/1556163483872.png" alt="1556163483872" class="markdown-image"> </p>
 <p></p>
 <p>非常强大而且丰富！</p>
 <p></p>
@@ -1105,7 +1105,7 @@
 <p></p>
 <p>RedissClient中定义了常见的锁：</p>
 <p></p>
-<p><img src="assets/1556169332323.png" alt="1556169332323" class="markdown-image"> </p>
+<p><img src="../md/assets/1556169332323.png" alt="1556169332323" class="markdown-image"> </p>
 <p></p>
 <pre><code class="language-java">// 创建锁对象，并制定锁的名称
 <p>RLock lock = redissonClient.getLock(&quot;taskLock&quot;);</p>
@@ -1115,7 +1115,7 @@
 <p></p>
 <p>获取锁对象后，可以通过<code>tryLock()</code>方法获取锁：</p>
 <p></p>
-<p><img src="assets/1556169690541.png" alt="1556169690541" class="markdown-image"></p>
+<p><img src="../md/assets/1556169690541.png" alt="1556169690541" class="markdown-image"></p>
 <p></p>
 <p>有3个重载的方法：</p>
 <p></p>
@@ -1129,7 +1129,7 @@
 <p></p>
 <p>任务执行完毕，使用<code>unlock()</code>方法释放锁：</p>
 <p></p>
-<p><img src="assets/1556170353278.png" alt="1556170353278" class="markdown-image"> </p>
+<p><img src="../md/assets/1556170353278.png" alt="1556170353278" class="markdown-image"> </p>
 <p></p>
 <p></p>
 <p></p>
@@ -1397,7 +1397,7 @@
 <p></p>
 <p></p>
 <p></p>
-<p><img src="assets/image-20210926121905404.png" alt="image-20210926121905404" class="markdown-image"></p>
+<p><img src="../md/assets/image-20210926121905404.png" alt="image-20210926121905404" class="markdown-image"></p>
 <p></p>
 <h4>锁竞争问题</h4>
 <p></p>
@@ -1451,7 +1451,7 @@
 <p></p>
 <p>在秒杀的过程中，先把用户id获取hash值，然后除以100取模。模为1的用户访问第1段库存，模为2的用户访问第2段库存，模为3的用户访问第3段库存，后面以此类推，到最后模为100的用户访问第100段库存</p>
 <p></p>
-<p><img src="assets/image-20211201104222602.png" alt="image-20211201104222602" class="markdown-image"></p>
+<p><img src="../md/assets/image-20211201104222602.png" alt="image-20211201104222602" class="markdown-image"></p>
 <p></p>
 <p>如此一来，在多线程环境中，可以大大的减少锁的冲突。以前多个线程只能同时竞争1把锁，尤其在秒杀的场景中，竞争太激烈了，其后果是导致绝大数线程在锁等待。现在多个线程同时竞争100把锁，等待的线程变少了，从而系统吞吐量也就提升了。</p>
 <p></p>
@@ -1463,13 +1463,13 @@
 <p></p>
 <p>假设redis现在用的主从模式，1个master节点，3个slave节点。master节点负责写数据，slave节点负责读数据。</p>
 <p></p>
-<p><img src="assets/image-20211201093303917.png" alt="image-20211201093303917" class="markdown-image"></p>
+<p><img src="../md/assets/image-20211201093303917.png" alt="image-20211201093303917" class="markdown-image"></p>
 <p></p>
 <p>本来是和谐共处，相安无事的。redis加锁操作，都在master上进行，加锁成功后，再异步同步给所有的slave。突然有一天，master节点由于某些不可逆的原因，挂掉了。</p>
 <p></p>
 <p>这样需要找一个slave升级为新的master节点，假如slave1被选举出来了。</p>
 <p></p>
-<p><img src="assets/image-20211201093332526.png" alt="image-20211201093332526" class="markdown-image"></p>
+<p><img src="../md/assets/image-20211201093332526.png" alt="image-20211201093332526" class="markdown-image"></p>
 <p></p>
 <p>如果有个锁A比较寸，刚加锁成功master就挂了，还没来得及同步到slave1。这样会导致新master节点中的锁A丢失了。后面，如果有新的线程，使用锁A加锁，依然可以成功，分布式锁失效了。</p>
 <p></p>
@@ -1482,7 +1482,7 @@
 <li>多个redisson node节点组成了RedissonRedLock。</li>
 <li>环境包含：单机、主从、哨兵和集群模式，可以是一种或者多种混合。</li>
 <p></p>
-<p><img src="assets/image-20211201093449672.png" alt="image-20211201093449672" class="markdown-image"></p>
+<p><img src="../md/assets/image-20211201093449672.png" alt="image-20211201093449672" class="markdown-image"></p>
 <p></p>
 <p>RedissonRedLock加锁过程如下：</p>
 <p></p>
@@ -1504,7 +1504,7 @@
     </p>
   </footer>
 
-  <script src="../../../js/theme.js"></script>
+  <script src="../../../../js/theme.js"></script>
 </body>
 </html>
   
