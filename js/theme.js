@@ -228,6 +228,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 重新设置单页应用效果
     setupSPAApp();
+    
+    // 重新初始化回到顶部按钮
+    setupBackToTop();
   }
 
   // 处理浏览器的前进/后退按钮
@@ -241,6 +244,32 @@ document.addEventListener('DOMContentLoaded', function() {
     loadPage(path || '/');
   });
 
+  // 初始化回到顶部按钮功能
+  function setupBackToTop() {
+    const backToTopBtn = document.getElementById('backToTop');
+    
+    if (backToTopBtn) {
+      // 监听页面滚动事件
+      window.addEventListener('scroll', function() {
+        if (window.pageYOffset > 300) {
+          backToTopBtn.classList.add('visible');
+        } else {
+          backToTopBtn.classList.remove('visible');
+        }
+      });
+      
+      // 点击回到顶部
+      backToTopBtn.addEventListener('click', function() {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      });
+    }
+  }
+
   // 初始化单页应用效果
   setupSPAApp();
+  // 初始化回到顶部按钮
+  setupBackToTop();
 });
