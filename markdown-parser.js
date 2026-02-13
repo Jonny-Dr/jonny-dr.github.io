@@ -13,13 +13,13 @@ class MarkdownParser {
      */
     static parseMarkdown(filePath) {
         const content = fs.readFileSync(filePath, 'utf8');
-        
+
         // 提取YAML front matter
         const frontMatter = this.extractFrontMatter(content);
-        
+
         // 移除YAML front matter，只保留文章正文
         const cleanContent = content.replace(/^---[\s\S]*?---/m, '').trim();
-        
+
         // 提取标题（优先使用front matter中的标题）
         let title = frontMatter.title;
         if (!title) {
@@ -37,7 +37,7 @@ class MarkdownParser {
         if (!title) {
             title = '无标题';
         }
-        
+
         // 提取日期（优先使用front matter中的日期）
         let date = frontMatter.date || '';
         if (!date) {
@@ -54,7 +54,7 @@ class MarkdownParser {
                 }
             }
         }
-        
+
         // 提取类别（优先使用front matter中的类别）
         let categories = frontMatter.categories || [];
         if (!categories.length) {
@@ -63,7 +63,7 @@ class MarkdownParser {
                 categories = categoryMatch[1].split(',').map(cat => cat.trim().replace(/['"]/g, ''));
             }
         }
-        
+
         // 提取语言（优先使用front matter中的语言）
         let languages = frontMatter.languages || [];
         if (!languages.length) {
@@ -72,7 +72,7 @@ class MarkdownParser {
                 languages = languageMatch[1].split(',').map(lang => lang.trim().replace(/['"]/g, ''));
             }
         }
-        
+
         // 提取原文链接（优先使用front matter中的链接）
         let originalLink = frontMatter.originalLink || '';
         if (!originalLink) {
@@ -81,7 +81,7 @@ class MarkdownParser {
                 originalLink = linkMatch[1].trim();
             }
         }
-        
+
         // 提取摘要
         let excerpt = frontMatter.excerpt || '';
         if (!excerpt) {
@@ -90,14 +90,14 @@ class MarkdownParser {
             if (yamlContentMatch) {
                 excerpt = yamlContentMatch[0].replace(/^---[\s\S]*?---/m, '').trim();
             }
-            
+
             // 如果没有提取到摘要，使用前100个字符作为摘要
             if (!excerpt) {
                 const plainText = this.stripMarkdown(cleanContent).substring(0, 100);
                 excerpt = plainText + (plainText.length > 100 ? '...' : '');
             }
         }
-        
+
         return {
             title,
             date,
@@ -109,7 +109,7 @@ class MarkdownParser {
             frontMatter
         };
     }
-    
+
     /**
      * 提取YAML front matter
      * @param {string} content - Markdown内容
@@ -120,10 +120,10 @@ class MarkdownParser {
         if (!frontMatterMatch) {
             return {};
         }
-        
+
         const frontMatterText = frontMatterMatch[0].replace(/^---|---$/g, '').trim();
         const frontMatter = {};
-        
+
         // 简单解析YAML格式
         const lines = frontMatterText.split('\n');
         lines.forEach(line => {
@@ -141,10 +141,10 @@ class MarkdownParser {
                 }
             }
         });
-        
+
         return frontMatter;
     }
-    
+
     /**
      * 将Markdown转换为HTML
      * @param {string} markdown - Markdown内容
@@ -155,22 +155,22 @@ class MarkdownParser {
      */
     static markdownToHtml(markdown, basePath = '', markdownPath = '', htmlPath = '') {
         let html = markdown;
-        
+
         // 转换标题
         html = html.replace(/^#####\s+(.*)$/gm, '<h5>$1</h5>');
         html = html.replace(/^####\s+(.*)$/gm, '<h4>$1</h4>');
         html = html.replace(/^###\s+(.*)$/gm, '<h3>$1</h3>');
         html = html.replace(/^##\s+(.*)$/gm, '<h2>$1</h2>');
         html = html.replace(/^#\s+(.*)$/gm, '<h1>$1</h1>');
-        
+
         // 转换代码块（带语法高亮）
         html = html.replace(/```(\w+)?\n([\s\S]*?)```/gm, (match, lang, code) => {
             return `<pre><code class="language-${lang || 'plaintext'}">${this.escapeHtml(code)}</code></pre>`;
         });
-        
+
         // 转换行内代码
         html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-        
+
         // 转换图片（处理路径）
         html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, imgPath) => {
             // 处理相对路径图片
@@ -189,33 +189,33 @@ class MarkdownParser {
             }
             return `<img src="${imgPath}" alt="${alt}" class="markdown-image">`;
         });
-        
+
         // 转换链接
         html = html.replace(/\[([^\]]*)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
-        
+
         // 转换粗体
         html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-        
+
         // 转换斜体
         html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-        
+
         // 转换无序列表
         html = html.replace(/^-\s+(.*)$/gm, '<li>$1</li>');
         html = html.replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');
-        
+
         // 转换有序列表
         html = html.replace(/^\d+\.\s+(.*)$/gm, '<li>$1</li>');
         html = html.replace(/(<li>.*<\/li>)/gs, '<ol>$1</ol>');
-        
+
         // 转换段落
         html = html.replace(/^(?!<h[1-6]>)(?!<ul>)(?!<ol>)(?!<li>)(?!<pre>)(?!<code>)(.*)$/gm, '<p>$1</p>');
-        
+
         // 清理多余的空行
         html = html.replace(/\n{3,}/g, '\n\n');
-        
+
         return html;
     }
-    
+
     /**
      * 转义HTML特殊字符
      * @param {string} text - 需要转义的文本
@@ -229,7 +229,7 @@ class MarkdownParser {
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#039;');
     }
-    
+
     /**
      * 移除Markdown标记，只保留纯文本
      * @param {string} markdown - Markdown内容
@@ -252,10 +252,10 @@ class MarkdownParser {
         text = text.replace(/^-\s+|^\d+\.\s+/gm, '');
         // 移除多余的空行
         text = text.replace(/\n{2,}/g, '\n');
-        
+
         return text.trim();
     }
-    
+
     /**
      * 为Markdown文件生成HTML文件
      * @param {string} markdownPath - Markdown文件路径
@@ -266,16 +266,16 @@ class MarkdownParser {
         // 解析Markdown文件
         const parsed = this.parseMarkdown(markdownPath);
         const { title, date, categories, languages, originalLink, content } = parsed;
-        
+
         // 计算基础路径，用于处理图片路径和资源文件路径
         // 计算从html文件到项目根目录的相对路径
         const htmlDir = path.dirname(htmlPath);
         const projectRoot = __dirname; // 项目根目录
         const basePath = path.relative(htmlDir, projectRoot).replace(/\\/g, '/') || '.';
-        
+
         // 转换Markdown为HTML
         const htmlContent = this.markdownToHtml(content, basePath, markdownPath, htmlPath);
-        
+
         // 生成导航栏
         const navTemplate = options.navTemplate || this.getDefaultNavTemplate();
         const relativeNav = navTemplate.replace(/href="([^"]+)"/g, (match, href) => {
@@ -286,7 +286,7 @@ class MarkdownParser {
             const relativePath = path.relative(path.dirname(htmlPath), path.dirname(href)).replace(/\\/g, '/') || '.';
             return `href="${relativePath}/${path.basename(href)}"`;
         });
-        
+
         // 生成类别和语言标签
         let tagsHtml = '';
         if (categories.length > 0 || languages.length > 0) {
@@ -296,7 +296,7 @@ class MarkdownParser {
           ${languages.map(lang => `<span class="post-tag language">${lang}</span>`).join(' ')}
         </div>`;
         }
-        
+
         // 生成原文链接
         let originalLinkHtml = '';
         if (originalLink) {
@@ -305,7 +305,7 @@ class MarkdownParser {
           <strong>原文链接：</strong><a href="${originalLink}" target="_blank" rel="noopener">${originalLink}</a>
         </div>`;
         }
-        
+
         // 生成HTML模板
         const htmlTemplate = `
 <!DOCTYPE html>
@@ -461,7 +461,7 @@ class MarkdownParser {
   </button>
 
   <header>
-    <h1>📝 北辰的博客</h1>
+    <h1>🌱 北辰的博客</h1>
     <p class="subtitle">记录思考，分享成长 | 一个热爱技术的探索者</p>
     ${relativeNav}
   </header>
@@ -492,16 +492,16 @@ class MarkdownParser {
 </body>
 </html>
   `;
-    
+
         // 确保目录存在
         if (!fs.existsSync(htmlDir)) {
             fs.mkdirSync(htmlDir, { recursive: true });
         }
-        
+
         fs.writeFileSync(htmlPath, htmlTemplate);
         console.log(`Generated HTML file: ${htmlPath}`);
     }
-    
+
     /**
      * 获取默认导航模板
      * @returns {string} 默认导航模板HTML
