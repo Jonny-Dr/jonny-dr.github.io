@@ -263,12 +263,6 @@ class MarkdownParser {
      * @param {Object} options - 选项配置
      */
     static generateHtmlFromMarkdown(markdownPath, htmlPath, options = {}) {
-        // 如果HTML文件已存在，则不再重复生成
-        if (fs.existsSync(htmlPath)) {
-            console.log(`HTML file already exists: ${htmlPath}. Skipping generation.`);
-            return;
-        }
-        
         // 解析Markdown文件
         const parsed = this.parseMarkdown(markdownPath);
         const { title, date, categories, languages, originalLink, content } = parsed;
