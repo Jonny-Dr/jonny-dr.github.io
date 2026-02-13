@@ -231,6 +231,42 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 重新初始化回到顶部按钮
     setupBackToTop();
+    
+    // 重新初始化 Giscus 评论组件
+    initializeGiscus();
+  }
+  
+  // 初始化 Giscus 评论组件
+  function initializeGiscus() {
+    const commentsContainer = document.getElementById('comments');
+    if (commentsContainer) {
+      // 检查是否有 Giscus 脚本
+      const existingGiscusScript = commentsContainer.querySelector('script[src*="giscus.app"]');
+      if (existingGiscusScript) {
+        // 移除现有的 Giscus 脚本
+        existingGiscusScript.remove();
+        
+        // 创建新的 Giscus 脚本
+        const giscusScript = document.createElement('script');
+        giscusScript.src = 'https://giscus.app/client.js';
+        giscusScript.setAttribute('data-repo', 'jonny-dr/jonny-dr.github.io');
+        giscusScript.setAttribute('data-repo-id', 'R_kgDORKkzfg');
+        giscusScript.setAttribute('data-category', 'Announcements');
+        giscusScript.setAttribute('data-category-id', 'DIC_kwDORKkzfs4C2Wdq');
+        giscusScript.setAttribute('data-mapping', 'pathname');
+        giscusScript.setAttribute('data-strict', '0');
+        giscusScript.setAttribute('data-reactions-enabled', '1');
+        giscusScript.setAttribute('data-emit-metadata', '0');
+        giscusScript.setAttribute('data-input-position', 'bottom');
+        giscusScript.setAttribute('data-theme', 'preferred_color_scheme');
+        giscusScript.setAttribute('data-lang', 'zh-CN');
+        giscusScript.setAttribute('crossorigin', 'anonymous');
+        giscusScript.setAttribute('async', '');
+        
+        // 添加到评论容器
+        commentsContainer.appendChild(giscusScript);
+      }
+    }
   }
 
   // 处理浏览器的前进/后退按钮
