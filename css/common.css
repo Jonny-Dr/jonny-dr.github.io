@@ -160,6 +160,7 @@ a:hover::after { width: 100%; }
   cursor: pointer;
   transition: var(--transition);
   box-shadow: var(--shadow);
+  color: var(--text);
 }
 .theme-toggle:hover { transform: rotate(20deg); }
 
@@ -180,8 +181,15 @@ a:hover::after { width: 100%; }
   transition: var(--transition);
   box-shadow: var(--shadow);
   z-index: 999;
+  color: var(--text);
 }
 .music-toggle:hover { transform: rotate(20deg); }
+
+/* 深色模式下的按钮颜色调整 */
+[data-theme="dark"] .theme-toggle,
+[data-theme="dark"] .music-toggle {
+  color: white;
+}
 footer {
   text-align: center;
   padding: 2.5rem 1rem 1.5rem;
