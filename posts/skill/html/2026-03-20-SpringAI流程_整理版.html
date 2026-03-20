@@ -1,0 +1,848 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SpringAI 完整流程指南 | 北辰</title>
+  <link rel="stylesheet" href="../../../../css/common.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <style>
+    .post-content {
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+    .post-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    .post-meta {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .post-tag {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .post-tag.category {
+      background: rgba(72, 187, 120, 0.1);
+      color: #48bb78;
+    }
+    .post-tag.language {
+      background: rgba(237, 137, 54, 0.1);
+      color: #ed8936;
+    }
+    .post-body {
+      margin-bottom: 2rem;
+    }
+    .post-body h2 {
+      font-size: 1.8rem;
+      margin: 2rem 0 1rem;
+      color: var(--primary);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-body h3 {
+      font-size: 1.4rem;
+      margin: 1.5rem 0 0.8rem;
+      color: var(--primary);
+    }
+    .post-body p {
+      margin-bottom: 1.2rem;
+    }
+    .post-body a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-body a:hover {
+      text-decoration: underline;
+    }
+    .post-body ul,
+    .post-body ol {
+      margin: 1rem 0 1.5rem 1.5rem;
+    }
+    .post-body li {
+      margin-bottom: 0.5rem;
+    }
+    .post-body pre {
+      background: #f8f9fa;
+      color: #333333;
+      padding: 1.5rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border);
+    }
+    .post-body code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.9rem;
+    }
+    .post-body pre code {
+      background: none;
+      padding: 0;
+    }
+    /* 暗黑模式下的代码块样式 */
+    [data-theme="dark"] .post-body pre {
+      background: #1e1e1e;
+      color: #e6e6e6;
+    }
+    [data-theme="dark"] .post-body code {
+      color: #e6e6e6;
+    }
+    .post-body img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .post-original-link {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+      color: #6c757d;
+    }
+    .post-original-link a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-original-link a:hover {
+      text-decoration: underline;
+    }
+    @media (max-width: 768px) {
+      .post-content {
+        padding: 0 1rem;
+      }
+      .post-header h1 {
+        font-size: 1.8rem;
+      }
+      .post-tags {
+        gap: 0.5rem;
+      }
+      .post-tag {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      .post-body pre {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <button class="music-toggle" id="musicToggle" aria-label="控制音乐">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+  </button>
+
+  <header>
+    <h1>🌱 北辰的博客</h1>
+    <p class="subtitle">记录思考，分享成长 | 一个热爱技术的探索者</p>
+    <nav>
+  <a href="../../../index.html">首页</a>
+  <a href="../../../project.html">项目</a>
+  <a href="../../../skill.html">技术</a>
+  <a href="../../../daily.html">日常</a>
+  <a href="../../../about.html">关于</a>
+  <a href="../../../archives.html">归档</a>
+  <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+</nav>
+  </header>
+
+  <main class="post-content">
+    <article>
+      <div class="post-header">
+        <h1>SpringAI 完整流程指南</h1>
+        <div class="post-meta">发布日期：2026-03-20</div>
+        
+        
+      </div>
+      <div class="post-body">
+        <h1>SpringAI 完整流程指南</h1>
+<p></p>
+<p>------|------|---------|</p>
+<p>| <strong>云部署</strong> | 租用云服务器，在上面部署大模型 | 快速上手、降低运维成本 |</p>
+<p>| <strong>本地部署</strong> | 在自己本地服务器上部署大模型 | 企业级应用、数据安全性要求高 |</p>
+<p></p>
+<p>> <strong>企业级建议</strong>：本地部署（优点是数据安全）</p>
+<p></p>
+<p>---</p>
+<p></p>
+<h2>二、本次讲解方式</h2>
+<p></p>
+<p>本次讲解使用大模型云平台的API接口方式。如果本地有ollama下载部署的本地模型，也可以使用。</p>
+<p></p>
+<p><strong>以阿里云百炼平台为例：</strong></p>
+<p></p>
+<h3>申请API-KEY</h3>
+<p></p>
+<p>注册账号以后还需要申请一个API_KEY才能访问百炼平台的大模型。</p>
+<p></p>
+<p>在阿里云百炼平台的右上角，鼠标悬停在用户图标上，可以看到下拉菜单：</p>
+<p></p>
+<p><img src="/Users/jonny/Library/Application Support/typora-user-images/image-20260317173304793.png" alt="image-20260317173304793" style="zoom:50%;" /></p>
+<p></p>
+<p>选择<code>API-KEY</code>，进入<code>API-KEY</code>管理页面：</p>
+<p></p>
+<p><img src="/Users/jonny/Library/Application Support/typora-user-images/image-20260317173334595.png" alt="image-20260317173334595" style="zoom:50%;" /></p>
+<p></p>
+<p>选择<code>创建我的API-KEY</code>，会弹出表单：</p>
+<p></p>
+<p><img src="/Users/jonny/Library/Application Support/typora-user-images/image-20260317173410291.png" alt="image-20260317173410291" style="zoom:50%;" /></p>
+<p></p>
+<p>填写完毕，点击确定，即可生成一个新的<code>API-KEY</code>：</p>
+<p></p>
+<p><img src="/Users/jonny/Library/Application Support/typora-user-images/image-20260317173443040.png" alt="image-20260317173443040" style="zoom:50%;" /></p>
+<p></p>
+<p>---</p>
+<p></p>
+<h2>三、脚手架配置</h2>
+<p></p>
+<h3>1. 依赖配置</h3>
+<p></p>
+<p>Spring AI 版本号：</p>
+<p></p>
+<pre><code class="language-xml">&lt;spring-ai.version&gt;1.1.2&lt;/spring-ai.version&gt;
+<p></code></pre></p>
+<p></p>
+<p>完整的 Maven 依赖配置如下：</p>
+<p></p>
+<pre><code class="language-xml">&lt;dependency&gt;
+<p>    &lt;groupId&gt;org.springframework.ai&lt;/groupId&gt;</p>
+<p>    &lt;artifactId&gt;spring-ai-bom&lt;/artifactId&gt;</p>
+<p>    &lt;version&gt;${spring-ai.version}&lt;/version&gt;</p>
+<p>    &lt;type&gt;pom&lt;/type&gt;</p>
+<p>    &lt;scope&gt;import&lt;/scope&gt;</p>
+<p>&lt;/dependency&gt;</p>
+<p></p>
+<p>&lt;!-- 此处以 deepseek 为例 --&gt;</p>
+<p>&lt;dependency&gt;</p>
+<p>    &lt;groupId&gt;org.springframework.ai&lt;/groupId&gt;</p>
+<p>    &lt;artifactId&gt;spring-ai-starter-model-openai&lt;/artifactId&gt;</p>
+<p>    &lt;version&gt;${spring-ai.version}&lt;/version&gt;</p>
+<p>&lt;/dependency&gt;</p>
+<p></p>
+<p>&lt;dependency&gt;</p>
+<p>    &lt;groupId&gt;org.springframework.ai&lt;/groupId&gt;</p>
+<p>    &lt;artifactId&gt;spring-ai-starter-model-chat-memory-repository-jdbc&lt;/artifactId&gt;</p>
+<p>    &lt;version&gt;${spring-ai.version}&lt;/version&gt;</p>
+<p>&lt;/dependency&gt;</p>
+<p></code></pre></p>
+<p></p>
+<h3>2. 脚手架配置文件</h3>
+<p></p>
+<pre><code class="language-yml">server:
+<p>  port: 8084</p>
+<p></p>
+<p>spring:</p>
+<p>  application:</p>
+<p>    name: aiModel-service</p>
+<p></p>
+<p>  # Spring AI Alibaba 配置</p>
+<p>  ai:</p>
+<p>    chat:</p>
+<p>      memory:</p>
+<p>        repository:</p>
+<p>          jdbc:</p>
+<p>            initialize-schema: never</p>
+<p>    openai:</p>
+<p>      api-key: sk-xxxxxxxxxxxxx</p>
+<p>      chat:</p>
+<p>        base-url: https://dashscope.aliyuncs.com/compatible-mode</p>
+<p>        options:</p>
+<p>          model: deepseek-v3.2</p>
+<p>          max-tokens: 2000</p>
+<p>          temperature: 0.7</p>
+<p></code></pre></p>
+<p></p>
+<p>---</p>
+<p></p>
+<h2>四、使用SpringAI核心依赖构建</h2>
+<p></p>
+<h3>创建 DTO</h3>
+<p></p>
+<p>~~~java</p>
+<p>package com.lemon.aiModel.dto;</p>
+<p></p>
+<p>import lombok.AllArgsConstructor;</p>
+<p>import lombok.Data;</p>
+<p>import lombok.NoArgsConstructor;</p>
+<p></p>
+<p>@Data</p>
+<p>@NoArgsConstructor</p>
+<p>@AllArgsConstructor</p>
+<p>public class ChatRequest {</p>
+<p>    private String chatId;</p>
+<p>    private String message;</p>
+<p>}</p>
+<p>~~~</p>
+<p></p>
+<p></p>
+<p></p>
+<h3>配置 Bean 实例</h3>
+<p></p>
+<p>~~~java</p>
+<p>package com.lemon.aiModel.config;</p>
+<p></p>
+<p>import org.springframework.ai.chat.client.ChatClient;</p>
+<p>import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;</p>
+<p>import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;</p>
+<p>import org.springframework.ai.chat.memory.ChatMemory;</p>
+<p>import org.springframework.ai.chat.memory.InMemoryChatMemoryRepository;    // 新增：内存存储库</p>
+<p>import org.springframework.ai.chat.memory.MessageWindowChatMemory;        // 新增：内存窗口策略</p>
+<p>import org.springframework.ai.openai.OpenAiChatModel;</p>
+<p>import org.springframework.context.annotation.Bean;</p>
+<p>import org.springframework.context.annotation.Configuration;</p>
+<p></p>
+<p>@Configuration</p>
+<p>public class AiConfig {</p>
+<p>  </p>
+<p>    @Bean</p>
+<p>    public ChatClient chatClient(OpenAiChatModel DsModel, ChatMemory chatMemory) {</p>
+<p>        return ChatClient</p>
+<p>                .builder(DsModel)</p>
+<p>                .build();</p>
+<p>    }</p>
+<p>}</p>
+<p></p>
+<p>~~~</p>
+<p></p>
+<p></p>
+<p></p>
+<h3>创建 Controller</h3>
+<p></p>
+<p>~~~java</p>
+<p>package com.lemon.aiModel.controller;</p>
+<p></p>
+<p>import com.lemon.aiModel.dto.ChatRequest;</p>
+<p>import com.lemon.aiModel.service.AisListHistoryService;</p>
+<p>import com.lemon.aiModel.service.impl.AisListHistoryServiceImpl;</p>
+<p>import org.springframework.ai.chat.client.ChatClient;</p>
+<p>import org.springframework.ai.chat.memory.ChatMemory;</p>
+<p>import org.springframework.ai.chat.prompt.Prompt;</p>
+<p>import org.springframework.ai.chat.messages.UserMessage;</p>
+<p>import org.springframework.beans.factory.annotation.Autowired;</p>
+<p>import org.springframework.web.bind.annotation.<em>;</p>
+<p>import reactor.core.publisher.Flux;</p>
+<p></p>
+<p>import java.util.Map;</p>
+<p></p>
+<p>@RestController</p>
+<p>@RequestMapping("/chat")</p>
+<p>public class AiChatController {</p>
+<p></p>
+<p>    private final ChatClient chatClient;</p>
+<p></p>
+<p>    @Autowired</p>
+<p>    private AisListHistoryService aisListHistoryService;</p>
+<p></p>
+<p>    public AiChatController(ChatClient chatClient) {</p>
+<p>        this.chatClient = chatClient;</p>
+<p>    }</p>
+<p></p>
+<p>    /</em><em></p>
+<p>     </em> 基础聊天接口</p>
+<p>     <em>/</p>
+<p>    @PostMapping(value = "/send", produces = "text/html;charset=utf-8")</p>
+<p>    public String chat(@RequestBody ChatRequest chatRequest) {</p>
+<p>        return chatClient.prompt()</p>
+<p>                .user(chatRequest.getMessage())</p>
+<p>                .call()</p>
+<p>                .content();</p>
+<p>    }</p>
+<p></p>
+<p>    /</em><em></p>
+<p>     </em> 流式响应（适合长文本）</p>
+<p>     <em>/</p>
+<p>    @PostMapping(value = "/streamChat", produces = "text/html;charset=utf-8")</p>
+<p>    public Flux<String> streamChat(@RequestBody ChatRequest chatRequest) {</p>
+<p>        System.out.println("chatRequest: " + chatRequest);</p>
+<p>        aisListHistoryService.saveHistory("chat", chatRequest.getChatId());</p>
+<p>        return chatClient.prompt()</p>
+<p>                .user(chatRequest.getMessage())</p>
+<p>                .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, chatRequest.getChatId()))</p>
+<p>                .stream()</p>
+<p>                .content();</p>
+<p>    }</p>
+<p></p>
+<p>}</p>
+<p>~~~</p>
+<p></p>
+<p></p>
+<p></p>
+<p>---</p>
+<p></p>
+<h2>五、加载前端页面</h2>
+<p></p>
+<p>此处省略，不是今天的重点。</p>
+<p></p>
+<p>---</p>
+<p></p>
+<h2>六、了解SpringAI的一些核心接口</h2>
+<p></p>
+<p><img src="/Users/jonny/Library/Application Support/typora-user-images/image-20260317180615215.png" alt="image-20260317180615215" style="zoom:50%;" /></p>
+<p></p>
+<p>---</p>
+<p></p>
+<h2>七、开启日志管理</h2>
+<p></p>
+<h3>1. 开启日志管理</h3>
+<p></p>
+<p><img src="/Users/jonny/Library/Application Support/typora-user-images/image-20260317180737561.png" alt="image-20260317180737561" style="zoom:50%;" /></p>
+<p></p>
+<h3>2. 底层实现原理</h3>
+<p></p>
+<p>SimpleLoggerAdvisor 实现日志环绕增强的机制并不依赖于传统的 Spring AOP 代理（如 JDK 动态代理或 CGLIB），而是通过<strong>回调函数 + 责任链模式</strong>来完成的。这种设计在 Spring AI 等现代框架中很常见，它轻量、灵活，且与特定执行环境（如 ChatClient 的调用链）深度集成。</p>
+<p></p>
+<p><img src="/Users/jonny/Library/Application Support/typora-user-images/image-20260318141104833.png" alt="image-20260318141104833" style="zoom:50%;" /></p>
+<p></p>
+<h3>3. 验证测试</h3>
+<p></p>
+<p><img src="/Users/jonny/Library/Application Support/typora-user-images/image-20260317180905897.png" alt="image-20260317180905897" style="zoom:50%;" /></p>
+<p></p>
+<p><img src="/Users/jonny/Library/Application Support/typora-user-images/image-20260317180840152.png" alt="image-20260317180840152" style="zoom:50%;" /></p>
+<p></p>
+<p></p>
+<p></p>
+<p>---</p>
+<p></p>
+<h2>八、会话记忆</h2>
+<p></p>
+<p>> 首先大模型是不具备记忆能力的，要想让大模型记住之前聊天的内容，唯一的办法就是把之前聊天的内容与新的提示词一起发给大模型。</p>
+<p></p>
+<h3>1. OpenAI的API</h3>
+<p></p>
+<p>下面是 OpenAI 的 API（Python）示例：</p>
+<p></p>
+<p><img src="/Users/jonny/Library/Application Support/typora-user-images/image-20260313160309364.png" alt="image-20260313160309364" style="zoom:50%;" /></p>
+<p></p>
+<p></p>
+<p></p>
+<p>大家可以在阿里云百炼平台进行测试。</p>
+<p></p>
+<h3>2. 接口规范</h3>
+<p></p>
+<p><img src="/Users/jonny/Library/Application Support/typora-user-images/image-20260313160513853.png" alt="image-20260313160513853" style="zoom:50%;" /></p>
+<p></p>
+<h3>3. 会话管理流程</h3>
+<p></p>
+<p>下面是会话管理的流程：</p>
+<p></p>
+<p><img src="/Users/jonny/Library/Application Support/typora-user-images/image-20260313161139914.png" alt="image-20260313161139914" style="zoom:50%;" /></p>
+<p></p>
+<p></p>
+<p></p>
+<h3>4. 会话存储的3种方式</h3>
+<p></p>
+<p><strong>三种方式：</strong></p>
+<p></p>
+<ol><li><strong>自己手动创建 Map 来进行管理</strong>，要使用 ConcurrentHashMap 来保证线程安全，避免数据丢失！</li>
+<p></p>
+<li><strong>使用 Spring 自带的内存管理</strong>，如下图所示</li>
+<p></p>
+<li><strong>自己实现企业级的会话 ID 和内容管理</strong>，具体方式可以通过自己新建实现类实现 ChatMemory 接口即可</li>
+<p></p>
+<p>> 此处演示选择第二种方式，实际开发中要使用第三种方式</p>
+<p></p>
+<p>以下是会话记忆的接口：</p>
+<p></p>
+<p><img src="/Users/jonny/Library/Application Support/typora-user-images/image-20260317171147003.png" alt="image-20260317171147003" style="zoom:50%;" /></p>
+<p></p>
+<h3>5. 配置会话记忆</h3>
+<p></p>
+<p>使用方式：将其配置为 Bean：</p>
+<p></p>
+<p><img src="/Users/jonny/Library/Application Support/typora-user-images/image-20260317171343778.png" alt="image-20260317171343778" style="zoom:50%;" /></p>
+<p></p>
+<p>此处选择使用 MessageWindowChatMemory，这是 SpringAI 默认的实现类：</p>
+<p></p>
+<p><img src="/Users/jonny/Library/Application Support/typora-user-images/image-20260317171446104.png" alt="image-20260317171446104" style="zoom:50%;" /></p>
+<p></p>
+<h3>6. 管理会话</h3>
+<p></p>
+<h4>配置会话记忆</h4>
+<p></p>
+<p><img src="/Users/jonny/Library/Application Support/typora-user-images/image-20260317171619311.png" alt="image-20260317171619311" style="zoom:50%;" /></p>
+<p></p>
+<p></p>
+<p></p>
+<p>经过如上配置，已经使用了会话管理功能。</p>
+<p></p>
+<p>那么引出如下问题：<strong>会话 ID 从哪儿来？如何进行管理？</strong></p>
+<p></p>
+<h4>添加会话 ID</h4>
+<p></p>
+<p><img src="/Users/jonny/Library/Application Support/typora-user-images/image-20260317171900741.png" alt="image-20260317171900741" style="zoom:50%;" /></p>
+<p></p>
+<p>通过源码追溯可以看到其底层还是使用的ConcurrentHashMap来实现的</p>
+<p></p>
+<p><img src="/Users/jonny/Library/Application Support/typora-user-images/image-20260320174013440.png" alt="image-20260320174013440" style="zoom:50%;" /></p>
+<p></p>
+<h3>7. 验证测试</h3>
+<p></p>
+<p><img src="/Users/jonny/Library/Application Support/typora-user-images/image-20260317181356220.png" alt="image-20260317181356220" style="zoom:50%;" /></p>
+<p></p>
+<p><img src="/Users/jonny/Library/Application Support/typora-user-images/image-20260317181445686.png" alt="image-20260317181445686" style="zoom:50%;" /></p>
+<p></p>
+<p><img src="/Users/jonny/Library/Application Support/typora-user-images/image-20260317181529921.png" alt="image-20260317181529921" style="zoom:50%;" /></p>
+<p></p>
+<p></p>
+<p></p>
+<p>---</p>
+<p></p>
+<h2>九、历史数据</h2>
+<p></p>
+<h3>1. 接口API定义</h3>
+<p></p>
+<p>会话记录列表 API，以及会话详情 API：</p>
+<p></p>
+<p><img src="/Users/jonny/Library/Application Support/typora-user-images/image-20260318101318599.png" alt="image-20260318101318599" style="zoom:50%;" /></p>
+<p></p>
+<h3>2. 实现方式</h3>
+<p></p>
+<p>具体实现（企业级解决方案是将数据入库处理）：</p>
+<p></p>
+<pre><code class="language-markdown">1、引入数据库源依赖，mybatis（或mybatisPlus依赖）
+<p>2、yml配置文件配置数据库源，配置mybatisplus</p>
+<p>3、创建三层架构</p>
+<p>4、代码实现</p>
+<p></code></pre></p>
+<p></p>
+<h3>3. 具体实现</h3>
+<p></p>
+<h4>(1) 创建表</h4>
+<p></p>
+<pre><code class="language-sql">CREATE TABLE <code>ais_list_history</code> (
+<p>    <code>id</code> BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT &#039;主键ID，自增&#039;,</p>
+<p>    <code>user_id</code> VARCHAR(36) NOT NULL COMMENT &#039;用户ID，UUID格式（例如：123e4567-e89b-12d3-a456-426614174000）&#039;,</p>
+<p>    <code>chat_id</code> BIGINT UNSIGNED NOT NULL COMMENT &#039;聊天ID，关联聊天表（假设为数字ID；若也为UUID，可调整为VARCHAR(36)）&#039;,</p>
+<p>    <code>biz_type</code> VARCHAR(50) NOT NULL COMMENT &#039;业务类型，例如：chat(单聊)、group(群聊)、robot(机器人)等&#039;,</p>
+<p>    <code>created_at</code> DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT &#039;创建时间，记录该条历史记录的生成时间&#039;,</p>
+<p>    <code>updated_at</code> DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT &#039;更新时间，记录该条记录的最后修改时间&#039;,</p>
+<p>    <code>is_deleted</code> TINYINT(1) NOT NULL DEFAULT &#039;0&#039; COMMENT &#039;软删除标记：0-未删除，1-已删除&#039;,</p>
+<p>    <code>deleted_at</code> DATETIME DEFAULT NULL COMMENT &#039;删除时间，当is_deleted=1时记录删除的具体时间&#039;,</p>
+<p>    PRIMARY KEY (<code>id</code>),</p>
+<p>    KEY <code>idx_user_id</code> (<code>user_id</code>),</p>
+<p>    KEY <code>idx_chat_id</code> (<code>chat_id</code>),</p>
+<p>    KEY <code>idx_biz_type</code> (<code>biz_type</code>),</p>
+<p>    KEY <code>idx_created_at</code> (<code>created_at</code>),</p>
+<p>    KEY <code>idx_is_deleted</code> (<code>is_deleted</code>),</p>
+<p>    KEY <code>idx_user_deleted</code> (<code>user_id</code>, <code>is_deleted</code>)</p>
+<p>) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT=&#039;用户列表历史会话id记录表&#039;;</p>
+<p></p>
+<p>ALTER TABLE <code>ais_list_history</code></p>
+<p>    ADD COLUMN <code>rename</code> VARCHAR(255) DEFAULT NULL COMMENT &#039;重命名后的名称，NULL表示未重命名&#039;;</p>
+<p></code></pre></p>
+<p></p>
+<h4>(2) 创建 POJO 类</h4>
+<p></p>
+<pre><code class="language-java">package com.lemon.aiModel.pojo;
+<p></p>
+<p>import com.baomidou.mybatisplus.annotation.</em>;</p>
+<p>import lombok.Data;</p>
+<p>import java.time.LocalDateTime;</p>
+<p></p>
+<p>/*<em></p>
+<p> </em> 用户会话记录列表</p>
+<p> <em>/</p>
+<p>@Data</p>
+<p>@TableName(&quot;ais_list_history&quot;)</p>
+<p>public class AisListHistory {</p>
+<p></p>
+<p>    /</em><em></p>
+<p>     </em> 主键ID，自增</p>
+<p>     <em>/</p>
+<p>    @TableId(type = IdType.AUTO)</p>
+<p>    private Long id;</p>
+<p></p>
+<p>    /</em><em></p>
+<p>     </em> 用户ID，UUID格式</p>
+<p>     <em>/</p>
+<p>    private String userId;</p>
+<p></p>
+<p>    /</em><em></p>
+<p>     </em> 聊天ID（假设为数字ID，若为UUID则需改为String）</p>
+<p>     <em>/</p>
+<p>    private Long chatId;</p>
+<p></p>
+<p>    /</em><em></p>
+<p>     </em> 业务类型，例如：chat(单聊)、group(群聊)、robot(机器人)等</p>
+<p>     <em>/</p>
+<p>    private String bizType;</p>
+<p></p>
+<p>    /</em><em></p>
+<p>     </em> 创建时间，自动填充（需配置MetaObjectHandler）</p>
+<p>     <em>/</p>
+<p>    @TableField(fill = FieldFill.INSERT)</p>
+<p>    private LocalDateTime createdAt;</p>
+<p></p>
+<p>    /</em><em></p>
+<p>     </em> 更新时间，自动填充（需配置MetaObjectHandler）</p>
+<p>     <em>/</p>
+<p>    @TableField(fill = FieldFill.INSERT_UPDATE)</p>
+<p>    private LocalDateTime updatedAt;</p>
+<p></p>
+<p>    /</em><em></p>
+<p>     </em> 软删除标记：0-未删除，1-已删除</p>
+<p>     <em>/</p>
+<p>    @TableLogic</p>
+<p>    private Integer isDeleted;</p>
+<p></p>
+<p>    /</em><em></p>
+<p>     </em> 删除时间，当isDeleted=1时记录删除的具体时间</p>
+<p>     <em>/</p>
+<p>    private LocalDateTime deletedAt;</p>
+<p></p>
+<p>    /</em><em></p>
+<p>     </em> 聊天名称，用于显示</p>
+<p>     <em>/</p>
+<p>    @TableField(&quot;<code>rename</code>&quot;)</p>
+<p>    private String rename;</p>
+<p>}</p>
+<p></code></pre></p>
+<p></p>
+<h4>(3) 数据库存储</h4>
+<p></p>
+<pre><code class="language-java">@Override
+<p>@Transactional(rollbackFor = Exception.class)</p>
+<p>public void saveHistory(String type, String chatId) {</p>
+<p>    if (type == null || chatId == null){</p>
+<p>        return;</p>
+<p>    }</p>
+<p>    AisListHistory history = new AisListHistory();</p>
+<p>    history.setChatId(Long.valueOf(chatId));</p>
+<p>    history.setBizType(type);</p>
+<p>    history.setUserId(&quot;1&quot;);</p>
+<p>    history.setCreatedAt(LocalDateTime.now());</p>
+<p>    history.setUpdatedAt(LocalDateTime.now());</p>
+<p>    this.save(history);</p>
+<p>}</p>
+<p></code></pre></p>
+<p></p>
+<h4>(4) 保存管理</h4>
+<p></p>
+<p>在调用大模型接口前保存数据：</p>
+<p></p>
+<pre><code class="language-java">/</em><em>
+<p> </em> 流式响应（适合长文本）</p>
+<p> */</p>
+<p>@PostMapping(value = &quot;/streamChat&quot;, produces = &quot;text/html;charset=utf-8&quot;)</p>
+<p>public Flux&lt;String&gt; streamChat(@RequestBody ChatRequest chatRequest) {</p>
+<p>    System.out.println(&quot;chatRequest: &quot; + chatRequest);</p>
+<p>    aisListHistoryService.saveHistory(&quot;chat&quot;, chatRequest.getChatId());</p>
+<p>    return chatClient.prompt()</p>
+<p>            .user(chatRequest.getMessage())</p>
+<p>            .advisors(a -&gt; a.param(ChatMemory.CONVERSATION_ID, chatRequest.getChatId()))</p>
+<p>            .stream()</p>
+<p>            .content();</p>
+<p>}</p>
+<p></code></pre></p>
+<p></p>
+<h4>(5) 列表查询</h4>
+<p></p>
+<pre><code class="language-java">@GetMapping(&quot;/{type}&quot;)
+<p>public R&lt;List&lt;AisListHistory&gt;&gt; list(@PathVariable(&quot;type&quot;) String type) {</p>
+<p>    List&lt;AisListHistory&gt; historyList = aisListHistoryService.getHistoryList(type);</p>
+<p>    return historyList != null ? R.success(historyList, &quot;查询成功&quot;) : R.fail(&quot;记录不存在&quot;);</p>
+<p>}</p>
+<p></code></pre></p>
+<p></p>
+<pre><code class="language-java">@Override
+<p>public List&lt;AisListHistory&gt; getHistoryList(String type) {</p>
+<p>    Assert.notNull(type, &quot;业务类型不能为空&quot;);</p>
+<p>    log.info(&quot;查询业务类型为{}的聊天记录&quot;, type);</p>
+<p>    LambdaQueryWrapper&lt;AisListHistory&gt; queryWrapper = new LambdaQueryWrapper&lt;&gt;();</p>
+<p>    queryWrapper.eq(AisListHistory::getBizType, type);</p>
+<p>    queryWrapper.eq(AisListHistory::getIsDeleted, 0);</p>
+<p>    return aisListHistoryMapper.selectList(queryWrapper);</p>
+<p>}</p>
+<p></code></pre></p>
+<p></p>
+<h4>(6) 验证测试</h4>
+<p></p>
+<p><img src="/Users/jonny/Library/Application Support/typora-user-images/image-20260318175112285.png" alt="image-20260318175112285" style="zoom:50%;" /></p>
+<p></p>
+<p>---</p>
+<p></p>
+<h2>十、获取会话详情</h2>
+<p></p>
+<p>基本逻辑，从存储会话内容的地方获取内容，搜索并展示。</p>
+<p></p>
+<p>由于本次演示是使用的 SpringAI 的内存存储，所以需要去内存中获取。</p>
+<p></p>
+<h3>1. 新建 VO</h3>
+<p></p>
+<pre><code class="language-java">package com.lemon.aiModel.vo;
+<p></p>
+<p>import lombok.Data;</p>
+<p>import lombok.NoArgsConstructor;</p>
+<p>import org.springframework.ai.chat.messages.Message;</p>
+<p></p>
+<p>@Data</p>
+<p>@NoArgsConstructor</p>
+<p>public class MessageVO {</p>
+<p>    private String role;</p>
+<p>    private String content;</p>
+<p></p>
+<p>    // 默认数据直接从Message中获取</p>
+<p>    public MessageVO(Message message) {</p>
+<p>        switch (message.getMessageType()) {</p>
+<p>            case USER:</p>
+<p>                this.role = &quot;user&quot;;</p>
+<p>                break;</p>
+<p>            case ASSISTANT:</p>
+<p>                this.role = &quot;assistant&quot;;</p>
+<p>                break;</p>
+<p>            case SYSTEM:</p>
+<p>                this.role = &quot;system&quot;;</p>
+<p>                break;</p>
+<p>            default:</p>
+<p>                this.role = &quot;unknown&quot;;</p>
+<p>        }</p>
+<p>        this.content = message.getText();</p>
+<p>    }</p>
+<p>}</p>
+<p></code></pre></p>
+<p></p>
+<h3>2. 实现类实现</h3>
+<p></p>
+<pre><code class="language-java">@Autowired
+<p>private AisListHistoryMapper aisListHistoryMapper;</p>
+<p></p>
+<p>@Autowired</p>
+<p>private ChatMemory chatMemory;</p>
+<p></p>
+<p>@Override</p>
+<p>public List&lt;MessageVO&gt; getMessageInfo(String type, Long id) {</p>
+<p>    Assert.notNull(id, &quot;业务ID不能为空&quot;);</p>
+<p>    // 从内存管理中获取数据</p>
+<p>    List&lt;Message&gt; messages = chatMemory.get(String.valueOf(id));</p>
+<p>    // 变更数据结构并返回</p>
+<p>    return messages.stream().map(MessageVO::new).toList();</p>
+<p>}</p>
+<p></code></pre></p>
+<p></p>
+<h3>3. 验证测试</h3>
+<p></p>
+<p><img src="/Users/jonny/Library/Application Support/typora-user-images/image-20260320162334102.png" alt="image-20260320162334102" style="zoom:50%;" /></p>
+<p></p>
+<p>符合预期。</p>
+<p></p>
+<p>---</p>
+<p></p>
+<h2>十一、总结</h2>
+<p></p>
+<p>本文档详细介绍了基于 SpringAI 框架构建 AI 对话机器人的完整流程，主要涵盖以下核心内容：</p>
+<p></p>
+<h3>1. 大模型部署方案</h3>
+<p></p>
+<ul><li><strong>云部署</strong>：通过阿里云百炼等平台提供的 API 接口快速接入，适合快速开发验证</li>
+<li><strong>本地部署</strong>：使用 Ollama 等工具在本地部署，数据安全性更高，适合企业级应用</li>
+<p></p>
+<h3>2. 技术架构要点</h3>
+<p></p>
+<p>| 模块 | 关键技术 | 说明 |</p>
+<p>|-----|--------|-----|</p>
+<p>| 依赖配置 | SpringAI BOM + OpenAI Starter | 版本管理 + 云平台接入 |</p>
+<p>| 会话记忆 | ChatMemory + MessageWindowChatMemory | 实现大模型的多轮对话能力 |</p>
+<p>| 日志管理 | SimpleLoggerAdvisor | 责任链模式实现请求响应日志 |</p>
+<p>| 历史数据 | MyBatis-Plus + JDBC | 企业级持久化存储方案 |</p>
+<p></p>
+<h3>3. 核心实现流程</h3>
+<p></p>
+<pre><code class="language-plaintext">用户请求 → Controller → Service → ChatClient
+<p>                                      ↓</p>
+<p>                               ChatMemory (会话记忆)</p>
+<p>                                      ↓</p>
+<p>                               百炼平台 API (大模型)</p>
+<p>                                      ↓</p>
+<p>                               返回响应 → 保存历史记录</p>
+<p></code></pre></p>
+<p></p>
+<h3>4. 关键设计思想</h3>
+<p></p>
+<li><strong>会话隔离</strong>：通过 <code>conversationId</code> 实现多会话并行管理</li>
+<li><strong>软删除设计</strong>：历史数据采用逻辑删除，便于数据恢复和审计</li>
+<li><strong>责任链模式</strong>：日志管理采用回调函数 + 责任链，轻量灵活</li>
+<li><strong>分层架构</strong>：DTO → Service → Controller，职责清晰</li></ul>
+<p></p>
+<h3>5. 生产环境建议</h3>
+<p></p>
+<li><strong>会话存储</strong>：推荐使用自定义实现类 + 数据库存储，而非内存管理</li>
+<li><strong>数据安全</strong>：敏感数据脱敏处理，API Key 加密存储</li>
+<li><strong>性能优化</strong>：考虑引入缓存层，减少数据库压力</li>
+<li><strong>监控告警</strong>：添加请求耗时、错误率等指标监控</li></ol>
+<p></p>
+<p>---</p>
+<p></p>
+<p><strong>文档整理</strong>：尼克</p>
+<p></p>
+<p><strong>整理日期</strong>：2026年3月20日</p>
+      </div>
+    </article>
+    
+    <!-- 评论区 -->
+    <div id="comments" style="max-width: 800px; margin: 3rem auto; padding: 0 1rem;">
+      <div style="width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin-bottom: 2rem;"></div>
+      <h3 style="margin-bottom: 1.5rem; color: var(--primary);">💬 评论区</h3>
+      <script src="https://giscus.app/client.js" 
+           data-repo="jonny-dr/jonny-dr.github.io" 
+           data-repo-id="R_kgDORKkzfg" 
+           data-category="Announcements" 
+           data-category-id="DIC_kwDORKkzfs4C2Wdq" 
+           data-mapping="pathname" 
+           data-strict="0" 
+           data-reactions-enabled="1" 
+           data-emit-metadata="0" 
+           data-input-position="bottom" 
+           data-theme="preferred_color_scheme" 
+           data-lang="zh-CN" 
+           crossorigin="anonymous" 
+           async> 
+     </script>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 北辰 · 保持好奇，持续成长</p>
+    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
+      源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
+    </p>
+  </footer>
+
+  <button class="back-to-top" id="backToTop" aria-label="回到顶部">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="m18 15-6-6-6 6"/>
+    </svg>
+  </button>
+
+  <script src="../../../../js/theme.js"></script>
+</body>
+</html>
+  
