@@ -4,19 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="01b9ed2d-7a07-4fad-867f-231680798b88" name="Changes" comment="feature-增加评论功能" />
+    <list default="true" id="c8a65ece-f4f4-4e22-bf64-bced458885a1" name="Changes" comment="feature-文档变更" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
-  </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="HTML File" />
-        <option value="JavaScript File" />
-      </list>
-    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -24,10 +16,11 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 8
-}</component>
-  <component name="ProjectId" id="39VjlUzyjTwzRo3QUFdJTve4MnW" />
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 8
+}]]></component>
+  <component name="ProjectId" id="3CQjbcpFgqH25R8y92fJZLIaoPy" />
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
   </component>
@@ -35,351 +28,62 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;Node.js.generate-pagination.js.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/jonny/workspace/mine/jonny-dr.github.io&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/Applications/IntelliJ IDEA.app/Contents/plugins/javascript-impl/jsLanguageServicesImpl/external&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/jonny/workspace/mine/jonny-dr.github.io",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "com.dp.ai.tool.code.settings.CodeAssistSettingsConfigurable",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
-  <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/_posts/archives" />
-      <recent name="$PROJECT_DIR$/_posts/blog" />
-    </key>
-  </component>
-  <component name="RunManager">
-    <configuration name="generate-pagination.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/generate-pagination.js" working-dir="$PROJECT_DIR$">
-      <method v="2" />
-    </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Node.js.generate-pagination.js" />
-      </list>
-    </recent_temporary>
-  </component>
+}]]></component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="01b9ed2d-7a07-4fad-867f-231680798b88" name="Changes" comment="" />
-      <created>1770788282461</created>
+      <changelist id="c8a65ece-f4f4-4e22-bf64-bced458885a1" name="Changes" comment="" />
+      <created>1776324761390</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1770788282461</updated>
-      <workItem from="1770788283549" duration="382000" />
-      <workItem from="1770794817110" duration="41867000" />
-      <workItem from="1772094963603" duration="13000" />
-      <workItem from="1772094986065" duration="19000" />
-      <workItem from="1772095609793" duration="229000" />
+      <updated>1776324761390</updated>
+      <workItem from="1776324762441" duration="2299000" />
     </task>
-    <task id="LOCAL-00001" summary="fix-调整项目页面文件名称，修复页面跳转问题">
+    <task id="LOCAL-00001" summary="feature-增强md样式兼容转换">
       <option name="closed" value="true" />
-      <created>1770794952341</created>
+      <created>1776325959913</created>
       <option name="number" value="00001" />
       <option name="presentableId" value="LOCAL-00001" />
       <option name="project" value="LOCAL" />
-      <updated>1770794952341</updated>
+      <updated>1776325959913</updated>
     </task>
-    <task id="LOCAL-00002" summary="feature-样式风格统一调整">
+    <task id="LOCAL-00002" summary="feature-新建使用方法文本文档">
       <option name="closed" value="true" />
-      <created>1770795611743</created>
+      <created>1776326430886</created>
       <option name="number" value="00002" />
       <option name="presentableId" value="LOCAL-00002" />
       <option name="project" value="LOCAL" />
-      <updated>1770795611743</updated>
+      <updated>1776326430886</updated>
     </task>
-    <task id="LOCAL-00003" summary="feature-统一调整GitHub跳转地址，新增head头像">
+    <task id="LOCAL-00003" summary="feature-文档变更">
       <option name="closed" value="true" />
-      <created>1770796233305</created>
+      <created>1776329161372</created>
       <option name="number" value="00003" />
       <option name="presentableId" value="LOCAL-00003" />
       <option name="project" value="LOCAL" />
-      <updated>1770796233305</updated>
+      <updated>1776329161372</updated>
     </task>
-    <task id="LOCAL-00004" summary="feature-基本信息调整">
-      <option name="closed" value="true" />
-      <created>1770796657840</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1770796657840</updated>
-    </task>
-    <task id="LOCAL-00005" summary="feature-分页测试临时版本">
-      <option name="closed" value="true" />
-      <created>1770798593996</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1770798593996</updated>
-    </task>
-    <task id="LOCAL-00006" summary="feature-分页测试临时版本">
-      <option name="closed" value="true" />
-      <created>1770877011475</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1770877011475</updated>
-    </task>
-    <task id="LOCAL-00007" summary="feature-分页测试临时版本">
-      <option name="closed" value="true" />
-      <created>1770877037726</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1770877037726</updated>
-    </task>
-    <task id="LOCAL-00008" summary="feature-新建首页调试，新建其他文档的模版">
-      <option name="closed" value="true" />
-      <created>1770878951842</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1770878951842</updated>
-    </task>
-    <task id="LOCAL-00009" summary="feature-首页优化">
-      <option name="closed" value="true" />
-      <created>1770879549186</created>
-      <option name="number" value="00009" />
-      <option name="presentableId" value="LOCAL-00009" />
-      <option name="project" value="LOCAL" />
-      <updated>1770879549186</updated>
-    </task>
-    <task id="LOCAL-00010" summary="feature-栏目布局调整，新增技术栏目">
-      <option name="closed" value="true" />
-      <created>1770885290671</created>
-      <option name="number" value="00010" />
-      <option name="presentableId" value="LOCAL-00010" />
-      <option name="project" value="LOCAL" />
-      <updated>1770885290671</updated>
-    </task>
-    <task id="LOCAL-00011" summary="feature-日常-新增壁纸分享">
-      <option name="closed" value="true" />
-      <created>1770887307985</created>
-      <option name="number" value="00011" />
-      <option name="presentableId" value="LOCAL-00011" />
-      <option name="project" value="LOCAL" />
-      <updated>1770887307985</updated>
-    </task>
-    <task id="LOCAL-00012" summary="feature-首页-最近内容逻辑调整">
-      <option name="closed" value="true" />
-      <created>1770887978633</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
-      <option name="project" value="LOCAL" />
-      <updated>1770887978633</updated>
-    </task>
-    <task id="LOCAL-00013" summary="feature-归档-样式调整">
-      <option name="closed" value="true" />
-      <created>1770889574921</created>
-      <option name="number" value="00013" />
-      <option name="presentableId" value="LOCAL-00013" />
-      <option name="project" value="LOCAL" />
-      <updated>1770889574921</updated>
-    </task>
-    <task id="LOCAL-00014" summary="feature-归档-样式调整">
-      <option name="closed" value="true" />
-      <created>1770891026316</created>
-      <option name="number" value="00014" />
-      <option name="presentableId" value="LOCAL-00014" />
-      <option name="project" value="LOCAL" />
-      <updated>1770891026316</updated>
-    </task>
-    <task id="LOCAL-00015" summary="feature-标题统一调整样式">
-      <option name="closed" value="true" />
-      <created>1770891937454</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1770891937454</updated>
-    </task>
-    <task id="LOCAL-00016" summary="feature-调整文件存储位置">
-      <option name="closed" value="true" />
-      <created>1770946124282</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1770946124282</updated>
-    </task>
-    <task id="LOCAL-00017" summary="feature-新增右键禁用，禁止用户随意转载">
-      <option name="closed" value="true" />
-      <created>1770946877902</created>
-      <option name="number" value="00017" />
-      <option name="presentableId" value="LOCAL-00017" />
-      <option name="project" value="LOCAL" />
-      <updated>1770946877902</updated>
-    </task>
-    <task id="LOCAL-00018" summary="feature-新增全局背景音乐">
-      <option name="closed" value="true" />
-      <created>1770962265262</created>
-      <option name="number" value="00018" />
-      <option name="presentableId" value="LOCAL-00018" />
-      <option name="project" value="LOCAL" />
-      <updated>1770962265262</updated>
-    </task>
-    <task id="LOCAL-00019" summary="feature-背景音乐优化">
-      <option name="closed" value="true" />
-      <created>1770964421189</created>
-      <option name="number" value="00019" />
-      <option name="presentableId" value="LOCAL-00019" />
-      <option name="project" value="LOCAL" />
-      <updated>1770964421189</updated>
-    </task>
-    <task id="LOCAL-00020" summary="feature-背景音乐优化">
-      <option name="closed" value="true" />
-      <created>1770965551233</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1770965551233</updated>
-    </task>
-    <task id="LOCAL-00021" summary="feature-样式调整">
-      <option name="closed" value="true" />
-      <created>1770966073279</created>
-      <option name="number" value="00021" />
-      <option name="presentableId" value="LOCAL-00021" />
-      <option name="project" value="LOCAL" />
-      <updated>1770966073279</updated>
-    </task>
-    <task id="LOCAL-00022" summary="feature-readme文档重构">
-      <option name="closed" value="true" />
-      <created>1770966294416</created>
-      <option name="number" value="00022" />
-      <option name="presentableId" value="LOCAL-00022" />
-      <option name="project" value="LOCAL" />
-      <updated>1770966294416</updated>
-    </task>
-    <task id="LOCAL-00023" summary="feature-技术文档更新">
-      <option name="closed" value="true" />
-      <created>1770966796184</created>
-      <option name="number" value="00023" />
-      <option name="presentableId" value="LOCAL-00023" />
-      <option name="project" value="LOCAL" />
-      <updated>1770966796184</updated>
-    </task>
-    <task id="LOCAL-00024" summary="feature-调整html生成策略，并重新生成文档">
-      <option name="closed" value="true" />
-      <created>1770967045977</created>
-      <option name="number" value="00024" />
-      <option name="presentableId" value="LOCAL-00024" />
-      <option name="project" value="LOCAL" />
-      <updated>1770967045977</updated>
-    </task>
-    <task id="LOCAL-00025" summary="feature-调整html生成模版">
-      <option name="closed" value="true" />
-      <created>1770968277408</created>
-      <option name="number" value="00025" />
-      <option name="presentableId" value="LOCAL-00025" />
-      <option name="project" value="LOCAL" />
-      <updated>1770968277408</updated>
-    </task>
-    <task id="LOCAL-00026" summary="feature-补全技术模块儿内容">
-      <option name="closed" value="true" />
-      <created>1770973154755</created>
-      <option name="number" value="00026" />
-      <option name="presentableId" value="LOCAL-00026" />
-      <option name="project" value="LOCAL" />
-      <updated>1770973154755</updated>
-    </task>
-    <task id="LOCAL-00027" summary="feature-补全技术模块儿内容">
-      <option name="closed" value="true" />
-      <created>1770973238187</created>
-      <option name="number" value="00027" />
-      <option name="presentableId" value="LOCAL-00027" />
-      <option name="project" value="LOCAL" />
-      <updated>1770973238187</updated>
-    </task>
-    <task id="LOCAL-00028" summary="feature-结构优化，重构，方便后续处理">
-      <option name="closed" value="true" />
-      <created>1770975017369</created>
-      <option name="number" value="00028" />
-      <option name="presentableId" value="LOCAL-00028" />
-      <option name="project" value="LOCAL" />
-      <updated>1770975017369</updated>
-    </task>
-    <task id="LOCAL-00029" summary="feature-fix-修复项目列表有项目还提示空项目的情况">
-      <option name="closed" value="true" />
-      <created>1770975254507</created>
-      <option name="number" value="00029" />
-      <option name="presentableId" value="LOCAL-00029" />
-      <option name="project" value="LOCAL" />
-      <updated>1770975254507</updated>
-    </task>
-    <task id="LOCAL-00030" summary="feature-skill-新建文章（数据库主从同步）">
-      <option name="closed" value="true" />
-      <created>1770975826875</created>
-      <option name="number" value="00030" />
-      <option name="presentableId" value="LOCAL-00030" />
-      <option name="project" value="LOCAL" />
-      <updated>1770975826875</updated>
-    </task>
-    <task id="LOCAL-00031" summary="feature-新增默认图标">
-      <option name="closed" value="true" />
-      <created>1770976465260</created>
-      <option name="number" value="00031" />
-      <option name="presentableId" value="LOCAL-00031" />
-      <option name="project" value="LOCAL" />
-      <updated>1770976465260</updated>
-    </task>
-    <task id="LOCAL-00032" summary="feature-新增文章-流量限制">
-      <option name="closed" value="true" />
-      <created>1770977017534</created>
-      <option name="number" value="00032" />
-      <option name="presentableId" value="LOCAL-00032" />
-      <option name="project" value="LOCAL" />
-      <updated>1770977017534</updated>
-    </task>
-    <task id="LOCAL-00033" summary="feature-页脚部分新增回到顶部功能">
-      <option name="closed" value="true" />
-      <created>1770977513217</created>
-      <option name="number" value="00033" />
-      <option name="presentableId" value="LOCAL-00033" />
-      <option name="project" value="LOCAL" />
-      <updated>1770977513217</updated>
-    </task>
-    <task id="LOCAL-00034" summary="feature-fix-修复黑夜主题时，部分文字显示不清晰的问题">
-      <option name="closed" value="true" />
-      <created>1770977682784</created>
-      <option name="number" value="00034" />
-      <option name="presentableId" value="LOCAL-00034" />
-      <option name="project" value="LOCAL" />
-      <updated>1770977682784</updated>
-    </task>
-    <task id="LOCAL-00035" summary="feature-增加评论功能">
-      <option name="closed" value="true" />
-      <created>1770979796333</created>
-      <option name="number" value="00035" />
-      <option name="presentableId" value="LOCAL-00035" />
-      <option name="project" value="LOCAL" />
-      <updated>1770979796333</updated>
-    </task>
-    <option name="localTasksCounter" value="36" />
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="Vcs.Log.History.Properties">
-    <option name="COLUMN_ID_ORDER">
-      <list>
-        <option value="Default.Root" />
-        <option value="Default.Author" />
-        <option value="Default.Date" />
-        <option value="Default.Subject" />
-        <option value="Space.CommitStatus" />
-      </list>
-    </option>
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -394,31 +98,9 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="feature-新建首页调试，新建其他文档的模版" />
-    <MESSAGE value="feature-首页优化" />
-    <MESSAGE value="feature-栏目布局调整，新增技术栏目" />
-    <MESSAGE value="feature-日常-新增壁纸分享" />
-    <MESSAGE value="feature-首页-最近内容逻辑调整" />
-    <MESSAGE value="feature-归档-样式调整" />
-    <MESSAGE value="feature-标题统一调整样式" />
-    <MESSAGE value="feature-调整文件存储位置" />
-    <MESSAGE value="feature-新增右键禁用，禁止用户随意转载" />
-    <MESSAGE value="feature-新增全局背景音乐" />
-    <MESSAGE value="feature-背景音乐优化" />
-    <MESSAGE value="feature-样式调整" />
-    <MESSAGE value="feature-readme文档重构" />
-    <MESSAGE value="feature-技术文档更新" />
-    <MESSAGE value="feature-调整html生成策略，并重新生成文档" />
-    <MESSAGE value="feature-调整html生成模版" />
-    <MESSAGE value="feature-补全技术模块儿内容" />
-    <MESSAGE value="feature-结构优化，重构，方便后续处理" />
-    <MESSAGE value="feature-fix-修复项目列表有项目还提示空项目的情况" />
-    <MESSAGE value="feature-skill-新建文章（数据库主从同步）" />
-    <MESSAGE value="feature-新增默认图标" />
-    <MESSAGE value="feature-新增文章-流量限制" />
-    <MESSAGE value="feature-页脚部分新增回到顶部功能" />
-    <MESSAGE value="feature-fix-修复黑夜主题时，部分文字显示不清晰的问题" />
-    <MESSAGE value="feature-增加评论功能" />
-    <option name="LAST_COMMIT_MESSAGE" value="feature-增加评论功能" />
+    <MESSAGE value="feature-增强md样式兼容转换" />
+    <MESSAGE value="feature-新建使用方法文本文档" />
+    <MESSAGE value="feature-文档变更" />
+    <option name="LAST_COMMIT_MESSAGE" value="feature-文档变更" />
   </component>
 </project>

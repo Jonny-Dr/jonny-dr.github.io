@@ -1,0 +1,18 @@
+# 1. 编写 Markdown 文件到对应目录
+
+# 2. 如果有本地图片，运行迁移工具
+node transfer-images.js --category=skill
+
+# 3. 生成分页页面
+node generate-pagination.js
+
+# 4. 本地验证
+python3 -m http.server 8000
+
+# 5. 推送到 GitHub（自动部署）
+git add .
+git commit -m "Add new article"
+git push origin main
+
+# 6. GitHub Actions 会自动完成部署
+# 访问 https://jonny-dr.github.io 查看
