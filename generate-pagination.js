@@ -136,9 +136,17 @@ function generatePage(pageConfig) {
     }
 
     // 按日期排序（最新在前）
+    // 首先为每个文件解析日期
+    allMarkdownFiles.forEach(item => {
+        const markdownPath = path.join(__dirname, item.path, 'md', item.file);
+        const parsed = MarkdownParser.parseMarkdown(markdownPath);
+        item.parsedDate = parsed.date;
+    });
+    
     allMarkdownFiles.sort((a, b) => {
-        const dateA = a.file.substring(0, 10);
-        const dateB = b.file.substring(0, 10);
+        // 使用解析后的日期进行排序
+        const dateA = a.parsedDate || '1970-01-01';
+        const dateB = b.parsedDate || '1970-01-01';
         return dateB.localeCompare(dateA);
     });
 
@@ -222,11 +230,13 @@ function generatePage(pageConfig) {
                             const markdownPath = path.join(__dirname, item.path, 'md', item.file);
                             const { title: postTitle, date: postDate, excerpt } = MarkdownParser.parseMarkdown(markdownPath);
                             const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
+                            // 使用解析后的日期，如果没有则使用当前日期
+                            const displayDate = postDate || item.parsedDate;
 
                             return `
       <div class="post-card">
         <h3 class="post-title"><a href="${item.path}/html/${item.file.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h3>
-        <div class="post-date">${postDate || item.file.substring(0, 10)}</div>
+        <div class="post-date">${displayDate}</div>
         <p class="post-excerpt">${excerpt || '这里是文章摘要...'}</p>
         <a href="${item.path}/html/${item.file.replace('.md', '.html')}" class="post-link">阅读更多 →</a>
       </div>
@@ -258,8 +268,8 @@ function generatePage(pageConfig) {
                     const { title: postTitle, date: postDate } = MarkdownParser.parseMarkdown(markdownPath);
                     const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
 
-                    // 从文件名或日期中提取年份和月份
-                    const postDateStr = postDate || item.file.substring(0, 10);
+                    // 使用解析后的日期
+                    const postDateStr = postDate || item.parsedDate;
                     const year = postDateStr.substring(0, 4);
                     const month = postDateStr.substring(5, 7);
 
@@ -327,7 +337,7 @@ function generatePage(pageConfig) {
                         itemHtml += `
             <div class="skill-meta-item">
               <span class="label">日期：</span>
-              <span>${postDate || item.file.substring(0, 10)}</span>
+              <span>${postDate || item.parsedDate}</span>
             </div>`;
                     }
 
@@ -383,7 +393,7 @@ function generatePage(pageConfig) {
 
                     if (itemDateClass) {
                         itemHtml += `
-        <div class="${itemDateClass}">${postDate || item.file.substring(0, 10)}</div>`;
+        <div class="${itemDateClass}">${postDate || item.parsedDate}</div>`;
                     }
 
                     itemHtml += `

@@ -83,25 +83,90 @@ python3 -m http.server 8000
 ### 发布新文章
 
 1. **在对应目录创建 Markdown 文件**
-   - 技术文章: `posts/skill/`
-   - 日常文章: `posts/daily/`
-   - 归档文章: `posts/archives/`
+   - 技术文章: `posts/skill/md/`
+   - 日常文章: `posts/daily/md/`
+   - 归档文章: `posts/archives/md/`
 
-2. **运行生成脚本**
+2. **（可选）迁移本地图片**
+   
+   如果使用 Typora 等工具编辑，图片可能保存在本地绝对路径。运行图片迁移工具：
+   ```bash
+   # 预览模式（查看哪些图片会被迁移）
+   node transfer-images.js --dry-run
+   
+   # 实际执行迁移
+   node transfer-images.js
+   
+   # 只处理特定分类
+   node transfer-images.js --category=skill
+   ```
+
+3. **运行生成脚本**
 ```bash
 node generate-pagination.js
 ```
 
-3. **推送代码到 GitHub**
+4. **推送代码到 GitHub**
 ```bash
 git add .
 git commit -m "Add new article"
 git push origin main
 ```
 
-4. **GitHub Actions 自动部署**
+5. **GitHub Actions 自动部署**
    - 代码推送后，GitHub Actions 会自动运行部署流程
    - 部署完成后，访问 `https://jonny-dr.github.io` 查看
+
+---
+
+## 🛠 工具脚本
+
+### transfer-images.js - 图片迁移工具
+
+**功能**：将 Markdown 文件中引用的本地绝对路径图片（如 Typora 生成的图片）迁移到项目对应的 assets 目录，并自动更新 Markdown 中的图片路径。
+
+**使用场景**：
+- 使用 Typora 编辑 Markdown 时，图片默认保存在 `/Users/xxx/Library/Application Support/typora-user-images/`
+- 这些本地路径在 GitHub Pages 上无法访问
+- 运行此工具自动迁移图片到项目目录
+
+**目录结构**：
+```
+posts/
+  ├── skill/
+  │   ├── md/
+  │   │   ├── article.md
+  │   │   └── assets/          # skill 分类的图片目录
+  │   └── html/
+  │       └── assets/          # 自动生成，用于 HTML 引用
+  ├── daily/
+  │   ├── md/
+  │   │   └── assets/          # daily 分类的图片目录
+  │   └── html/
+  └── ...
+```
+
+**使用方法**：
+```bash
+# 预览模式（查看哪些图片会被迁移，不实际执行）
+node transfer-images.js --dry-run
+
+# 处理所有分类
+node transfer-images.js
+
+# 只处理指定分类
+node transfer-images.js --category=skill
+
+# 显示帮助
+node transfer-images.js --help
+```
+
+**工作流程**：
+1. 扫描指定分类下的所有 Markdown 文件
+2. 提取其中引用的本地绝对路径图片
+3. 将图片复制到对应分类的 `md/assets/` 目录
+4. 更新 Markdown 文件中的图片路径为相对路径 `assets/xxx.png`
+5. 将图片同步复制到 `html/assets/` 目录供 HTML 文件引用
 
 ---
 

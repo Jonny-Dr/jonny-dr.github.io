@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Redis 缓存穿透/击穿/雪崩解决方案 | 北辰</title>
-  <link rel="stylesheet" href="../../../../css/common.css">
+  <link rel="stylesheet" href="../../../css/common.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
@@ -66,6 +66,16 @@
       font-size: 1.4rem;
       margin: 1.5rem 0 0.8rem;
       color: var(--primary);
+    }
+    .post-body h4 {
+      font-size: 1.2rem;
+      margin: 1.2rem 0 0.6rem;
+      color: var(--primary);
+    }
+    .post-body h5 {
+      font-size: 1.1rem;
+      margin: 1rem 0 0.5rem;
+      color: var(--text);
     }
     .post-body p {
       margin-bottom: 1.2rem;
@@ -129,6 +139,87 @@
     .post-original-link a:hover {
       text-decoration: underline;
     }
+    /* Markdown 表格样式 */
+    .post-body table.markdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .post-body table.markdown-table thead {
+      background: linear-gradient(135deg, var(--primary), #3a0ca3);
+      color: white;
+    }
+    .post-body table.markdown-table th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      border: none;
+    }
+    .post-body table.markdown-table td {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .post-body table.markdown-table td:last-child {
+      border-right: none;
+    }
+    .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(67, 97, 238, 0.03);
+    }
+    .post-body table.markdown-table tbody tr:hover {
+      background: rgba(67, 97, 238, 0.08);
+    }
+    [data-theme="dark"] .post-body table.markdown-table {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    /* 引用块样式 */
+    .post-body blockquote.markdown-blockquote {
+      border-left: 4px solid var(--primary);
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      background: rgba(67, 97, 238, 0.05);
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #666;
+    }
+    [data-theme="dark"] .post-body blockquote.markdown-blockquote {
+      background: rgba(255, 255, 255, 0.05);
+      color: #aaa;
+    }
+    /* 水平分隔线样式 */
+    .post-body hr.markdown-hr {
+      border: none;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      margin: 2rem 0;
+    }
+    /* 任务列表样式 */
+    .post-body li.task-list-item {
+      list-style: none;
+      margin-left: -1.5rem;
+    }
+    .post-body li.task-list-item input[type="checkbox"] {
+      margin-right: 0.5rem;
+      cursor: default;
+    }
+    /* 图片占位符样式 */
+    .post-body .image-placeholder {
+      transition: var(--transition);
+    }
+    .post-body .image-placeholder:hover {
+      border-color: var(--primary) !important;
+      background: rgba(67, 97, 238, 0.05) !important;
+    }
     @media (max-width: 768px) {
       .post-content {
         padding: 0 1rem;
@@ -145,6 +236,13 @@
       }
       .post-body pre {
         padding: 1rem;
+      }
+      .post-body table.markdown-table {
+        font-size: 0.85rem;
+      }
+      .post-body table.markdown-table th,
+      .post-body table.markdown-table td {
+        padding: 0.6rem 0.8rem;
       }
     }
   </style>
@@ -188,58 +286,61 @@
       </div>
       <div class="post-body">
         <h1>Redis 缓存穿透/击穿/雪崩解决方案</h1>
-<p></p>
+
 <h2>问题背景</h2>
-<p></p>
+
 <p>在高并发系统中，缓存是提升性能的关键组件，但同时也会面临各种缓存相关的问题。Redis作为最常用的缓存中间件，在使用过程中经常遇到以下三大问题：</p>
-<p></p>
-<ol><li><strong>缓存穿透</strong>：请求不存在的数据，导致请求直接穿透到数据库</li>
+
+<ol class="markdown-ordered-list">
+<li><strong>缓存穿透</strong>：请求不存在的数据，导致请求直接穿透到数据库</li>
 <li><strong>缓存击穿</strong>：热点数据过期，导致大量请求同时穿透到数据库</li>
-<li><strong>缓存雪崩</strong>：大量缓存同时过期，导致数据库压力骤增</li></ol>
-<p></p>
+<li><strong>缓存雪崩</strong>：大量缓存同时过期，导致数据库压力骤增</li>
+</ol>
 <p>本文将深入分析这些问题的原因，并提供完整的解决方案。</p>
-<p></p>
+
 <h2>缓存穿透</h2>
-<p></p>
+
 <h3>问题分析</h3>
-<p></p>
+
 <p>缓存穿透是指用户请求的数据在缓存中不存在，且在数据库中也不存在，导致请求每次都会穿透缓存直接访问数据库。如果恶意攻击者大量发送这样的请求，会导致数据库压力过大，甚至崩溃。</p>
-<p></p>
+
 <h3>解决方案</h3>
-<p></p>
+
 <h4>1. 布隆过滤器</h4>
-<p></p>
+
 <p>布隆过滤器是一种空间效率很高的概率型数据结构，用于判断一个元素是否在一个集合中。我们可以使用布隆过滤器来过滤掉不存在的数据请求。</p>
-<p></p>
+
 <pre><code class="language-java">// 使用Guava的布隆过滤器
 <p>import com.google.common.hash.BloomFilter;</p>
 <p>import com.google.common.hash.Funnels;</p>
-<p></p>
+
 <p>// 初始化布隆过滤器</p>
 <p>BloomFilter&lt;Long&gt; bloomFilter = BloomFilter.create(</p>
 <p>    Funnels.longFunnel(),</p>
 <p>    1000000, // 预计元素数量</p>
-<p>    0.01     // 误判率</p>
+<ol class="markdown-ordered-list">
+<li>01     // 误判率</li>
+</ol>
 <p>);</p>
-<p></p>
+
 <p>// 将数据库中的id加入布隆过滤器</p>
 <p>for (Long id : getAllIdsFromDatabase()) {</p>
 <p>    bloomFilter.put(id);</p>
 <p>}</p>
-<p></p>
+
 <p>// 在查询前使用布隆过滤器判断</p>
 <p>public String getProductById(Long id) {</p>
 <p>    // 先通过布隆过滤器判断id是否存在</p>
 <p>    if (!bloomFilter.mightContain(id)) {</p>
 <p>        return &quot;商品不存在&quot;;</p>
 <p>    }</p>
-<p>    </p>
+
 <p>    // 从缓存查询</p>
 <p>    String product = redisTemplate.opsForValue().get(&quot;product:&quot; + id);</p>
 <p>    if (product != null) {</p>
 <p>        return product;</p>
 <p>    }</p>
-<p>    </p>
+
 <p>    // 从数据库查询</p>
 <p>    product = productService.getProductById(id);</p>
 <p>    if (product != null) {</p>
@@ -251,12 +352,12 @@
 <p>    }</p>
 <p>    return product;</p>
 <p>}</p>
-<p></code></pre></p>
-<p></p>
+</code></pre>
+
 <h4>2. 缓存空对象</h4>
-<p></p>
+
 <p>对于不存在的数据，我们也可以将其缓存起来，设置一个较短的过期时间，这样后续的相同请求就会被缓存拦截。</p>
-<p></p>
+
 <pre><code class="language-java">public String getProductById(Long id) {
 <p>    // 从缓存查询</p>
 <p>    String product = redisTemplate.opsForValue().get(&quot;product:&quot; + id);</p>
@@ -264,7 +365,7 @@
 <p>        // 如果是空字符串，说明是之前缓存的不存在的数据</p>
 <p>        return product.equals(&quot;&quot;) ? &quot;商品不存在&quot; : product;</p>
 <p>    }</p>
-<p>    </p>
+
 <p>    // 从数据库查询</p>
 <p>    product = productService.getProductById(id);</p>
 <p>    if (product != null) {</p>
@@ -277,23 +378,23 @@
 <p>    }</p>
 <p>    return product;</p>
 <p>}</p>
-<p></code></pre></p>
-<p></p>
+</code></pre>
+
 <h2>缓存击穿</h2>
-<p></p>
+
 <h3>问题分析</h3>
-<p></p>
+
 <p>缓存击穿是指一个热点数据过期时，正好有大量请求同时访问该数据，导致所有请求都穿透到数据库，造成数据库瞬间压力过大。</p>
-<p></p>
+
 <h3>解决方案</h3>
-<p></p>
+
 <h4>1. 设置热点数据永不过期</h4>
-<p></p>
+
 <p>对于特别热点的数据，我们可以设置其在缓存中永不过期，然后通过后台任务定期更新。</p>
-<p></p>
+
 <pre><code class="language-java">// 设置热点数据永不过期
 <p>redisTemplate.opsForValue().set(&quot;hot:product:&quot; + id, product);</p>
-<p></p>
+
 <p>// 后台任务定期更新</p>
 <p>@Scheduled(fixedRate = 60000) // 每分钟执行一次</p>
 <p>public void updateHotProducts() {</p>
@@ -302,23 +403,23 @@
 <p>        redisTemplate.opsForValue().set(&quot;hot:product:&quot; + product.getId(), product);</p>
 <p>    }</p>
 <p>}</p>
-<p></code></pre></p>
-<p></p>
+</code></pre>
+
 <h4>2. 使用互斥锁</h4>
-<p></p>
+
 <p>当缓存过期时，只允许一个线程去数据库查询并更新缓存，其他线程等待。</p>
-<p></p>
+
 <pre><code class="language-java">public String getProductById(Long id) {
 <p>    // 从缓存查询</p>
 <p>    String product = redisTemplate.opsForValue().get(&quot;product:&quot; + id);</p>
 <p>    if (product != null) {</p>
 <p>        return product;</p>
 <p>    }</p>
-<p>    </p>
+
 <p>    // 缓存不存在，尝试获取锁</p>
 <p>    String lockKey = &quot;lock:product:&quot; + id;</p>
 <p>    Boolean locked = redisTemplate.opsForValue().setIfAbsent(lockKey, &quot;1&quot;, 3, TimeUnit.SECONDS);</p>
-<p>    </p>
+
 <p>    if (locked != null &amp;&amp; locked) {</p>
 <p>        try {</p>
 <p>            // 再次检查缓存，防止其他线程已经更新</p>
@@ -326,7 +427,7 @@
 <p>            if (product != null) {</p>
 <p>                return product;</p>
 <p>            }</p>
-<p>            </p>
+
 <p>            // 从数据库查询</p>
 <p>            product = productService.getProductById(id);</p>
 <p>            if (product != null) {</p>
@@ -347,45 +448,45 @@
 <p>        // 重试</p>
 <p>        return getProductById(id);</p>
 <p>    }</p>
-<p>    </p>
+
 <p>    return product;</p>
 <p>}</p>
-<p></code></pre></p>
-<p></p>
+</code></pre>
+
 <h2>缓存雪崩</h2>
-<p></p>
+
 <h3>问题分析</h3>
-<p></p>
+
 <p>缓存雪崩是指大量缓存数据在同一时间过期，导致大量请求同时穿透到数据库，造成数据库压力骤增，甚至崩溃。</p>
-<p></p>
+
 <h3>解决方案</h3>
-<p></p>
+
 <h4>1. 设置随机过期时间</h4>
-<p></p>
+
 <p>为缓存设置随机的过期时间，避免大量缓存同时过期。</p>
-<p></p>
+
 <pre><code class="language-java">// 设置随机过期时间
 <p>int expireTime = 30 + new Random().nextInt(60); // 30-90分钟</p>
 <p>redisTemplate.opsForValue().set(&quot;product:&quot; + id, product, expireTime, TimeUnit.MINUTES);</p>
-<p></code></pre></p>
-<p></p>
+</code></pre>
+
 <h4>2. 分层缓存策略</h4>
-<p></p>
+
 <p>使用多层缓存，不同层级的缓存设置不同的过期时间。</p>
-<p></p>
+
 <pre><code class="language-java">// 本地缓存（Caffeine）
 <p>private Cache&lt;Long, String&gt; localCache = Caffeine.newBuilder()</p>
 <p>    .expireAfterWrite(5, TimeUnit.MINUTES)</p>
 <p>    .maximumSize(1000)</p>
 <p>    .build();</p>
-<p></p>
+
 <p>public String getProductById(Long id) {</p>
 <p>    // 先从本地缓存查询</p>
 <p>    String product = localCache.getIfPresent(id);</p>
 <p>    if (product != null) {</p>
 <p>        return product;</p>
 <p>    }</p>
-<p>    </p>
+
 <p>    // 从Redis缓存查询</p>
 <p>    product = redisTemplate.opsForValue().get(&quot;product:&quot; + id);</p>
 <p>    if (product != null) {</p>
@@ -393,7 +494,7 @@
 <p>        localCache.put(id, product);</p>
 <p>        return product;</p>
 <p>    }</p>
-<p>    </p>
+
 <p>    // 从数据库查询</p>
 <p>    product = productService.getProductById(id);</p>
 <p>    if (product != null) {</p>
@@ -403,15 +504,15 @@
 <p>        // 更新本地缓存</p>
 <p>        localCache.put(id, product);</p>
 <p>    }</p>
-<p>    </p>
+
 <p>    return product;</p>
 <p>}</p>
-<p></code></pre></p>
-<p></p>
+</code></pre>
+
 <h4>3. 缓存预热</h4>
-<p></p>
+
 <p>在系统启动时，主动将热点数据加载到缓存中。</p>
-<p></p>
+
 <pre><code class="language-java">// 系统启动时预热缓存
 <p>@PostConstruct</p>
 <p>public void warmupCache() {</p>
@@ -422,29 +523,29 @@
 <p>    }</p>
 <p>    System.out.println(&quot;缓存预热完成，共加载&quot; + hotProducts.size() + &quot;个热点商品&quot;);</p>
 <p>}</p>
-<p></code></pre></p>
-<p></p>
+</code></pre>
+
 <h4>4. 降级与限流</h4>
-<p></p>
+
 <p>当缓存失效时，使用降级策略，返回默认值或缓存快照，同时对数据库访问进行限流。</p>
-<p></p>
+
 <pre><code class="language-java">// 使用Sentinel进行限流
 <p>@SentinelResource(value = &quot;getProduct&quot;, fallback = &quot;fallbackGetProduct&quot;)</p>
 <p>public String getProductById(Long id) {</p>
 <p>    // 缓存查询逻辑</p>
 <p>    // ...</p>
 <p>}</p>
-<p></p>
+
 <p>public String fallbackGetProduct(Long id) {</p>
 <p>    // 返回缓存快照或默认值</p>
 <p>    return getProductSnapshot(id);</p>
 <p>}</p>
-<p></code></pre></p>
-<p></p>
+</code></pre>
+
 <h2>代码优化建议</h2>
-<p></p>
+
 <h3>1. 使用RedisTemplate的最佳实践</h3>
-<p></p>
+
 <pre><code class="language-java">// 正确使用RedisTemplate
 <p>@Configuration</p>
 <p>public class RedisConfig {</p>
@@ -452,22 +553,22 @@
 <p>    public RedisTemplate&lt;String, Object&gt; redisTemplate(RedisConnectionFactory factory) {</p>
 <p>        RedisTemplate&lt;String, Object&gt; template = new RedisTemplate&lt;&gt;();</p>
 <p>        template.setConnectionFactory(factory);</p>
-<p>        </p>
+
 <p>        // 设置键的序列化方式</p>
 <p>        template.setKeySerializer(new StringRedisSerializer());</p>
 <p>        // 设置值的序列化方式</p>
 <p>        template.setValueSerializer(new Jackson2JsonRedisSerializer&lt;&gt;(Object.class));</p>
-<p>        </p>
+
 <p>        template.afterPropertiesSet();</p>
 <p>        return template;</p>
 <p>    }</p>
 <p>}</p>
-<p></code></pre></p>
-<p></p>
+</code></pre>
+
 <h3>2. 使用Redis Pipeline提升性能</h3>
-<p></p>
+
 <p>对于批量操作，使用Pipeline可以显著提升性能。</p>
-<p></p>
+
 <pre><code class="language-java">// 使用Pipeline批量设置缓存
 <p>public void batchSetProducts(List&lt;Product&gt; products) {</p>
 <p>    redisTemplate.executePipelined((RedisCallback&lt;Object&gt;) connection -&gt; {</p>
@@ -483,52 +584,57 @@
 <p>        return null;</p>
 <p>    });</p>
 <p>}</p>
-<p></code></pre></p>
-<p></p>
+</code></pre>
+
 <h3>3. 监控缓存命中率</h3>
-<p></p>
+
 <p>定期监控缓存的命中率，及时发现问题。</p>
-<p></p>
+
 <pre><code class="language-java">// 缓存监控
 <p>@Component</p>
 <p>public class CacheMonitor {</p>
 <p>    private AtomicLong totalRequests = new AtomicLong(0);</p>
 <p>    private AtomicLong cacheHits = new AtomicLong(0);</p>
-<p>    </p>
+
 <p>    public void recordRequest() {</p>
 <p>        totalRequests.incrementAndGet();</p>
 <p>    }</p>
-<p>    </p>
+
 <p>    public void recordHit() {</p>
 <p>        cacheHits.incrementAndGet();</p>
 <p>    }</p>
-<p>    </p>
+
 <p>    @Scheduled(fixedRate = 60000) // 每分钟打印一次</p>
 <p>    public void printStats() {</p>
 <p>        long total = totalRequests.get();</p>
 <p>        long hits = cacheHits.get();</p>
 <p>        double hitRate = total &gt; 0 ? (double) hits / total : 0;</p>
 <p>        System.out.println(&quot;缓存命中率: &quot; + String.format(&quot;%.2f%%&quot;, hitRate </em> 100));</p>
-<p>        </p>
+
 <p>        // 重置计数器</p>
 <p>        totalRequests.set(0);</p>
 <p>        cacheHits.set(0);</p>
 <p>    }</p>
 <p>}</p>
-<p></code></pre></p>
-<p></p>
+</code></pre>
+
 <h2>总结</h2>
-<p></p>
+
 <p>通过本文的分析和解决方案，我们可以有效地应对Redis缓存的三大问题：</p>
-<p></p>
-<p>| 问题 | 原因 | 解决方案 |</p>
-<p>|------|------|----------|</p>
-<p>| 缓存穿透 | 请求不存在的数据 | 布隆过滤器 + 缓存空对象 |</p>
-<p>| 缓存击穿 | 热点数据过期 | 永不过期 + 互斥锁 |</p>
-<p>| 缓存雪崩 | 大量缓存同时过期 | 随机过期时间 + 分层缓存 + 缓存预热 |</p>
-<p></p>
+
+<table class="markdown-table">
+<thead>
+<tr><th>问题</th><th>原因</th><th>解决方案</th></tr>
+</thead>
+<tbody>
+<tr><td>缓存穿透</td><td>请求不存在的数据</td><td>布隆过滤器 + 缓存空对象</td></tr>
+<tr><td>缓存击穿</td><td>热点数据过期</td><td>永不过期 + 互斥锁</td></tr>
+<tr><td>缓存雪崩</td><td>大量缓存同时过期</td><td>随机过期时间 + 分层缓存 + 缓存预热</td></tr>
+</tbody>
+</table>
+
 <p>在实际应用中，我们应该根据具体的业务场景选择合适的解决方案，甚至组合使用多种方案，以达到最佳的缓存效果。</p>
-<p></p>
+
 <p>同时，我们还应该建立完善的缓存监控机制，及时发现和解决缓存相关的问题，确保系统的稳定运行。</p>
       </div>
     </article>
@@ -569,7 +675,7 @@
     </svg>
   </button>
 
-  <script src="../../../../js/theme.js"></script>
+  <script src="../../../js/theme.js"></script>
 </body>
 </html>
   

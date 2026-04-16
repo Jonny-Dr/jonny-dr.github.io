@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>前后端分离管理系统实战 | 北辰</title>
-  <link rel="stylesheet" href="../../../../css/common.css">
+  <link rel="stylesheet" href="../../../css/common.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
@@ -66,6 +66,16 @@
       font-size: 1.4rem;
       margin: 1.5rem 0 0.8rem;
       color: var(--primary);
+    }
+    .post-body h4 {
+      font-size: 1.2rem;
+      margin: 1.2rem 0 0.6rem;
+      color: var(--primary);
+    }
+    .post-body h5 {
+      font-size: 1.1rem;
+      margin: 1rem 0 0.5rem;
+      color: var(--text);
     }
     .post-body p {
       margin-bottom: 1.2rem;
@@ -129,6 +139,87 @@
     .post-original-link a:hover {
       text-decoration: underline;
     }
+    /* Markdown 表格样式 */
+    .post-body table.markdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .post-body table.markdown-table thead {
+      background: linear-gradient(135deg, var(--primary), #3a0ca3);
+      color: white;
+    }
+    .post-body table.markdown-table th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      border: none;
+    }
+    .post-body table.markdown-table td {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .post-body table.markdown-table td:last-child {
+      border-right: none;
+    }
+    .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(67, 97, 238, 0.03);
+    }
+    .post-body table.markdown-table tbody tr:hover {
+      background: rgba(67, 97, 238, 0.08);
+    }
+    [data-theme="dark"] .post-body table.markdown-table {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    /* 引用块样式 */
+    .post-body blockquote.markdown-blockquote {
+      border-left: 4px solid var(--primary);
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      background: rgba(67, 97, 238, 0.05);
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #666;
+    }
+    [data-theme="dark"] .post-body blockquote.markdown-blockquote {
+      background: rgba(255, 255, 255, 0.05);
+      color: #aaa;
+    }
+    /* 水平分隔线样式 */
+    .post-body hr.markdown-hr {
+      border: none;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      margin: 2rem 0;
+    }
+    /* 任务列表样式 */
+    .post-body li.task-list-item {
+      list-style: none;
+      margin-left: -1.5rem;
+    }
+    .post-body li.task-list-item input[type="checkbox"] {
+      margin-right: 0.5rem;
+      cursor: default;
+    }
+    /* 图片占位符样式 */
+    .post-body .image-placeholder {
+      transition: var(--transition);
+    }
+    .post-body .image-placeholder:hover {
+      border-color: var(--primary) !important;
+      background: rgba(67, 97, 238, 0.05) !important;
+    }
     @media (max-width: 768px) {
       .post-content {
         padding: 0 1rem;
@@ -145,6 +236,13 @@
       }
       .post-body pre {
         padding: 1rem;
+      }
+      .post-body table.markdown-table {
+        font-size: 0.85rem;
+      }
+      .post-body table.markdown-table th,
+      .post-body table.markdown-table td {
+        padding: 0.6rem 0.8rem;
       }
     }
   </style>
@@ -188,34 +286,39 @@
       </div>
       <div class="post-body">
         <h1>前后端分离管理系统实战</h1>
-<p></p>
+
 <h2>项目概述</h2>
-<p></p>
+
 <p>本项目是一个基于Vue 3 + Spring Boot的前后端分离管理系统，旨在为企业提供一套完整的内部管理解决方案。系统实现了用户认证、权限管理、数据管理、数据可视化等核心功能，采用现代化的技术栈和架构设计，具有良好的可扩展性和维护性。</p>
-<p></p>
+
 <h3>技术栈</h3>
-<p></p>
-<p>| 分类 | 技术 | 版本 |</p>
-<p>|------|------|------|</p>
-<p>| 前端框架 | Vue | 3.3.4 |</p>
-<p>| 构建工具 | Vite | 4.4.9 |</p>
-<p>| 状态管理 | Pinia | 2.1.6 |</p>
-<p>| UI框架 | Element Plus | 2.3.12 |</p>
-<p>| 前端路由 | Vue Router | 4.2.4 |</p>
-<p>| HTTP客户端 | Axios | 1.5.0 |</p>
-<p>| 后端框架 | Spring Boot | 3.1.3 |</p>
-<p>| 持久层框架 | MyBatis Plus | 3.5.3 |</p>
-<p>| 数据库 | MySQL | 8.0 |</p>
-<p>| 认证框架 | Spring Security | 6.1.3 |</p>
-<p>| 缓存 | Redis | 7.0+ |</p>
-<p>| 部署 | Docker | 20.10+ |</p>
-<p></p>
+
+<table class="markdown-table">
+<thead>
+<tr><th>分类</th><th>技术</th><th>版本</th></tr>
+</thead>
+<tbody>
+<tr><td>前端框架</td><td>Vue</td><td>3.3.4</td></tr>
+<tr><td>构建工具</td><td>Vite</td><td>4.4.9</td></tr>
+<tr><td>状态管理</td><td>Pinia</td><td>2.1.6</td></tr>
+<tr><td>UI框架</td><td>Element Plus</td><td>2.3.12</td></tr>
+<tr><td>前端路由</td><td>Vue Router</td><td>4.2.4</td></tr>
+<tr><td>HTTP客户端</td><td>Axios</td><td>1.5.0</td></tr>
+<tr><td>后端框架</td><td>Spring Boot</td><td>3.1.3</td></tr>
+<tr><td>持久层框架</td><td>MyBatis Plus</td><td>3.5.3</td></tr>
+<tr><td>数据库</td><td>MySQL</td><td>8.0</td></tr>
+<tr><td>认证框架</td><td>Spring Security</td><td>6.1.3</td></tr>
+<tr><td>缓存</td><td>Redis</td><td>7.0+</td></tr>
+<tr><td>部署</td><td>Docker</td><td>20.10+</td></tr>
+</tbody>
+</table>
+
 <h2>架构设计</h2>
-<p></p>
+
 <h3>目录结构</h3>
-<p></p>
+
 <h4>前端项目结构</h4>
-<p></p>
+
 <pre><code class="language-plaintext">frontend/
 <p>├── public/              # 静态资源</p>
 <p>├── src/</p>
@@ -234,10 +337,10 @@
 <p>├── vite.config.js       # Vite配置</p>
 <p>├── package.json         # 依赖配置</p>
 <p>└── index.html           # HTML模板</p>
-<p></code></pre></p>
-<p></p>
+</code></pre>
+
 <h4>后端项目结构</h4>
-<p></p>
+
 <pre><code class="language-plaintext">backend/
 <p>├── src/</p>
 <p>│   ├── main/</p>
@@ -260,14 +363,14 @@
 <p>│   └── test/                            # 测试代码</p>
 <p>├── pom.xml                              # Maven配置</p>
 <p>└── Dockerfile                           # Docker构建文件</p>
-<p></code></pre></p>
-<p></p>
+</code></pre>
+
 <h2>核心功能实现</h2>
-<p></p>
+
 <h3>1. 用户认证与授权</h3>
-<p></p>
+
 <h4>前端实现</h4>
-<p></p>
+
 <pre><code class="language-vue">&lt;!-- 登录组件 --&gt;
 <p>&lt;template&gt;</p>
 <p>  &lt;div class=&quot;login-container&quot;&gt;</p>
@@ -284,38 +387,38 @@
 <p>    &lt;/el-form&gt;</p>
 <p>  &lt;/div&gt;</p>
 <p>&lt;/template&gt;</p>
-<p></p>
+
 <p>&lt;script setup&gt;</p>
 <p>import { ref, reactive } from &#039;vue&#039;</p>
 <p>import { useRouter } from &#039;vue-router&#039;</p>
 <p>import { useUserStore } from &#039;@/store/user&#039;</p>
 <p>import { ElMessage } from &#039;element-plus&#039;</p>
-<p></p>
+
 <p>const router = useRouter()</p>
 <p>const userStore = useUserStore()</p>
 <p>const loginFormRef = ref()</p>
 <p>const loading = ref(false)</p>
-<p></p>
+
 <p>const loginForm = reactive({</p>
 <p>  username: &#039;&#039;,</p>
 <p>  password: &#039;&#039;</p>
 <p>})</p>
-<p></p>
+
 <p>const loginRules = {</p>
 <p>  username: [{ required: true, message: &#039;请输入用户名&#039;, trigger: &#039;blur&#039; }],</p>
 <p>  password: [{ required: true, message: &#039;请输入密码&#039;, trigger: &#039;blur&#039; }]</p>
 <p>}</p>
-<p></p>
+
 <p>const handleLogin = async () =&gt; {</p>
 <p>  if (!loginFormRef.value) return</p>
-<p>  </p>
+
 <p>  try {</p>
 <p>    await loginFormRef.value.validate()</p>
 <p>    loading.value = true</p>
-<p>    </p>
+
 <p>    const { username, password } = loginForm</p>
 <p>    const result = await userStore.login({ username, password })</p>
-<p>    </p>
+
 <p>    if (result) {</p>
 <p>      ElMessage.success(&#039;登录成功&#039;)</p>
 <p>      router.push(&#039;/home&#039;)</p>
@@ -327,30 +430,30 @@
 <p>  }</p>
 <p>}</p>
 <p>&lt;/script&gt;</p>
-<p></code></pre></p>
-<p></p>
+</code></pre>
+
 <h4>后端实现</h4>
-<p></p>
+
 <pre><code class="language-java">// 登录控制器
 <p>@RestController</p>
 <p>@RequestMapping(&quot;/api/auth&quot;)</p>
 <p>public class AuthController {</p>
 <p>    @Autowired</p>
 <p>    private AuthService authService;</p>
-<p>    </p>
+
 <p>    @PostMapping(&quot;/login&quot;)</p>
 <p>    public Result&lt;?&gt; login(@RequestBody LoginRequest request) {</p>
 <p>        String token = authService.login(request.getUsername(), request.getPassword());</p>
 <p>        return Result.success(&quot;登录成功&quot;, token);</p>
 <p>    }</p>
-<p>    </p>
+
 <p>    @PostMapping(&quot;/logout&quot;)</p>
 <p>    public Result&lt;?&gt; logout() {</p>
 <p>        authService.logout();</p>
 <p>        return Result.success(&quot;登出成功&quot;);</p>
 <p>    }</p>
 <p>}</p>
-<p></p>
+
 <p>// JWT认证过滤器</p>
 <p>@Component</p>
 <p>public class JwtAuthenticationFilter extends OncePerRequestFilter {</p>
@@ -359,16 +462,16 @@
 <p>        // 实现JWT认证逻辑</p>
 <p>    }</p>
 <p>}</p>
-<p></code></pre></p>
-<p></p>
+</code></pre>
+
 <h3>2. 权限管理</h3>
-<p></p>
+
 <h4>前端实现</h4>
-<p></p>
+
 <pre><code class="language-javascript">// 路由权限控制
 <p>import { createRouter, createWebHistory } from &#039;vue-router&#039;</p>
 <p>import { useUserStore } from &#039;@/store/user&#039;</p>
-<p></p>
+
 <p>const router = createRouter({</p>
 <p>  history: createWebHistory(),</p>
 <p>  routes: [</p>
@@ -393,12 +496,12 @@
 <p>    }</p>
 <p>  ]</p>
 <p>})</p>
-<p></p>
+
 <p>// 路由守卫</p>
 <p>router.beforeEach(async (to, from, next) =&gt; {</p>
 <p>  const userStore = useUserStore()</p>
 <p>  const requiresAuth = to.meta.requiresAuth !== false</p>
-<p>  </p>
+
 <p>  if (requiresAuth &amp;&amp; !userStore.isLoggedIn) {</p>
 <p>    next(&#039;/login&#039;)</p>
 <p>  } else if (to.meta.roles &amp;&amp; !to.meta.roles.includes(userStore.role)) {</p>
@@ -407,10 +510,10 @@
 <p>    next()</p>
 <p>  }</p>
 <p>})</p>
-<p></code></pre></p>
-<p></p>
+</code></pre>
+
 <h4>后端实现</h4>
-<p></p>
+
 <pre><code class="language-java">// 权限注解
 <p>@Target({ ElementType.TYPE, ElementType.METHOD })</p>
 <p>@Retention(RetentionPolicy.RUNTIME)</p>
@@ -419,7 +522,7 @@
 <p>public @interface RequiresPermission {</p>
 <p>    String value();</p>
 <p>}</p>
-<p></p>
+
 <p>// 权限服务</p>
 <p>@Service</p>
 <p>public class PermissionService {</p>
@@ -427,7 +530,7 @@
 <p>        // 实现权限检查逻辑</p>
 <p>    }</p>
 <p>}</p>
-<p></p>
+
 <p>// 使用权限注解</p>
 <p>@RestController</p>
 <p>@RequestMapping(&quot;/api/user&quot;)</p>
@@ -438,12 +541,12 @@
 <p>        // 实现用户列表查询</p>
 <p>    }</p>
 <p>}</p>
-<p></code></pre></p>
-<p></p>
+</code></pre>
+
 <h3>3. 数据可视化</h3>
-<p></p>
+
 <h4>前端实现</h4>
-<p></p>
+
 <pre><code class="language-vue">&lt;!-- 数据仪表盘 --&gt;
 <p>&lt;template&gt;</p>
 <p>  &lt;div class=&quot;dashboard&quot;&gt;</p>
@@ -479,7 +582,7 @@
 <p>        &lt;/el-card&gt;</p>
 <p>      &lt;/el-col&gt;</p>
 <p>    &lt;/el-row&gt;</p>
-<p>    </p>
+
 <p>    &lt;!-- 图表 --&gt;</p>
 <p>    &lt;el-row :gutter=&quot;20&quot; style=&quot;margin-top: 20px&quot;&gt;</p>
 <p>      &lt;el-col :span=&quot;12&quot;&gt;</p>
@@ -505,31 +608,31 @@
 <p>    &lt;/el-row&gt;</p>
 <p>  &lt;/div&gt;</p>
 <p>&lt;/template&gt;</p>
-<p></p>
+
 <p>&lt;script setup&gt;</p>
 <p>import { ref, onMounted, reactive } from &#039;vue&#039;</p>
 <p>import * as echarts from &#039;echarts&#039;</p>
 <p>import { useDashboardStore } from &#039;@/store/dashboard&#039;</p>
-<p></p>
+
 <p>const dashboardStore = useDashboardStore()</p>
 <p>const salesChartRef = ref()</p>
 <p>const userChartRef = ref()</p>
 <p>const userCount = ref(0)</p>
 <p>const orderCount = ref(0)</p>
 <p>const salesAmount = ref(0)</p>
-<p></p>
+
 <p>onMounted(async () =&gt; {</p>
 <p>  await loadStats()</p>
 <p>  initCharts()</p>
 <p>})</p>
-<p></p>
+
 <p>const loadStats = async () =&gt; {</p>
 <p>  const stats = await dashboardStore.getStats()</p>
 <p>  userCount.value = stats.userCount</p>
 <p>  orderCount.value = stats.orderCount</p>
 <p>  salesAmount.value = stats.salesAmount</p>
 <p>}</p>
-<p></p>
+
 <p>const initCharts = () =&gt; {</p>
 <p>  // 初始化销售额图表</p>
 <p>  const salesChart = echarts.init(salesChartRef.value)</p>
@@ -546,7 +649,7 @@
 <p>      type: &#039;line&#039;</p>
 <p>    }]</p>
 <p>  })</p>
-<p>  </p>
+
 <p>  // 初始化用户增长图表</p>
 <p>  const userChart = echarts.init(userChartRef.value)</p>
 <p>  userChart.setOption({</p>
@@ -562,7 +665,7 @@
 <p>      type: &#039;bar&#039;</p>
 <p>    }]</p>
 <p>  })</p>
-<p>  </p>
+
 <p>  // 响应式调整</p>
 <p>  window.addEventListener(&#039;resize&#039;, () =&gt; {</p>
 <p>    salesChart.resize()</p>
@@ -570,10 +673,10 @@
 <p>  })</p>
 <p>}</p>
 <p>&lt;/script&gt;</p>
-<p></code></pre></p>
-<p></p>
+</code></pre>
+
 <h4>后端实现</h4>
-<p></p>
+
 <pre><code class="language-java">// 数据统计服务
 <p>@Service</p>
 <p>public class DashboardService {</p>
@@ -581,16 +684,16 @@
 <p>    private UserMapper userMapper;</p>
 <p>    @Autowired</p>
 <p>    private OrderMapper orderMapper;</p>
-<p>    </p>
+
 <p>    public DashboardStats getStats() {</p>
 <p>        DashboardStats stats = new DashboardStats();</p>
-<p>        </p>
+
 <p>        // 获取用户数量</p>
 <p>        stats.setUserCount(userMapper.selectCount(null));</p>
-<p>        </p>
+
 <p>        // 获取订单数量</p>
 <p>        stats.setOrderCount(orderMapper.selectCount(null));</p>
-<p>        </p>
+
 <p>        // 获取销售额</p>
 <p>        BigDecimal salesAmount = orderMapper.selectObjs(</p>
 <p>            new QueryWrapper&lt;Order&gt;()</p>
@@ -600,20 +703,20 @@
 <p>         .map(o -&gt; (BigDecimal) o)</p>
 <p>         .orElse(BigDecimal.ZERO);</p>
 <p>        stats.setSalesAmount(salesAmount);</p>
-<p>        </p>
+
 <p>        return stats;</p>
 <p>    }</p>
-<p>    </p>
+
 <p>    public List&lt;MonthlySales&gt; getMonthlySales() {</p>
 <p>        // 实现月度销售额统计</p>
 <p>    }</p>
 <p>}</p>
-<p></code></pre></p>
-<p></p>
+</code></pre>
+
 <h3>3. 数据管理</h3>
-<p></p>
+
 <h4>前端实现</h4>
-<p></p>
+
 <pre><code class="language-vue">&lt;!-- 用户管理 --&gt;
 <p>&lt;template&gt;</p>
 <p>  &lt;div class=&quot;user-management&quot;&gt;</p>
@@ -624,7 +727,7 @@
 <p>          &lt;el-button type=&quot;primary&quot; @click=&quot;handleAdd&quot;&gt;添加用户&lt;/el-button&gt;</p>
 <p>        &lt;/div&gt;</p>
 <p>      &lt;/template&gt;</p>
-<p>      </p>
+
 <p>      &lt;!-- 搜索表单 --&gt;</p>
 <p>      &lt;el-form :inline=&quot;true&quot; :model=&quot;searchForm&quot; class=&quot;mb-4&quot;&gt;</p>
 <p>        &lt;el-form-item label=&quot;用户名&quot;&gt;</p>
@@ -635,7 +738,7 @@
 <p>          &lt;el-button @click=&quot;resetForm&quot;&gt;重置&lt;/el-button&gt;</p>
 <p>        &lt;/el-form-item&gt;</p>
 <p>      &lt;/el-form&gt;</p>
-<p>      </p>
+
 <p>      &lt;!-- 数据表格 --&gt;</p>
 <p>      &lt;el-table :data=&quot;userList&quot; style=&quot;width: 100%&quot;&gt;</p>
 <p>        &lt;el-table-column prop=&quot;id&quot; label=&quot;ID&quot; width=&quot;80&quot; /&gt;</p>
@@ -651,7 +754,7 @@
 <p>          &lt;/template&gt;</p>
 <p>        &lt;/el-table-column&gt;</p>
 <p>      &lt;/el-table&gt;</p>
-<p>      </p>
+
 <p>      &lt;!-- 分页 --&gt;</p>
 <p>      &lt;div class=&quot;pagination-container&quot;&gt;</p>
 <p>        &lt;el-pagination</p>
@@ -665,7 +768,7 @@
 <p>        /&gt;</p>
 <p>      &lt;/div&gt;</p>
 <p>    &lt;/el-card&gt;</p>
-<p>    </p>
+
 <p>    &lt;!-- 添加/编辑对话框 --&gt;</p>
 <p>    &lt;el-dialog v-model=&quot;dialogVisible&quot; :title=&quot;dialogTitle&quot;&gt;</p>
 <p>      &lt;el-form :model=&quot;form&quot; :rules=&quot;rules&quot; ref=&quot;formRef&quot;&gt;</p>
@@ -697,12 +800,12 @@
 <p>    &lt;/el-dialog&gt;</p>
 <p>  &lt;/div&gt;</p>
 <p>&lt;/template&gt;</p>
-<p></p>
+
 <p>&lt;script setup&gt;</p>
 <p>import { ref, reactive, computed, onMounted } from &#039;vue&#039;</p>
 <p>import { ElMessage, ElMessageBox } from &#039;element-plus&#039;</p>
 <p>import { useUserStore } from &#039;@/store/user&#039;</p>
-<p></p>
+
 <p>const userStore = useUserStore()</p>
 <p>const userList = ref([])</p>
 <p>const searchForm = reactive({ username: &#039;&#039; })</p>
@@ -711,7 +814,7 @@
 <p>  pageSize: 10,</p>
 <p>  total: 0</p>
 <p>})</p>
-<p></p>
+
 <p>const dialogVisible = ref(false)</p>
 <p>const dialogTitle = ref(&#039;&#039;)</p>
 <p>const isAdd = ref(false)</p>
@@ -724,11 +827,11 @@
 <p>  role: [{ required: true, message: &#039;请选择角色&#039;, trigger: &#039;change&#039; }],</p>
 <p>  password: [{ required: true, message: &#039;请输入密码&#039;, trigger: &#039;blur&#039; }]</p>
 <p>}</p>
-<p></p>
+
 <p>onMounted(() =&gt; {</p>
 <p>  loadUsers()</p>
 <p>})</p>
-<p></p>
+
 <p>const loadUsers = async () =&gt; {</p>
 <p>  const params = {</p>
 <p>    page: pagination.currentPage,</p>
@@ -739,42 +842,42 @@
 <p>  userList.value = result.list</p>
 <p>  pagination.total = result.total</p>
 <p>}</p>
-<p></p>
+
 <p>const handleSearch = () =&gt; {</p>
 <p>  pagination.currentPage = 1</p>
 <p>  loadUsers()</p>
 <p>}</p>
-<p></p>
+
 <p>const resetForm = () =&gt; {</p>
 <p>  Object.assign(searchForm, { username: &#039;&#039; })</p>
 <p>  pagination.currentPage = 1</p>
 <p>  loadUsers()</p>
 <p>}</p>
-<p></p>
+
 <p>const handleSizeChange = (size) =&gt; {</p>
 <p>  pagination.pageSize = size</p>
 <p>  loadUsers()</p>
 <p>}</p>
-<p></p>
+
 <p>const handleCurrentChange = (current) =&gt; {</p>
 <p>  pagination.currentPage = current</p>
 <p>  loadUsers()</p>
 <p>}</p>
-<p></p>
+
 <p>const handleAdd = () =&gt; {</p>
 <p>  dialogTitle.value = &#039;添加用户&#039;</p>
 <p>  isAdd.value = true</p>
 <p>  Object.assign(form, { username: &#039;&#039;, name: &#039;&#039;, email: &#039;&#039;, role: &#039;user&#039;, password: &#039;&#039; })</p>
 <p>  dialogVisible.value = true</p>
 <p>}</p>
-<p></p>
+
 <p>const handleEdit = (row) =&gt; {</p>
 <p>  dialogTitle.value = &#039;编辑用户&#039;</p>
 <p>  isAdd.value = false</p>
 <p>  Object.assign(form, { ...row })</p>
 <p>  dialogVisible.value = true</p>
 <p>}</p>
-<p></p>
+
 <p>const handleDelete = async (id) =&gt; {</p>
 <p>  try {</p>
 <p>    await ElMessageBox.confirm(&#039;确定要删除该用户吗？&#039;, &#039;提示&#039;, {</p>
@@ -789,7 +892,7 @@
 <p>    // 取消删除</p>
 <p>  }</p>
 <p>}</p>
-<p></p>
+
 <p>const handleSubmit = async () =&gt; {</p>
 <p>  if (!formRef.value) return</p>
 <p>  try {</p>
@@ -808,17 +911,17 @@
 <p>  }</p>
 <p>}</p>
 <p>&lt;/script&gt;</p>
-<p></code></pre></p>
-<p></p>
+</code></pre>
+
 <h4>后端实现</h4>
-<p></p>
+
 <pre><code class="language-java">// 用户控制器
 <p>@RestController</p>
 <p>@RequestMapping(&quot;/api/user&quot;)</p>
 <p>public class UserController {</p>
 <p>    @Autowired</p>
 <p>    private UserService userService;</p>
-<p>    </p>
+
 <p>    @GetMapping(&quot;/list&quot;)</p>
 <p>    public Result&lt;?&gt; list(@RequestParam(defaultValue = &quot;1&quot;) Integer page,</p>
 <p>                         @RequestParam(defaultValue = &quot;10&quot;) Integer pageSize,</p>
@@ -829,32 +932,32 @@
 <p>        );</p>
 <p>        return Result.success(userPage);</p>
 <p>    }</p>
-<p>    </p>
+
 <p>    @PostMapping(&quot;/add&quot;)</p>
 <p>    public Result&lt;?&gt; add(@RequestBody User user) {</p>
 <p>        userService.save(user);</p>
 <p>        return Result.success(&quot;添加成功&quot;);</p>
 <p>    }</p>
-<p>    </p>
+
 <p>    @PutMapping(&quot;/update&quot;)</p>
 <p>    public Result&lt;?&gt; update(@RequestBody User user) {</p>
 <p>        userService.updateById(user);</p>
 <p>        return Result.success(&quot;更新成功&quot;);</p>
 <p>    }</p>
-<p>    </p>
+
 <p>    @DeleteMapping(&quot;/delete/{id}&quot;)</p>
 <p>    public Result&lt;?&gt; delete(@PathVariable Long id) {</p>
 <p>        userService.removeById(id);</p>
 <p>        return Result.success(&quot;删除成功&quot;);</p>
 <p>    }</p>
 <p>}</p>
-<p></p>
+
 <p>// 用户服务</p>
 <p>@Service</p>
 <p>public class UserService extends ServiceImpl&lt;UserMapper, User&gt; {</p>
 <p>    @Autowired</p>
 <p>    private PasswordEncoder passwordEncoder;</p>
-<p>    </p>
+
 <p>    @Override</p>
 <p>    public boolean save(User user) {</p>
 <p>        // 加密密码</p>
@@ -862,7 +965,7 @@
 <p>        user.setCreateTime(LocalDateTime.now());</p>
 <p>        return super.save(user);</p>
 <p>    }</p>
-<p>    </p>
+
 <p>    @Override</p>
 <p>    public boolean updateById(User user) {</p>
 <p>        // 如果更新密码，需要重新加密</p>
@@ -872,12 +975,12 @@
 <p>        return super.updateById(user);</p>
 <p>    }</p>
 <p>}</p>
-<p></code></pre></p>
-<p></p>
+</code></pre>
+
 <h2>部署方案</h2>
-<p></p>
+
 <h3>Docker Compose部署</h3>
-<p></p>
+
 <pre><code class="language-yaml">version: &#039;3.8&#039;
 <p>services:</p>
 <p>  mysql:</p>
@@ -887,163 +990,177 @@
 <p>      MYSQL_ROOT_PASSWORD: root</p>
 <p>      MYSQL_DATABASE: management_system</p>
 <p>    ports:</p>
-<p>      - &quot;3306:3306&quot;</p>
-<p>    volumes:</p>
-<p>      - mysql-data:/var/lib/mysql</p>
-<p>    networks:</p>
-<p>      - app-network</p>
-<p>  </p>
-<p>  redis:</p>
-<p>    image: redis:7.0</p>
-<p>    container_name: redis</p>
-<p>    ports:</p>
-<p>      - &quot;6379:6379&quot;</p>
-<p>    networks:</p>
-<p>      - app-network</p>
-<p>  </p>
-<p>  backend:</p>
-<p>    build: ./backend</p>
-<p>    container_name: backend</p>
-<p>    ports:</p>
-<p>      - &quot;8080:8080&quot;</p>
-<p>    environment:</p>
-<p>      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/management_system</p>
-<p>      SPRING_DATASOURCE_USERNAME: root</p>
-<p>      SPRING_DATASOURCE_PASSWORD: root</p>
-<p>      SPRING_REDIS_HOST: redis</p>
-<p>    depends_on:</p>
-<p>      - mysql</p>
-<p>      - redis</p>
-<p>    networks:</p>
-<p>      - app-network</p>
-<p>  </p>
-<p>  frontend:</p>
-<p>    build: ./frontend</p>
-<p>    container_name: frontend</p>
-<p>    ports:</p>
-<p>      - &quot;80:80&quot;</p>
-<p>    depends_on:</p>
-<p>      - backend</p>
-<p>    networks:</p>
-<p>      - app-network</p>
-<p></p>
+<ul class="markdown-list">
+<li>&quot;3306:3306&quot;
+<p>volumes:</li></p>
+<li>mysql-data:/var/lib/mysql
+<p>networks:</li></p>
+<li>app-network</li>
+<li>redis:
+<p>image: redis:7.0</p>
+<p>container_name: redis</p>
+<p>ports:</li></p>
+<li>&quot;6379:6379&quot;
+<p>networks:</li></p>
+<li>app-network</li>
+<li>backend:
+<p>build: ./backend</p>
+<p>container_name: backend</p>
+<p>ports:</li></p>
+<li>&quot;8080:8080&quot;
+<p>environment:</p>
+<p>SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/management_system</p>
+<p>SPRING_DATASOURCE_USERNAME: root</p>
+<p>SPRING_DATASOURCE_PASSWORD: root</p>
+<p>SPRING_REDIS_HOST: redis</p>
+<p>depends_on:</li></p>
+<li>mysql</li>
+<li>redis
+<p>networks:</li></p>
+<li>app-network</li>
+<li>frontend:
+<p>build: ./frontend</p>
+<p>container_name: frontend</p>
+<p>ports:</li></p>
+<li>&quot;80:80&quot;
+<p>depends_on:</li></p>
+<li>backend
+<p>networks:</li></p>
+<li>app-network</li>
+</ul>
 <p>volumes:</p>
 <p>  mysql-data:</p>
-<p></p>
+
 <p>networks:</p>
 <p>  app-network:</p>
 <p>    driver: bridge</p>
-<p></code></pre></p>
-<p></p>
+</code></pre>
+
 <h3>CI/CD 配置</h3>
-<p></p>
-<pre><code class="language-yaml">&lt;h1&gt;.github/workflows/deploy.yml&lt;/h1&gt;
+
+<pre><code class="language-yaml"># .github/workflows/deploy.yml
 <p>name: Deploy Management System</p>
-<p></p>
+
 <p>on:</p>
 <p>  push:</p>
 <p>    branches: [ main ]</p>
-<p></p>
+
 <p>jobs:</p>
 <p>  build:</p>
 <p>    runs-on: ubuntu-latest</p>
-<p>    </p>
+
 <p>    steps:</p>
-<p>    - uses: actions/checkout@v3</p>
-<p>    </p>
-<p>    - name: Set up JDK 17</p>
-<p>      uses: actions/setup-java@v3</p>
-<p>      with:</p>
-<p>        java-version: &#039;17&#039;</p>
-<p>        distribution: &#039;temurin&#039;</p>
-<p>    </p>
-<p>    - name: Build backend</p>
-<p>      run: |</p>
-<p>        cd backend</p>
-<p>        mvn clean package -DskipTests</p>
-<p>    </p>
-<p>    - name: Set up Node.js</p>
-<p>      uses: actions/setup-node@v3</p>
-<p>      with:</p>
-<p>        node-version: &#039;16&#039;</p>
-<p>    </p>
-<p>    - name: Build frontend</p>
-<p>      run: |</p>
-<p>        cd frontend</p>
-<p>        npm install</p>
-<p>        npm run build</p>
-<p>    </p>
-<p>    - name: Deploy to server</p>
-<p>      uses: appleboy/ssh-action@v0.1.7</p>
-<p>      with:</p>
-<p>        host: ${{ secrets.SERVER_HOST }}</p>
-<p>        username: ${{ secrets.SERVER_USER }}</p>
-<p>        password: ${{ secrets.SERVER_PASSWORD }}</p>
-<p>        script: |</p>
-<p>          # 部署脚本</p>
-<p>          cd /app/management-system</p>
-<p>          git pull</p>
-<p>          docker-compose up -d --build</p>
-<p></code></pre></p>
-<p></p>
+<ul class="markdown-list">
+<li>uses: actions/checkout@v3</li>
+<li>name: Set up JDK 17
+<p>uses: actions/setup-java@v3</p>
+<p>with:</p>
+<p>java-version: &#039;17&#039;</p>
+<p>distribution: &#039;temurin&#039;</li></p>
+<li>name: Build backend
+<p>run: |</p>
+<p>cd backend</p>
+<p>mvn clean package -DskipTests</li></p>
+<li>name: Set up Node.js
+<p>uses: actions/setup-node@v3</p>
+<p>with:</p>
+<p>node-version: &#039;16&#039;</li></p>
+<li>name: Build frontend
+<p>run: |</p>
+<p>cd frontend</p>
+<p>npm install</p>
+<p>npm run build</li></p>
+<li>name: Deploy to server
+<p>uses: appleboy/ssh-action@v0.1.7</p>
+<p>with:</p>
+<p>host: ${{ secrets.SERVER_HOST }}</p>
+<p>username: ${{ secrets.SERVER_USER }}</p>
+<p>password: ${{ secrets.SERVER_PASSWORD }}</p>
+<p>script: |</p>
+<p># 部署脚本</p>
+<p>cd /app/management-system</p>
+<p>git pull</p>
+<p>docker-compose up -d --build</li></p>
+</ul>
+</code></pre>
+
 <h2>性能优化</h2>
-<p></p>
+
 <h3>前端优化</h3>
-<p></p>
-<ol><li><strong>代码分割</strong>：使用动态导入实现路由懒加载</li>
+
+<ol class="markdown-ordered-list">
+<li><strong>代码分割</strong>：使用动态导入实现路由懒加载</li>
 <li><strong>组件缓存</strong>：使用Vue的keep-alive组件缓存常用页面</li>
 <li><strong>图片优化</strong>：使用WebP格式图片，实现图片懒加载</li>
 <li><strong>HTTP缓存</strong>：合理设置静态资源缓存策略</li>
 <li><strong>减少HTTP请求</strong>：合并CSS/JS文件，使用图标字体</li>
 <li><strong>使用CDN</strong>：将静态资源部署到CDN</li>
-<p></p>
+</ol>
 <h3>后端优化</h3>
-<p></p>
+
+<ol class="markdown-ordered-list">
 <li><strong>数据库优化</strong>：</li>
-<p>   - 合理设计索引</p>
-<p>   - 使用连接池</p>
-<p>   - 优化SQL查询</p>
-<p>   - 读写分离</p>
-<p></p>
+</ol>
+<ul class="markdown-list">
+<li>合理设计索引</li>
+<li>使用连接池</li>
+<li>优化SQL查询</li>
+<li>读写分离</li>
+</ul>
+<ol class="markdown-ordered-list">
 <li><strong>缓存优化</strong>：</li>
-<p>   - 使用Redis缓存热点数据</p>
-<p>   - 实现缓存预热</p>
-<p>   - 合理设置缓存过期时间</p>
-<p></p>
+</ol>
+<ul class="markdown-list">
+<li>使用Redis缓存热点数据</li>
+<li>实现缓存预热</li>
+<li>合理设置缓存过期时间</li>
+</ul>
+<ol class="markdown-ordered-list">
 <li><strong>代码优化</strong>：</li>
-<p>   - 使用Stream API和Lambda表达式</p>
-<p>   - 避免重复计算</p>
-<p>   - 使用局部变量减少方法调用</p>
-<p></p>
+</ol>
+<ul class="markdown-list">
+<li>使用Stream API和Lambda表达式</li>
+<li>避免重复计算</li>
+<li>使用局部变量减少方法调用</li>
+</ul>
+<ol class="markdown-ordered-list">
 <li><strong>并发优化</strong>：</li>
-<p>   - 使用线程池处理并发请求</p>
-<p>   - 合理使用同步锁</p>
-<p>   - 避免死锁</p>
-<p></p>
+</ol>
+<ul class="markdown-list">
+<li>使用线程池处理并发请求</li>
+<li>合理使用同步锁</li>
+<li>避免死锁</li>
+</ul>
+<ol class="markdown-ordered-list">
 <li><strong>JVM优化</strong>：</li>
-<p>   - 合理设置JVM参数</p>
-<p>   - 使用G1垃圾收集器</p>
-<p>   - 监控JVM运行状态</p>
-<p></p>
+</ol>
+<ul class="markdown-list">
+<li>合理设置JVM参数</li>
+<li>使用G1垃圾收集器</li>
+<li>监控JVM运行状态</li>
+</ul>
 <h2>监控与告警</h2>
-<p></p>
+
 <h3>前端监控</h3>
-<p></p>
+
+<ol class="markdown-ordered-list">
 <li><strong>错误监控</strong>：使用Sentry监控前端错误</li>
 <li><strong>性能监控</strong>：使用Web Vitals监控页面性能</li>
 <li><strong>用户行为分析</strong>：使用Google Analytics分析用户行为</li>
-<p></p>
+</ol>
 <h3>后端监控</h3>
-<p></p>
+
+<ol class="markdown-ordered-list">
 <li><strong>应用监控</strong>：使用Spring Boot Actuator暴露监控端点</li>
 <li><strong>系统监控</strong>：使用Prometheus + Grafana监控系统指标</li>
 <li><strong>日志管理</strong>：使用ELK Stack收集和分析日志</li>
 <li><strong>告警机制</strong>：配置邮件/短信告警</li>
-<p></p>
+</ol>
 <h2>总结与展望</h2>
-<p></p>
+
 <p>本项目实现了一个基于Vue 3 + Spring Boot的完整前后端分离管理系统，包含用户认证、权限管理、数据管理、数据可视化等核心功能。通过本项目的实践，我们掌握了以下技术点：</p>
-<p></p>
+
+<ol class="markdown-ordered-list">
 <li><strong>前后端分离架构</strong>的设计与实现</li>
 <li><strong>Spring Boot 3</strong>的核心特性和最佳实践</li>
 <li><strong>Vue 3 Composition API</strong>的使用</li>
@@ -1051,16 +1168,17 @@
 <li><strong>MyBatis Plus</strong>的高级用法</li>
 <li><strong>Docker容器化</strong>部署</li>
 <li><strong>CI/CD</strong>自动化部署</li>
-<p></p>
+</ol>
 <p>在未来的发展中，我们可以考虑：</p>
-<p></p>
+
+<ol class="markdown-ordered-list">
 <li><strong>微服务架构</strong>：将系统拆分为多个微服务</li>
 <li><strong>API网关</strong>：引入API网关统一管理API</li>
 <li><strong>服务发现与配置中心</strong>：使用Nacos实现服务管理</li>
 <li><strong>分布式事务</strong>：使用Seata处理分布式事务</li>
 <li><strong>消息队列</strong>：使用RocketMQ处理异步任务</li>
-<li><strong>AI集成</strong>：在系统中集成AI能力，如智能分析、预测等</li></ol>
-<p></p>
+<li><strong>AI集成</strong>：在系统中集成AI能力，如智能分析、预测等</li>
+</ol>
 <p>前后端分离架构是现代Web应用的主流选择，本项目为我们提供了一个完整的实践案例，希望能为大家的学习和工作提供参考。</p>
       </div>
     </article>
@@ -1101,7 +1219,7 @@
     </svg>
   </button>
 
-  <script src="../../../../js/theme.js"></script>
+  <script src="../../../js/theme.js"></script>
 </body>
 </html>
   

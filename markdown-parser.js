@@ -51,6 +51,10 @@ class MarkdownParser {
                 const dateMatchFromFile = fileName.match(/^(\d{4}-\d{2}-\d{2})/);
                 if (dateMatchFromFile) {
                     date = dateMatchFromFile[1];
+                } else {
+                    // 文件名中没有日期，使用当前日期
+                    const now = new Date();
+                    date = now.toISOString().split('T')[0];
                 }
             }
         }
@@ -156,22 +160,23 @@ class MarkdownParser {
     static markdownToHtml(markdown, basePath = '', markdownPath = '', htmlPath = '') {
         let html = markdown;
 
-        // 转换标题
-        html = html.replace(/^#####\s+(.*)$/gm, '<h5>$1</h5>');
-        html = html.replace(/^####\s+(.*)$/gm, '<h4>$1</h4>');
-        html = html.replace(/^###\s+(.*)$/gm, '<h3>$1</h3>');
-        html = html.replace(/^##\s+(.*)$/gm, '<h2>$1</h2>');
-        html = html.replace(/^#\s+(.*)$/gm, '<h1>$1</h1>');
+        // 转换水平分隔线 (--- 或 *** 或 ___)
+        html = html.replace(/^[\s]*[-]{3,}[\s]*$/gm, '<hr class="markdown-hr">');
+        html = html.replace(/^[\s]*[*]{3,}[\s]*$/gm, '<hr class="markdown-hr">');
+        html = html.replace(/^[\s]*[_]{3,}[\s]*$/gm, '<hr class="markdown-hr">');
 
-        // 转换代码块（带语法高亮）
+        // 转换代码块（带语法高亮）- 支持 ``` 和 ~~~ 两种格式
         html = html.replace(/```(\w+)?\n([\s\S]*?)```/gm, (match, lang, code) => {
+            return `<pre><code class="language-${lang || 'plaintext'}">${this.escapeHtml(code)}</code></pre>`;
+        });
+        html = html.replace(/~~~(\w+)?\n([\s\S]*?)~~~/gm, (match, lang, code) => {
             return `<pre><code class="language-${lang || 'plaintext'}">${this.escapeHtml(code)}</code></pre>`;
         });
 
         // 转换行内代码
         html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
 
-        // 转换图片（处理路径）
+        // 转换图片（处理路径）- 支持 HTML img 标签中的 src 属性
         html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, imgPath) => {
             // 处理相对路径图片
             if (!imgPath.startsWith('http') && !imgPath.startsWith('https')) {
@@ -190,30 +195,401 @@ class MarkdownParser {
             return `<img src="${imgPath}" alt="${alt}" class="markdown-image">`;
         });
 
+        // 处理 HTML img 标签中的本地路径（如 Typora 生成的绝对路径）
+        html = html.replace(/<img([^>]+)src="([^"]+)"([^>]*)>/g, (match, before, imgPath, after) => {
+            // 如果是绝对路径（如 /Users/xxx/...），尝试转换为相对路径或占位符
+            if (imgPath.startsWith('/Users/') || imgPath.startsWith('/home/') || imgPath.startsWith('C:\\')) {
+                // 提取文件名作为 alt 文本
+                const fileName = imgPath.split('/').pop().split('\\').pop();
+                return `<div class="image-placeholder" style="padding: 2rem; background: var(--card-bg); border: 2px dashed var(--border); border-radius: 8px; text-align: center; color: #888; margin: 1rem 0;">\n                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🖼️</div>\n                    <div>图片: ${fileName}</div>\n                    <div style="font-size: 0.85rem; margin-top: 0.5rem;">(本地路径图片无法显示)</div>\n                </div>`;
+            }
+            return match;
+        });
+
         // 转换链接
         html = html.replace(/\[([^\]]*)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
 
-        // 转换粗体
+        // 转换表格
+        html = this.convertTables(html);
+
+        // 转换标题（注意：要在处理完表格之后再处理标题，避免表格分隔符被误识别）
+        html = html.replace(/^#####\s+(.*)$/gm, '<h5>$1</h5>');
+        html = html.replace(/^####\s+(.*)$/gm, '<h4>$1</h4>');
+        html = html.replace(/^###\s+(.*)$/gm, '<h3>$1</h3>');
+        html = html.replace(/^##\s+(.*)$/gm, '<h2>$1</h2>');
+        html = html.replace(/^#\s+(.*)$/gm, '<h1>$1</h1>');
+
+        // 转换引用块
+        html = this.convertBlockquotes(html);
+
+        // 转换任务列表
+        html = this.convertTaskLists(html);
+
+        // 转换粗体 (**text**)
         html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 
-        // 转换斜体
-        html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+        // 转换斜体 (*text*) - 但要避免匹配到已经处理的 **
+        html = html.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
+
+        // 转换删除线 (~~text~~)
+        html = html.replace(/~~([^~]+)~~/g, '<del>$1</del>');
 
         // 转换无序列表
-        html = html.replace(/^-\s+(.*)$/gm, '<li>$1</li>');
-        html = html.replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');
+        html = this.convertUnorderedLists(html);
 
         // 转换有序列表
-        html = html.replace(/^\d+\.\s+(.*)$/gm, '<li>$1</li>');
-        html = html.replace(/(<li>.*<\/li>)/gs, '<ol>$1</ol>');
+        html = this.convertOrderedLists(html);
 
-        // 转换段落
-        html = html.replace(/^(?!<h[1-6]>)(?!<ul>)(?!<ol>)(?!<li>)(?!<pre>)(?!<code>)(.*)$/gm, '<p>$1</p>');
+        // 转换段落（跳过已转换的HTML标签）
+        html = html.replace(/^(?!<[a-zA-Z])(?!<\/)(?!<h[1-6]>)(?!<ul>)(?!<ol>)(?!<li>)(?!<pre>)(?!<code>)(?!<table>)(?!<thead>)(?!<tbody>)(?!<tr>)(?!<th>)(?!<td>)(?!<blockquote>)(?!<hr)(?!<div)(?!<img)(.+)$/gm, '<p>$1</p>');
+
+        // 清理空的段落标签
+        html = html.replace(/<p>\s*<\/p>/g, '');
 
         // 清理多余的空行
         html = html.replace(/\n{3,}/g, '\n\n');
 
         return html;
+    }
+
+    /**
+     * 转换Markdown表格为HTML表格
+     * @param {string} html - 包含Markdown表格的内容
+     * @returns {string} 转换后的HTML
+     */
+    static convertTables(html) {
+        // 按行分割处理
+        const lines = html.split('\n');
+        const result = [];
+        let i = 0;
+
+        while (i < lines.length) {
+            const line = lines[i];
+            
+            // 检查是否是表格开始（包含 | 的行）
+            if (line.includes('|') && i + 1 < lines.length && lines[i + 1].includes('|') && lines[i + 1].match(/\|[-:\|\s]+\|/)) {
+                // 找到表格的所有行
+                const tableLines = [];
+                tableLines.push(line);
+                i++;
+                
+                // 添加分隔行
+                if (i < lines.length) {
+                    tableLines.push(lines[i]);
+                    i++;
+                }
+                
+                // 添加数据行
+                while (i < lines.length && lines[i].includes('|')) {
+                    tableLines.push(lines[i]);
+                    i++;
+                }
+
+                // 解析表格
+                const tableHtml = this.parseTableLines(tableLines);
+                result.push(tableHtml);
+            } else {
+                result.push(line);
+                i++;
+            }
+        }
+
+        return result.join('\n');
+    }
+
+    /**
+     * 解析表格行并生成HTML表格
+     * @param {Array} lines - 表格行数组
+     * @returns {string} HTML表格
+     */
+    static parseTableLines(lines) {
+        if (lines.length < 2) return lines.join('\n');
+
+        // 解析表头
+        const headerLine = lines[0];
+        const headers = headerLine.split('|').filter(cell => cell.trim() !== '').map(cell => cell.trim());
+
+        // 解析数据行（从第三行开始，跳过表头和分隔行）
+        const dataRows = [];
+        for (let i = 2; i < lines.length; i++) {
+            const cells = lines[i].split('|').filter(cell => cell.trim() !== '').map(cell => cell.trim());
+            if (cells.length > 0) {
+                dataRows.push(cells);
+            }
+        }
+
+        // 生成HTML表格
+        let tableHtml = '<table class="markdown-table">\n<thead>\n<tr>';
+        headers.forEach(header => {
+            tableHtml += `<th>${header}</th>`;
+        });
+        tableHtml += '</tr>\n</thead>\n<tbody>\n';
+
+        dataRows.forEach(row => {
+            tableHtml += '<tr>';
+            row.forEach((cell) => {
+                const cellContent = cell || '&nbsp;';
+                tableHtml += `<td>${cellContent}</td>`;
+            });
+            for (let i = row.length; i < headers.length; i++) {
+                tableHtml += '<td>&nbsp;</td>';
+            }
+            tableHtml += '</tr>\n';
+        });
+
+        tableHtml += '</tbody>\n</table>';
+        return tableHtml;
+    }
+
+    /**
+     * 转换引用块
+     * @param {string} html - 包含引用块的内容
+     * @returns {string} 转换后的HTML
+     */
+    static convertBlockquotes(html) {
+        const lines = html.split('\n');
+        const result = [];
+        let inBlockquote = false;
+        let blockquoteContent = [];
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            const blockquoteMatch = line.match(/^>\s?(.*)$/);
+
+            if (blockquoteMatch) {
+                if (!inBlockquote) {
+                    inBlockquote = true;
+                    blockquoteContent = [];
+                }
+                blockquoteContent.push(blockquoteMatch[1]);
+            } else {
+                if (inBlockquote) {
+                    result.push('<blockquote class="markdown-blockquote">' + blockquoteContent.join('<br>') + '</blockquote>');
+                    inBlockquote = false;
+                    blockquoteContent = [];
+                }
+                result.push(line);
+            }
+        }
+
+        // 处理未闭合的引用块
+        if (inBlockquote) {
+            result.push('<blockquote class="markdown-blockquote">' + blockquoteContent.join('<br>') + '</blockquote>');
+        }
+
+        return result.join('\n');
+    }
+
+    /**
+     * 转换任务列表
+     * @param {string} html - 包含任务列表的内容
+     * @returns {string} 转换后的HTML
+     */
+    static convertTaskLists(html) {
+        // 转换已完成的任务 - [x]
+        html = html.replace(/^\s*-\s*\[x\]\s+(.*)$/gim, '<li class="task-list-item"><input type="checkbox" checked disabled> $1</li>');
+        // 转换未完成的任务 - [ ]
+        html = html.replace(/^\s*-\s*\[\s*\]\s+(.*)$/gim, '<li class="task-list-item"><input type="checkbox" disabled> $1</li>');
+        return html;
+    }
+
+    /**
+     * 转换无序列表
+     * @param {string} html - 包含无序列表的内容
+     * @returns {string} 转换后的HTML
+     */
+    static convertUnorderedLists(html) {
+        const lines = html.split('\n');
+        const result = [];
+        let inList = false;
+        let listItems = [];
+        let currentItemContent = [];
+        let lastWasListMarker = false;
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            // 匹配无序列表项开始（排除任务列表）- 支持 - 后面跟空格的情况
+            const listMatch = line.match(/^(\s*)-\s*(.*)$/);
+            const isTaskList = line.match(/^\s*-\s*\[[\sx]\]/i);
+
+            if (listMatch && !isTaskList) {
+                const content = listMatch[2];
+                
+                // 如果之前已经在列表中，先保存当前项
+                if (inList && currentItemContent.length > 0 && !lastWasListMarker) {
+                    listItems.push(currentItemContent.join('\n'));
+                    currentItemContent = [];
+                }
+                
+                if (!inList) {
+                    inList = true;
+                    listItems = [];
+                }
+                
+                // 检查是否是空标记（如 "- " 后面没有内容）
+                if (content.trim() === '') {
+                    lastWasListMarker = true;
+                    // 不开始新项，等待下一行内容
+                    if (currentItemContent.length === 0) {
+                        currentItemContent = [];
+                    }
+                } else {
+                    lastWasListMarker = false;
+                    // 开始新的列表项，包含内容
+                    currentItemContent = [content];
+                }
+            } else if (inList) {
+                // 检查是否是空行（列表项之间的分隔）或缩进内容（列表项的延续）
+                if (line.trim() === '') {
+                    // 空行，如果之前有内容则保存，否则忽略
+                    if (currentItemContent.length > 0 && currentItemContent.join('').trim() !== '') {
+                        // 只有在下一行不是列表标记时才保存
+                        if (i + 1 < lines.length && !lines[i + 1].match(/^\s*-\s*/)) {
+                            listItems.push(currentItemContent.join('\n'));
+                            currentItemContent = [];
+                            lastWasListMarker = false;
+                        }
+                    }
+                } else if (line.match(/^\s{2,}/) || lastWasListMarker) {
+                    // 缩进的内容，属于当前列表项
+                    currentItemContent.push(line.trim());
+                    lastWasListMarker = false;
+                } else {
+                    // 非列表内容，结束列表
+                    if (currentItemContent.length > 0) {
+                        listItems.push(currentItemContent.join('\n'));
+                    }
+                    result.push('<ul class="markdown-list">');
+                    listItems.forEach(item => {
+                        if (item.trim() !== '') {
+                            result.push(`<li>${item}</li>`);
+                        }
+                    });
+                    result.push('</ul>');
+                    inList = false;
+                    listItems = [];
+                    currentItemContent = [];
+                    lastWasListMarker = false;
+                    result.push(line);
+                }
+            } else {
+                result.push(line);
+            }
+        }
+
+        // 处理未闭合的列表
+        if (inList) {
+            if (currentItemContent.length > 0) {
+                listItems.push(currentItemContent.join('\n'));
+            }
+            result.push('<ul class="markdown-list">');
+            listItems.forEach(item => {
+                if (item.trim() !== '') {
+                    result.push(`<li>${item}</li>`);
+                }
+            });
+            result.push('</ul>');
+        }
+
+        return result.join('\n');
+    }
+
+    /**
+     * 转换有序列表
+     * @param {string} html - 包含有序列表的内容
+     * @returns {string} 转换后的HTML
+     */
+    static convertOrderedLists(html) {
+        const lines = html.split('\n');
+        const result = [];
+        let inList = false;
+        let listItems = [];
+        let currentItemContent = [];
+        let lastWasListMarker = false;
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            // 匹配有序列表项开始
+            const listMatch = line.match(/^(\s*)\d+\.\s*(.*)$/);
+
+            if (listMatch) {
+                const content = listMatch[2];
+                
+                // 如果之前已经在列表中，先保存当前项
+                if (inList && currentItemContent.length > 0 && !lastWasListMarker) {
+                    listItems.push(currentItemContent.join('\n'));
+                    currentItemContent = [];
+                }
+                
+                if (!inList) {
+                    inList = true;
+                    listItems = [];
+                }
+                
+                // 检查是否是空标记（如 "1. " 后面没有内容）
+                if (content.trim() === '') {
+                    lastWasListMarker = true;
+                    if (currentItemContent.length === 0) {
+                        currentItemContent = [];
+                    }
+                } else {
+                    lastWasListMarker = false;
+                    currentItemContent = [content];
+                }
+            } else if (inList) {
+                // 检查是否是空行（列表项之间的分隔）或缩进内容（列表项的延续）
+                if (line.trim() === '') {
+                    // 空行，如果之前有内容则保存，否则忽略
+                    if (currentItemContent.length > 0 && currentItemContent.join('').trim() !== '') {
+                        // 只有在下一行不是列表标记时才保存
+                        if (i + 1 < lines.length && !lines[i + 1].match(/^\s*\d+\.\s*/)) {
+                            listItems.push(currentItemContent.join('\n'));
+                            currentItemContent = [];
+                            lastWasListMarker = false;
+                        }
+                    }
+                } else if (line.match(/^\s{2,}/) || lastWasListMarker) {
+                    // 缩进的内容，属于当前列表项
+                    currentItemContent.push(line.trim());
+                    lastWasListMarker = false;
+                } else {
+                    // 非列表内容，结束列表
+                    if (currentItemContent.length > 0) {
+                        listItems.push(currentItemContent.join('\n'));
+                    }
+                    result.push('<ol class="markdown-ordered-list">');
+                    listItems.forEach(item => {
+                        if (item.trim() !== '') {
+                            result.push(`<li>${item}</li>`);
+                        }
+                    });
+                    result.push('</ol>');
+                    inList = false;
+                    listItems = [];
+                    currentItemContent = [];
+                    lastWasListMarker = false;
+                    result.push(line);
+                }
+            } else {
+                result.push(line);
+            }
+        }
+
+        // 处理未闭合的列表
+        if (inList) {
+            if (currentItemContent.length > 0) {
+                listItems.push(currentItemContent.join('\n'));
+            }
+            result.push('<ol class="markdown-ordered-list">');
+            listItems.forEach(item => {
+                if (item.trim() !== '') {
+                    result.push(`<li>${item}</li>`);
+                }
+            });
+            result.push('</ol>');
+        }
+
+        return result.join('\n');
     }
 
     /**
@@ -314,7 +690,7 @@ class MarkdownParser {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title} | 北辰</title>
-  <link rel="stylesheet" href="${basePath}/../css/common.css">
+  <link rel="stylesheet" href="${basePath}/css/common.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
@@ -375,6 +751,16 @@ class MarkdownParser {
       font-size: 1.4rem;
       margin: 1.5rem 0 0.8rem;
       color: var(--primary);
+    }
+    .post-body h4 {
+      font-size: 1.2rem;
+      margin: 1.2rem 0 0.6rem;
+      color: var(--primary);
+    }
+    .post-body h5 {
+      font-size: 1.1rem;
+      margin: 1rem 0 0.5rem;
+      color: var(--text);
     }
     .post-body p {
       margin-bottom: 1.2rem;
@@ -438,6 +824,87 @@ class MarkdownParser {
     .post-original-link a:hover {
       text-decoration: underline;
     }
+    /* Markdown 表格样式 */
+    .post-body table.markdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .post-body table.markdown-table thead {
+      background: linear-gradient(135deg, var(--primary), #3a0ca3);
+      color: white;
+    }
+    .post-body table.markdown-table th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      border: none;
+    }
+    .post-body table.markdown-table td {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .post-body table.markdown-table td:last-child {
+      border-right: none;
+    }
+    .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(67, 97, 238, 0.03);
+    }
+    .post-body table.markdown-table tbody tr:hover {
+      background: rgba(67, 97, 238, 0.08);
+    }
+    [data-theme="dark"] .post-body table.markdown-table {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    /* 引用块样式 */
+    .post-body blockquote.markdown-blockquote {
+      border-left: 4px solid var(--primary);
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      background: rgba(67, 97, 238, 0.05);
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #666;
+    }
+    [data-theme="dark"] .post-body blockquote.markdown-blockquote {
+      background: rgba(255, 255, 255, 0.05);
+      color: #aaa;
+    }
+    /* 水平分隔线样式 */
+    .post-body hr.markdown-hr {
+      border: none;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      margin: 2rem 0;
+    }
+    /* 任务列表样式 */
+    .post-body li.task-list-item {
+      list-style: none;
+      margin-left: -1.5rem;
+    }
+    .post-body li.task-list-item input[type="checkbox"] {
+      margin-right: 0.5rem;
+      cursor: default;
+    }
+    /* 图片占位符样式 */
+    .post-body .image-placeholder {
+      transition: var(--transition);
+    }
+    .post-body .image-placeholder:hover {
+      border-color: var(--primary) !important;
+      background: rgba(67, 97, 238, 0.05) !important;
+    }
     @media (max-width: 768px) {
       .post-content {
         padding: 0 1rem;
@@ -454,6 +921,13 @@ class MarkdownParser {
       }
       .post-body pre {
         padding: 1rem;
+      }
+      .post-body table.markdown-table {
+        font-size: 0.85rem;
+      }
+      .post-body table.markdown-table th,
+      .post-body table.markdown-table td {
+        padding: 0.6rem 0.8rem;
       }
     }
   </style>
@@ -524,7 +998,7 @@ class MarkdownParser {
     </svg>
   </button>
 
-  <script src="${basePath}/../js/theme.js"></script>
+  <script src="${basePath}/js/theme.js"></script>
 </body>
 </html>
   `;

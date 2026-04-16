@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spring Cloud 微服务架构实战 | 北辰</title>
-  <link rel="stylesheet" href="../../../../css/common.css">
+  <link rel="stylesheet" href="../../../css/common.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
@@ -66,6 +66,16 @@
       font-size: 1.4rem;
       margin: 1.5rem 0 0.8rem;
       color: var(--primary);
+    }
+    .post-body h4 {
+      font-size: 1.2rem;
+      margin: 1.2rem 0 0.6rem;
+      color: var(--primary);
+    }
+    .post-body h5 {
+      font-size: 1.1rem;
+      margin: 1rem 0 0.5rem;
+      color: var(--text);
     }
     .post-body p {
       margin-bottom: 1.2rem;
@@ -129,6 +139,87 @@
     .post-original-link a:hover {
       text-decoration: underline;
     }
+    /* Markdown 表格样式 */
+    .post-body table.markdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .post-body table.markdown-table thead {
+      background: linear-gradient(135deg, var(--primary), #3a0ca3);
+      color: white;
+    }
+    .post-body table.markdown-table th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      border: none;
+    }
+    .post-body table.markdown-table td {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .post-body table.markdown-table td:last-child {
+      border-right: none;
+    }
+    .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(67, 97, 238, 0.03);
+    }
+    .post-body table.markdown-table tbody tr:hover {
+      background: rgba(67, 97, 238, 0.08);
+    }
+    [data-theme="dark"] .post-body table.markdown-table {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    /* 引用块样式 */
+    .post-body blockquote.markdown-blockquote {
+      border-left: 4px solid var(--primary);
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      background: rgba(67, 97, 238, 0.05);
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #666;
+    }
+    [data-theme="dark"] .post-body blockquote.markdown-blockquote {
+      background: rgba(255, 255, 255, 0.05);
+      color: #aaa;
+    }
+    /* 水平分隔线样式 */
+    .post-body hr.markdown-hr {
+      border: none;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      margin: 2rem 0;
+    }
+    /* 任务列表样式 */
+    .post-body li.task-list-item {
+      list-style: none;
+      margin-left: -1.5rem;
+    }
+    .post-body li.task-list-item input[type="checkbox"] {
+      margin-right: 0.5rem;
+      cursor: default;
+    }
+    /* 图片占位符样式 */
+    .post-body .image-placeholder {
+      transition: var(--transition);
+    }
+    .post-body .image-placeholder:hover {
+      border-color: var(--primary) !important;
+      background: rgba(67, 97, 238, 0.05) !important;
+    }
     @media (max-width: 768px) {
       .post-content {
         padding: 0 1rem;
@@ -145,6 +236,13 @@
       }
       .post-body pre {
         padding: 1rem;
+      }
+      .post-body table.markdown-table {
+        font-size: 0.85rem;
+      }
+      .post-body table.markdown-table th,
+      .post-body table.markdown-table td {
+        padding: 0.6rem 0.8rem;
       }
     }
   </style>
@@ -188,14 +286,15 @@
       </div>
       <div class="post-body">
         <h1>Spring Cloud 微服务架构实战</h1>
-<p></p>
+
 <h2>项目背景</h2>
-<p></p>
+
 <p>在传统单体应用面临代码臃肿、部署缓慢、扩展性差等问题的背景下，微服务架构逐渐成为企业级应用的主流选择。本项目旨在通过Spring Cloud技术栈，构建一个完整的微服务架构示例，展示从服务注册发现到配置管理、负载均衡、熔断降级的全流程实现。</p>
-<p></p>
+
 <h2>技术栈</h2>
-<p></p>
-<ul><ol><li><strong>基础框架</strong>: Spring Boot 3.0+</li>
+
+<ul class="markdown-list">
+<li><strong>基础框架</strong>: Spring Boot 3.0+</li>
 <li><strong>微服务框架</strong>: Spring Cloud 2023.x</li>
 <li><strong>注册中心</strong>: Nacos</li>
 <li><strong>配置中心</strong>: Nacos Config</li>
@@ -204,27 +303,32 @@
 <li><strong>API网关</strong>: Gateway</li>
 <li><strong>服务链路追踪</strong>: Sleuth + Zipkin</li>
 <li><strong>数据库</strong>: MySQL + MyBatis Plus</li>
-<li><strong>容器化</strong>: Docker</li></ul>
-<p></p>
+<li><strong>容器化</strong>: Docker</li>
+</ul>
 <h2>架构设计</h2>
-<p></p>
+
 <h3>模块划分</h3>
-<p></p>
+
+<ol class="markdown-ordered-list">
 <li><strong>common</strong>: 公共模块，包含工具类、通用配置等</li>
 <li><strong>api</strong>: API接口定义模块</li>
 <li><strong>service</strong>: 业务服务模块</li>
-<p>   - <strong>service-user</strong>: 用户服务</p>
-<p>   - <strong>service-order</strong>: 订单服务</p>
-<p>   - <strong>service-product</strong>: 产品服务</p>
+</ol>
+<ul class="markdown-list">
+<li><strong>service-user</strong>: 用户服务</li>
+<li><strong>service-order</strong>: 订单服务</li>
+<li><strong>service-product</strong>: 产品服务</li>
+</ul>
+<ol class="markdown-ordered-list">
 <li><strong>gateway</strong>: API网关模块</li>
 <li><strong>config</strong>: 配置管理模块</li>
-<p></p>
+</ol>
 <h2>核心功能实现</h2>
-<p></p>
+
 <h3>1. 服务注册与发现</h3>
-<p></p>
+
 <p>使用Nacos作为注册中心，实现服务的自动注册与发现：</p>
-<p></p>
+
 <pre><code class="language-java">// 配置Nacos注册中心
 <p>@SpringBootApplication</p>
 <p>@EnableDiscoveryClient</p>
@@ -233,13 +337,13 @@
 <p>        SpringApplication.run(UserServiceApplication.class, args);</p>
 <p>    }</p>
 <p>}</p>
-<p></code></pre></p>
-<p></p>
+</code></pre>
+
 <h3>2. 配置中心</h3>
-<p></p>
+
 <p>使用Nacos Config管理配置，实现配置的集中管理和动态更新：</p>
-<p></p>
-<pre><code class="language-yaml">&lt;h1&gt;application.yml&lt;/h1&gt;
+
+<pre><code class="language-yaml"># application.yml
 <p>spring:</p>
 <p>  cloud:</p>
 <p>    nacos:</p>
@@ -248,120 +352,152 @@
 <p>        namespace: dev</p>
 <p>        group: DEFAULT_GROUP</p>
 <p>        file-extension: yml</p>
-<p></code></pre></p>
-<p></p>
+</code></pre>
+
 <h3>3. 远程调用</h3>
-<p></p>
+
 <p>使用OpenFeign实现服务间的远程调用：</p>
-<p></p>
+
 <pre><code class="language-java">// 定义Feign客户端
 <p>@FeignClient(name = &quot;service-product&quot;)</p>
 <p>public interface ProductServiceClient {</p>
 <p>    @GetMapping(&quot;/product/{id}&quot;)</p>
 <p>    Product getProductById(@PathVariable(&quot;id&quot;) Long id);</p>
 <p>}</p>
-<p></code></pre></p>
-<p></p>
+</code></pre>
+
 <h3>4. 熔断降级</h3>
-<p></p>
+
 <p>使用Sentinel实现服务的熔断降级，防止服务雪崩：</p>
-<p></p>
+
 <pre><code class="language-java">// 配置Sentinel熔断
 <p>@SentinelResource(value = &quot;getUser&quot;, fallback = &quot;fallbackGetUser&quot;)</p>
 <p>public User getUserById(Long id) {</p>
 <p>    return userMapper.selectById(id);</p>
 <p>}</p>
-<p></p>
+
 <p>public User fallbackGetUser(Long id) {</p>
 <p>    return new User(-1L, &quot;默认用户&quot;, &quot;fallback&quot;);</p>
 <p>}</p>
-<p></code></pre></p>
-<p></p>
+</code></pre>
+
 <h3>5. API网关</h3>
-<p></p>
+
 <p>使用Gateway作为API网关，实现请求路由、过滤和限流：</p>
-<p></p>
-<pre><code class="language-yaml">&lt;h1&gt;网关路由配置&lt;/h1&gt;
+
+<pre><code class="language-yaml"># 网关路由配置
 <p>spring:</p>
 <p>  cloud:</p>
 <p>    gateway:</p>
 <p>      routes:</p>
-<p>        - id: user-service</p>
-<p>          uri: lb://service-user</p>
-<p>          predicates:</p>
-<p>            - Path=/api/user/<strong></p>
-<p>          filters:</p>
-<p>            - StripPrefix=1</p>
-<p></code></pre></p>
-<p></p>
+<ul class="markdown-list">
+<li>id: user-service
+<p>uri: lb://service-user</p>
+<p>predicates:</li></p>
+<li>Path=/api/user/<strong>
+<p>filters:</li></p>
+<li>StripPrefix=1</li>
+</ul>
+</code></pre>
+
 <h2>部署方案</h2>
-<p></p>
+
 <h3>本地开发环境</h3>
-<p></p>
-<li></strong>启动Nacos服务<strong></li>
-<p>   <pre><code class="language-bash">   docker run -d --name nacos -p 8848:8848 nacos/nacos-server:latest</p>
-<p>   </code></pre></p>
-<p></p>
+
+<ol class="markdown-ordered-list">
+<li></strong>启动Nacos服务<strong>
+<pre><code class="language-bash">   docker run -d --name nacos -p 8848:8848 nacos/nacos-server:latest
+</code></pre></li>
 <li></strong>启动各微服务<strong></li>
-<p>   - 启动config服务</p>
-<p>   - 启动注册中心服务</p>
-<p>   - 启动各业务服务</p>
-<p>   - 启动网关服务</p>
-<p></p>
+</ol>
+<ul class="markdown-list">
+<li>启动config服务</li>
+<li>启动注册中心服务</li>
+<li>启动各业务服务</li>
+<li>启动网关服务</li>
+</ul>
 <h3>生产环境</h3>
-<p></p>
+
+<ol class="markdown-ordered-list">
 <li></strong>Docker容器化<strong></li>
-<p>   - 为每个服务构建Docker镜像</p>
-<p>   - 使用Docker Compose编排服务</p>
-<p></p>
+</ol>
+<ul class="markdown-list">
+<li>为每个服务构建Docker镜像</li>
+<li>使用Docker Compose编排服务</li>
+</ul>
+<ol class="markdown-ordered-list">
 <li></strong>K8s部署<strong></li>
-<p>   - 编写K8s部署配置文件</p>
-<p>   - 使用Helm管理应用部署</p>
-<p></p>
+</ol>
+<ul class="markdown-list">
+<li>编写K8s部署配置文件</li>
+<li>使用Helm管理应用部署</li>
+</ul>
 <h2>性能优化</h2>
-<p></p>
+
+<ol class="markdown-ordered-list">
 <li></strong>服务拆分优化<strong></li>
-<p>   - 合理划分服务边界</p>
-<p>   - 避免服务间过度依赖</p>
-<p></p>
+</ol>
+<ul class="markdown-list">
+<li>合理划分服务边界</li>
+<li>避免服务间过度依赖</li>
+</ul>
+<ol class="markdown-ordered-list">
 <li></strong>数据库优化<strong></li>
-<p>   - 使用数据库连接池</p>
-<p>   - 合理设计索引</p>
-<p>   - 读写分离</p>
-<p></p>
+</ol>
+<ul class="markdown-list">
+<li>使用数据库连接池</li>
+<li>合理设计索引</li>
+<li>读写分离</li>
+</ul>
+<ol class="markdown-ordered-list">
 <li></strong>缓存优化<strong></li>
-<p>   - 引入Redis缓存</p>
-<p>   - 实现缓存预热</p>
-<p>   - 缓存一致性保证</p>
-<p></p>
+</ol>
+<ul class="markdown-list">
+<li>引入Redis缓存</li>
+<li>实现缓存预热</li>
+<li>缓存一致性保证</li>
+</ul>
+<ol class="markdown-ordered-list">
 <li></strong>网络优化<strong></li>
-<p>   - 使用gRPC替代REST</p>
-<p>   - 启用HTTP/2</p>
-<p>   - 压缩传输数据</p>
-<p></p>
+</ol>
+<ul class="markdown-list">
+<li>使用gRPC替代REST</li>
+<li>启用HTTP/2</li>
+<li>压缩传输数据</li>
+</ul>
 <h2>监控与告警</h2>
-<p></p>
+
+<ol class="markdown-ordered-list">
 <li></strong>服务监控<strong></li>
-<p>   - 使用Spring Boot Actuator暴露监控端点</p>
-<p>   - 集成Prometheus + Grafana</p>
-<p></p>
+</ol>
+<ul class="markdown-list">
+<li>使用Spring Boot Actuator暴露监控端点</li>
+<li>集成Prometheus + Grafana</li>
+</ul>
+<ol class="markdown-ordered-list">
 <li></strong>日志管理<strong></li>
-<p>   - 使用ELK Stack收集和分析日志</p>
-<p>   - 实现分布式链路追踪</p>
-<p></p>
+</ol>
+<ul class="markdown-list">
+<li>使用ELK Stack收集和分析日志</li>
+<li>实现分布式链路追踪</li>
+</ul>
+<ol class="markdown-ordered-list">
 <li></strong>告警机制<strong></li>
-<p>   - 配置服务健康检查</p>
-<p>   - 实现异常告警</p>
-<p></p>
+</ol>
+<ul class="markdown-list">
+<li>配置服务健康检查</li>
+<li>实现异常告警</li>
+</ul>
 <h2>总结与展望</h2>
-<p></p>
+
 <p>通过本项目的实践，我们成功构建了一个基于Spring Cloud的完整微服务架构，实现了服务注册与发现、配置中心、负载均衡、熔断降级等核心功能。在未来的发展中，我们可以考虑：</p>
-<p></p>
+
+<ol class="markdown-ordered-list">
 <li></strong>服务网格<strong>：引入Istio实现更高级的服务管理</li>
 <li></strong>无服务器架构<strong>：探索Spring Cloud Function</li>
 <li></strong>云原生<strong>：进一步优化容器化和K8s部署</li>
-<li></strong>AI集成**：在微服务架构中集成AI能力</li></ol>
-<p></p>
+<li></strong>AI集成**：在微服务架构中集成AI能力</li>
+</ol>
 <p>微服务架构是一个不断演进的过程，需要根据业务需求和技术发展持续优化和调整。</p>
       </div>
     </article>
@@ -402,7 +538,7 @@
     </svg>
   </button>
 
-  <script src="../../../../js/theme.js"></script>
+  <script src="../../../js/theme.js"></script>
 </body>
 </html>
   
