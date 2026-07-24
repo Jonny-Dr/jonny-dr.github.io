@@ -499,6 +499,24 @@ function renderTemplate(template, data) {
         return result.replace(/['"]/g, '');
     });
 
+    // 获取音乐文件夹中的所有音频文件
+    const musicDir = path.join(__dirname, 'images', 'music');
+    let musicFiles = [];
+    if (fs.existsSync(musicDir)) {
+        musicFiles = fs.readdirSync(musicDir)
+            .filter(file => file.endsWith('.mp3') || file.endsWith('.wav') || file.endsWith('.ogg'))
+            .map(file => `/images/music/${file}`);
+    }
+    
+    // 添加背景音乐标签和音乐列表
+    const musicConfig = `
+  <script>
+    window.musicFiles = ${JSON.stringify(musicFiles)};
+  </script>
+  <audio id="backgroundMusic" src="${musicFiles[0] || '/images/music/background.mp3'}" autoplay muted loop>
+`;
+    rendered = rendered.replace(/<script src="js\/theme\.js"><\/script>/, `${musicConfig}  <script src="js/theme.js"></script>`);
+
     return rendered;
 }
 
