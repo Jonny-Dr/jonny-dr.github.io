@@ -111,7 +111,6 @@
       background: none;
       padding: 0;
     }
-    /* 暗黑模式下的代码块样式 */
     [data-theme="dark"] .post-body pre {
       background: #1e1e1e;
       color: #e6e6e6;
@@ -139,7 +138,6 @@
     .post-original-link a:hover {
       text-decoration: underline;
     }
-    /* Markdown 表格样式 */
     .post-body table.markdown-table {
       width: 100%;
       border-collapse: collapse;
@@ -182,7 +180,6 @@
     [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
       background: rgba(255, 255, 255, 0.06);
     }
-    /* 引用块样式 */
     .post-body blockquote.markdown-blockquote {
       border-left: 4px solid var(--primary);
       padding: 1rem 1.5rem;
@@ -196,14 +193,12 @@
       background: rgba(255, 255, 255, 0.05);
       color: #aaa;
     }
-    /* 水平分隔线样式 */
     .post-body hr.markdown-hr {
       border: none;
       height: 2px;
       background: linear-gradient(to right, transparent, var(--border), transparent);
       margin: 2rem 0;
     }
-    /* 任务列表样式 */
     .post-body li.task-list-item {
       list-style: none;
       margin-left: -1.5rem;
@@ -212,7 +207,6 @@
       margin-right: 0.5rem;
       cursor: default;
     }
-    /* 图片占位符样式 */
     .post-body .image-placeholder {
       transition: var(--transition);
     }
@@ -287,96 +281,91 @@
       <div class="post-body">
         <hr class="markdown-hr">
 <h1>RAG 检索增强生成技术解析</h1>
-
 <h2>一、 背景与目标</h2>
-
 <p>大语言模型存在<strong>知识固化</strong>与<strong>幻觉</strong>问题，其局限性主要体现在：</p>
-
 <ul class="markdown-list">
 <li>知识更新滞后（通常滞后数月）。</li>
 <li>不包含特定专业领域或企业私有数据。</li>
 </ul>
-<strong>RAG</strong> 正是为了解决这些问题而提出的技术架构，其核心目标是<strong>为大模型外接一个实时、可靠的知识库</strong>，从而实现“开卷考试”，增强回答的准确性与可靠性。
-
+<p><strong>RAG</strong> 正是为了解决这些问题而提出的技术架构，其核心目标是<strong>为大模型外接一个实时、可靠的知识库</strong>，从而实现“开卷考试”，增强回答的准确性与可靠性。</p>
 <h2>二、 核心原理</h2>
-
 <p>RAG 将传统 LLM 的“闭卷考试”转变为“开卷考试”，其基本流程为：</p>
-
 <ol class="markdown-ordered-list">
 <li><strong>检索</strong>：根据用户问题，从外部知识库（如向量数据库）中检索最相关的文档片段。</li>
 <li><strong>增强</strong>：将检索到的上下文与原始问题结合，构建出信息更丰富的提示词。</li>
 <li><strong>生成</strong>：大模型基于包含参考资料的提示词，生成最终答案。</li>
 </ol>
 <h2>三、 标准实现流程</h2>
-
 <h3>1. 离线阶段：构建知识库</h3>
-
 <p>目标：将原始文档转换为可被语义搜索的结构化知识库。</p>
-
 <ul class="markdown-list">
-<li><strong>步骤</strong>：
-<ol class="markdown-ordered-list">
+<li><strong>步骤</strong>：<ol class="markdown-ordered-list">
 <li><strong>文档加载与解析</strong>：读取各种格式的原始文件。</li>
 <li><strong>文本分割 (Chunking)</strong>：将长文档切分为大小适中（如 512-1024 tokens）的文本块，块之间可设置重叠区域以保持语义连贯。</li>
-<li><strong>向量化 (Embedding)</strong>：使用 Embedding 模型（如 <code>text-embedding-3-small</code>）将文本块转换为语义向量。</li></li>
-</ol>
+<li><strong>向量化 (Embedding)</strong>：使用 Embedding 模型（如 <code>text-embedding-3-small</code>）将文本块转换为语义向量。<ul class="markdown-list">
 <li><strong>核心概念</strong>：<strong>向量</strong>在这里指的是一串能够表示文本语义的数字（例如 <code>[0.1, -0.2, 0.8, ...]</code>）。通俗地讲，它是机器为一段文本生成的、富含语义的“身份证号码”，语义相似的文本，其向量在数字空间中的位置也接近。<strong>简单来说，向量就是给内容编了一个“能反映含义的坐标”</strong>。</li>
-<li><strong>核心概念</strong>：<strong>向量模型</strong>（即Embedding模型）是实现上述转换的工具。它的作用就像一个“翻译官”，将人类可读的文本“翻译”成机器可理解的向量（即“身份证号码”）。同一个模型能确保含义相近的句子（如“今天天气好”和“It's a sunny day”）被转换成相似的向量。<strong>简单来说，向量模型是“万物转坐标”的专用翻译官</strong>。
-<ol class="markdown-ordered-list">
-<li><strong>存入向量数据库</strong>：将向量与对应文本块存入数据库（如 Chroma, Milvus,Neo4j）。</li></li>
-</ol>
+<li><strong>核心概念</strong>：<strong>向量模型</strong>（即Embedding模型）是实现上述转换的工具。它的作用就像一个“翻译官”，将人类可读的文本“翻译”成机器可理解的向量（即“身份证号码”）。同一个模型能确保含义相近的句子（如“今天天气好”和“It&#39;s a sunny day”）被转换成相似的向量。<strong>简单来说，向量模型是“万物转坐标”的专用翻译官</strong>。</li>
+</ul>
+</li>
+<li><strong>存入向量数据库</strong>：将向量与对应文本块存入数据库（如 Chroma, Milvus,Neo4j）。<ul class="markdown-list">
 <li><strong>核心概念</strong>：<strong>向量数据库</strong>是一种专门为存储和检索向量而设计的数据库。与传统数据库按关键词查找不同，它擅长基于向量的相似性进行搜索。你可以把它想象成一个拥有“人脸识别”能力的超级图书管理员，能根据你提供的一段话的“意思”（向量），快速从海量资料中找到意思最接近的文档。<strong>简单来说，向量数据库是“按意思找东西”的超级索引柜</strong>。</li>
 </ul>
+</li>
+</ol>
+</li>
+</ul>
 <h3>2. 在线阶段：检索与生成</h3>
-
 <p>目标：响应用户查询，并返回基于上下文的答案。</p>
-
 <ul class="markdown-list">
-<li><strong>步骤</strong>：</li>
-<li>1. <strong>Query 向量化</strong>：将用户问题用相同的 Embedding 模型向量化。</li>
-<li>2. <strong>相似度检索</strong>：在向量库中进行近似最近邻搜索，召回与问题最相关的 Top-K 个文本块。</li>
-<li><strong>核心概念</strong>：<strong>相似度检索</strong>依赖于计算向量间的“距离”。常用方法有<strong>欧式距离</strong>和<strong>余弦相似度</strong>。</li>
-<li><strong>欧式距离</strong>：衡量两个向量在多维空间中的“直线距离”。距离越近，数值越小，表示越相似。这好比比较两栋房子的实际空间距离。</li>
-<li><strong>余弦相似度</strong>：衡量两个向量在方向上的差异，而忽略其长度。它关注的是“语义方向”是否一致。值越接近1，表示方向越一致，语义越相似。这好比比较两个人前进的方向是否相同，而不关心他们各自走了多远。在文本处理中，余弦相似度更为常用，因为它能更好地捕捉语义上的相似性。</li>
-<li>3. <strong>构建 Prompt</strong>：将检索到的上下文填入预设模板，形成增强后的提示词。示例如下：</li>
-<li><pre><code class="language-plaintext">     请根据以下上下文回答用户的问题。如果上下文不包含相关信息，请如实告知。</li>
-<li>上下文：
-<p>{context}</li></p>
-<li>用户问题：{question}</li>
-<li>回答：
-</code></pre></li>
-<li>4. <strong>LLM 推理</strong>：将构造好的 Prompt 提交给大模型，生成最终答案。</li>
+<li><p><strong>步骤</strong>：</p>
+<ol class="markdown-ordered-list">
+<li><p><strong>Query 向量化</strong>：将用户问题用相同的 Embedding 模型向量化。</p>
+</li>
+<li><p><strong>相似度检索</strong>：在向量库中进行近似最近邻搜索，召回与问题最相关的 Top-K 个文本块。</p>
+<ul class="markdown-list">
+<li><strong>核心概念</strong>：<strong>相似度检索</strong>依赖于计算向量间的“距离”。常用方法有<strong>欧式距离</strong>和<strong>余弦相似度</strong>。<br>  - <strong>欧式距离</strong>：衡量两个向量在多维空间中的“直线距离”。距离越近，数值越小，表示越相似。这好比比较两栋房子的实际空间距离。<br>    - <strong>余弦相似度</strong>：衡量两个向量在方向上的差异，而忽略其长度。它关注的是“语义方向”是否一致。值越接近1，表示方向越一致，语义越相似。这好比比较两个人前进的方向是否相同，而不关心他们各自走了多远。在文本处理中，余弦相似度更为常用，因为它能更好地捕捉语义上的相似性。</li>
+</ul>
+</li>
+<li><p><strong>构建 Prompt</strong>：将检索到的上下文填入预设模板，形成增强后的提示词。示例如下：</p>
+<pre><code class="language-plaintext">请根据以下上下文回答用户的问题。如果上下文不包含相关信息，请如实告知。
+
+上下文：
+{context}
+
+用户问题：{question}
+
+回答：
+</code></pre>
+</li>
+<li><p><strong>LLM 推理</strong>：将构造好的 Prompt 提交给大模型，生成最终答案。</p>
+</li>
+</ol>
+</li>
 </ul>
 <h2>四、 高级优化与工程要点</h2>
-
 <p>基础的 RAG 系统在生产环境中常面临“检索不准”或“上下文丢失”问题，以下为关键优化方向：</p>
-
 <h3>1. 提升检索质量</h3>
-
 <ul class="markdown-list">
 <li><strong>HyDE (假设性文档嵌入)</strong>：让大模型先根据抽象问题生成一个假设答案，再用此答案去检索，效果更佳。</li>
 <li><strong>多路召回</strong>：结合<strong>向量检索</strong>与<strong>关键词检索</strong>，兼顾语义理解与精确匹配。</li>
 <li><strong>重排序 (Reranker)</strong>：在召回结果后，使用专用模型（如 <code>bge-reranker</code>）对结果进行精细化重排，提升输入模型上下文的质量。</li>
 </ul>
 <h3>2. 优化上下文处理</h3>
-
 <ul class="markdown-list">
 <li><strong>父文档检索</strong>：文档按粗细粒度分别切割。检索时找到最相关的细粒度片段，但将其所属的粗粒度文档整体作为上下文返回，以保持信息完整。</li>
 <li><strong>Agentic RAG</strong>：对于复杂多步查询，引入智能体，让模型自主决策检索、总结、二次检索等步骤。</li>
 </ul>
 <h3>3. 工程架构</h3>
-
 <ul class="markdown-list">
 <li><strong>流式响应</strong>：支持流式输出答案，优化用户体验。</li>
 <li><strong>引用来源</strong>：在答案中标注引用来源（如文件名、页码），增强可信度。</li>
 </ul>
 <h2>五、 核心价值总结</h2>
-
 <p>RAG 的本质是 <strong>“大模型外挂知识库”</strong>，它通过引入外部知识，有效缓解了大模型的知识滞后、幻觉及缺乏私有数据认知等核心痛点，是企业将大模型落地到具体业务场景（如知识库问答、智能客服）的主流方案。</p>
+
       </div>
     </article>
     
-    <!-- 评论区 -->
     <div id="comments" style="max-width: 800px; margin: 3rem auto; padding: 0 1rem;">
       <div style="width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin-bottom: 2rem;"></div>
       <h3 style="margin-bottom: 1.5rem; color: var(--primary);">💬 评论区</h3>

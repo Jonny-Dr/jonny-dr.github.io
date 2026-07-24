@@ -111,7 +111,6 @@
       background: none;
       padding: 0;
     }
-    /* 暗黑模式下的代码块样式 */
     [data-theme="dark"] .post-body pre {
       background: #1e1e1e;
       color: #e6e6e6;
@@ -139,7 +138,6 @@
     .post-original-link a:hover {
       text-decoration: underline;
     }
-    /* Markdown 表格样式 */
     .post-body table.markdown-table {
       width: 100%;
       border-collapse: collapse;
@@ -182,7 +180,6 @@
     [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
       background: rgba(255, 255, 255, 0.06);
     }
-    /* 引用块样式 */
     .post-body blockquote.markdown-blockquote {
       border-left: 4px solid var(--primary);
       padding: 1rem 1.5rem;
@@ -196,14 +193,12 @@
       background: rgba(255, 255, 255, 0.05);
       color: #aaa;
     }
-    /* 水平分隔线样式 */
     .post-body hr.markdown-hr {
       border: none;
       height: 2px;
       background: linear-gradient(to right, transparent, var(--border), transparent);
       margin: 2rem 0;
     }
-    /* 任务列表样式 */
     .post-body li.task-list-item {
       list-style: none;
       margin-left: -1.5rem;
@@ -212,7 +207,6 @@
       margin-right: 0.5rem;
       cursor: default;
     }
-    /* 图片占位符样式 */
     .post-body .image-placeholder {
       transition: var(--transition);
     }
@@ -286,62 +280,43 @@
       </div>
       <div class="post-body">
         <h1>Redis</h1>
-
 <h2>经典三问题</h2>
-
 <h3>缓存穿透</h3>
-
 <p>1、概念：频繁请求数据库不存在的数据导致数据库宕机</p>
-
 <p>2、解决方案：</p>
-
 <pre><code class="language-plaintext">两个方面
-<p>1、缓存空值</p>
-<p>2、布隆过滤器（存在缺陷）</p>
+1、缓存空值
+2、布隆过滤器（存在缺陷）
 </code></pre>
-
 <h3>缓存击穿</h3>
-
 <p>1、概念：热点数据过期，导致大量请求直接访问数据库，造成的数据库宕机</p>
-
 <p>2、解决方案</p>
-
 <pre><code class="language-plaintext">三个方面：
-<p>1、缓存空值</p>
-<p>2、布隆过滤器</p>
-<p>3、网关限流/业务限流（网关使用Sentinel/业务使用锁）</p>
+1、缓存空值
+2、布隆过滤器
+3、网关限流/业务限流（网关使用Sentinel/业务使用锁）
 </code></pre>
-
 <h3>缓存雪崩</h3>
-
 <p>1、概念：大量缓存同时过期或redis服务不可用，导致全部查询数据库，数据库宕机</p>
-
 <p>2、解决方案</p>
-
 <pre><code class="language-plaintext">三个方面：
-<p>1、网关限流/业务限流（网关使用Sentinel/业务使用锁）</p>
-<p>2、对key设置随机过期时间，避免大量key在同一时间实效</p>
-<p>3、构建集群架构</p>
+1、网关限流/业务限流（网关使用Sentinel/业务使用锁）
+2、对key设置随机过期时间，避免大量key在同一时间实效
+3、构建集群架构
 </code></pre>
-
 <h2>引申问题</h2>
-
 <h3>布隆过滤器</h3>
-
 <h4>设计思想</h4>
-
 <pre><code class="language-markdown">1、我们真正刚需：百分百准确识别「不存在的数据」，直接拦截，不走 DB；
-<p>2、可以接受极小概率误判「不存在的数据误以为存在」，命中后二次查库兜底即可；</p>
-<p>3、目标：极致压缩内存，牺牲 100% 精准存在判断，换取极低内存开销；</p>
-<p>4、实现手段：不存原始数据，只用二进制 bit 标记，多个元素共用 bit 位节约空间。</p>
+2、可以接受极小概率误判「不存在的数据误以为存在」，命中后二次查库兜底即可；
+3、目标：极致压缩内存，牺牲 100% 精准存在判断，换取极低内存开销；
+4、实现手段：不存原始数据，只用二进制 bit 标记，多个元素共用 bit 位节约空间。
 
-<p>结果：</p>
-<p>商品A哈希后位置1，2，3。商品B哈希后位置也是1，2，3。如果商品A售完要删除，此时会导致商品B也会受影响。</p>
-<p>所以不允许删除</p>
+结果：
+商品A哈希后位置1，2，3。商品B哈希后位置也是1，2，3。如果商品A售完要删除，此时会导致商品B也会受影响。
+所以不允许删除
 </code></pre>
-
 <h4>优点</h4>
-
 <ul class="markdown-list">
 <li>内存占用低</li>
 <li>插入、查询速度快，性能稳定</li>
@@ -349,7 +324,6 @@
 <li>没有哈希冲突的性能退化问题</li>
 </ul>
 <h4>缺点</h4>
-
 <ul class="markdown-list">
 <li>存在误判，判定“存在”后，必须二次查库校验</li>
 <li>不能删除数据，只能新增</li>
@@ -357,82 +331,70 @@
 <li>无法精确统计元素总数</li>
 </ul>
 <h4>适用场景</h4>
-
 <ul class="markdown-list">
 <li>秒杀场景，存储热点商品id</li>
 <li>爬虫URL去重</li>
 <li>黑名单拦截</li>
 </ul>
 <h4>解决方案</h4>
-
 <p>布隆过滤器存储<strong>全部有效商品</strong>，做第一层拦截；</p>
-
 <p>单独用 Redis Set 存储<strong>已下架商品 ID</strong>；</p>
-
 <p>查询逻辑：</p>
-
 <p>① 布隆判断不存在 → 直接返回空；</p>
-
 <p>② 布隆判断存在 → 再判断是否在「下架黑名单 Set」；</p>
-
 <p>③ 在黑名单 → 返回空；不在 → 查询 Redis/DB。</p>
-
 <pre><code class="language-java">// 注入布隆过滤器、redis黑名单set
-<p>RBloomFilter&lt;Long&gt; bloomFilter = redissonClient.getBloomFilter(&quot;goods_bloom&quot;);</p>
-<p>RSet&lt;Long&gt; offShelfSet = redissonClient.getSet(&quot;goods_off_shelf_set&quot;);</p>
+RBloomFilter&lt;Long&gt; bloomFilter = redissonClient.getBloomFilter(&quot;goods_bloom&quot;);
+RSet&lt;Long&gt; offShelfSet = redissonClient.getSet(&quot;goods_off_shelf_set&quot;);
 
-<p>// 查询商品</p>
-<p>public GoodsDTO getGoods(Long goodsId) {</p>
-<p>    // 第一层：布隆过滤，百分百不存在直接拦截</p>
-<p>    if (!bloomFilter.contains(goodsId)) {</p>
-<p>        return null;</p>
-<p>    }</p>
-<p>    // 第二层：过滤已下架商品</p>
-<p>    if (offShelfSet.contains(goodsId)) {</p>
-<p>        return null;</p>
-<p>    }</p>
-<p>    // 正常查询缓存、数据库</p>
-<p>    String cacheKey = &quot;goods:&quot; + goodsId;</p>
-<p>    GoodsDTO cache = stringRedisTemplate.opsForValue().get(cacheKey, GoodsDTO.class);</p>
-<p>    if (cache != null) return cache;</p>
-<p>    GoodsDTO db = goodsMapper.selectById(goodsId);</p>
-<p>    if (db != null) {</p>
-<p>        stringRedisTemplate.opsForValue().set(cacheKey, db, 1, TimeUnit.HOURS);</p>
-<p>    }</p>
-<p>    return db;</p>
-<p>}</p>
+// 查询商品
+public GoodsDTO getGoods(Long goodsId) {
+    // 第一层：布隆过滤，百分百不存在直接拦截
+    if (!bloomFilter.contains(goodsId)) {
+        return null;
+    }
+    // 第二层：过滤已下架商品
+    if (offShelfSet.contains(goodsId)) {
+        return null;
+    }
+    // 正常查询缓存、数据库
+    String cacheKey = &quot;goods:&quot; + goodsId;
+    GoodsDTO cache = stringRedisTemplate.opsForValue().get(cacheKey, GoodsDTO.class);
+    if (cache != null) return cache;
+    GoodsDTO db = goodsMapper.selectById(goodsId);
+    if (db != null) {
+        stringRedisTemplate.opsForValue().set(cacheKey, db, 1, TimeUnit.HOURS);
+    }
+    return db;
+}
 
-<p>// 商品下架接口</p>
-<p>public void offShelf(Long goodsId) {</p>
-<p>    // 仅加入黑名单，不修改布隆过滤器</p>
-<p>    offShelfSet.add(goodsId);</p>
-<p>    // 删除商品缓存</p>
-<p>    stringRedisTemplate.delete(&quot;goods:&quot; + goodsId);</p>
-<p>}</p>
+// 商品下架接口
+public void offShelf(Long goodsId) {
+    // 仅加入黑名单，不修改布隆过滤器
+    offShelfSet.add(goodsId);
+    // 删除商品缓存
+    stringRedisTemplate.delete(&quot;goods:&quot; + goodsId);
+}
 
-<p>// 凌晨定时任务：重建布隆过滤器，同步最新上架商品</p>
-<p>@Scheduled(cron = &quot;0 0 3 <em> </em> ?&quot;)</p>
-<p>public void rebuildBloomFilter() {</p>
-<p>    // 1. 查询数据库所有上架商品</p>
-<p>    List&lt;Long&gt; allOnShelfIds = goodsMapper.selectAllOnShelfId();</p>
-<p>    // 2. 删除旧布隆，新建</p>
-<p>    bloomFilter.delete();</p>
-<p>    bloomFilter.tryInit(allOnShelfIds.size(), 0.001); // 预估数量，误判率0.1%</p>
-<p>    // 3. 批量写入</p>
-<p>    allOnShelfIds.forEach(bloomFilter::add);</p>
-<p>    // 4. 清空黑名单（数据已同步到布隆，黑名单失效）</p>
-<p>    offShelfSet.clear();</p>
-<p>}</p>
+// 凌晨定时任务：重建布隆过滤器，同步最新上架商品
+@Scheduled(cron = &quot;0 0 3 * * ?&quot;)
+public void rebuildBloomFilter() {
+    // 1. 查询数据库所有上架商品
+    List&lt;Long&gt; allOnShelfIds = goodsMapper.selectAllOnShelfId();
+    // 2. 删除旧布隆，新建
+    bloomFilter.delete();
+    bloomFilter.tryInit(allOnShelfIds.size(), 0.001); // 预估数量，误判率0.1%
+    // 3. 批量写入
+    allOnShelfIds.forEach(bloomFilter::add);
+    // 4. 清空黑名单（数据已同步到布隆，黑名单失效）
+    offShelfSet.clear();
+}
 </code></pre>
-
 <p>优点：实现简单、性能高、无内存翻倍；</p>
-
 <p>缺点：下架商品会一直在布隆中，靠黑名单兜底，依赖定时任务定期清理。</p>
 <hr class="markdown-hr">
 <h3>秒杀场景解决方案</h3>
-
-<strong>大致流程</strong>
-
+<p><strong>大致流程</strong></p>
 <ol class="markdown-ordered-list">
 <li>前端置灰</li>
 <li>网关限流</li>
@@ -447,524 +409,480 @@
 <p>详情可以看高并发秒杀解决方案</p>
 <hr class="markdown-hr">
 <h3>分布式锁</h3>
-
 <h4>看门狗机制</h4>
-
-<strong>背景</strong>：为了解决锁过期时间设置太长或太短的问题。
-
-<strong>目标</strong>：只要客户端持有锁且正常运行，就自动给锁续期，保证锁不会提前过期；客户端宕机后，锁会自动到期释放。
-
-<strong>核心运行逻辑</strong>
-
+<p><strong>背景</strong>：为了解决锁过期时间设置太长或太短的问题。</p>
+<p><strong>目标</strong>：只要客户端持有锁且正常运行，就自动给锁续期，保证锁不会提前过期；客户端宕机后，锁会自动到期释放。</p>
+<p><strong>核心运行逻辑</strong></p>
 <pre><code class="language-markdown">1、触发条件：加锁时没有显式指定锁的过期时间（leaseTime），自动开启看门狗；如果手动指定了 leaseTime，看门狗不会生效
-<p>2、默认过期时长：看门狗模式下，锁的初始过期时间为 30 秒，可通过配置项 lockWatchdogTimeout 自定义</p>
-<p>3、续期周期：每隔「锁过期时间的 1/3」执行一次续期。默认 30 秒 TTL 的场景下，每 10 秒续期一次，每次续期都将锁的过期时间重置为 30 秒</p>
-<p>4、续期校验：只有当前客户端仍然持有锁（锁的唯一标识匹配），才会执行续期操作</p>
-<p>5、停止条件：</p>
-<p>客户端主动调用 unlock 释放锁，立即取消看门狗定时任务</p>
-<p>客户端宕机 / 与 Redis 断开连接，定时任务无法执行，锁到期后自动释放</p>
+2、默认过期时长：看门狗模式下，锁的初始过期时间为 30 秒，可通过配置项 lockWatchdogTimeout 自定义
+3、续期周期：每隔「锁过期时间的 1/3」执行一次续期。默认 30 秒 TTL 的场景下，每 10 秒续期一次，每次续期都将锁的过期时间重置为 30 秒
+4、续期校验：只有当前客户端仍然持有锁（锁的唯一标识匹配），才会执行续期操作
+5、停止条件：
+客户端主动调用 unlock 释放锁，立即取消看门狗定时任务
+客户端宕机 / 与 Redis 断开连接，定时任务无法执行，锁到期后自动释放
 </code></pre>
-
-<strong>原理</strong>：redis会新开一个线程来轮询检查业务是否还在进行中，如果在进行中则对锁时间进行增加。
-
-<strong>底层实现细节</strong>
-
+<p><strong>原理</strong>：redis会新开一个线程来轮询检查业务是否还在进行中，如果在进行中则对锁时间进行增加。</p>
+<p><strong>底层实现细节</strong></p>
 <pre><code class="language-markdown">1、调度实现：Netty轮询
-<p>看门狗的定时续期任务，底层基于 Netty HashedWheelTimer（时间轮） 实现，而非 JDK 原生定时器，优势是：</p>
-<p>高性能、低资源开销，适合大量分布式锁的定时调度场景</p>
-<p>精度满足秒级续期需求，并发场景下表现远优于线程池调度</p>
-<p>2、原子性续期：Lua脚本</p>
-<p>续期操作通过 Lua 脚本保证原子性，核心逻辑是：先判断锁是否属于当前客户端 + 线程，匹配则重置过期时间，否则不处理</p>
+看门狗的定时续期任务，底层基于 Netty HashedWheelTimer（时间轮） 实现，而非 JDK 原生定时器，优势是：
+高性能、低资源开销，适合大量分布式锁的定时调度场景
+精度满足秒级续期需求，并发场景下表现远优于线程池调度
+2、原子性续期：Lua脚本
+续期操作通过 Lua 脚本保证原子性，核心逻辑是：先判断锁是否属于当前客户端 + 线程，匹配则重置过期时间，否则不处理
 </code></pre>
-
 <h4>主从切换锁数据丢失</h4>
-
-<strong>原因</strong>：主节点锁数据未同步到从节点，主节点挂机，从节点没有锁信息，导致锁实效。出现的原因，主从切换，数据丢失
-
+<p><strong>原因</strong>：主节点锁数据未同步到从节点，主节点挂机，从节点没有锁信息，导致锁实效。出现的原因，主从切换，数据丢失</p>
 <h4>红锁</h4>
-
-<strong>原理</strong>：由于问题是在主从切换时导致的不一致，所以红锁直接去掉这种架构，采用多主节点的单机架构模式，去中心化。同时摈弃集群以及主从架构。直接使用多主投票来设置锁。
-
-<strong>注意点</strong>：
-
+<p><strong>原理</strong>：由于问题是在主从切换时导致的不一致，所以红锁直接去掉这种架构，采用多主节点的单机架构模式，去中心化。同时摈弃集群以及主从架构。直接使用多主投票来设置锁。</p>
+<p><strong>注意点</strong>：</p>
 <p>1、redlock解决的问题是，在主从切换，或者集群切换时导致的锁丢失的问题。所以必须要求使用多节点无状态架构，不能存在主从，集群，哨兵模式</p>
-
 <p>2、依赖本地时钟，当时钟出现异常提前跳跃时，会导致锁提前失效。</p>
-
 <p>3、原生的红锁没有实现自动续期的功能，redisson框架封装并完善了红锁，内置了看门狗机制。</p>
-
-<strong>适用场景</strong>
-
+<p><strong>适用场景</strong></p>
 <p>1、对性能要求高、能容忍极低概率锁失效的非核心业务，如分布式任务防重、库存扣减兜底、接口幂等校验</p>
-
 <p>2、已有成熟 Redis 运维体系，不想额外引入 ZooKeeper、etcd 等组件的场景</p>
-
 <p>3、业务执行时间短，锁 失效时间(TTL) 可以设置得远大于业务耗时的场景</p>
-
 <p>4、对锁可用性要求极高、不能接受单点故障的场景再考虑 Redlock</p>
-
-<strong>不适用场景</strong>
-
+<p><strong>不适用场景</strong></p>
 <p>1、对锁的安全性有绝对要求，不能接受任何并发冲突的场景</p>
-
 <p>2、对业务时间不可控，容易出现长时间阻塞的情况</p>
-
 <p>3、金融交易、资金结算、核心订单状态变更等强一致要求的核心业务，此类场景应优先选择基于 Raft 协议的 etcd 锁、ZooKeeper 分布式锁</p>
-
 <h4>改造方案（在不变更集群架构的情况下）</h4>
-
-<strong>现有架构</strong>：三主三从集群
-
-<strong>实现方案</strong>
-
+<p><strong>现有架构</strong>：三主三从集群</p>
+<p><strong>实现方案</strong></p>
 <p>1、主从切换丢锁本身是小概率事件，通过基础优化可将概率降到极低，覆盖 90% 以上的业务场景</p>
-
 <pre><code class="language-markdown">1、同步等待优化：开启Redisson的waitForSync配置，加锁成功后通过Redis的WAIT命令，强制等待锁数据同步到至少一个从节点再向客户端返回成功。牺牲1ms左右的延迟，大幅降低主从切换丢锁的概率
-<p>2、主从同步优化：保证主从节点同机房部署、关闭RDB/AOF重写期间的同步延迟，设置合理的主从断连重试阈值。</p>
-<p>3、业务兜底：核心操作增加幂等校验，比如使用数据库乐观锁（版本号机制），即使极端情况锁丢失，也不会出现脏数据，这是核心业务的必备防护</p>
+2、主从同步优化：保证主从节点同机房部署、关闭RDB/AOF重写期间的同步延迟，设置合理的主从断连重试阈值。
+3、业务兜底：核心操作增加幂等校验，比如使用数据库乐观锁（版本号机制），即使极端情况锁丢失，也不会出现脏数据，这是核心业务的必备防护
 </code></pre>
-
 <p>2、复用现有的集群架构直接使用红锁（主从切换期间依然存在锁丢失的风险，但三个节点同时发生的概率极低）</p>
-
 <pre><code class="language-plaintext">实现方式：通过哈希标签{}控制三个锁key分别落在三个不同的master分片上，使用Redisson封装的RedissonRedLock工具，只要&gt;=2两个分片加锁成功，就算获取锁成功。
-<p>优势：完全复用现有架构，仅改动涉及锁的初始化代码；3个分片同时发生主从切换丢锁的概率极低，基本可以满足大多数的业务需求。</p>
+优势：完全复用现有架构，仅改动涉及锁的初始化代码；3个分片同时发生主从切换丢锁的概率极低，基本可以满足大多数的业务需求。
 </code></pre>
-
 <p>代码实现：</p>
-
 <pre><code class="language-plaintext">1、预设三个固定标签例如{lock_shard_1}…
-<p>2、上线前使用CLUSTER KEYSLOT指令进行验证，确保三个标签分别落在三个分片上。</p>
-<p>3、后续代码标签使用确定的三个标签即可，后面跟具体的业务锁key</p>
+2、上线前使用CLUSTER KEYSLOT指令进行验证，确保三个标签分别落在三个分片上。
+3、后续代码标签使用确定的三个标签即可，后面跟具体的业务锁key
 
-<p>{lock_shard_1}:order_pay_lock</p>
-<p>{lock_shard_2}:order_pay_lock</p>
-<p>{lock_shard_3}:order_pay_lock</p>
+{lock_shard_1}:order_pay_lock
+{lock_shard_2}:order_pay_lock
+{lock_shard_3}:order_pay_lock
 </code></pre>
-
 <pre><code class="language-java">import org.redisson.Redisson;
-<p>import org.redisson.RedissonRedLock;</p>
-<p>import org.redisson.api.RLock;</p>
-<p>import org.redisson.api.RedissonClient;</p>
-<p>import org.redisson.config.Config;</p>
+import org.redisson.RedissonRedLock;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
 
-<p>import java.util.concurrent.TimeUnit;</p>
+import java.util.concurrent.TimeUnit;
 
-<p>public class ClusterRedLockDemo {</p>
+public class ClusterRedLockDemo {
 
-<p>    public static void main(String[] args) {</p>
-<p>        // 1. 初始化Redis集群客户端（复用现有3主3从集群）</p>
-<p>        Config config = new Config();</p>
-<p>        config.useClusterServers()</p>
-<p>                .addNodeAddress(&quot;redis://127.0.0.1:7001&quot;, &quot;redis://127.0.0.1:7002&quot;, &quot;redis://127.0.0.1:7003&quot;)</p>
-<p>                .addNodeAddress(&quot;redis://127.0.0.1:7004&quot;, &quot;redis://127.0.0.1:7005&quot;, &quot;redis://127.0.0.1:7006&quot;)</p>
-<p>                .setConnectTimeout(50);</p>
-<p>        RedissonClient redissonClient = Redisson.create(config);</p>
+    public static void main(String[] args) {
+        // 1. 初始化Redis集群客户端（复用现有3主3从集群）
+        Config config = new Config();
+        config.useClusterServers()
+                .addNodeAddress(&quot;redis://127.0.0.1:7001&quot;, &quot;redis://127.0.0.1:7002&quot;, &quot;redis://127.0.0.1:7003&quot;)
+                .addNodeAddress(&quot;redis://127.0.0.1:7004&quot;, &quot;redis://127.0.0.1:7005&quot;, &quot;redis://127.0.0.1:7006&quot;)
+                .setConnectTimeout(50);
+        RedissonClient redissonClient = Redisson.create(config);
 
-<p>        // 2. 创建3个独立锁，通过不同哈希标签强制分散到3个不同的Master分片</p>
-<p>        // 哈希标签规则：{}内的内容决定key所属的哈希槽，不同标签对应不同分片</p>
-<p>        RLock lock1 = redissonClient.getLock(&quot;{redlock_1}:order_resource_lock&quot;);</p>
-<p>        RLock lock2 = redissonClient.getLock(&quot;{redlock_2}:order_resource_lock&quot;);</p>
-<p>        RLock lock3 = redissonClient.getLock(&quot;{redlock_3}:order_resource_lock&quot;);</p>
+        // 2. 创建3个独立锁，通过不同哈希标签强制分散到3个不同的Master分片
+        // 哈希标签规则：{}内的内容决定key所属的哈希槽，不同标签对应不同分片
+        RLock lock1 = redissonClient.getLock(&quot;{redlock_1}:order_resource_lock&quot;);
+        RLock lock2 = redissonClient.getLock(&quot;{redlock_2}:order_resource_lock&quot;);
+        RLock lock3 = redissonClient.getLock(&quot;{redlock_3}:order_resource_lock&quot;);
 
-<p>        // 3. 组装Redlock实例，3节点的多数派阈值为2</p>
-<p>        RedissonRedLock clusterRedLock = new RedissonRedLock(lock1, lock2, lock3);</p>
+        // 3. 组装Redlock实例，3节点的多数派阈值为2
+        RedissonRedLock clusterRedLock = new RedissonRedLock(lock1, lock2, lock3);
 
-<p>        try {</p>
-<p>            // 4. 加锁：等待时间3s，不指定leaseTime自动开启看门狗续期</p>
-<p>            boolean lockSuccess = clusterRedLock.tryLock(3, TimeUnit.SECONDS);</p>
-<p>            if (lockSuccess) {</p>
-<p>                System.out.println(&quot;集群版Redlock加锁成功，执行业务逻辑&quot;);</p>
-<p>                Thread.sleep(5000);</p>
-<p>            } else {</p>
-<p>                System.out.println(&quot;加锁失败，未达到多数派分片要求&quot;);</p>
-<p>            }</p>
-<p>        } catch (InterruptedException e) {</p>
-<p>            Thread.currentThread().interrupt();</p>
-<p>        } finally {</p>
-<p>            // 5. 全分片解锁，清理残留锁</p>
-<p>            clusterRedLock.unlock();</p>
-<p>            redissonClient.shutdown();</p>
-<p>        }</p>
-<p>    }</p>
-<p>}</p>
+        try {
+            // 4. 加锁：等待时间3s，不指定leaseTime自动开启看门狗续期
+            boolean lockSuccess = clusterRedLock.tryLock(3, TimeUnit.SECONDS);
+            if (lockSuccess) {
+                System.out.println(&quot;集群版Redlock加锁成功，执行业务逻辑&quot;);
+                Thread.sleep(5000);
+            } else {
+                System.out.println(&quot;加锁失败，未达到多数派分片要求&quot;);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } finally {
+            // 5. 全分片解锁，清理残留锁
+            clusterRedLock.unlock();
+            redissonClient.shutdown();
+        }
+    }
+}
 </code></pre>
-
-<strong>最后</strong>：两种方式也可以同时使用。先保证主从节点的数据同步情况，再使用多节点的分片红锁，最后增加业务幂等处理。
-
-<strong>验证方案</strong>
-
+<p><strong>最后</strong>：两种方式也可以同时使用。先保证主从节点的数据同步情况，再使用多节点的分片红锁，最后增加业务幂等处理。</p>
+<p><strong>验证方案</strong></p>
 <pre><code class="language-plaintext">1、登录任意节点
-<p>redis-cli -c -h 127.0.0.1 -p 7001</p>
-<p>2、分别计算三个锁key对应的哈希曹值</p>
-<p>CLUSTER KEYSLOT &quot;{redlock_1}:order_resource_lock&quot;</p>
-<p>CLUSTER KEYSLOT &quot;{redlock_2}:order_resource_lock&quot;</p>
-<p>CLUSTER KEYSLOT &quot;{redlock_3}:order_resource_lock&quot;</p>
-<p>3、查看集群所有主节点的槽位分配</p>
-<p>CLUSTER NODES | grep master</p>
-<p>4、示例</p>
-<p>node1 127.0.0.1:7001 master - 0 0 1 connected 0-5460</p>
-<p>node2 127.0.0.1:7002 master - 0 0 2 connected 5461-10922</p>
-<p>node3 127.0.0.1:7003 master - 0 0 3 connected 10923-16383</p>
-<p>5、三个结果在三个区间即可</p>
+redis-cli -c -h 127.0.0.1 -p 7001
+2、分别计算三个锁key对应的哈希曹值
+CLUSTER KEYSLOT &quot;{redlock_1}:order_resource_lock&quot;
+CLUSTER KEYSLOT &quot;{redlock_2}:order_resource_lock&quot;
+CLUSTER KEYSLOT &quot;{redlock_3}:order_resource_lock&quot;
+3、查看集群所有主节点的槽位分配
+CLUSTER NODES | grep master
+4、示例
+node1 127.0.0.1:7001 master - 0 0 1 connected 0-5460
+node2 127.0.0.1:7002 master - 0 0 2 connected 5461-10922
+node3 127.0.0.1:7003 master - 0 0 3 connected 10923-16383
+5、三个结果在三个区间即可
 </code></pre>
 <hr class="markdown-hr">
 <h3>脑裂</h3>
-
-<strong>可能产生的情况(5种)</strong>
-
+<p><strong>可能产生的情况(5种)</strong></p>
 <pre><code class="language-plaintext">a.网络波动（网络问题）
-<p>b.主节点长时间阻塞，导致无法响应心跳（业务服务/服务器问题/网络问题）</p>
-<p>c.服务器半死机状态，服务器冻结一些线程，导致无法响应心跳（服务器问题）</p>
-<p>d.机房隔离故障（其实还是网络问题）</p>
-<p>e.网络配置变更，导致的网络失联（网络问题）</p>
+b.主节点长时间阻塞，导致无法响应心跳（业务服务/服务器问题/网络问题）
+c.服务器半死机状态，服务器冻结一些线程，导致无法响应心跳（服务器问题）
+d.机房隔离故障（其实还是网络问题）
+e.网络配置变更，导致的网络失联（网络问题）
 </code></pre>
-
-<strong>原因</strong>：主节点受网络波动影响导致与所有从节点失去连接，从节点重新选举主节点，完成后，网络恢复正常，此时两个主节点，旧的主节点此时会降级为从节点，开始同步新主节点的数据，导致旧主节点的数据丢失。
-
-<strong>如何避免</strong>
-
+<p><strong>原因</strong>：主节点受网络波动影响导致与所有从节点失去连接，从节点重新选举主节点，完成后，网络恢复正常，此时两个主节点，旧的主节点此时会降级为从节点，开始同步新主节点的数据，导致旧主节点的数据丢失。</p>
+<p><strong>如何避免</strong></p>
 <p>1、核心配置，Redis主节点写配置</p>
-
 <pre><code class="language-plaintext"># 主节点必须至少连接1个从节点，否则拒绝所有写请求
-<p>min-replicas-to-write 1</p>
-<h1>从节点与主节点的最大复制延迟，超过则视为断开连接，单位秒</h1>
-<p>min-replicas-max-lag 10</p>
+min-replicas-to-write 1
+# 从节点与主节点的最大复制延迟，超过则视为断开连接，单位秒
+min-replicas-max-lag 10
 
-<p>原理：当主节点与所有的从节点全部断开连接，但自己仍能正常提供服务时，拒绝所有的写操作（包括SET加锁等操作），这样不会导致出现双锁的问题。</p>
-<p>缺点：牺牲了部分可用性</p>
+原理：当主节点与所有的从节点全部断开连接，但自己仍能正常提供服务时，拒绝所有的写操作（包括SET加锁等操作），这样不会导致出现双锁的问题。
+缺点：牺牲了部分可用性
 </code></pre>
-
 <p>2、哨兵架构或集群架构</p>
-
 <pre><code class="language-plaintext">1、哨兵架构为奇数点，必须多数派同意才能进行切换
-<p>2、集群架构下，主节点必须与集群多数派主节点保持连通才能接受写请求，少数分区的主节点会自动拒绝写，天然降低脑裂风险</p>
+2、集群架构下，主节点必须与集群多数派主节点保持连通才能接受写请求，少数分区的主节点会自动拒绝写，天然降低脑裂风险
 </code></pre>
-
 <p>3、业务兜底</p>
-
 <pre><code class="language-plaintext">核心业务增加幂等操作
 </code></pre>
 <hr class="markdown-hr">
 <h3>Redis架构问题</h3>
-
 <h4>集群架构与哨兵模式的区别</h4>
-
 <table class="markdown-table">
 <thead>
-<tr><th>对比维度</th><th>哨兵模式（Sentinel）</th><th>Redis Cluster 集群</th></tr>
+<tr>
+<th>对比维度</th>
+<th>哨兵模式（Sentinel）</th>
+<th>Redis Cluster 集群</th>
+</tr>
 </thead>
-<tbody>
-<tr><td><strong>核心目标</strong></td><td>主从架构高可用，仅解决故障转移</td><td>数据分片扩容 + 内置高可用，解决存储 / 写入瓶颈</td></tr>
-<tr><td><strong>数据分布</strong></td><td>所有节点保存<strong>完整全量数据</strong>，无分片</td><td>数据按哈希槽拆分，每个主节点只存部分数据</td></tr>
-<tr><td><strong>写入能力</strong></td><td>单主写，写性能上限为单节点性能，无法横向扩展写</td><td>多主并行写入，写能力随主节点数量线性扩容</td></tr>
-<tr><td><strong>存储上限</strong></td><td>受单节点内存限制，数据量大时内存溢出</td><td>多节点分摊数据，支持 TB 级海量数据存储</td></tr>
-<tr><td><strong>故障转移组件</strong></td><td>独立哨兵进程集群，和数据节点分离部署</td><td>集群内置故障检测、投票机制，<strong>无需额外哨兵</strong></td></tr>
-<tr><td>最小部署规模</td><td>1 主 1 从 + 3 哨兵（生产规范）</td><td>最少 3 主 3 从（3 个主节点才能完成投票选主）</td></tr>
-<tr><td>Key 跨节点操作</td><td>无限制，所有 key 都在同一主，mget / 事务无限制</td><td>不支持跨槽事务、不支持无 hash tag 的跨槽 mget、lua 多 key 限制</td></tr>
-<tr><td>扩容方式</td><td>只能新增从节点分担读；无法扩容写 / 存储</td><td>新增主节点，迁移哈希槽，同时扩容读写、存储</td></tr>
-<tr><td>客户端访问</td><td>客户端连接哨兵，哨兵返回当前主节点地址</td><td>客户端需实现集群路由，自动计算槽位、重定向 MOVED/ASK</td></tr>
-<tr><td>数据迁移</td><td>无在线分片迁移，只能全量备份重建</td><td>支持在线槽迁移，扩容缩容不中断业务</td></tr>
-<tr><td>资源开销</td><td>从节点全量复制，数据越大，复制带宽 / 内存消耗越高</td><td>分片存储，单节点数据量小，复制压力更低</td></tr>
-<tr><td>运维复杂度</td><td>简单，适合中小数据量、读多写少业务</td><td>复杂，槽迁移、集群重平衡、跨 key 限制、分片运维成本更高</td></tr>
-</tbody>
-</table>
-
-<strong>总结</strong>：
-
-<strong>哨兵 Sentinel</strong>：<strong>单机全量数据 + 自动容灾</strong>，解决宕机问题，不解决容量和写并发；
-
-<strong>Redis Cluster</strong>：<strong>分布式分片存储 + 自带容灾</strong>，同时解决宕机、超大存储、高并发写入三大问题，但存在跨 key 命令限制，运维和开发成本更高。
-
+<tbody><tr>
+<td><strong>核心目标</strong></td>
+<td>主从架构高可用，仅解决故障转移</td>
+<td>数据分片扩容 + 内置高可用，解决存储 / 写入瓶颈</td>
+</tr>
+<tr>
+<td><strong>数据分布</strong></td>
+<td>所有节点保存<strong>完整全量数据</strong>，无分片</td>
+<td>数据按哈希槽拆分，每个主节点只存部分数据</td>
+</tr>
+<tr>
+<td><strong>写入能力</strong></td>
+<td>单主写，写性能上限为单节点性能，无法横向扩展写</td>
+<td>多主并行写入，写能力随主节点数量线性扩容</td>
+</tr>
+<tr>
+<td><strong>存储上限</strong></td>
+<td>受单节点内存限制，数据量大时内存溢出</td>
+<td>多节点分摊数据，支持 TB 级海量数据存储</td>
+</tr>
+<tr>
+<td><strong>故障转移组件</strong></td>
+<td>独立哨兵进程集群，和数据节点分离部署</td>
+<td>集群内置故障检测、投票机制，<strong>无需额外哨兵</strong></td>
+</tr>
+<tr>
+<td>最小部署规模</td>
+<td>1 主 1 从 + 3 哨兵（生产规范）</td>
+<td>最少 3 主 3 从（3 个主节点才能完成投票选主）</td>
+</tr>
+<tr>
+<td>Key 跨节点操作</td>
+<td>无限制，所有 key 都在同一主，mget / 事务无限制</td>
+<td>不支持跨槽事务、不支持无 hash tag 的跨槽 mget、lua 多 key 限制</td>
+</tr>
+<tr>
+<td>扩容方式</td>
+<td>只能新增从节点分担读；无法扩容写 / 存储</td>
+<td>新增主节点，迁移哈希槽，同时扩容读写、存储</td>
+</tr>
+<tr>
+<td>客户端访问</td>
+<td>客户端连接哨兵，哨兵返回当前主节点地址</td>
+<td>客户端需实现集群路由，自动计算槽位、重定向 MOVED/ASK</td>
+</tr>
+<tr>
+<td>数据迁移</td>
+<td>无在线分片迁移，只能全量备份重建</td>
+<td>支持在线槽迁移，扩容缩容不中断业务</td>
+</tr>
+<tr>
+<td>资源开销</td>
+<td>从节点全量复制，数据越大，复制带宽 / 内存消耗越高</td>
+<td>分片存储，单节点数据量小，复制压力更低</td>
+</tr>
+<tr>
+<td>运维复杂度</td>
+<td>简单，适合中小数据量、读多写少业务</td>
+<td>复杂，槽迁移、集群重平衡、跨 key 限制、分片运维成本更高</td>
+</tr>
+</tbody></table>
+<p><strong>总结</strong>：</p>
+<p><strong>哨兵 Sentinel</strong>：<strong>单机全量数据 + 自动容灾</strong>，解决宕机问题，不解决容量和写并发；</p>
+<p><strong>Redis Cluster</strong>：<strong>分布式分片存储 + 自带容灾</strong>，同时解决宕机、超大存储、高并发写入三大问题，但存在跨 key 命令限制，运维和开发成本更高。</p>
 <h4>集群如何构建</h4>
-
 <pre><code class="language-plaintext">最低要求三主三从
-<p>原因：</p>
-<p>如果是三个主节点构建集群，那么当其中一个主节点挂机时，整个服务将直接进入不可用的状态。其他节点不会也不能直接接管挂机节点的哈希曹的内容</p>
-<p>1、底层规则</p>
-<p>Redis Cluster 正常服务的前提是：16384 个哈希槽全部处于已分配、且对应节点在线的状态。只要有任意一个哈希槽对应的主节点宕机，且没有从节点可以晋升接管，整个集群默认会进入CLUSTERDOWN状态，所有读写请求都会直接报错。</p>
+原因：
+如果是三个主节点构建集群，那么当其中一个主节点挂机时，整个服务将直接进入不可用的状态。其他节点不会也不能直接接管挂机节点的哈希曹的内容
+1、底层规则
+Redis Cluster 正常服务的前提是：16384 个哈希槽全部处于已分配、且对应节点在线的状态。只要有任意一个哈希槽对应的主节点宕机，且没有从节点可以晋升接管，整个集群默认会进入CLUSTERDOWN状态，所有读写请求都会直接报错。
 
-<p>三主三从架构后，如果有一个主节点挂机，那么对应主节点的从节点会升为主节点，接管挂机节点的哈希曹。不影响业务正常使用。</p>
+三主三从架构后，如果有一个主节点挂机，那么对应主节点的从节点会升为主节点，接管挂机节点的哈希曹。不影响业务正常使用。
 </code></pre>
-
 <h4>选举流程</h4>
-
 <pre><code class="language-plaintext">1、主观下线
-<p>2、客观下线</p>
-<p>3、从节点发起选举</p>
-<p>4、多数派投票</p>
-<p>5、槽位接管与集群广播</p>
-<p>6、旧主节点恢复</p>
+2、客观下线
+3、从节点发起选举
+4、多数派投票
+5、槽位接管与集群广播
+6、旧主节点恢复
 </code></pre>
-
 <h3>持久化机制</h3>
-
 <h4>RDB（快照）</h4>
-
 <h5>核心原理</h5>
-
-<strong>全量二进制快照</strong>：在某个时间点，把 Redis 当前内存中<strong>所有键值对数据</strong>一次性写入磁盘二进制文件（<code>.rdb</code>）。
-
-<strong>本质</strong>：内存镜像，压缩二进制存储，恢复速度极快。
-
-<strong>触发分两种</strong>：<strong>自动定时触发</strong>、<strong>手动命令触发</strong>。
-
+<p><strong>全量二进制快照</strong>：在某个时间点，把 Redis 当前内存中<strong>所有键值对数据</strong>一次性写入磁盘二进制文件（<code>.rdb</code>）。</p>
+<p><strong>本质</strong>：内存镜像，压缩二进制存储，恢复速度极快。</p>
+<p><strong>触发分两种</strong>：<strong>自动定时触发</strong>、<strong>手动命令触发</strong>。</p>
 <h5><strong>执行流程</strong></h5>
-
 <ol class="markdown-ordered-list">
-<li>手动触发</li>
-</ol>
+<li><p>手动触发</p>
 <ul class="markdown-list">
-<li><strong>同步阻塞</strong>（生产环境不推荐）：主线程直接阻塞式遍历所有数据，创建RDB文件</li>
-<li><strong>后台异步</strong>（主流方式）</li>
-<li><pre><code class="language-plaintext">     1. Redis主线程调用fork()创建子进程；
-<ol class="markdown-ordered-list">
-<li>fork阶段仅复制页表，内存采用Copy-On-Write（COW写时复制），不复制完整内存，速度快；</li>
-<li>子进程独占内存快照，循环遍历所有KV，写入临时.rdb文件；</li>
-<li>主线程继续正常处理客户端读写；若主线程修改数据，会复制一份旧数据给子进程保留快照；</li>
-<li>子进程写完临时文件后，原子替换旧的rdb文件；</li>
-<li>子进程退出，通知主线程快照完成。</li>
-</ol>
-</code></pre></li>
+<li><p><strong>同步阻塞</strong>（生产环境不推荐）：主线程直接阻塞式遍历所有数据，创建RDB文件</p>
+</li>
+<li><p><strong>后台异步</strong>（主流方式）</p>
+<pre><code class="language-plaintext">1. Redis主线程调用fork()创建子进程；
+2. fork阶段仅复制页表，内存采用Copy-On-Write（COW写时复制），不复制完整内存，速度快；
+3. 子进程独占内存快照，循环遍历所有KV，写入临时.rdb文件；
+4. 主线程继续正常处理客户端读写；若主线程修改数据，会复制一份旧数据给子进程保留快照；
+5. 子进程写完临时文件后，原子替换旧的rdb文件；
+6. 子进程退出，通知主线程快照完成。
+</code></pre>
+</li>
 </ul>
-<ol class="markdown-ordered-list">
-<li>自动触发(配置文件save规则)</li>
-<li><pre><code class="language-markdown">   # save 秒数 修改次数
-<p>save 900 1    # 900秒内至少1个key修改，自动执行BGSAVE</p>
-<p>save 300 10</p>
-<p>save 60 10000</p>
-</code></pre></li>
-<li>额外自动触发场景</li>
-</ol>
+</li>
+<li><p>自动触发(配置文件save规则)</p>
+<pre><code class="language-markdown"># save 秒数 修改次数
+save 900 1    # 900秒内至少1个key修改，自动执行BGSAVE
+save 300 10
+save 60 10000
+</code></pre>
+</li>
+<li><p>额外自动触发场景</p>
 <ul class="markdown-list">
 <li>执行FlushDB/FlushAll清库前（未关闭RDB时）生成快照</li>
 <li>Redis正常shutdown关机时，自动执行save持久化</li>
 </ul>
+</li>
+</ol>
 <h5>文件恢复流程</h5>
-
 <ol class="markdown-ordered-list">
 <li>Redis 启动时，检测目录下是否存在 <code>.rdb</code> 文件</li>
 <li>主线程直接加载二进制文件，一次性把全部数据载入内存</li>
 <li>加载完成后接收客户端连接，提供服务</li>
 </ol>
 <h5>优缺点</h5>
-
 <ul class="markdown-list">
-<li>优点
-<ol class="markdown-ordered-list">
+<li>优点<ol class="markdown-ordered-list">
 <li>二进制压缩文件，体积小，适合冷备份、异地迁移</li>
 <li>恢复速度远快于AOF，大数据场景重启恢复效率高</li>
-<li>子进程后台持久化，主线程几乎无阻塞</li></li>
+<li>子进程后台持久化，主线程几乎无阻塞</li>
 </ol>
-<li>缺点
-<ol class="markdown-ordered-list">
+</li>
+<li>缺点<ol class="markdown-ordered-list">
 <li><strong>存在数据丢失风险</strong>：两次快照之间新增的数据完全丢失。例：10分钟快照一次，宕机最多丢10分钟数据</li>
 <li>fork子进程时，若内存超大（几十G数据），fork会短暂阻塞主线程</li>
-<li>二进制格式兼容性差：高版本RDB文件，低版本Redis无法读取</li></li>
+<li>二进制格式兼容性差：高版本RDB文件，低版本Redis无法读取</li>
 </ol>
+</li>
 </ul>
 <h4>AOF（日志）</h4>
-
 <h5>核心原理</h5>
-
-<strong>增量操作日志</strong>：不存数据结果，只记录<strong>所有修改数据的命令</strong>（set/hset/del 等读命令不记录），以文本追加方式写入 <code>.aof</code> 文件。
-
+<p><strong>增量操作日志</strong>：不存数据结果，只记录<strong>所有修改数据的命令</strong>（set/hset/del 等读命令不记录），以文本追加方式写入 <code>.aof</code> 文件。</p>
 <p>恢复时：重新从头到尾执行 AOF 里全部命令，还原内存数据。</p>
-
 <h5>执行流程</h5>
-
-<strong>阶段 1：命令追加写入</strong>
-
+<p><strong>阶段 1：命令追加写入</strong></p>
 <ol class="markdown-ordered-list">
 <li>客户端发送写命令，Redis 执行完内存修改</li>
 <li>将这条命令按 Redis 协议格式，追加到<strong>内存 AOF 缓冲区</strong></li>
-<li>根据 <code>appendfsync</code> 策略，决定何时刷盘（3 种刷盘策略）</li>
-</ol>
-<ul class="markdown-list">
+<li>根据 <code>appendfsync</code> 策略，决定何时刷盘（3 种刷盘策略）<ul class="markdown-list">
 <li><code>appendfsync always</code>：每条命令执行完立刻刷盘，零丢失，性能极差</li>
 <li><code>appendfsync everysec</code>（默认）：每秒一次批量刷盘，最多丢失 1 秒数据，性能均衡</li>
 <li><code>appendfsync no</code>：交给操作系统内核自动刷盘，丢失数据不可控</li>
 </ul>
-<strong>阶段 2：AOF 重写（AOF Rewrite，解决文件膨胀）</strong>
-
-<strong>解决问题</strong>：同 key 反复修改会产生大量冗余命令（<code>set k1 1</code> → <code>set k1 2</code> → <code>set k1 3</code>，三条日志冗余），AOF 文件无限变大。
-
-<p>重写原理：<strong>不读取旧 AOF，直接读取当前内存数据，生成最小化日志</strong>。</p>
-
-<p>重写流程（<code>BGREWRITEAOF</code> 后台执行）：</p>
-
-<pre><code class="language-plaintext">1. 主线程fork子进程；
-<ol class="markdown-ordered-list">
-<li>子进程遍历当前内存所有KV，生成最简写命令，写入临时aof重写文件；</li>
-<li>主线程继续处理请求，新写命令同时写入「原有AOF缓冲区 + AOF重写缓冲区」；</li>
-<li>子进程完成重写后，主线程把重写缓冲区积压的增量命令追加到新临时文件；</li>
-<li>原子替换旧AOF文件，删除临时文件，重写完成。</li>
+</li>
 </ol>
+<p><strong>阶段 2：AOF 重写（AOF Rewrite，解决文件膨胀）</strong></p>
+<p><strong>解决问题</strong>：同 key 反复修改会产生大量冗余命令（<code>set k1 1</code> → <code>set k1 2</code> → <code>set k1 3</code>，三条日志冗余），AOF 文件无限变大。</p>
+<p>重写原理：<strong>不读取旧 AOF，直接读取当前内存数据，生成最小化日志</strong>。</p>
+<p>重写流程（<code>BGREWRITEAOF</code> 后台执行）：</p>
+<pre><code class="language-plaintext">1. 主线程fork子进程；
+2. 子进程遍历当前内存所有KV，生成最简写命令，写入临时aof重写文件；
+3. 主线程继续处理请求，新写命令同时写入「原有AOF缓冲区 + AOF重写缓冲区」；
+4. 子进程完成重写后，主线程把重写缓冲区积压的增量命令追加到新临时文件；
+5. 原子替换旧AOF文件，删除临时文件，重写完成。
 </code></pre>
-
 <h5>文件恢复流程</h5>
-
 <ol class="markdown-ordered-list">
 <li>Redis 启动读取.aof 文件</li>
 <li>逐条解析、执行文件内所有写命令，还原内存完整数据</li>
 <li>若 AOF 文件损坏，支持 <code>redis-check-aof</code> 工具修复截断损坏日志</li>
 </ol>
 <h5>优缺点</h5>
-
 <ul class="markdown-list">
-<li>优点
-<ol class="markdown-ordered-list">
+<li>优点<ol class="markdown-ordered-list">
 <li>数据丢失极少：默认每秒刷盘，最多丢 1 秒数据；always 策略零丢失</li>
 <li>文本日志，可读可编辑，误删数据可手动修改文件恢复</li>
-<li>日志追加模式，写入时极少磁盘寻址，写入性能稳定</li></li>
+<li>日志追加模式，写入时极少磁盘寻址，写入性能稳定</li>
 </ol>
-<li>缺点
-<ol class="markdown-ordered-list">
+</li>
+<li>缺点<ol class="markdown-ordered-list">
 <li>AOF 文件体积远大于 RDB</li>
 <li>数据恢复速度慢，海量命令逐条回放耗时久</li>
 <li>持续 IO 写入，性能略低于 RDB</li>
-<li>极端场景重写 fork 会短暂阻塞主线程</li></li>
+<li>极端场景重写 fork 会短暂阻塞主线程</li>
 </ol>
+</li>
 </ul>
 <h4>RDB/AOF 核心区别</h4>
-
 <ol class="markdown-ordered-list">
-<li>存储内容与形式</li>
-</ol>
+<li><p>存储内容与形式</p>
 <table class="markdown-table">
 <thead>
-<tr><th>维度</th><th>RDB</th><th>AOF</th></tr>
+<tr>
+<th>维度</th>
+<th>RDB</th>
+<th>AOF</th>
+</tr>
 </thead>
-<tbody>
-<tr><td>存储内容</td><td>某一刻完整内存数据快照</td><td>所有修改操作的命令日志</td></tr>
-<tr><td>文件格式</td><td>压缩二进制文件，体积小</td><td>文本协议日志，体积大</td></tr>
-<tr><td>数据模型</td><td>全量静态镜像</td><td>增量动态操作流水</td></tr>
-</tbody>
-</table>
-
-<ol class="markdown-ordered-list">
-<li>数据丢失风险</li>
-</ol>
+<tbody><tr>
+<td>存储内容</td>
+<td>某一刻完整内存数据快照</td>
+<td>所有修改操作的命令日志</td>
+</tr>
+<tr>
+<td>文件格式</td>
+<td>压缩二进制文件，体积小</td>
+<td>文本协议日志，体积大</td>
+</tr>
+<tr>
+<td>数据模型</td>
+<td>全量静态镜像</td>
+<td>增量动态操作流水</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>数据丢失风险</p>
 <ul class="markdown-list">
 <li>RDB：两次快照间所有数据丢失，丢失窗口大（分钟级）</li>
 <li>AOF：everysec 最多丢 1 秒，always 完全不丢，丢失窗口极小</li>
 </ul>
-<ol class="markdown-ordered-list">
-<li>写入与阻塞机制</li>
-</ol>
+</li>
+<li><p>写入与阻塞机制</p>
 <ul class="markdown-list">
 <li>RDB：BGSAVE 靠 fork 子进程，仅 fork 瞬间短暂阻塞；写入一次性批量 IO</li>
 <li>AOF：持续增量刷盘，每秒一次批量写入；BGREWRITEAOF 同样 fork 阻塞，日常写入无阻塞</li>
 </ul>
-<ol class="markdown-ordered-list">
-<li>恢复性能</li>
-</ol>
+</li>
+<li><p>恢复性能</p>
 <ul class="markdown-list">
 <li>RDB：直接加载二进制镜像，速度极快</li>
 <li>AOF：逐条回放所有命令，海量数据恢复很慢</li>
 </ul>
-<ol class="markdown-ordered-list">
-<li>运维与兼容性</li>
-</ol>
+</li>
+<li><p>运维与兼容性</p>
 <ul class="markdown-list">
 <li>RDB：二进制不可读，高低版本不兼容，适合备份迁移</li>
 <li>AOF：文本可读，可手动修改修复，版本兼容性好</li>
 </ul>
-<ol class="markdown-ordered-list">
-<li>故障恢复能力</li>
-</ol>
+</li>
+<li><p>故障恢复能力</p>
 <ul class="markdown-list">
 <li>RDB：文件损坏直接丢失全部快照数据，无修复工具</li>
 <li>AOF：提供官方工具修复损坏日志，截断损坏部分仍能恢复大部分数据</li>
 </ul>
-<ol class="markdown-ordered-list">
-<li>性能损耗</li>
-</ol>
+</li>
+<li><p>性能损耗</p>
 <ul class="markdown-list">
 <li>RDB：低频磁盘 IO，日常几乎无性能消耗</li>
 <li>AOF：持续高频磁盘写入，CPU、IO 开销更高</li>
 </ul>
-<h4>生产建议（推荐方案）</h4>
-
-<h5>方案推荐</h5>
-
-<ol class="markdown-ordered-list">
-<li><strong>同时开启 RDB + AOF（企业标准方案）</strong></li>
+</li>
 </ol>
-<ul class="markdown-list">
+<h4>生产建议（推荐方案）</h4>
+<h5>方案推荐</h5>
+<ol class="markdown-ordered-list">
+<li><strong>同时开启 RDB + AOF（企业标准方案）</strong><ul class="markdown-list">
 <li>AOF 保证数据尽量不丢失</li>
 <li>RDB 做定时全量快照，用于快速恢复、冷备份</li>
 <li>Redis 重启时<strong>优先加载 AOF</strong>（数据更完整）</li>
 </ul>
-<ol class="markdown-ordered-list">
+</li>
 <li>仅 RDB：适合缓存场景，允许少量数据丢失，追求高性能快速重启</li>
 <li>仅 AOF：对数据一致性要求极高、完全无法容忍大量丢失数据的业务</li>
 </ol>
-<strong>注意（风险）</strong>：若 Redis 内存极大，且 fork 期间大量写操作，会产生大量内存拷贝，内存占用瞬间翻倍，可能触发 OOM，这是 RDB 与 AOF 重写共同的潜在风险。
-
+<p><strong>注意（风险）</strong>：若 Redis 内存极大，且 fork 期间大量写操作，会产生大量内存拷贝，内存占用瞬间翻倍，可能触发 OOM，这是 RDB 与 AOF 重写共同的潜在风险。</p>
 <h5>风险解决方案</h5>
-
-<p>###### 概述</p>
-
+<h6>概述</h6>
 <p>全套解决方案（分为：系统内核优化、Redis 参数优化、业务架构优化、运维兜底四层）</p>
-
-<p>###### 系统内核优化（服务器优化）</p>
-
+<h6>系统内核优化（服务器优化）</h6>
 <ol class="markdown-ordered-list">
 <li>Linux服务器默认会开启小页合并（但Redis不适用，所以关闭即可）</li>
 <li>调整服务器内核参数（内核内存回收、脏页、swap、内存分配策略），从底层进行优化</li>
 </ol>
-<p>###### Redis参数优化</p>
-
+<h6>Redis参数优化</h6>
 <ol class="markdown-ordered-list">
 <li>将RDB的快照时间延长，避免频繁fork</li>
 <li>将AOF重写最小文件参数调大，大流量业务调整到 128M/256M，降低AOF重写频率</li>
-<li>错开RDB快照和AOF重写的时间</li>
-</ol>
-<ul class="markdown-list">
+<li>错开RDB快照和AOF重写的时间<ul class="markdown-list">
 <li>不要让RDB与AOF同时执行，在AOF重写时短暂暂停RDB的fork，在AOF重写完成后再进行RDB的fork</li>
 <li>可以定时任务在凌晨手动执行RDB，白天业务依赖AOF。（服务器层面的定时任务）</li>
 </ul>
-<ol class="markdown-ordered-list">
+</li>
 <li>限制Redis的最大内存，为fork提前预留。例：服务器32G内存，Redis限制最大16G，预留8G给fork子进程</li>
 </ol>
-<p>###### 业务流量优化</p>
-
+<h6>业务流量优化</h6>
 <ol class="markdown-ordered-list">
 <li>定时持久化操作（手动 bgsave、定时重写）全部放在凌晨业务低峰，业务代码层面的定时任务</li>
 <li>大促、流量峰值时段关闭自动 RDB 快照，仅保留 AOF 持久化，峰值结束再恢复自动快照</li>
 </ol>
-<p>###### 业务架构优化</p>
-
+<h6>业务架构优化</h6>
 <ol class="markdown-ordered-list">
 <li>Redis集群分片：将海量数据拆分多个小分片，单个实例 fork 内存翻倍也不会耗尽机器内存。</li>
-<li>主从分离，从节点执行 RDB 备份</li>
-</ol>
-<ul class="markdown-list">
+<li>主从分离，从节点执行 RDB 备份<ul class="markdown-list">
 <li>主节点只开启 AOF，关闭自动 RDB save 规则，主库完全不 fork</li>
 <li>从节点定时执行<code>BGSAVE</code>生成 rdb 用于备份、恢复</li>
 <li>优势：主库无 fork 阻塞、无内存翻倍风险，业务写入完全不受持久化备份影响</li>
 </ul>
-<ol class="markdown-ordered-list">
+</li>
 <li>替代方案：使用云服务将运维风险转移给三方厂商</li>
 </ol>
-<p>###### 监控告警（运维优化）</p>
-
+<h6>监控告警（运维优化）</h6>
 <ol class="markdown-ordered-list">
-<li>监控指标</li>
-</ol>
-<ul class="markdown-list">
+<li>监控指标<ul class="markdown-list">
 <li>Redis <code>used_memory_rss</code>：实际物理内存占用，fork 后翻倍立即告警</li>
 <li>机器内存使用率、swap 使用量</li>
 </ul>
-<ol class="markdown-ordered-list">
-<li>告警阈值</li>
-</ol>
-<ul class="markdown-list">
+</li>
+<li>告警阈值<ul class="markdown-list">
 <li>机器内存使用率超过 70% 触发预警，超过 85% 紧急告警</li>
 <li>持久化磁盘剩余 20% 触发告警，防止磁盘打满持久化崩溃</li>
 </ul>
-<p>###### 补充应急方案：已经出现 OOM 临时缓解</p>
-
+</li>
+</ol>
+<h6>补充应急方案：已经出现 OOM 临时缓解</h6>
 <ol class="markdown-ordered-list">
 <li>重启服务</li>
 <li>临时注释 redis.conf 中 save 规则，关闭自动 RDB，仅保留 AOF</li>
@@ -973,93 +891,82 @@
 <li>业务限流</li>
 </ol>
 <h4>配置方式</h4>
-
 <p>修改redis.conf配置文件</p>
-
 <h5>AOF配置</h5>
-
 <pre><code class="language-plaintext"># 开启AOF
-<p>appendonly yes</p>
-<h1>AOF文件名</h1>
-<p>appendfilename &quot;appendonly.aof&quot;</p>
-<h1>刷盘策略（默认everysec，生产标准）</h1>
-<p>appendfsync everysec</p>
-<h1>开启混合持久化（4.0+必开）</h1>
-<p>aof-use-rdb-preamble yes</p>
+appendonly yes
+# AOF文件名
+appendfilename &quot;appendonly.aof&quot;
+# 刷盘策略（默认everysec，生产标准）
+appendfsync everysec
+# 开启混合持久化（4.0+必开）
+aof-use-rdb-preamble yes
 </code></pre>
-
 <h5>RDB配置</h5>
-
 <pre><code class="language-plaintext"># 快照触发规则：60秒修改1万key / 300秒10个 / 900秒1个
-<p>save 900 1</p>
-<p>save 300 10</p>
-<p>save 60 10000</p>
-<h1>RDB文件名</h1>
-<p>dbfilename dump.rdb</p>
-<h1>RDB/AOF文件存放目录（建议单独磁盘，不要和系统盘共用）</h1>
-<p>dir /data/redis/data</p>
-<h1>RDB写入失败是否停止写入redis（生产yes，防止数据丢失无感知）</h1>
-<p>stop-writes-on-bgsave-error yes</p>
-<h1>RDB压缩开启，节省磁盘</h1>
-<p>rdbcompression yes</p>
-<h1>RDB校验和，防止文件损坏</h1>
-<p>rdbchecksum yes</p>
+save 900 1
+save 300 10
+save 60 10000
+# RDB文件名
+dbfilename dump.rdb
+# RDB/AOF文件存放目录（建议单独磁盘，不要和系统盘共用）
+dir /data/redis/data
+# RDB写入失败是否停止写入redis（生产yes，防止数据丢失无感知）
+stop-writes-on-bgsave-error yes
+# RDB压缩开启，节省磁盘
+rdbcompression yes
+# RDB校验和，防止文件损坏
+rdbchecksum yes
 </code></pre>
-
 <h5>混合使用配置</h5>
-
 <pre><code class="language-plaintext">######################### RDB 配置 #########################
-<h1>快照策略：平衡磁盘IO与丢失数据量</h1>
-<p>save 900 1</p>
-<p>save 300 10</p>
-<p>save 60 10000</p>
-<p>dbfilename dump.rdb</p>
-<p>dir /data/redis/data</p>
-<p>stop-writes-on-bgsave-error yes</p>
-<p>rdbcompression yes</p>
-<p>rdbchecksum yes</p>
-<h1>最小RDB文件大小，避免生成极小无意义快照</h1>
-<p>rdb-min-replicas-to-save 1</p>
+# 快照策略：平衡磁盘IO与丢失数据量
+save 900 1
+save 300 10
+save 60 10000
+dbfilename dump.rdb
+dir /data/redis/data
+stop-writes-on-bgsave-error yes
+rdbcompression yes
+rdbchecksum yes
+# 最小RDB文件大小，避免生成极小无意义快照
+rdb-min-replicas-to-save 1
 
-<p>######################### AOF 核心配置 #########################</p>
-<p>appendonly yes</p>
-<p>appendfilename appendonly.aof</p>
-<h1>均衡性能与数据丢失：最多丢1秒数据</h1>
-<p>appendfsync everysec</p>
-<h1>重写时禁止刷盘，减少磁盘IO压力（关键优化）</h1>
-<p>no-appendfsync-on-rewrite yes</p>
-<h1>AOF自动重写触发阈值</h1>
-<p>auto-aof-rewrite-percentage 100</p>
-<p>auto-aof-rewrite-min-size 64mb</p>
-<h1>混合持久化，AOF文件头部存储RDB快照，恢复速度接近RDB</h1>
-<p>aof-use-rdb-preamble yes</p>
-<h1>AOF文件损坏自动截断修复</h1>
-<p>auto-aof-truncate-fsync-error yes</p>
+######################### AOF 核心配置 #########################
+appendonly yes
+appendfilename appendonly.aof
+# 均衡性能与数据丢失：最多丢1秒数据
+appendfsync everysec
+# 重写时禁止刷盘，减少磁盘IO压力（关键优化）
+no-appendfsync-on-rewrite yes
+# AOF自动重写触发阈值
+auto-aof-rewrite-percentage 100
+auto-aof-rewrite-min-size 64mb
+# 混合持久化，AOF文件头部存储RDB快照，恢复速度接近RDB
+aof-use-rdb-preamble yes
+# AOF文件损坏自动截断修复
+auto-aof-truncate-fsync-error yes
 </code></pre>
-
 <h5>关键优化配置</h5>
-
 <pre><code class="language-plaintext"># AOF 后台重写时，临时关闭每秒刷盘，重写期间内核缓存数据，大幅降低磁盘 IO 压力，仅重写阶段有极小丢数据风险，生产必开。
-<p>no-appendfsync-on-rewrite yes</p>
-<h1>AOF 小于 64M 不触发重写，避免小文件频繁 fork</h1>
-<p>auto-aof-rewrite-min-size 64mb</p>
-<h1>当前 AOF 体积是上一次重写后文件 2 倍时，自动触发 BGREWRITEAOF，控制日志膨胀</h1>
-<p>auto-aof-rewrite-percentage 100</p>
-<h1>RDB 磁盘满、权限不足无法写入时，Redis 停止接收写请求，业务能及时发现持久化故障，不会出现 “以为持久化成功实际丢失数据”</h1>
-<p>stop-writes-on-bgsave-error yes</p>
+no-appendfsync-on-rewrite yes
+# AOF 小于 64M 不触发重写，避免小文件频繁 fork
+auto-aof-rewrite-min-size 64mb
+# 当前 AOF 体积是上一次重写后文件 2 倍时，自动触发 BGREWRITEAOF，控制日志膨胀
+auto-aof-rewrite-percentage 100
+# RDB 磁盘满、权限不足无法写入时，Redis 停止接收写请求，业务能及时发现持久化故障，不会出现 “以为持久化成功实际丢失数据”
+stop-writes-on-bgsave-error yes
 </code></pre>
-
 <h5>配套运维规则</h5>
-
 <ol class="markdown-ordered-list">
 <li>定时脚本每日凌晨低峰手动执行 <code>bgsave</code>，将 rdb 文件异地备份</li>
 <li>Prometheus监控指标：<code>rdb_last_bgsave_status</code>、<code>aof_last_bgrewrite_status</code> 监控持久化是否失败</li>
 <li>配置告警规则：持久化磁盘剩余 20% 触发告警，防止磁盘打满持久化崩溃</li>
 </ol>
+
       </div>
     </article>
     
-    <!-- 评论区 -->
     <div id="comments" style="max-width: 800px; margin: 3rem auto; padding: 0 1rem;">
       <div style="width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin-bottom: 2rem;"></div>
       <h3 style="margin-bottom: 1.5rem; color: var(--primary);">💬 评论区</h3>

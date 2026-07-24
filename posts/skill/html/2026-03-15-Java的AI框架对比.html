@@ -111,7 +111,6 @@
       background: none;
       padding: 0;
     }
-    /* 暗黑模式下的代码块样式 */
     [data-theme="dark"] .post-body pre {
       background: #1e1e1e;
       color: #e6e6e6;
@@ -139,7 +138,6 @@
     .post-original-link a:hover {
       text-decoration: underline;
     }
-    /* Markdown 表格样式 */
     .post-body table.markdown-table {
       width: 100%;
       border-collapse: collapse;
@@ -182,7 +180,6 @@
     [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
       background: rgba(255, 255, 255, 0.06);
     }
-    /* 引用块样式 */
     .post-body blockquote.markdown-blockquote {
       border-left: 4px solid var(--primary);
       padding: 1rem 1.5rem;
@@ -196,14 +193,12 @@
       background: rgba(255, 255, 255, 0.05);
       color: #aaa;
     }
-    /* 水平分隔线样式 */
     .post-body hr.markdown-hr {
       border: none;
       height: 2px;
       background: linear-gradient(to right, transparent, var(--border), transparent);
       margin: 2rem 0;
     }
-    /* 任务列表样式 */
     .post-body li.task-list-item {
       list-style: none;
       margin-left: -1.5rem;
@@ -212,7 +207,6 @@
       margin-right: 0.5rem;
       cursor: default;
     }
-    /* 图片占位符样式 */
     .post-body .image-placeholder {
       transition: var(--transition);
     }
@@ -286,85 +280,169 @@
       </div>
       <div class="post-body">
         <h2>一、环境要求详细说明</h2>
-
 <h3>Spring AI</h3>
-
 <ul class="markdown-list">
-<li><strong>JDK版本</strong>：必须使用<strong>JDK 17及以上</strong>版本。Spring AI 2.x基于Spring Boot 4.0和Spring Framework 7.0构建，要求<strong>Java 21或更高版本</strong>。</li>
-<li><strong>Spring Boot版本</strong>：需要Spring Boot 3.x系列（推荐3.2.x或3.5.x）。</li>
-<li><strong>构建工具</strong>：Maven 3.6+或Gradle 8.0+。</li>
+<li><p><strong>JDK版本</strong>：必须使用<strong>JDK 17及以上</strong>版本。Spring AI 2.x基于Spring Boot 4.0和Spring Framework 7.0构建，要求<strong>Java 21或更高版本</strong>。</p>
+</li>
+<li><p><strong>Spring Boot版本</strong>：需要Spring Boot 3.x系列（推荐3.2.x或3.5.x）。</p>
+</li>
+<li><p><strong>构建工具</strong>：Maven 3.6+或Gradle 8.0+。</p>
+</li>
 </ul>
 <h3>LangChain4j</h3>
-
 <ul class="markdown-list">
-<li><strong>JDK版本</strong>：官方要求<strong>最低JDK 17</strong>。虽然早期版本（v0.35.0）支持JDK 1.8，但从v0.36.0+开始迁移到JDK 17，最新版本必须JDK 17+。</li>
-<li><strong>Spring Boot版本</strong>：支持Spring Boot 3.0.x/3.1.x/3.2.x（推荐3.2.x）。</li>
-<li><strong>构建工具</strong>：Maven 3.8+或Gradle 7.5+。</li>
+<li><p><strong>JDK版本</strong>：官方要求<strong>最低JDK 17</strong>。虽然早期版本（v0.35.0）支持JDK 1.8，但从v0.36.0+开始迁移到JDK 17，最新版本必须JDK 17+。</p>
+</li>
+<li><p><strong>Spring Boot版本</strong>：支持Spring Boot 3.0.x/3.1.x/3.2.x（推荐3.2.x）。</p>
+</li>
+<li><p><strong>构建工具</strong>：Maven 3.8+或Gradle 7.5+。</p>
+</li>
 </ul>
 <h2>二、核心差异概述</h2>
-
-<strong>Spring AI</strong>是Spring官方推出的AI框架，定位为“Spring生态的原生AI集成框架”，强调企业级集成、标准化和可维护性。
-
-<strong>LangChain4j</strong>是LangChain的Java版本，定位为“AI应用开发工具包”，提供丰富的AI编排组件，专注于AI工作流构建和灵活性。
-
+<p><strong>Spring AI</strong>是Spring官方推出的AI框架，定位为“Spring生态的原生AI集成框架”，强调企业级集成、标准化和可维护性。</p>
+<p><strong>LangChain4j</strong>是LangChain的Java版本，定位为“AI应用开发工具包”，提供丰富的AI编排组件，专注于AI工作流构建和灵活性。</p>
 <h2>三、详细对比表格（Markdown格式）</h2>
-
 <table class="markdown-table">
 <thead>
-<tr><th>对比维度</th><th>Spring AI</th><th>LangChain4j</th></tr>
+<tr>
+<th>对比维度</th>
+<th>Spring AI</th>
+<th>LangChain4j</th>
+</tr>
 </thead>
-<tbody>
-<tr><td><strong>核心定位</strong></td><td>Spring生态原生AI集成框架，企业级解决方案</td><td>AI应用开发工具包，专注AI工作流编排</td></tr>
-<tr><td><strong>设计哲学</strong></td><td>遵循Spring设计原则，将AI能力作为Spring生态一等公民</td><td>贴近AI开发者思维，提供类似Python LangChain的工具和抽象</td></tr>
-<tr><td><strong>最低JDK版本</strong></td><td>JDK 17+（2.x需要Java 21+）</td><td>JDK 17+（最新版本）</td></tr>
-<tr><td><strong>Spring Boot要求</strong></td><td>Spring Boot 3.x系列</td><td>支持Spring Boot 3.x，但非强制依赖</td></tr>
-<tr><td><strong>生态集成深度</strong></td><td><strong>深度Spring生态集成</strong>，与Spring Boot、Spring Cloud、Spring Security等无缝集成</td><td><strong>框架中立</strong>，支持Spring Boot、Quarkus、Micronaut、Helidon等多种框架</td></tr>
-<tr><td><strong>模型支持</strong></td><td>主流模型30+</td><td>模型支持更丰富，20+ LLM提供商</td></tr>
-<tr><td><strong>向量存储</strong></td><td>部分支持</td><td>20+存储，更全面</td></tr>
-<tr><td><strong>RAG能力</strong></td><td>全面，支持模块化RAG、文档ETL、多种文档读取器</td><td>全面，支持文档加载/切分/嵌入/存储，查询转换/路由/检索/重排序</td></tr>
-<tr><td><strong>Agent能力</strong></td><td>发展中，通过工具调用、Advisors、MCP集成实现</td><td>支持链、智能体、多智能体协作，Agent能力更强</td></tr>
-<tr><td><strong>工具调用</strong></td><td>支持@Tool注解</td><td>支持@Tool注解，工具调用更灵活</td></tr>
-<tr><td><strong>记忆管理</strong></td><td>基础</td><td>多种内存策略，更完善</td></tr>
-<tr><td><strong>流式处理</strong></td><td>支持</td><td>支持</td></tr>
-<tr><td><strong>API风格</strong></td><td>声明式、模板化API（类似JdbcTemplate）</td><td>显式、链式、函数式API，提供极大灵活性</td></tr>
-<tr><td><strong>学习曲线</strong></td><td><strong>对Spring开发者平缓</strong>，熟悉Spring Boot即可快速上手</td><td><strong>相对陡峭</strong>，需要理解Chain、Tool、Memory、Agent等新概念</td></tr>
-<tr><td><strong>配置方式</strong></td><td>Spring Boot自动配置，application.yml/properties统一管理</td><td>需要手动配置Bean，非Spring环境下更灵活</td></tr>
-<tr><td><strong>可观测性</strong></td><td>强大，通过Micrometer提供度量和追踪</td><td>依赖具体集成和底层实现</td></tr>
-<tr><td><strong>社区支持</strong></td><td>Spring官方团队背书，文档完善，社区活跃度增长迅速</td><td>社区迭代快，GitHub星标数较多，更早起步</td></tr>
-<tr><td><strong>企业级特性</strong></td><td>提供统一配置、治理、可观测性、限流熔断等企业级能力</td><td>企业治理能力需要自行补齐</td></tr>
-<tr><td><strong>线程模型</strong></td><td>与WebFlux更契合，高并发下更稳妥</td><td>依赖自行设计</td></tr>
-<tr><td><strong>国内生态</strong></td><td>阿里巴巴推出Spring AI Alibaba，增强多智能体编排能力</td><td>社区支持，无官方国内增强版本</td></tr>
-</tbody>
-</table>
-
+<tbody><tr>
+<td><strong>核心定位</strong></td>
+<td>Spring生态原生AI集成框架，企业级解决方案</td>
+<td>AI应用开发工具包，专注AI工作流编排</td>
+</tr>
+<tr>
+<td><strong>设计哲学</strong></td>
+<td>遵循Spring设计原则，将AI能力作为Spring生态一等公民</td>
+<td>贴近AI开发者思维，提供类似Python LangChain的工具和抽象</td>
+</tr>
+<tr>
+<td><strong>最低JDK版本</strong></td>
+<td>JDK 17+（2.x需要Java 21+）</td>
+<td>JDK 17+（最新版本）</td>
+</tr>
+<tr>
+<td><strong>Spring Boot要求</strong></td>
+<td>Spring Boot 3.x系列</td>
+<td>支持Spring Boot 3.x，但非强制依赖</td>
+</tr>
+<tr>
+<td><strong>生态集成深度</strong></td>
+<td><strong>深度Spring生态集成</strong>，与Spring Boot、Spring Cloud、Spring Security等无缝集成</td>
+<td><strong>框架中立</strong>，支持Spring Boot、Quarkus、Micronaut、Helidon等多种框架</td>
+</tr>
+<tr>
+<td><strong>模型支持</strong></td>
+<td>主流模型30+</td>
+<td>模型支持更丰富，20+ LLM提供商</td>
+</tr>
+<tr>
+<td><strong>向量存储</strong></td>
+<td>部分支持</td>
+<td>20+存储，更全面</td>
+</tr>
+<tr>
+<td><strong>RAG能力</strong></td>
+<td>全面，支持模块化RAG、文档ETL、多种文档读取器</td>
+<td>全面，支持文档加载/切分/嵌入/存储，查询转换/路由/检索/重排序</td>
+</tr>
+<tr>
+<td><strong>Agent能力</strong></td>
+<td>发展中，通过工具调用、Advisors、MCP集成实现</td>
+<td>支持链、智能体、多智能体协作，Agent能力更强</td>
+</tr>
+<tr>
+<td><strong>工具调用</strong></td>
+<td>支持@Tool注解</td>
+<td>支持@Tool注解，工具调用更灵活</td>
+</tr>
+<tr>
+<td><strong>记忆管理</strong></td>
+<td>基础</td>
+<td>多种内存策略，更完善</td>
+</tr>
+<tr>
+<td><strong>流式处理</strong></td>
+<td>支持</td>
+<td>支持</td>
+</tr>
+<tr>
+<td><strong>API风格</strong></td>
+<td>声明式、模板化API（类似JdbcTemplate）</td>
+<td>显式、链式、函数式API，提供极大灵活性</td>
+</tr>
+<tr>
+<td><strong>学习曲线</strong></td>
+<td><strong>对Spring开发者平缓</strong>，熟悉Spring Boot即可快速上手</td>
+<td><strong>相对陡峭</strong>，需要理解Chain、Tool、Memory、Agent等新概念</td>
+</tr>
+<tr>
+<td><strong>配置方式</strong></td>
+<td>Spring Boot自动配置，application.yml/properties统一管理</td>
+<td>需要手动配置Bean，非Spring环境下更灵活</td>
+</tr>
+<tr>
+<td><strong>可观测性</strong></td>
+<td>强大，通过Micrometer提供度量和追踪</td>
+<td>依赖具体集成和底层实现</td>
+</tr>
+<tr>
+<td><strong>社区支持</strong></td>
+<td>Spring官方团队背书，文档完善，社区活跃度增长迅速</td>
+<td>社区迭代快，GitHub星标数较多，更早起步</td>
+</tr>
+<tr>
+<td><strong>企业级特性</strong></td>
+<td>提供统一配置、治理、可观测性、限流熔断等企业级能力</td>
+<td>企业治理能力需要自行补齐</td>
+</tr>
+<tr>
+<td><strong>线程模型</strong></td>
+<td>与WebFlux更契合，高并发下更稳妥</td>
+<td>依赖自行设计</td>
+</tr>
+<tr>
+<td><strong>国内生态</strong></td>
+<td>阿里巴巴推出Spring AI Alibaba，增强多智能体编排能力</td>
+<td>社区支持，无官方国内增强版本</td>
+</tr>
+</tbody></table>
 <h2>四、选型建议</h2>
-
 <h3>选择Spring AI的场景：</h3>
-
 <ol class="markdown-ordered-list">
-<li><strong>企业级Spring项目</strong>：已有Spring Boot/Spring Cloud技术栈，需要与现有系统深度集成</li>
-<li><strong>平台化开发</strong>：需要统一配置、治理、可观测性、企业集成与长期维护</li>
-<li><strong>大团队协作</strong>：强调标准化、可维护性，遵循组织既有的研发规范</li>
-<li><strong>高并发系统</strong>：需要与WebFlux、Resilience4j等整合，支撑长连接和流式输出</li>
+<li><p><strong>企业级Spring项目</strong>：已有Spring Boot/Spring Cloud技术栈，需要与现有系统深度集成</p>
+</li>
+<li><p><strong>平台化开发</strong>：需要统一配置、治理、可观测性、企业集成与长期维护</p>
+</li>
+<li><p><strong>大团队协作</strong>：强调标准化、可维护性，遵循组织既有的研发规范</p>
+</li>
+<li><p><strong>高并发系统</strong>：需要与WebFlux、Resilience4j等整合，支撑长连接和流式输出</p>
+</li>
 </ol>
 <h3>选择LangChain4j的场景：</h3>
-
 <ol class="markdown-ordered-list">
-<li><strong>快速验证AI场景</strong>：构建Agent/RAG原型，对Spring生态绑定要求不高</li>
-<li><strong>高定制化需求</strong>：需要灵活控制LLM流程，如复杂链式调用、自定义工具</li>
-<li><strong>非Spring项目</strong>：使用Quarkus、Micronaut等其他Java框架</li>
-<li><strong>AI场景驱动开发</strong>：需要更自然的AI编排体验</li>
-<li><strong>从Python迁移</strong>：希望概念和代码结构与Python LangChain保持一致</li>
+<li><p><strong>快速验证AI场景</strong>：构建Agent/RAG原型，对Spring生态绑定要求不高</p>
+</li>
+<li><p><strong>高定制化需求</strong>：需要灵活控制LLM流程，如复杂链式调用、自定义工具</p>
+</li>
+<li><p><strong>非Spring项目</strong>：使用Quarkus、Micronaut等其他Java框架</p>
+</li>
+<li><p><strong>AI场景驱动开发</strong>：需要更自然的AI编排体验</p>
+</li>
+<li><p><strong>从Python迁移</strong>：希望概念和代码结构与Python LangChain保持一致</p>
+</li>
 </ol>
 <h2>五、总结</h2>
-
 <p>两者并非互斥关系，实际项目中可以根据需求组合使用。例如，可以使用Spring AI实现MCP服务器端，再使用LangChain4j实现MCP客户端调用。</p>
+<p><strong>核心差异总结</strong>：LangChain4j在AI编排体验和Agent能力上更胜一筹，而Spring AI在企业工程化整合和Spring生态集成上具有明显优势。对于大多数Java企业项目，如果技术栈以Spring为主，Spring AI是更自然的选择；如果需要高度定制化的AI工作流或快速原型验证，LangChain4j可能更合适。</p>
 
-<strong>核心差异总结</strong>：LangChain4j在AI编排体验和Agent能力上更胜一筹，而Spring AI在企业工程化整合和Spring生态集成上具有明显优势。对于大多数Java企业项目，如果技术栈以Spring为主，Spring AI是更自然的选择；如果需要高度定制化的AI工作流或快速原型验证，LangChain4j可能更合适。
       </div>
     </article>
     
-    <!-- 评论区 -->
     <div id="comments" style="max-width: 800px; margin: 3rem auto; padding: 0 1rem;">
       <div style="width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin-bottom: 2rem;"></div>
       <h3 style="margin-bottom: 1.5rem; color: var(--primary);">💬 评论区</h3>

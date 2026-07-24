@@ -111,7 +111,6 @@
       background: none;
       padding: 0;
     }
-    /* 暗黑模式下的代码块样式 */
     [data-theme="dark"] .post-body pre {
       background: #1e1e1e;
       color: #e6e6e6;
@@ -139,7 +138,6 @@
     .post-original-link a:hover {
       text-decoration: underline;
     }
-    /* Markdown 表格样式 */
     .post-body table.markdown-table {
       width: 100%;
       border-collapse: collapse;
@@ -182,7 +180,6 @@
     [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
       background: rgba(255, 255, 255, 0.06);
     }
-    /* 引用块样式 */
     .post-body blockquote.markdown-blockquote {
       border-left: 4px solid var(--primary);
       padding: 1rem 1.5rem;
@@ -196,14 +193,12 @@
       background: rgba(255, 255, 255, 0.05);
       color: #aaa;
     }
-    /* 水平分隔线样式 */
     .post-body hr.markdown-hr {
       border: none;
       height: 2px;
       background: linear-gradient(to right, transparent, var(--border), transparent);
       margin: 2rem 0;
     }
-    /* 任务列表样式 */
     .post-body li.task-list-item {
       list-style: none;
       margin-left: -1.5rem;
@@ -212,7 +207,6 @@
       margin-right: 0.5rem;
       cursor: default;
     }
-    /* 图片占位符样式 */
     .post-body .image-placeholder {
       transition: var(--transition);
     }
@@ -285,10 +279,8 @@
 <h2>一、核心设计思想与整体请求链路</h2>
 <h3>核心设计原则</h3>
 <p>在原生产级方案基础上做定向升级：移除本地缓存以简化架构，强化前端防重、网关限流、前置过滤能力，遵循「前端拦无效、网关控流量、前置滤重复、原子扣库存、异步落数据」的分层削峰思路，兼顾高性能、防超卖与可维护性。</p>
-
 <h3>完整请求链路（流量走向）</h3>
 <p>用户点击秒杀 → 前端按钮置灰防重 → CDN静态加速 → Nginx负载均衡 → 网关层（Sentinel限流+非法脚本拦截） → 业务层布隆过滤器预过滤 → Redis乐观锁防重复提交 → Redis Lua脚本原子预扣库存 → MQ异步生成订单 → 数据库最终落库</p>
-
 <h2>二、各层详细实现方案</h2>
 <h3>1. 前端层：强化交互防重+基础流量拦截</h3>
 <p>作为流量第一道拦截，低成本过滤90%以上无效请求：</p>
@@ -308,7 +300,6 @@
 </ul>
 <h3>3. 业务前置过滤层：双层拦截过滤无效请求</h3>
 <p>请求到达业务服务后，先经过两层前置过滤，大幅减少无效请求对核心库存逻辑的冲击，降低Redis压力。</p>
-
 <h4>（1）布隆过滤器预过滤</h4>
 <ul class="markdown-list">
 <li><strong>存储内容</strong>：两类数据——本次活动合法的秒杀商品ID集合、已抢购成功的「用户ID+商品ID」集合。</li>
@@ -324,138 +315,131 @@
 </ul>
 <h3>4. 核心库存层：Lua脚本原子预扣库存（防超卖核心）</h3>
 <p>经过前置多层过滤后，到达该层的均为有效请求。依托Redis单线程执行模型，通过Lua脚本一次性原子完成库存校验、扣减、用户记录全流程，彻底解决并发超卖问题，同时规避分布式锁的性能损耗。</p>
-
 <h4>（1）数据预热</h4>
 <p>秒杀活动开启前1-2小时，通过定时任务将秒杀商品库存、活动状态、价格等核心数据全量预热至Redis，并设置合理过期时间，避免高峰期缓存未命中导致请求穿透数据库。</p>
-
 <h4>（2）完整Lua脚本（seckill.lua）</h4>
 <pre><code class="language-lua">-- 秒杀库存key
-<p>local stockKey = KEYS[1]</p>
-<ul class="markdown-list">
-<li>- 用户秒杀记录key</li>
-</ul>
-<p>local userRecordKey = KEYS[2]</p>
-<ul class="markdown-list">
-<li>- 当前用户ID</li>
-</ul>
-<p>local userId = ARGV[1]</p>
+local stockKey = KEYS[1]
+-- 用户秒杀记录key
+local userRecordKey = KEYS[2]
+-- 当前用户ID
+local userId = ARGV[1]
 
-<ul class="markdown-list">
-<li>- 1. 判断用户是否已秒杀成功（一人一单校验）</li>
-</ul>
-<p>if redis.call(&#039;sismember&#039;, userRecordKey, userId) == 1 then</p>
-<p>    return 0 -- 重复抢购，返回失败</p>
-<p>end</p>
+-- 1. 判断用户是否已秒杀成功（一人一单校验）
+if redis.call(&#39;sismember&#39;, userRecordKey, userId) == 1 then
+    return 0 -- 重复抢购，返回失败
+end
 
-<ul class="markdown-list">
-<li>- 2. 获取剩余库存</li>
-</ul>
-<p>local stock = tonumber(redis.call(&#039;get&#039;, stockKey) or 0)</p>
-<p>if stock &lt;= 0 then</p>
-<p>    return -1 -- 库存不足，返回失败</p>
-<p>end</p>
+-- 2. 获取剩余库存
+local stock = tonumber(redis.call(&#39;get&#39;, stockKey) or 0)
+if stock &lt;= 0 then
+    return -1 -- 库存不足，返回失败
+end
 
-<ul class="markdown-list">
-<li>- 3. 原子扣减库存</li>
-</ul>
-<p>redis.call(&#039;decr&#039;, stockKey)</p>
+-- 3. 原子扣减库存
+redis.call(&#39;decr&#39;, stockKey)
 
-<ul class="markdown-list">
-<li>- 4. 记录用户抢购成功记录</li>
-</ul>
-<p>redis.call(&#039;sadd&#039;, userRecordKey, userId)</p>
+-- 4. 记录用户抢购成功记录
+redis.call(&#39;sadd&#39;, userRecordKey, userId)
 
-<ul class="markdown-list">
-<li>- 返回抢购成功</li>
-</ul>
-<p>return 1</p>
+-- 返回抢购成功
+return 1
 </code></pre>
-
 <h4>脚本返回值说明</h4>
 <table class="markdown-table">
 <thead>
-<tr><th>返回值</th><th>含义</th></tr>
+<tr>
+<th>返回值</th>
+<th>含义</th>
+</tr>
 </thead>
-<tbody>
-<tr><td>1</td><td>抢购成功</td></tr>
-<tr><td>0</td><td>用户重复抢购</td></tr>
-<tr><td>-1</td><td>商品库存不足</td></tr>
-</tbody>
-</table>
-
+<tbody><tr>
+<td>1</td>
+<td>抢购成功</td>
+</tr>
+<tr>
+<td>0</td>
+<td>用户重复抢购</td>
+</tr>
+<tr>
+<td>-1</td>
+<td>商品库存不足</td>
+</tr>
+</tbody></table>
 <h4>（3）Java后端调用核心代码</h4>
 <pre><code class="language-java">@Service
-<p>public class SeckillServiceImpl implements SeckillService {</p>
+public class SeckillServiceImpl implements SeckillService {
 
-<p>    @Autowired</p>
-<p>    private StringRedisTemplate stringRedisTemplate;</p>
-<p>    @Autowired</p>
-<p>    private RocketMQTemplate rocketMQTemplate;</p>
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+    @Autowired
+    private RocketMQTemplate rocketMQTemplate;
 
-<p>    // 加载Lua脚本</p>
-<p>    private static final DefaultRedisScript&lt;Long&gt; SECKILL_SCRIPT;</p>
+    // 加载Lua脚本
+    private static final DefaultRedisScript&lt;Long&gt; SECKILL_SCRIPT;
 
-<p>    static {</p>
-<p>        SECKILL_SCRIPT = new DefaultRedisScript&lt;&gt;();</p>
-<p>        SECKILL_SCRIPT.setScriptText(ResourceUtil.readUtf8Str(&quot;seckill.lua&quot;));</p>
-<p>        SECKILL_SCRIPT.setResultType(Long.class);</p>
-<p>    }</p>
+    static {
+        SECKILL_SCRIPT = new DefaultRedisScript&lt;&gt;();
+        SECKILL_SCRIPT.setScriptText(ResourceUtil.readUtf8Str(&quot;seckill.lua&quot;));
+        SECKILL_SCRIPT.setResultType(Long.class);
+    }
 
-<p>    @Override</p>
-<p>    public Result seckill(Long goodsId, Long userId) {</p>
-<p>        // ========== 前置1：布隆过滤器校验 ==========</p>
-<p>        String bloomKey = &quot;seckill:user:record:&quot; + goodsId;</p>
-<p>        boolean mightExist = stringRedisTemplate.opsForBloom().isExists(bloomKey, userId.toString());</p>
-<p>        // 布隆过滤器判定不存在则一定未抢购，判定存在则继续后续校验，容忍小概率误判</p>
-<p>        // 商品ID合法性校验逻辑同理，此处省略</p>
+    @Override
+    public Result seckill(Long goodsId, Long userId) {
+        // ========== 前置1：布隆过滤器校验 ==========
+        String bloomKey = &quot;seckill:user:record:&quot; + goodsId;
+        boolean mightExist = stringRedisTemplate.opsForBloom().isExists(bloomKey, userId.toString());
+        // 布隆过滤器判定不存在则一定未抢购，判定存在则继续后续校验，容忍小概率误判
+        // 商品ID合法性校验逻辑同理，此处省略
 
-<p>        // ========== 前置2：Redis乐观防重锁 ==========</p>
-<p>        String lockKey = &quot;seckill:lock:&quot; + goodsId + &quot;:&quot; + userId;</p>
-<p>        Boolean lockSuccess = stringRedisTemplate.opsForValue()</p>
-<p>                .setIfAbsent(lockKey, &quot;1&quot;, 3, TimeUnit.SECONDS);</p>
-<p>        if (Boolean.FALSE.equals(lockSuccess)) {</p>
-<p>            return Result.fail(&quot;请勿重复操作&quot;);</p>
-<p>        }</p>
+        // ========== 前置2：Redis乐观防重锁 ==========
+        String lockKey = &quot;seckill:lock:&quot; + goodsId + &quot;:&quot; + userId;
+        Boolean lockSuccess = stringRedisTemplate.opsForValue()
+                .setIfAbsent(lockKey, &quot;1&quot;, 3, TimeUnit.SECONDS);
+        if (Boolean.FALSE.equals(lockSuccess)) {
+            return Result.fail(&quot;请勿重复操作&quot;);
+        }
 
-<p>        try {</p>
-<p>            // ========== 核心：执行Lua原子扣减 ==========</p>
-<p>            String stockKey = &quot;seckill:stock:&quot; + goodsId;</p>
-<p>            String userRecordKey = &quot;seckill:user:&quot; + goodsId;</p>
+        try {
+            // ========== 核心：执行Lua原子扣减 ==========
+            String stockKey = &quot;seckill:stock:&quot; + goodsId;
+            String userRecordKey = &quot;seckill:user:&quot; + goodsId;
 
-<p>            Long result = stringRedisTemplate.execute(SECKILL_SCRIPT,</p>
-<p>                    Arrays.asList(stockKey, userRecordKey),</p>
-<p>                    userId.toString());</p>
+            Long result = stringRedisTemplate.execute(SECKILL_SCRIPT,
+                    Arrays.asList(stockKey, userRecordKey),
+                    userId.toString());
 
-<p>            // 处理返回结果</p>
-<p>            if (-1 == result) {</p>
-<p>                return Result.fail(&quot;商品已抢空&quot;);</p>
-<p>            }</p>
-<p>            if (0 == result) {</p>
-<p>                return Result.fail(&quot;请勿重复抢购&quot;);</p>
-<p>            }</p>
+            // 处理返回结果
+            if (-1 == result) {
+                return Result.fail(&quot;商品已抢空&quot;);
+            }
+            if (0 == result) {
+                return Result.fail(&quot;请勿重复抢购&quot;);
+            }
 
-<p>            // 抢购成功，发送MQ异步创建订单、落库</p>
-<p>            SeckillOrderDTO orderDTO = new SeckillOrderDTO(goodsId, userId);</p>
-<p>            rocketMQTemplate.syncSend(&quot;seckill_order_topic&quot;, </p>
-<p>                    MessageBuilder.withPayload(orderDTO).build());</p>
+            // 抢购成功，发送MQ异步创建订单、落库
+            SeckillOrderDTO orderDTO = new SeckillOrderDTO(goodsId, userId);
+            rocketMQTemplate.syncSend(&quot;seckill_order_topic&quot;, 
+                    MessageBuilder.withPayload(orderDTO).build());
 
-<p>            return Result.success(&quot;抢购成功，订单生成中&quot;);</p>
-<p>        } finally {</p>
-<p>            // 释放防重锁，也可等待自动过期，可根据业务场景选择</p>
-<p>            stringRedisTemplate.delete(lockKey);</p>
-<p>        }</p>
-<p>    }</p>
-<p>}</p>
+            return Result.success(&quot;抢购成功，订单生成中&quot;);
+        } finally {
+            // 释放防重锁，也可等待自动过期，可根据业务场景选择
+            stringRedisTemplate.delete(lockKey);
+        }
+    }
+}
 </code></pre>
-
 <h3>5. 异步削峰层：MQ解耦订单全流程</h3>
 <p>遵循「高峰期不操作数据库」的原则，所有耗时操作全部异步化。</p>
 <ul class="markdown-list">
 <li><strong>核心流程</strong>：Redis预扣库存成功后，立即向用户返回结果，同时发送订单消息至RocketMQ/Kafka；消费者异步消费消息，完成数据库订单创建、真实库存扣减、订单状态维护等操作。</li>
-<li><strong>可靠性保障</strong></li>
+<li><strong>可靠性保障</strong><ul class="markdown-list">
 <li>消息幂等性：基于订单唯一ID做幂等校验，避免重复消费创建重复订单。</li>
 <li>失败重试：消费失败开启自动重试，多次失败转入死信队列，人工兜底处理。</li>
 <li>超时关单：通过延迟消息实现15分钟未支付订单自动关闭，同步回补Redis与数据库库存。</li>
+</ul>
+</li>
 </ul>
 <h3>6. 数据最终一致性保障</h3>
 <p>移除本地缓存后，所有热点数据统一存储于Redis，通过三层机制保证Redis缓存与数据库的最终一致性：</p>
@@ -471,10 +455,10 @@
 <li><strong>风控能力更成熟</strong>：基于Sentinel实现多维度限流、熔断降级，生产可用性高于自研限流，可灵活应对恶意刷单、流量突增等场景。</li>
 <li><strong>数据一致性有保障</strong>：Lua原子操作杜绝超卖，异步+定时补偿+对账三层兜底保证最终数据一致，无资损风险。</li>
 </ol>
+
       </div>
     </article>
     
-    <!-- 评论区 -->
     <div id="comments" style="max-width: 800px; margin: 3rem auto; padding: 0 1rem;">
       <div style="width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin-bottom: 2rem;"></div>
       <h3 style="margin-bottom: 1.5rem; color: var(--primary);">💬 评论区</h3>

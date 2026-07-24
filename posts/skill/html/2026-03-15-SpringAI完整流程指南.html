@@ -111,7 +111,6 @@
       background: none;
       padding: 0;
     }
-    /* 暗黑模式下的代码块样式 */
     [data-theme="dark"] .post-body pre {
       background: #1e1e1e;
       color: #e6e6e6;
@@ -139,7 +138,6 @@
     .post-original-link a:hover {
       text-decoration: underline;
     }
-    /* Markdown 表格样式 */
     .post-body table.markdown-table {
       width: 100%;
       border-collapse: collapse;
@@ -182,7 +180,6 @@
     [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
       background: rgba(255, 255, 255, 0.06);
     }
-    /* 引用块样式 */
     .post-body blockquote.markdown-blockquote {
       border-left: 4px solid var(--primary);
       padding: 1rem 1.5rem;
@@ -196,14 +193,12 @@
       background: rgba(255, 255, 255, 0.05);
       color: #aaa;
     }
-    /* 水平分隔线样式 */
     .post-body hr.markdown-hr {
       border: none;
       height: 2px;
       background: linear-gradient(to right, transparent, var(--border), transparent);
       margin: 2rem 0;
     }
-    /* 任务列表样式 */
     .post-body li.task-list-item {
       list-style: none;
       margin-left: -1.5rem;
@@ -212,7 +207,6 @@
       margin-right: 0.5rem;
       cursor: default;
     }
-    /* 图片占位符样式 */
     .post-body .image-placeholder {
       transition: var(--transition);
     }
@@ -288,582 +282,485 @@
         <h1>SpringAI 完整流程指南</h1>
 <hr class="markdown-hr">
 <h2>一、大模型部署方式</h2>
-
 <p>大模型的部署方式主要分为以下两种：</p>
-
 <table class="markdown-table">
 <thead>
-<tr><th>部署方式</th><th>说明</th><th>适用场景</th></tr>
+<tr>
+<th>部署方式</th>
+<th>说明</th>
+<th>适用场景</th>
+</tr>
 </thead>
-<tbody>
-<tr><td><strong>云部署</strong></td><td>租用云服务器，在上面部署大模型</td><td>快速上手、降低运维成本</td></tr>
-<tr><td><strong>本地部署</strong></td><td>在自己本地服务器上部署大模型</td><td>企业级应用、数据安全性要求高</td></tr>
-</tbody>
-</table>
-
-<blockquote class="markdown-blockquote"><strong>企业级建议</strong>：本地部署（优点是数据安全）</blockquote>
+<tbody><tr>
+<td><strong>云部署</strong></td>
+<td>租用云服务器，在上面部署大模型</td>
+<td>快速上手、降低运维成本</td>
+</tr>
+<tr>
+<td><strong>本地部署</strong></td>
+<td>在自己本地服务器上部署大模型</td>
+<td>企业级应用、数据安全性要求高</td>
+</tr>
+</tbody></table>
+<blockquote class="markdown-blockquote">
+<p><strong>企业级建议</strong>：本地部署（优点是数据安全）</p>
+</blockquote>
 <hr class="markdown-hr">
 <h2>二、本次讲解方式</h2>
-
 <p>本次讲解使用大模型云平台的API接口方式。如果本地有ollama下载部署的本地模型，也可以使用。</p>
-
-<strong>以阿里云百炼平台为例：</strong>
-
+<p><strong>以阿里云百炼平台为例：</strong></p>
 <h3>申请API-KEY</h3>
-
 <p>注册账号以后还需要申请一个API_KEY才能访问百炼平台的大模型。</p>
-
 <p>在阿里云百炼平台的右上角，鼠标悬停在用户图标上，可以看到下拉菜单：</p>
-
-<img src="assets/image-20260317173304793.png" alt="image-20260317173304793" style="zoom:50%;" />
-
-<p>选择<code>API-KEY</code>，进入<code>API-KEY</code>管理页面：</p>
-
-<img src="assets/image-20260317173334595.png" alt="image-20260317173334595" style="zoom:50%;" />
-
-<p>选择<code>创建我的API-KEY</code>，会弹出表单：</p>
-
-<img src="assets/image-20260317173410291.png" alt="image-20260317173410291" style="zoom:50%;" />
-
-<p>填写完毕，点击确定，即可生成一个新的<code>API-KEY</code>：</p>
-
-<img src="assets/image-20260317173443040.png" alt="image-20260317173443040" style="zoom:50%;" />
-<hr class="markdown-hr">
+<img src="../../../../md/assets/image-20260317173304793.png" alt="image-20260317173304793" style="zoom:50%;" /><p>选择<code>API-KEY</code>，进入<code>API-KEY</code>管理页面：</p>
+<img src="../../../../md/assets/image-20260317173334595.png" alt="image-20260317173334595" style="zoom:50%;" /><p>选择<code>创建我的API-KEY</code>，会弹出表单：</p>
+<img src="../../../../md/assets/image-20260317173410291.png" alt="image-20260317173410291" style="zoom:50%;" /><p>填写完毕，点击确定，即可生成一个新的<code>API-KEY</code>：</p>
+<img src="../../../../md/assets/image-20260317173443040.png" alt="image-20260317173443040" style="zoom:50%;" /><hr class="markdown-hr">
 <h2>三、脚手架配置</h2>
-
 <h3>1. 依赖配置</h3>
-
 <p>Spring AI 版本号：</p>
-
 <pre><code class="language-xml">&lt;spring-ai.version&gt;1.1.2&lt;/spring-ai.version&gt;
 </code></pre>
-
 <p>完整的 Maven 依赖配置如下：</p>
-
 <pre><code class="language-xml">&lt;dependency&gt;
-<p>    &lt;groupId&gt;org.springframework.ai&lt;/groupId&gt;</p>
-<p>    &lt;artifactId&gt;spring-ai-bom&lt;/artifactId&gt;</p>
-<p>    &lt;version&gt;${spring-ai.version}&lt;/version&gt;</p>
-<p>    &lt;type&gt;pom&lt;/type&gt;</p>
-<p>    &lt;scope&gt;import&lt;/scope&gt;</p>
-<p>&lt;/dependency&gt;</p>
+    &lt;groupId&gt;org.springframework.ai&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-ai-bom&lt;/artifactId&gt;
+    &lt;version&gt;${spring-ai.version}&lt;/version&gt;
+    &lt;type&gt;pom&lt;/type&gt;
+    &lt;scope&gt;import&lt;/scope&gt;
+&lt;/dependency&gt;
 
-<p>&lt;!-- 此处以 deepseek 为例 --&gt;</p>
-<p>&lt;dependency&gt;</p>
-<p>    &lt;groupId&gt;org.springframework.ai&lt;/groupId&gt;</p>
-<p>    &lt;artifactId&gt;spring-ai-starter-model-openai&lt;/artifactId&gt;</p>
-<p>    &lt;version&gt;${spring-ai.version}&lt;/version&gt;</p>
-<p>&lt;/dependency&gt;</p>
+&lt;!-- 此处以 deepseek 为例 --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.ai&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-ai-starter-model-openai&lt;/artifactId&gt;
+    &lt;version&gt;${spring-ai.version}&lt;/version&gt;
+&lt;/dependency&gt;
 
-<p>&lt;dependency&gt;</p>
-<p>    &lt;groupId&gt;org.springframework.ai&lt;/groupId&gt;</p>
-<p>    &lt;artifactId&gt;spring-ai-starter-model-chat-memory-repository-jdbc&lt;/artifactId&gt;</p>
-<p>    &lt;version&gt;${spring-ai.version}&lt;/version&gt;</p>
-<p>&lt;/dependency&gt;</p>
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.ai&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-ai-starter-model-chat-memory-repository-jdbc&lt;/artifactId&gt;
+    &lt;version&gt;${spring-ai.version}&lt;/version&gt;
+&lt;/dependency&gt;
 </code></pre>
-
 <h3>2. 脚手架配置文件</h3>
-
 <pre><code class="language-yml">server:
-<p>  port: 8084</p>
+  port: 8084
 
-<p>spring:</p>
-<p>  application:</p>
-<p>    name: aiModel-service</p>
+spring:
+  application:
+    name: aiModel-service
 
-<p>  # Spring AI Alibaba 配置</p>
-<p>  ai:</p>
-<p>    chat:</p>
-<p>      memory:</p>
-<p>        repository:</p>
-<p>          jdbc:</p>
-<p>            initialize-schema: never</p>
-<p>    openai:</p>
-<p>      api-key: sk-xxxxxxxxxxxxx</p>
-<p>      chat:</p>
-<p>        base-url: https://dashscope.aliyuncs.com/compatible-mode</p>
-<p>        options:</p>
-<p>          model: deepseek-v3.2</p>
-<p>          max-tokens: 2000</p>
-<p>          temperature: 0.7</p>
+  # Spring AI Alibaba 配置
+  ai:
+    chat:
+      memory:
+        repository:
+          jdbc:
+            initialize-schema: never
+    openai:
+      api-key: sk-xxxxxxxxxxxxx
+      chat:
+        base-url: https://dashscope.aliyuncs.com/compatible-mode
+        options:
+          model: deepseek-v3.2
+          max-tokens: 2000
+          temperature: 0.7
 </code></pre>
 <hr class="markdown-hr">
 <h2>四、使用SpringAI核心依赖构建</h2>
-
 <h3>创建 DTO</h3>
-
 <pre><code class="language-java">package com.lemon.aiModel.dto;
 
-<p>import lombok.AllArgsConstructor;</p>
-<p>import lombok.Data;</p>
-<p>import lombok.NoArgsConstructor;</p>
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-<p>@Data</p>
-<p>@NoArgsConstructor</p>
-<p>@AllArgsConstructor</p>
-<p>public class ChatRequest {</p>
-<p>    private String chatId;</p>
-<p>    private String message;</p>
-<p>}</p>
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class ChatRequest {
+    private String chatId;
+    private String message;
+}
 </code></pre>
-
 <h3>配置 Bean 实例</h3>
-
 <pre><code class="language-java">package com.lemon.aiModel.config;
 
-<p>import org.springframework.ai.chat.client.ChatClient;</p>
-<p>import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;</p>
-<p>import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;</p>
-<p>import org.springframework.ai.chat.memory.ChatMemory;</p>
-<p>import org.springframework.ai.chat.memory.InMemoryChatMemoryRepository;    // 新增：内存存储库</p>
-<p>import org.springframework.ai.chat.memory.MessageWindowChatMemory;        // 新增：内存窗口策略</p>
-<p>import org.springframework.ai.openai.OpenAiChatModel;</p>
-<p>import org.springframework.context.annotation.Bean;</p>
-<p>import org.springframework.context.annotation.Configuration;</p>
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.chat.memory.InMemoryChatMemoryRepository;    // 新增：内存存储库
+import org.springframework.ai.chat.memory.MessageWindowChatMemory;        // 新增：内存窗口策略
+import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-<p>@Configuration</p>
-<p>public class AiConfig {</p>
-
-<p>    @Bean</p>
-<p>    public ChatClient chatClient(OpenAiChatModel DsModel, ChatMemory chatMemory) {</p>
-<p>        return ChatClient</p>
-<p>                .builder(DsModel)</p>
-<p>                .build();</p>
-<p>    }</p>
-<p>}</p>
-
+@Configuration
+public class AiConfig {
+  
+    @Bean
+    public ChatClient chatClient(OpenAiChatModel DsModel, ChatMemory chatMemory) {
+        return ChatClient
+                .builder(DsModel)
+                .build();
+    }
+}
 </code></pre>
-
 <h3>创建 Controller</h3>
-
 <pre><code class="language-java">package com.lemon.aiModel.controller;
 
-<p>import com.lemon.aiModel.dto.ChatRequest;</p>
-<p>import com.lemon.aiModel.service.AisListHistoryService;</p>
-<p>import com.lemon.aiModel.service.impl.AisListHistoryServiceImpl;</p>
-<p>import org.springframework.ai.chat.client.ChatClient;</p>
-<p>import org.springframework.ai.chat.memory.ChatMemory;</p>
-<p>import org.springframework.ai.chat.prompt.Prompt;</p>
-<p>import org.springframework.ai.chat.messages.UserMessage;</p>
-<p>import org.springframework.beans.factory.annotation.Autowired;</p>
-<p>import org.springframework.web.bind.annotation.*;</p>
-<p>import reactor.core.publisher.Flux;</p>
+import com.lemon.aiModel.dto.ChatRequest;
+import com.lemon.aiModel.service.AisListHistoryService;
+import com.lemon.aiModel.service.impl.AisListHistoryServiceImpl;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 
-<p>import java.util.Map;</p>
+import java.util.Map;
 
-<p>@RestController</p>
-<p>@RequestMapping(&quot;/chat&quot;)</p>
-<p>public class AiChatController {</p>
+@RestController
+@RequestMapping(&quot;/chat&quot;)
+public class AiChatController {
 
-<p>    private final ChatClient chatClient;</p>
+    private final ChatClient chatClient;
 
-<p>    @Autowired</p>
-<p>    private AisListHistoryService aisListHistoryService;</p>
+    @Autowired
+    private AisListHistoryService aisListHistoryService;
 
-<p>    public AiChatController(ChatClient chatClient) {</p>
-<p>        this.chatClient = chatClient;</p>
-<p>    }</p>
+    public AiChatController(ChatClient chatClient) {
+        this.chatClient = chatClient;
+    }
 
-<p>    /**</p>
-<p>     <em> 基础聊天接口</p>
-<p>     </em>/</p>
-<p>    @PostMapping(value = &quot;/send&quot;, produces = &quot;text/html;charset=utf-8&quot;)</p>
-<p>    public String chat(@RequestBody ChatRequest chatRequest) {</p>
-<p>        return chatClient.prompt()</p>
-<p>                .user(chatRequest.getMessage())</p>
-<p>                .call()</p>
-<p>                .content();</p>
-<p>    }</p>
+    /**
+     * 基础聊天接口
+     */
+    @PostMapping(value = &quot;/send&quot;, produces = &quot;text/html;charset=utf-8&quot;)
+    public String chat(@RequestBody ChatRequest chatRequest) {
+        return chatClient.prompt()
+                .user(chatRequest.getMessage())
+                .call()
+                .content();
+    }
 
-<p>    /**</p>
-<p>     <em> 流式响应（适合长文本）</p>
-<p>     </em>/</p>
-<p>    @PostMapping(value = &quot;/streamChat&quot;, produces = &quot;text/html;charset=utf-8&quot;)</p>
-<p>    public Flux&lt;String&gt; streamChat(@RequestBody ChatRequest chatRequest) {</p>
-<p>        System.out.println(&quot;chatRequest: &quot; + chatRequest);</p>
-<p>        aisListHistoryService.saveHistory(&quot;chat&quot;, chatRequest.getChatId());</p>
-<p>        return chatClient.prompt()</p>
-<p>                .user(chatRequest.getMessage())</p>
-<p>                .advisors(a -&gt; a.param(ChatMemory.CONVERSATION_ID, chatRequest.getChatId()))</p>
-<p>                .stream()</p>
-<p>                .content();</p>
-<p>    }</p>
+    /**
+     * 流式响应（适合长文本）
+     */
+    @PostMapping(value = &quot;/streamChat&quot;, produces = &quot;text/html;charset=utf-8&quot;)
+    public Flux&lt;String&gt; streamChat(@RequestBody ChatRequest chatRequest) {
+        System.out.println(&quot;chatRequest: &quot; + chatRequest);
+        aisListHistoryService.saveHistory(&quot;chat&quot;, chatRequest.getChatId());
+        return chatClient.prompt()
+                .user(chatRequest.getMessage())
+                .advisors(a -&gt; a.param(ChatMemory.CONVERSATION_ID, chatRequest.getChatId()))
+                .stream()
+                .content();
+    }
 
-<p>}</p>
+}
 </code></pre>
 <hr class="markdown-hr">
 <h2>五、加载前端页面</h2>
-
 <p>此处省略，不是今天的重点。</p>
 <hr class="markdown-hr">
 <h2>六、了解SpringAI的一些核心接口</h2>
-
-<img src="assets/image-20260317180615215.png" alt="image-20260317180615215" style="zoom:50%;" />
-<hr class="markdown-hr">
+<img src="../../../../md/assets/image-20260317180615215.png" alt="image-20260317180615215" style="zoom:50%;" /><hr class="markdown-hr">
 <h2>七、开启日志管理</h2>
-
 <h3>1. 开启日志管理</h3>
-
-<img src="assets/image-20260317180737561.png" alt="image-20260317180737561" style="zoom:50%;" />
-
-<h3>2. 底层实现原理</h3>
-
+<img src="../../../../md/assets/image-20260317180737561.png" alt="image-20260317180737561" style="zoom:50%;" /><h3>2. 底层实现原理</h3>
 <p>SimpleLoggerAdvisor 实现日志环绕增强的机制并不依赖于传统的 Spring AOP 代理（如 JDK 动态代理或 CGLIB），而是通过<strong>回调函数 + 责任链模式</strong>来完成的。这种设计在 Spring AI 等现代框架中很常见，它轻量、灵活，且与特定执行环境（如 ChatClient 的调用链）深度集成。</p>
-
-<img src="assets/image-20260318141104833.png" alt="image-20260318141104833" style="zoom:50%;" />
-
-<h3>3. 验证测试</h3>
-
-<img src="assets/image-20260317180905897.png" alt="image-20260317180905897" style="zoom:50%;" />
-
-<img src="assets/image-20260317180840152.png" alt="image-20260317180840152" style="zoom:50%;" />
-<hr class="markdown-hr">
+<img src="../../../../md/assets/image-20260318141104833.png" alt="image-20260318141104833" style="zoom:50%;" /><h3>3. 验证测试</h3>
+<img src="../../../../md/assets/image-20260317180905897.png" alt="image-20260317180905897" style="zoom:50%;" /><img src="../../../../md/assets/image-20260317180840152.png" alt="image-20260317180840152" style="zoom:50%;" /><hr class="markdown-hr">
 <h2>八、会话记忆</h2>
-
-<blockquote class="markdown-blockquote">首先大模型是不具备记忆能力的，要想让大模型记住之前聊天的内容，唯一的办法就是把之前聊天的内容与新的提示词一起发给大模型。</blockquote>
-
+<blockquote class="markdown-blockquote">
+<p>首先大模型是不具备记忆能力的，要想让大模型记住之前聊天的内容，唯一的办法就是把之前聊天的内容与新的提示词一起发给大模型。</p>
+</blockquote>
 <h3>1. OpenAI的API</h3>
-
 <p>下面是 OpenAI 的 API（Python）示例：</p>
-
-<img src="assets/image-20260313160309364.png" alt="image-20260313160309364" style="zoom:50%;" />
-
-<p>大家可以在阿里云百炼平台进行测试。</p>
-
+<img src="../../../../md/assets/image-20260313160309364.png" alt="image-20260313160309364" style="zoom:50%;" /><p>大家可以在阿里云百炼平台进行测试。</p>
 <h3>2. 接口规范</h3>
-
-<img src="assets/image-20260313160513853.png" alt="image-20260313160513853" style="zoom:50%;" />
-
-<h3>3. 会话管理流程</h3>
-
+<img src="../../../../md/assets/image-20260313160513853.png" alt="image-20260313160513853" style="zoom:50%;" /><h3>3. 会话管理流程</h3>
 <p>下面是会话管理的流程：</p>
-
-<img src="assets/image-20260313161139914.png" alt="image-20260313161139914" style="zoom:50%;" />
-
-<h3>4. 会话存储的3种方式</h3>
-
-<strong>三种方式：</strong>
-
+<img src="../../../../md/assets/image-20260313161139914.png" alt="image-20260313161139914" style="zoom:50%;" /><h3>4. 会话存储的3种方式</h3>
+<p><strong>三种方式：</strong></p>
 <ol class="markdown-ordered-list">
-<li><strong>自己手动创建 Map 来进行管理</strong>，要使用 ConcurrentHashMap 来保证线程安全，避免数据丢失！</li>
-<li><strong>使用 Spring 自带的内存管理</strong>，如下图所示</li>
-<li><strong>自己实现企业级的会话 ID 和内容管理</strong>，具体方式可以通过自己新建实现类实现 ChatMemory 接口即可</li>
+<li><p><strong>自己手动创建 Map 来进行管理</strong>，要使用 ConcurrentHashMap 来保证线程安全，避免数据丢失！</p>
+</li>
+<li><p><strong>使用 Spring 自带的内存管理</strong>，如下图所示</p>
+</li>
+<li><p><strong>自己实现企业级的会话 ID 和内容管理</strong>，具体方式可以通过自己新建实现类实现 ChatMemory 接口即可</p>
+</li>
 </ol>
-<blockquote class="markdown-blockquote">此处演示选择第二种方式，实际开发中要使用第三种方式</blockquote>
-
+<blockquote class="markdown-blockquote">
+<p>此处演示选择第二种方式，实际开发中要使用第三种方式</p>
+</blockquote>
 <p>以下是会话记忆的接口：</p>
-
-<img src="assets/image-20260317171147003.png" alt="image-20260317171147003" style="zoom:50%;" />
-
-<h3>5. 配置会话记忆</h3>
-
+<img src="../../../../md/assets/image-20260317171147003.png" alt="image-20260317171147003" style="zoom:50%;" /><h3>5. 配置会话记忆</h3>
 <p>使用方式：将其配置为 Bean：</p>
-
-<img src="assets/image-20260317171343778.png" alt="image-20260317171343778" style="zoom:50%;" />
-
-<p>此处选择使用 MessageWindowChatMemory，这是 SpringAI 默认的实现类：</p>
-
-<img src="assets/image-20260317171446104.png" alt="image-20260317171446104" style="zoom:50%;" />
-
-<h3>6. 管理会话</h3>
-
+<img src="../../../../md/assets/image-20260317171343778.png" alt="image-20260317171343778" style="zoom:50%;" /><p>此处选择使用 MessageWindowChatMemory，这是 SpringAI 默认的实现类：</p>
+<img src="../../../../md/assets/image-20260317171446104.png" alt="image-20260317171446104" style="zoom:50%;" /><h3>6. 管理会话</h3>
 <h4>配置会话记忆</h4>
-
-<img src="assets/image-20260317171619311.png" alt="image-20260317171619311" style="zoom:50%;" />
-
-<p>经过如上配置，已经使用了会话管理功能。</p>
-
+<img src="../../../../md/assets/image-20260317171619311.png" alt="image-20260317171619311" style="zoom:50%;" /><p>经过如上配置，已经使用了会话管理功能。</p>
 <p>那么引出如下问题：<strong>会话 ID 从哪儿来？如何进行管理？</strong></p>
-
 <h4>添加会话 ID</h4>
-
-<img src="assets/image-20260317171900741.png" alt="image-20260317171900741" style="zoom:50%;" />
-
-<p>通过源码追溯可以看到其底层还是使用的ConcurrentHashMap来实现的</p>
-
-<img src="assets/image-20260320174013440.png" alt="image-20260320174013440" style="zoom:50%;" />
-
-<h3>7. 验证测试</h3>
-
-<img src="assets/image-20260317181356220.png" alt="image-20260317181356220" style="zoom:50%;" />
-
-<img src="assets/image-20260317181445686.png" alt="image-20260317181445686" style="zoom:50%;" />
-
-<img src="assets/image-20260317181529921.png" alt="image-20260317181529921" style="zoom:50%;" />
-<hr class="markdown-hr">
+<img src="../../../../md/assets/image-20260317171900741.png" alt="image-20260317171900741" style="zoom:50%;" /><p>通过源码追溯可以看到其底层还是使用的ConcurrentHashMap来实现的</p>
+<img src="../../../../md/assets/image-20260320174013440.png" alt="image-20260320174013440" style="zoom:50%;" /><h3>7. 验证测试</h3>
+<img src="../../../../md/assets/image-20260317181356220.png" alt="image-20260317181356220" style="zoom:50%;" /><img src="../../../../md/assets/image-20260317181445686.png" alt="image-20260317181445686" style="zoom:50%;" /><img src="../../../../md/assets/image-20260317181529921.png" alt="image-20260317181529921" style="zoom:50%;" /><hr class="markdown-hr">
 <h2>九、历史数据</h2>
-
 <h3>1. 接口API定义</h3>
-
 <p>会话记录列表 API，以及会话详情 API：</p>
-
-<img src="assets/image-20260318101318599.png" alt="image-20260318101318599" style="zoom:50%;" />
-
-<h3>2. 实现方式</h3>
-
+<img src="../../../../md/assets/image-20260318101318599.png" alt="image-20260318101318599" style="zoom:50%;" /><h3>2. 实现方式</h3>
 <p>具体实现（企业级解决方案是将数据入库处理）：</p>
-
 <pre><code class="language-markdown">1、引入数据库源依赖，mybatis（或mybatisPlus依赖）
-<p>2、yml配置文件配置数据库源，配置mybatisplus</p>
-<p>3、创建三层架构</p>
-<p>4、代码实现</p>
+2、yml配置文件配置数据库源，配置mybatisplus
+3、创建三层架构
+4、代码实现
 </code></pre>
-
 <h3>3. 具体实现</h3>
-
 <h4>(1) 创建表</h4>
+<pre><code class="language-sql">CREATE TABLE `ais_list_history` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT &#39;主键ID，自增&#39;,
+    `user_id` VARCHAR(36) NOT NULL COMMENT &#39;用户ID，UUID格式（例如：123e4567-e89b-12d3-a456-426614174000）&#39;,
+    `chat_id` BIGINT UNSIGNED NOT NULL COMMENT &#39;聊天ID，关联聊天表（假设为数字ID；若也为UUID，可调整为VARCHAR(36)）&#39;,
+    `biz_type` VARCHAR(50) NOT NULL COMMENT &#39;业务类型，例如：chat(单聊)、group(群聊)、robot(机器人)等&#39;,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT &#39;创建时间，记录该条历史记录的生成时间&#39;,
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT &#39;更新时间，记录该条记录的最后修改时间&#39;,
+    `is_deleted` TINYINT(1) NOT NULL DEFAULT &#39;0&#39; COMMENT &#39;软删除标记：0-未删除，1-已删除&#39;,
+    `deleted_at` DATETIME DEFAULT NULL COMMENT &#39;删除时间，当is_deleted=1时记录删除的具体时间&#39;,
+    PRIMARY KEY (`id`),
+    KEY `idx_user_id` (`user_id`),
+    KEY `idx_chat_id` (`chat_id`),
+    KEY `idx_biz_type` (`biz_type`),
+    KEY `idx_created_at` (`created_at`),
+    KEY `idx_is_deleted` (`is_deleted`),
+    KEY `idx_user_deleted` (`user_id`, `is_deleted`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT=&#39;用户列表历史会话id记录表&#39;;
 
-<pre><code class="language-sql">CREATE TABLE <code>ais_list_history</code> (
-<p>    <code>id</code> BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT &#039;主键ID，自增&#039;,</p>
-<p>    <code>user_id</code> VARCHAR(36) NOT NULL COMMENT &#039;用户ID，UUID格式（例如：123e4567-e89b-12d3-a456-426614174000）&#039;,</p>
-<p>    <code>chat_id</code> BIGINT UNSIGNED NOT NULL COMMENT &#039;聊天ID，关联聊天表（假设为数字ID；若也为UUID，可调整为VARCHAR(36)）&#039;,</p>
-<p>    <code>biz_type</code> VARCHAR(50) NOT NULL COMMENT &#039;业务类型，例如：chat(单聊)、group(群聊)、robot(机器人)等&#039;,</p>
-<p>    <code>created_at</code> DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT &#039;创建时间，记录该条历史记录的生成时间&#039;,</p>
-<p>    <code>updated_at</code> DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT &#039;更新时间，记录该条记录的最后修改时间&#039;,</p>
-<p>    <code>is_deleted</code> TINYINT(1) NOT NULL DEFAULT &#039;0&#039; COMMENT &#039;软删除标记：0-未删除，1-已删除&#039;,</p>
-<p>    <code>deleted_at</code> DATETIME DEFAULT NULL COMMENT &#039;删除时间，当is_deleted=1时记录删除的具体时间&#039;,</p>
-<p>    PRIMARY KEY (<code>id</code>),</p>
-<p>    KEY <code>idx_user_id</code> (<code>user_id</code>),</p>
-<p>    KEY <code>idx_chat_id</code> (<code>chat_id</code>),</p>
-<p>    KEY <code>idx_biz_type</code> (<code>biz_type</code>),</p>
-<p>    KEY <code>idx_created_at</code> (<code>created_at</code>),</p>
-<p>    KEY <code>idx_is_deleted</code> (<code>is_deleted</code>),</p>
-<p>    KEY <code>idx_user_deleted</code> (<code>user_id</code>, <code>is_deleted</code>)</p>
-<p>) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT=&#039;用户列表历史会话id记录表&#039;;</p>
-
-<p>ALTER TABLE <code>ais_list_history</code></p>
-<p>    ADD COLUMN <code>rename</code> VARCHAR(255) DEFAULT NULL COMMENT &#039;重命名后的名称，NULL表示未重命名&#039;;</p>
+ALTER TABLE `ais_list_history`
+    ADD COLUMN `rename` VARCHAR(255) DEFAULT NULL COMMENT &#39;重命名后的名称，NULL表示未重命名&#39;;
 </code></pre>
-
 <h4>(2) 创建 POJO 类</h4>
-
 <pre><code class="language-java">package com.lemon.aiModel.pojo;
 
-<p>import com.baomidou.mybatisplus.annotation.*;</p>
-<p>import lombok.Data;</p>
-<p>import java.time.LocalDateTime;</p>
+import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
+import java.time.LocalDateTime;
 
-<p>/**</p>
-<p> <em> 用户会话记录列表</p>
-<p> </em>/</p>
-<p>@Data</p>
-<p>@TableName(&quot;ais_list_history&quot;)</p>
-<p>public class AisListHistory {</p>
+/**
+ * 用户会话记录列表
+ */
+@Data
+@TableName(&quot;ais_list_history&quot;)
+public class AisListHistory {
 
-<p>    /**</p>
-<p>     <em> 主键ID，自增</p>
-<p>     </em>/</p>
-<p>    @TableId(type = IdType.AUTO)</p>
-<p>    private Long id;</p>
+    /**
+     * 主键ID，自增
+     */
+    @TableId(type = IdType.AUTO)
+    private Long id;
 
-<p>    /**</p>
-<p>     <em> 用户ID，UUID格式</p>
-<p>     </em>/</p>
-<p>    private String userId;</p>
+    /**
+     * 用户ID，UUID格式
+     */
+    private String userId;
 
-<p>    /**</p>
-<p>     <em> 聊天ID（假设为数字ID，若为UUID则需改为String）</p>
-<p>     </em>/</p>
-<p>    private Long chatId;</p>
+    /**
+     * 聊天ID（假设为数字ID，若为UUID则需改为String）
+     */
+    private Long chatId;
 
-<p>    /**</p>
-<p>     <em> 业务类型，例如：chat(单聊)、group(群聊)、robot(机器人)等</p>
-<p>     </em>/</p>
-<p>    private String bizType;</p>
+    /**
+     * 业务类型，例如：chat(单聊)、group(群聊)、robot(机器人)等
+     */
+    private String bizType;
 
-<p>    /**</p>
-<p>     <em> 创建时间，自动填充（需配置MetaObjectHandler）</p>
-<p>     </em>/</p>
-<p>    @TableField(fill = FieldFill.INSERT)</p>
-<p>    private LocalDateTime createdAt;</p>
+    /**
+     * 创建时间，自动填充（需配置MetaObjectHandler）
+     */
+    @TableField(fill = FieldFill.INSERT)
+    private LocalDateTime createdAt;
 
-<p>    /**</p>
-<p>     <em> 更新时间，自动填充（需配置MetaObjectHandler）</p>
-<p>     </em>/</p>
-<p>    @TableField(fill = FieldFill.INSERT_UPDATE)</p>
-<p>    private LocalDateTime updatedAt;</p>
+    /**
+     * 更新时间，自动填充（需配置MetaObjectHandler）
+     */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updatedAt;
 
-<p>    /**</p>
-<p>     <em> 软删除标记：0-未删除，1-已删除</p>
-<p>     </em>/</p>
-<p>    @TableLogic</p>
-<p>    private Integer isDeleted;</p>
+    /**
+     * 软删除标记：0-未删除，1-已删除
+     */
+    @TableLogic
+    private Integer isDeleted;
 
-<p>    /**</p>
-<p>     <em> 删除时间，当isDeleted=1时记录删除的具体时间</p>
-<p>     </em>/</p>
-<p>    private LocalDateTime deletedAt;</p>
+    /**
+     * 删除时间，当isDeleted=1时记录删除的具体时间
+     */
+    private LocalDateTime deletedAt;
 
-<p>    /**</p>
-<p>     <em> 聊天名称，用于显示</p>
-<p>     </em>/</p>
-<p>    @TableField(&quot;<code>rename</code>&quot;)</p>
-<p>    private String rename;</p>
-<p>}</p>
+    /**
+     * 聊天名称，用于显示
+     */
+    @TableField(&quot;`rename`&quot;)
+    private String rename;
+}
 </code></pre>
-
 <h4>(3) 数据库存储</h4>
-
 <pre><code class="language-java">@Override
-<p>@Transactional(rollbackFor = Exception.class)</p>
-<p>public void saveHistory(String type, String chatId) {</p>
-<p>    if (type == null || chatId == null){</p>
-<p>        return;</p>
-<p>    }</p>
-<p>    AisListHistory history = new AisListHistory();</p>
-<p>    history.setChatId(Long.valueOf(chatId));</p>
-<p>    history.setBizType(type);</p>
-<p>    history.setUserId(&quot;1&quot;);</p>
-<p>    history.setCreatedAt(LocalDateTime.now());</p>
-<p>    history.setUpdatedAt(LocalDateTime.now());</p>
-<p>    this.save(history);</p>
-<p>}</p>
+@Transactional(rollbackFor = Exception.class)
+public void saveHistory(String type, String chatId) {
+    if (type == null || chatId == null){
+        return;
+    }
+    AisListHistory history = new AisListHistory();
+    history.setChatId(Long.valueOf(chatId));
+    history.setBizType(type);
+    history.setUserId(&quot;1&quot;);
+    history.setCreatedAt(LocalDateTime.now());
+    history.setUpdatedAt(LocalDateTime.now());
+    this.save(history);
+}
 </code></pre>
-
 <h4>(4) 保存管理</h4>
-
 <p>在调用大模型接口前保存数据：</p>
-
 <pre><code class="language-java">/**
-<p> <em> 流式响应（适合长文本）</p>
-<p> </em>/</p>
-<p>@PostMapping(value = &quot;/streamChat&quot;, produces = &quot;text/html;charset=utf-8&quot;)</p>
-<p>public Flux&lt;String&gt; streamChat(@RequestBody ChatRequest chatRequest) {</p>
-<p>    System.out.println(&quot;chatRequest: &quot; + chatRequest);</p>
-<p>    aisListHistoryService.saveHistory(&quot;chat&quot;, chatRequest.getChatId());</p>
-<p>    return chatClient.prompt()</p>
-<p>            .user(chatRequest.getMessage())</p>
-<p>            .advisors(a -&gt; a.param(ChatMemory.CONVERSATION_ID, chatRequest.getChatId()))</p>
-<p>            .stream()</p>
-<p>            .content();</p>
-<p>}</p>
+ * 流式响应（适合长文本）
+ */
+@PostMapping(value = &quot;/streamChat&quot;, produces = &quot;text/html;charset=utf-8&quot;)
+public Flux&lt;String&gt; streamChat(@RequestBody ChatRequest chatRequest) {
+    System.out.println(&quot;chatRequest: &quot; + chatRequest);
+    aisListHistoryService.saveHistory(&quot;chat&quot;, chatRequest.getChatId());
+    return chatClient.prompt()
+            .user(chatRequest.getMessage())
+            .advisors(a -&gt; a.param(ChatMemory.CONVERSATION_ID, chatRequest.getChatId()))
+            .stream()
+            .content();
+}
 </code></pre>
-
 <h4>(5) 列表查询</h4>
-
 <pre><code class="language-java">@GetMapping(&quot;/{type}&quot;)
-<p>public R&lt;List&lt;AisListHistory&gt;&gt; list(@PathVariable(&quot;type&quot;) String type) {</p>
-<p>    List&lt;AisListHistory&gt; historyList = aisListHistoryService.getHistoryList(type);</p>
-<p>    return historyList != null ? R.success(historyList, &quot;查询成功&quot;) : R.fail(&quot;记录不存在&quot;);</p>
-<p>}</p>
+public R&lt;List&lt;AisListHistory&gt;&gt; list(@PathVariable(&quot;type&quot;) String type) {
+    List&lt;AisListHistory&gt; historyList = aisListHistoryService.getHistoryList(type);
+    return historyList != null ? R.success(historyList, &quot;查询成功&quot;) : R.fail(&quot;记录不存在&quot;);
+}
 </code></pre>
-
 <pre><code class="language-java">@Override
-<p>public List&lt;AisListHistory&gt; getHistoryList(String type) {</p>
-<p>    Assert.notNull(type, &quot;业务类型不能为空&quot;);</p>
-<p>    log.info(&quot;查询业务类型为{}的聊天记录&quot;, type);</p>
-<p>    LambdaQueryWrapper&lt;AisListHistory&gt; queryWrapper = new LambdaQueryWrapper&lt;&gt;();</p>
-<p>    queryWrapper.eq(AisListHistory::getBizType, type);</p>
-<p>    queryWrapper.eq(AisListHistory::getIsDeleted, 0);</p>
-<p>    return aisListHistoryMapper.selectList(queryWrapper);</p>
-<p>}</p>
+public List&lt;AisListHistory&gt; getHistoryList(String type) {
+    Assert.notNull(type, &quot;业务类型不能为空&quot;);
+    log.info(&quot;查询业务类型为{}的聊天记录&quot;, type);
+    LambdaQueryWrapper&lt;AisListHistory&gt; queryWrapper = new LambdaQueryWrapper&lt;&gt;();
+    queryWrapper.eq(AisListHistory::getBizType, type);
+    queryWrapper.eq(AisListHistory::getIsDeleted, 0);
+    return aisListHistoryMapper.selectList(queryWrapper);
+}
 </code></pre>
-
 <h4>(6) 验证测试</h4>
-
-<img src="assets/image-20260318175112285.png" alt="image-20260318175112285" style="zoom:50%;" />
-<hr class="markdown-hr">
+<img src="../../../../md/assets/image-20260318175112285.png" alt="image-20260318175112285" style="zoom:50%;" /><hr class="markdown-hr">
 <h2>十、获取会话详情</h2>
-
 <p>基本逻辑，从存储会话内容的地方获取内容，搜索并展示。</p>
-
 <p>由于本次演示是使用的 SpringAI 的内存存储，所以需要去内存中获取。</p>
-
 <h3>1. 新建 VO</h3>
-
 <pre><code class="language-java">package com.lemon.aiModel.vo;
 
-<p>import lombok.Data;</p>
-<p>import lombok.NoArgsConstructor;</p>
-<p>import org.springframework.ai.chat.messages.Message;</p>
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.ai.chat.messages.Message;
 
-<p>@Data</p>
-<p>@NoArgsConstructor</p>
-<p>public class MessageVO {</p>
-<p>    private String role;</p>
-<p>    private String content;</p>
+@Data
+@NoArgsConstructor
+public class MessageVO {
+    private String role;
+    private String content;
 
-<p>    // 默认数据直接从Message中获取</p>
-<p>    public MessageVO(Message message) {</p>
-<p>        switch (message.getMessageType()) {</p>
-<p>            case USER:</p>
-<p>                this.role = &quot;user&quot;;</p>
-<p>                break;</p>
-<p>            case ASSISTANT:</p>
-<p>                this.role = &quot;assistant&quot;;</p>
-<p>                break;</p>
-<p>            case SYSTEM:</p>
-<p>                this.role = &quot;system&quot;;</p>
-<p>                break;</p>
-<p>            default:</p>
-<p>                this.role = &quot;unknown&quot;;</p>
-<p>        }</p>
-<p>        this.content = message.getText();</p>
-<p>    }</p>
-<p>}</p>
+    // 默认数据直接从Message中获取
+    public MessageVO(Message message) {
+        switch (message.getMessageType()) {
+            case USER:
+                this.role = &quot;user&quot;;
+                break;
+            case ASSISTANT:
+                this.role = &quot;assistant&quot;;
+                break;
+            case SYSTEM:
+                this.role = &quot;system&quot;;
+                break;
+            default:
+                this.role = &quot;unknown&quot;;
+        }
+        this.content = message.getText();
+    }
+}
 </code></pre>
-
 <h3>2. 实现类实现</h3>
-
 <pre><code class="language-java">@Autowired
-<p>private AisListHistoryMapper aisListHistoryMapper;</p>
+private AisListHistoryMapper aisListHistoryMapper;
 
-<p>@Autowired</p>
-<p>private ChatMemory chatMemory;</p>
+@Autowired
+private ChatMemory chatMemory;
 
-<p>@Override</p>
-<p>public List&lt;MessageVO&gt; getMessageInfo(String type, Long id) {</p>
-<p>    Assert.notNull(id, &quot;业务ID不能为空&quot;);</p>
-<p>    // 从内存管理中获取数据</p>
-<p>    List&lt;Message&gt; messages = chatMemory.get(String.valueOf(id));</p>
-<p>    // 变更数据结构并返回</p>
-<p>    return messages.stream().map(MessageVO::new).toList();</p>
-<p>}</p>
+@Override
+public List&lt;MessageVO&gt; getMessageInfo(String type, Long id) {
+    Assert.notNull(id, &quot;业务ID不能为空&quot;);
+    // 从内存管理中获取数据
+    List&lt;Message&gt; messages = chatMemory.get(String.valueOf(id));
+    // 变更数据结构并返回
+    return messages.stream().map(MessageVO::new).toList();
+}
 </code></pre>
-
 <h3>3. 验证测试</h3>
-
-<img src="assets/image-20260320162334102.png" alt="image-20260320162334102" style="zoom:50%;" />
-
-<p>符合预期。</p>
+<img src="../../../../md/assets/image-20260320162334102.png" alt="image-20260320162334102" style="zoom:50%;" /><p>符合预期。</p>
 <hr class="markdown-hr">
 <h2>十一、总结</h2>
-
 <p>本文档详细介绍了基于 SpringAI 框架构建 AI 对话机器人的完整流程，主要涵盖以下核心内容：</p>
-
 <h3>1. 大模型部署方案</h3>
-
 <ul class="markdown-list">
 <li><strong>云部署</strong>：通过阿里云百炼等平台提供的 API 接口快速接入，适合快速开发验证</li>
 <li><strong>本地部署</strong>：使用 Ollama 等工具在本地部署，数据安全性更高，适合企业级应用</li>
 </ul>
 <h3>2. 技术架构要点</h3>
-
 <table class="markdown-table">
 <thead>
-<tr><th>模块</th><th>关键技术</th><th>说明</th></tr>
+<tr>
+<th>模块</th>
+<th>关键技术</th>
+<th>说明</th>
+</tr>
 </thead>
-<tbody>
-<tr><td>依赖配置</td><td>SpringAI BOM + OpenAI Starter</td><td>版本管理 + 云平台接入</td></tr>
-<tr><td>会话记忆</td><td>ChatMemory + MessageWindowChatMemory</td><td>实现大模型的多轮对话能力</td></tr>
-<tr><td>日志管理</td><td>SimpleLoggerAdvisor</td><td>责任链模式实现请求响应日志</td></tr>
-<tr><td>历史数据</td><td>MyBatis-Plus + JDBC</td><td>企业级持久化存储方案</td></tr>
-</tbody>
-</table>
-
+<tbody><tr>
+<td>依赖配置</td>
+<td>SpringAI BOM + OpenAI Starter</td>
+<td>版本管理 + 云平台接入</td>
+</tr>
+<tr>
+<td>会话记忆</td>
+<td>ChatMemory + MessageWindowChatMemory</td>
+<td>实现大模型的多轮对话能力</td>
+</tr>
+<tr>
+<td>日志管理</td>
+<td>SimpleLoggerAdvisor</td>
+<td>责任链模式实现请求响应日志</td>
+</tr>
+<tr>
+<td>历史数据</td>
+<td>MyBatis-Plus + JDBC</td>
+<td>企业级持久化存储方案</td>
+</tr>
+</tbody></table>
 <h3>3. 核心实现流程</h3>
-
 <pre><code class="language-plaintext">用户请求 → Controller → Service → ChatClient
-<p>                                      ↓</p>
-<p>                               ChatMemory (会话记忆)</p>
-<p>                                      ↓</p>
-<p>                               百炼平台 API (大模型)</p>
-<p>                                      ↓</p>
-<p>                               返回响应 → 保存历史记录</p>
+                                      ↓
+                               ChatMemory (会话记忆)
+                                      ↓
+                               百炼平台 API (大模型)
+                                      ↓
+                               返回响应 → 保存历史记录
 </code></pre>
-
 <h3>4. 关键设计思想</h3>
-
 <ul class="markdown-list">
 <li><strong>会话隔离</strong>：通过 <code>conversationId</code> 实现多会话并行管理</li>
 <li><strong>软删除设计</strong>：历史数据采用逻辑删除，便于数据恢复和审计</li>
@@ -871,7 +768,6 @@
 <li><strong>分层架构</strong>：DTO → Service → Controller，职责清晰</li>
 </ul>
 <h3>5. 生产环境建议</h3>
-
 <ol class="markdown-ordered-list">
 <li><strong>会话存储</strong>：推荐使用自定义实现类 + 数据库存储，而非内存管理</li>
 <li><strong>数据安全</strong>：敏感数据脱敏处理，API Key 加密存储</li>
@@ -879,13 +775,12 @@
 <li><strong>监控告警</strong>：添加请求耗时、错误率等指标监控</li>
 </ol>
 <hr class="markdown-hr">
-<strong>文档整理</strong>：尼克
+<p><strong>文档整理</strong>：尼克</p>
+<p><strong>整理日期</strong>：2026年3月20日</p>
 
-<strong>整理日期</strong>：2026年3月20日
       </div>
     </article>
     
-    <!-- 评论区 -->
     <div id="comments" style="max-width: 800px; margin: 3rem auto; padding: 0 1rem;">
       <div style="width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin-bottom: 2rem;"></div>
       <h3 style="margin-bottom: 1.5rem; color: var(--primary);">💬 评论区</h3>

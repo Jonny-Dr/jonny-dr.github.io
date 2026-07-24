@@ -111,7 +111,6 @@
       background: none;
       padding: 0;
     }
-    /* 暗黑模式下的代码块样式 */
     [data-theme="dark"] .post-body pre {
       background: #1e1e1e;
       color: #e6e6e6;
@@ -139,7 +138,6 @@
     .post-original-link a:hover {
       text-decoration: underline;
     }
-    /* Markdown 表格样式 */
     .post-body table.markdown-table {
       width: 100%;
       border-collapse: collapse;
@@ -182,7 +180,6 @@
     [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
       background: rgba(255, 255, 255, 0.06);
     }
-    /* 引用块样式 */
     .post-body blockquote.markdown-blockquote {
       border-left: 4px solid var(--primary);
       padding: 1rem 1.5rem;
@@ -196,14 +193,12 @@
       background: rgba(255, 255, 255, 0.05);
       color: #aaa;
     }
-    /* 水平分隔线样式 */
     .post-body hr.markdown-hr {
       border: none;
       height: 2px;
       background: linear-gradient(to right, transparent, var(--border), transparent);
       margin: 2rem 0;
     }
-    /* 任务列表样式 */
     .post-body li.task-list-item {
       list-style: none;
       margin-left: -1.5rem;
@@ -212,7 +207,6 @@
       margin-right: 0.5rem;
       cursor: default;
     }
-    /* 图片占位符样式 */
     .post-body .image-placeholder {
       transition: var(--transition);
     }
@@ -282,62 +276,92 @@
       </div>
       <div class="post-body">
         <h1>RabbitMQ vs RocketMQ 对比分析总结</h1>
-
 <h2>1. 为什么需要消息队列？</h2>
-
 <ul class="markdown-list">
 <li><strong>核心价值</strong>：解耦、异步、削峰。</li>
 <li><strong>示例</strong>：通过对比有无消息队列的订单创建流程，展示消息队列如何通过异步处理提升系统响应速度。</li>
 </ul>
 <h2>2. 核心特性对比</h2>
-
 <table class="markdown-table">
 <thead>
-<tr><th>特性</th><th>RabbitMQ</th><th>RocketMQ</th></tr>
+<tr>
+<th align="left">特性</th>
+<th align="left">RabbitMQ</th>
+<th align="left">RocketMQ</th>
+</tr>
 </thead>
-<tbody>
-<tr><td><strong>吞吐量</strong></td><td>5-10K TPS</td><td>50K+ TPS</td></tr>
-<tr><td><strong>延迟</strong></td><td>50-100ms</td><td>20-50ms</td></tr>
-<tr><td><strong>协议支持</strong></td><td>AMQP、MQTT、STOMP等7种协议</td><td>自定义TCP协议为主</td></tr>
-<tr><td><strong>路由机制</strong></td><td>4种Exchange，灵活路由</td><td>Topic模型，相对简单</td></tr>
-<tr><td><strong>事务消息</strong></td><td>不支持</td><td>支持</td></tr>
-<tr><td><strong>定时/延时消息</strong></td><td>插件支持</td><td>原生支持，秒级精度</td></tr>
-<tr><td><strong>顺序消息</strong></td><td>单队列保证</td><td>全局/分区顺序支持</td></tr>
-<tr><td><strong>开发语言</strong></td><td>Erlang</td><td>Java</td></tr>
-<tr><td><strong>社区活跃度</strong></td><td>极高，生态丰富</td><td>较高，阿里生态为主</td></tr>
-</tbody>
-</table>
-
+<tbody><tr>
+<td align="left"><strong>吞吐量</strong></td>
+<td align="left">5-10K TPS</td>
+<td align="left">50K+ TPS</td>
+</tr>
+<tr>
+<td align="left"><strong>延迟</strong></td>
+<td align="left">50-100ms</td>
+<td align="left">20-50ms</td>
+</tr>
+<tr>
+<td align="left"><strong>协议支持</strong></td>
+<td align="left">AMQP、MQTT、STOMP等7种协议</td>
+<td align="left">自定义TCP协议为主</td>
+</tr>
+<tr>
+<td align="left"><strong>路由机制</strong></td>
+<td align="left">4种Exchange，灵活路由</td>
+<td align="left">Topic模型，相对简单</td>
+</tr>
+<tr>
+<td align="left"><strong>事务消息</strong></td>
+<td align="left">不支持</td>
+<td align="left">支持</td>
+</tr>
+<tr>
+<td align="left"><strong>定时/延时消息</strong></td>
+<td align="left">插件支持</td>
+<td align="left">原生支持，秒级精度</td>
+</tr>
+<tr>
+<td align="left"><strong>顺序消息</strong></td>
+<td align="left">单队列保证</td>
+<td align="left">全局/分区顺序支持</td>
+</tr>
+<tr>
+<td align="left"><strong>开发语言</strong></td>
+<td align="left">Erlang</td>
+<td align="left">Java</td>
+</tr>
+<tr>
+<td align="left"><strong>社区活跃度</strong></td>
+<td align="left">极高，生态丰富</td>
+<td align="left">较高，阿里生态为主</td>
+</tr>
+</tbody></table>
 <h2>3. RabbitMQ解析</h2>
-
 <ul class="markdown-list">
 <li><strong>核心优势</strong>：灵活路由机制，多协议支持。</li>
 <li><strong>局限性</strong>：性能瓶颈，集群扩展复杂，顺序消息困难，事务机制不完善。</li>
 <li><strong>适用场景</strong>：中小规模微服务系统，需要复杂路由逻辑的业务，多协议接入场景，对可靠性要求高于性能的企业级应用。</li>
 </ul>
 <h2>4. RocketMQ解析</h2>
-
 <ul class="markdown-list">
 <li><strong>核心优势</strong>：事务消息，精确到秒级的定时消息，顺序消息实现。</li>
 <li><strong>局限性</strong>：协议封闭，社区生态较小，学习曲线较陡，运维复杂度较高。</li>
 <li><strong>适用场景</strong>：电商交易系统，金融核心系统，大规模分布式系统，需要严格顺序消息的业务，需要定时/延时消息的场景。</li>
 </ul>
 <h2>5. 如何选型？</h2>
-
 <ul class="markdown-list">
 <li><strong>决策树和关键决策因素</strong>：选择RabbitMQ当需要复杂消息路由，支持多种协议，团队熟悉Erlang或对运维复杂度敏感，消息量适中；选择RocketMQ当需要分布式事务支持，严格顺序消息，精准定时/延时消息，系统规模较大，Java技术栈为主。</li>
 <li><strong>混合架构方案</strong>：主干消息使用RocketMQ，分支消息使用RabbitMQ，结合监控体系进行管理。</li>
 </ul>
 <h2>6. 总结</h2>
-
 <ul class="markdown-list">
 <li><strong>结论</strong>：RabbitMQ胜在灵活性和协议兼容性，适合企业级应用集成、复杂路由场景；RocketMQ胜在功能全面和性能优势，特别适合电商、金融等需要事务保证和顺序消息的场景。</li>
 <li><strong>建议</strong>：没有绝对的优劣，只有最适合的选择，选择时需综合考虑业务需求、性能要求、技术栈、运维能力，关注技术演进，理解消息队列原理。</li>
 </ul>
+
       </div>
     </article>
     
-    <!-- 评论区 -->
     <div id="comments" style="max-width: 800px; margin: 3rem auto; padding: 0 1rem;">
       <div style="width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin-bottom: 2rem;"></div>
       <h3 style="margin-bottom: 1.5rem; color: var(--primary);">💬 评论区</h3>

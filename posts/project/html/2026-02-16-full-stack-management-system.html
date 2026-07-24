@@ -111,7 +111,6 @@
       background: none;
       padding: 0;
     }
-    /* 暗黑模式下的代码块样式 */
     [data-theme="dark"] .post-body pre {
       background: #1e1e1e;
       color: #e6e6e6;
@@ -139,7 +138,6 @@
     .post-original-link a:hover {
       text-decoration: underline;
     }
-    /* Markdown 表格样式 */
     .post-body table.markdown-table {
       width: 100%;
       border-collapse: collapse;
@@ -182,7 +180,6 @@
     [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
       background: rgba(255, 255, 255, 0.06);
     }
-    /* 引用块样式 */
     .post-body blockquote.markdown-blockquote {
       border-left: 4px solid var(--primary);
       padding: 1rem 1.5rem;
@@ -196,14 +193,12 @@
       background: rgba(255, 255, 255, 0.05);
       color: #aaa;
     }
-    /* 水平分隔线样式 */
     .post-body hr.markdown-hr {
       border: none;
       height: 2px;
       background: linear-gradient(to right, transparent, var(--border), transparent);
       margin: 2rem 0;
     }
-    /* 任务列表样式 */
     .post-body li.task-list-item {
       list-style: none;
       margin-left: -1.5rem;
@@ -212,7 +207,6 @@
       margin-right: 0.5rem;
       cursor: default;
     }
-    /* 图片占位符样式 */
     .post-body .image-placeholder {
       transition: var(--transition);
     }
@@ -286,808 +280,824 @@
       </div>
       <div class="post-body">
         <h1>前后端分离管理系统实战</h1>
-
 <h2>项目概述</h2>
-
 <p>本项目是一个基于Vue 3 + Spring Boot的前后端分离管理系统，旨在为企业提供一套完整的内部管理解决方案。系统实现了用户认证、权限管理、数据管理、数据可视化等核心功能，采用现代化的技术栈和架构设计，具有良好的可扩展性和维护性。</p>
-
 <h3>技术栈</h3>
-
 <table class="markdown-table">
 <thead>
-<tr><th>分类</th><th>技术</th><th>版本</th></tr>
+<tr>
+<th>分类</th>
+<th>技术</th>
+<th>版本</th>
+</tr>
 </thead>
-<tbody>
-<tr><td>前端框架</td><td>Vue</td><td>3.3.4</td></tr>
-<tr><td>构建工具</td><td>Vite</td><td>4.4.9</td></tr>
-<tr><td>状态管理</td><td>Pinia</td><td>2.1.6</td></tr>
-<tr><td>UI框架</td><td>Element Plus</td><td>2.3.12</td></tr>
-<tr><td>前端路由</td><td>Vue Router</td><td>4.2.4</td></tr>
-<tr><td>HTTP客户端</td><td>Axios</td><td>1.5.0</td></tr>
-<tr><td>后端框架</td><td>Spring Boot</td><td>3.1.3</td></tr>
-<tr><td>持久层框架</td><td>MyBatis Plus</td><td>3.5.3</td></tr>
-<tr><td>数据库</td><td>MySQL</td><td>8.0</td></tr>
-<tr><td>认证框架</td><td>Spring Security</td><td>6.1.3</td></tr>
-<tr><td>缓存</td><td>Redis</td><td>7.0+</td></tr>
-<tr><td>部署</td><td>Docker</td><td>20.10+</td></tr>
-</tbody>
-</table>
-
+<tbody><tr>
+<td>前端框架</td>
+<td>Vue</td>
+<td>3.3.4</td>
+</tr>
+<tr>
+<td>构建工具</td>
+<td>Vite</td>
+<td>4.4.9</td>
+</tr>
+<tr>
+<td>状态管理</td>
+<td>Pinia</td>
+<td>2.1.6</td>
+</tr>
+<tr>
+<td>UI框架</td>
+<td>Element Plus</td>
+<td>2.3.12</td>
+</tr>
+<tr>
+<td>前端路由</td>
+<td>Vue Router</td>
+<td>4.2.4</td>
+</tr>
+<tr>
+<td>HTTP客户端</td>
+<td>Axios</td>
+<td>1.5.0</td>
+</tr>
+<tr>
+<td>后端框架</td>
+<td>Spring Boot</td>
+<td>3.1.3</td>
+</tr>
+<tr>
+<td>持久层框架</td>
+<td>MyBatis Plus</td>
+<td>3.5.3</td>
+</tr>
+<tr>
+<td>数据库</td>
+<td>MySQL</td>
+<td>8.0</td>
+</tr>
+<tr>
+<td>认证框架</td>
+<td>Spring Security</td>
+<td>6.1.3</td>
+</tr>
+<tr>
+<td>缓存</td>
+<td>Redis</td>
+<td>7.0+</td>
+</tr>
+<tr>
+<td>部署</td>
+<td>Docker</td>
+<td>20.10+</td>
+</tr>
+</tbody></table>
 <h2>架构设计</h2>
-
 <h3>目录结构</h3>
-
 <h4>前端项目结构</h4>
-
 <pre><code class="language-plaintext">frontend/
-<p>├── public/              # 静态资源</p>
-<p>├── src/</p>
-<p>│   ├── api/             # API请求</p>
-<p>│   ├── assets/          # 静态资源</p>
-<p>│   ├── components/      # 公共组件</p>
-<p>│   ├── views/           # 页面视图</p>
-<p>│   ├── router/          # 路由配置</p>
-<p>│   ├── store/           # 状态管理</p>
-<p>│   ├── utils/           # 工具类</p>
-<p>│   ├── constants/       # 常量定义</p>
-<p>│   ├── App.vue          # 根组件</p>
-<p>│   └── main.js          # 入口文件</p>
-<p>├── .env.development     # 开发环境配置</p>
-<p>├── .env.production      # 生产环境配置</p>
-<p>├── vite.config.js       # Vite配置</p>
-<p>├── package.json         # 依赖配置</p>
-<p>└── index.html           # HTML模板</p>
+├── public/              # 静态资源
+├── src/
+│   ├── api/             # API请求
+│   ├── assets/          # 静态资源
+│   ├── components/      # 公共组件
+│   ├── views/           # 页面视图
+│   ├── router/          # 路由配置
+│   ├── store/           # 状态管理
+│   ├── utils/           # 工具类
+│   ├── constants/       # 常量定义
+│   ├── App.vue          # 根组件
+│   └── main.js          # 入口文件
+├── .env.development     # 开发环境配置
+├── .env.production      # 生产环境配置
+├── vite.config.js       # Vite配置
+├── package.json         # 依赖配置
+└── index.html           # HTML模板
 </code></pre>
-
 <h4>后端项目结构</h4>
-
 <pre><code class="language-plaintext">backend/
-<p>├── src/</p>
-<p>│   ├── main/</p>
-<p>│   │   ├── java/</p>
-<p>│   │   │   └── com/</p>
-<p>│   │   │       └── example/</p>
-<p>│   │   │           ├── config/         # 配置类</p>
-<p>│   │   │           ├── controller/      # 控制器</p>
-<p>│   │   │           ├── dto/             # 数据传输对象</p>
-<p>│   │   │           ├── entity/          # 实体类</p>
-<p>│   │   │           ├── mapper/          # 数据访问层</p>
-<p>│   │   │           ├── service/         # 业务逻辑层</p>
-<p>│   │   │           ├── utils/           # 工具类</p>
-<p>│   │   │           ├── security/        # 安全相关</p>
-<p>│   │   │           └── Application.java # 应用入口</p>
-<p>│   │   └── resources/</p>
-<p>│   │       ├── mapper/                  # MyBatis映射文件</p>
-<p>│   │       ├── application.yml          # 应用配置</p>
-<p>│   │       └── application-dev.yml      # 开发环境配置</p>
-<p>│   └── test/                            # 测试代码</p>
-<p>├── pom.xml                              # Maven配置</p>
-<p>└── Dockerfile                           # Docker构建文件</p>
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── com/
+│   │   │       └── example/
+│   │   │           ├── config/         # 配置类
+│   │   │           ├── controller/      # 控制器
+│   │   │           ├── dto/             # 数据传输对象
+│   │   │           ├── entity/          # 实体类
+│   │   │           ├── mapper/          # 数据访问层
+│   │   │           ├── service/         # 业务逻辑层
+│   │   │           ├── utils/           # 工具类
+│   │   │           ├── security/        # 安全相关
+│   │   │           └── Application.java # 应用入口
+│   │   └── resources/
+│   │       ├── mapper/                  # MyBatis映射文件
+│   │       ├── application.yml          # 应用配置
+│   │       └── application-dev.yml      # 开发环境配置
+│   └── test/                            # 测试代码
+├── pom.xml                              # Maven配置
+└── Dockerfile                           # Docker构建文件
 </code></pre>
-
 <h2>核心功能实现</h2>
-
 <h3>1. 用户认证与授权</h3>
-
 <h4>前端实现</h4>
-
 <pre><code class="language-vue">&lt;!-- 登录组件 --&gt;
-<p>&lt;template&gt;</p>
-<p>  &lt;div class=&quot;login-container&quot;&gt;</p>
-<p>    &lt;el-form :model=&quot;loginForm&quot; :rules=&quot;loginRules&quot; ref=&quot;loginFormRef&quot; label-width=&quot;80px&quot;&gt;</p>
-<p>      &lt;el-form-item label=&quot;用户名&quot; prop=&quot;username&quot;&gt;</p>
-<p>        &lt;el-input v-model=&quot;loginForm.username&quot; placeholder=&quot;请输入用户名&quot; /&gt;</p>
-<p>      &lt;/el-form-item&gt;</p>
-<p>      &lt;el-form-item label=&quot;密码&quot; prop=&quot;password&quot;&gt;</p>
-<p>        &lt;el-input v-model=&quot;loginForm.password&quot; type=&quot;password&quot; placeholder=&quot;请输入密码&quot; /&gt;</p>
-<p>      &lt;/el-form-item&gt;</p>
-<p>      &lt;el-form-item&gt;</p>
-<p>        &lt;el-button type=&quot;primary&quot; @click=&quot;handleLogin&quot; :loading=&quot;loading&quot;&gt;登录&lt;/el-button&gt;</p>
-<p>      &lt;/el-form-item&gt;</p>
-<p>    &lt;/el-form&gt;</p>
-<p>  &lt;/div&gt;</p>
-<p>&lt;/template&gt;</p>
+&lt;template&gt;
+  &lt;div class=&quot;login-container&quot;&gt;
+    &lt;el-form :model=&quot;loginForm&quot; :rules=&quot;loginRules&quot; ref=&quot;loginFormRef&quot; label-width=&quot;80px&quot;&gt;
+      &lt;el-form-item label=&quot;用户名&quot; prop=&quot;username&quot;&gt;
+        &lt;el-input v-model=&quot;loginForm.username&quot; placeholder=&quot;请输入用户名&quot; /&gt;
+      &lt;/el-form-item&gt;
+      &lt;el-form-item label=&quot;密码&quot; prop=&quot;password&quot;&gt;
+        &lt;el-input v-model=&quot;loginForm.password&quot; type=&quot;password&quot; placeholder=&quot;请输入密码&quot; /&gt;
+      &lt;/el-form-item&gt;
+      &lt;el-form-item&gt;
+        &lt;el-button type=&quot;primary&quot; @click=&quot;handleLogin&quot; :loading=&quot;loading&quot;&gt;登录&lt;/el-button&gt;
+      &lt;/el-form-item&gt;
+    &lt;/el-form&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
 
-<p>&lt;script setup&gt;</p>
-<p>import { ref, reactive } from &#039;vue&#039;</p>
-<p>import { useRouter } from &#039;vue-router&#039;</p>
-<p>import { useUserStore } from &#039;@/store/user&#039;</p>
-<p>import { ElMessage } from &#039;element-plus&#039;</p>
+&lt;script setup&gt;
+import { ref, reactive } from &#39;vue&#39;
+import { useRouter } from &#39;vue-router&#39;
+import { useUserStore } from &#39;@/store/user&#39;
+import { ElMessage } from &#39;element-plus&#39;
 
-<p>const router = useRouter()</p>
-<p>const userStore = useUserStore()</p>
-<p>const loginFormRef = ref()</p>
-<p>const loading = ref(false)</p>
+const router = useRouter()
+const userStore = useUserStore()
+const loginFormRef = ref()
+const loading = ref(false)
 
-<p>const loginForm = reactive({</p>
-<p>  username: &#039;&#039;,</p>
-<p>  password: &#039;&#039;</p>
-<p>})</p>
+const loginForm = reactive({
+  username: &#39;&#39;,
+  password: &#39;&#39;
+})
 
-<p>const loginRules = {</p>
-<p>  username: [{ required: true, message: &#039;请输入用户名&#039;, trigger: &#039;blur&#039; }],</p>
-<p>  password: [{ required: true, message: &#039;请输入密码&#039;, trigger: &#039;blur&#039; }]</p>
-<p>}</p>
+const loginRules = {
+  username: [{ required: true, message: &#39;请输入用户名&#39;, trigger: &#39;blur&#39; }],
+  password: [{ required: true, message: &#39;请输入密码&#39;, trigger: &#39;blur&#39; }]
+}
 
-<p>const handleLogin = async () =&gt; {</p>
-<p>  if (!loginFormRef.value) return</p>
-
-<p>  try {</p>
-<p>    await loginFormRef.value.validate()</p>
-<p>    loading.value = true</p>
-
-<p>    const { username, password } = loginForm</p>
-<p>    const result = await userStore.login({ username, password })</p>
-
-<p>    if (result) {</p>
-<p>      ElMessage.success(&#039;登录成功&#039;)</p>
-<p>      router.push(&#039;/home&#039;)</p>
-<p>    }</p>
-<p>  } catch (error) {</p>
-<p>    ElMessage.error(error.message || &#039;登录失败&#039;)</p>
-<p>  } finally {</p>
-<p>    loading.value = false</p>
-<p>  }</p>
-<p>}</p>
-<p>&lt;/script&gt;</p>
+const handleLogin = async () =&gt; {
+  if (!loginFormRef.value) return
+  
+  try {
+    await loginFormRef.value.validate()
+    loading.value = true
+    
+    const { username, password } = loginForm
+    const result = await userStore.login({ username, password })
+    
+    if (result) {
+      ElMessage.success(&#39;登录成功&#39;)
+      router.push(&#39;/home&#39;)
+    }
+  } catch (error) {
+    ElMessage.error(error.message || &#39;登录失败&#39;)
+  } finally {
+    loading.value = false
+  }
+}
+&lt;/script&gt;
 </code></pre>
-
 <h4>后端实现</h4>
-
 <pre><code class="language-java">// 登录控制器
-<p>@RestController</p>
-<p>@RequestMapping(&quot;/api/auth&quot;)</p>
-<p>public class AuthController {</p>
-<p>    @Autowired</p>
-<p>    private AuthService authService;</p>
+@RestController
+@RequestMapping(&quot;/api/auth&quot;)
+public class AuthController {
+    @Autowired
+    private AuthService authService;
+    
+    @PostMapping(&quot;/login&quot;)
+    public Result&lt;?&gt; login(@RequestBody LoginRequest request) {
+        String token = authService.login(request.getUsername(), request.getPassword());
+        return Result.success(&quot;登录成功&quot;, token);
+    }
+    
+    @PostMapping(&quot;/logout&quot;)
+    public Result&lt;?&gt; logout() {
+        authService.logout();
+        return Result.success(&quot;登出成功&quot;);
+    }
+}
 
-<p>    @PostMapping(&quot;/login&quot;)</p>
-<p>    public Result&lt;?&gt; login(@RequestBody LoginRequest request) {</p>
-<p>        String token = authService.login(request.getUsername(), request.getPassword());</p>
-<p>        return Result.success(&quot;登录成功&quot;, token);</p>
-<p>    }</p>
-
-<p>    @PostMapping(&quot;/logout&quot;)</p>
-<p>    public Result&lt;?&gt; logout() {</p>
-<p>        authService.logout();</p>
-<p>        return Result.success(&quot;登出成功&quot;);</p>
-<p>    }</p>
-<p>}</p>
-
-<p>// JWT认证过滤器</p>
-<p>@Component</p>
-<p>public class JwtAuthenticationFilter extends OncePerRequestFilter {</p>
-<p>    @Override</p>
-<p>    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {</p>
-<p>        // 实现JWT认证逻辑</p>
-<p>    }</p>
-<p>}</p>
+// JWT认证过滤器
+@Component
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        // 实现JWT认证逻辑
+    }
+}
 </code></pre>
-
 <h3>2. 权限管理</h3>
-
 <h4>前端实现</h4>
-
 <pre><code class="language-javascript">// 路由权限控制
-<p>import { createRouter, createWebHistory } from &#039;vue-router&#039;</p>
-<p>import { useUserStore } from &#039;@/store/user&#039;</p>
+import { createRouter, createWebHistory } from &#39;vue-router&#39;
+import { useUserStore } from &#39;@/store/user&#39;
 
-<p>const router = createRouter({</p>
-<p>  history: createWebHistory(),</p>
-<p>  routes: [</p>
-<p>    {</p>
-<p>      path: &#039;/&#039;,</p>
-<p>      redirect: &#039;/login&#039;</p>
-<p>    },</p>
-<p>    {</p>
-<p>      path: &#039;/login&#039;,</p>
-<p>      component: () =&gt; import(&#039;@/views/Login.vue&#039;),</p>
-<p>      meta: { requiresAuth: false }</p>
-<p>    },</p>
-<p>    {</p>
-<p>      path: &#039;/home&#039;,</p>
-<p>      component: () =&gt; import(&#039;@/views/Home.vue&#039;),</p>
-<p>      meta: { requiresAuth: true }</p>
-<p>    },</p>
-<p>    {</p>
-<p>      path: &#039;/user&#039;,</p>
-<p>      component: () =&gt; import(&#039;@/views/user/Index.vue&#039;),</p>
-<p>      meta: { requiresAuth: true, roles: [&#039;admin&#039;] }</p>
-<p>    }</p>
-<p>  ]</p>
-<p>})</p>
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    {
+      path: &#39;/&#39;,
+      redirect: &#39;/login&#39;
+    },
+    {
+      path: &#39;/login&#39;,
+      component: () =&gt; import(&#39;@/views/Login.vue&#39;),
+      meta: { requiresAuth: false }
+    },
+    {
+      path: &#39;/home&#39;,
+      component: () =&gt; import(&#39;@/views/Home.vue&#39;),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: &#39;/user&#39;,
+      component: () =&gt; import(&#39;@/views/user/Index.vue&#39;),
+      meta: { requiresAuth: true, roles: [&#39;admin&#39;] }
+    }
+  ]
+})
 
-<p>// 路由守卫</p>
-<p>router.beforeEach(async (to, from, next) =&gt; {</p>
-<p>  const userStore = useUserStore()</p>
-<p>  const requiresAuth = to.meta.requiresAuth !== false</p>
-
-<p>  if (requiresAuth &amp;&amp; !userStore.isLoggedIn) {</p>
-<p>    next(&#039;/login&#039;)</p>
-<p>  } else if (to.meta.roles &amp;&amp; !to.meta.roles.includes(userStore.role)) {</p>
-<p>    next(&#039;/403&#039;)</p>
-<p>  } else {</p>
-<p>    next()</p>
-<p>  }</p>
-<p>})</p>
+// 路由守卫
+router.beforeEach(async (to, from, next) =&gt; {
+  const userStore = useUserStore()
+  const requiresAuth = to.meta.requiresAuth !== false
+  
+  if (requiresAuth &amp;&amp; !userStore.isLoggedIn) {
+    next(&#39;/login&#39;)
+  } else if (to.meta.roles &amp;&amp; !to.meta.roles.includes(userStore.role)) {
+    next(&#39;/403&#39;)
+  } else {
+    next()
+  }
+})
 </code></pre>
-
 <h4>后端实现</h4>
-
 <pre><code class="language-java">// 权限注解
-<p>@Target({ ElementType.TYPE, ElementType.METHOD })</p>
-<p>@Retention(RetentionPolicy.RUNTIME)</p>
-<p>@Documented</p>
-<p>@PreAuthorize(&quot;@permissionService.hasPermission(#permission)&quot;)</p>
-<p>public @interface RequiresPermission {</p>
-<p>    String value();</p>
-<p>}</p>
+@Target({ ElementType.TYPE, ElementType.METHOD })
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@PreAuthorize(&quot;@permissionService.hasPermission(#permission)&quot;)
+public @interface RequiresPermission {
+    String value();
+}
 
-<p>// 权限服务</p>
-<p>@Service</p>
-<p>public class PermissionService {</p>
-<p>    public boolean hasPermission(String permission) {</p>
-<p>        // 实现权限检查逻辑</p>
-<p>    }</p>
-<p>}</p>
+// 权限服务
+@Service
+public class PermissionService {
+    public boolean hasPermission(String permission) {
+        // 实现权限检查逻辑
+    }
+}
 
-<p>// 使用权限注解</p>
-<p>@RestController</p>
-<p>@RequestMapping(&quot;/api/user&quot;)</p>
-<p>public class UserController {</p>
-<p>    @RequiresPermission(&quot;user:list&quot;)</p>
-<p>    @GetMapping(&quot;/list&quot;)</p>
-<p>    public Result&lt;?&gt; list() {</p>
-<p>        // 实现用户列表查询</p>
-<p>    }</p>
-<p>}</p>
+// 使用权限注解
+@RestController
+@RequestMapping(&quot;/api/user&quot;)
+public class UserController {
+    @RequiresPermission(&quot;user:list&quot;)
+    @GetMapping(&quot;/list&quot;)
+    public Result&lt;?&gt; list() {
+        // 实现用户列表查询
+    }
+}
 </code></pre>
-
 <h3>3. 数据可视化</h3>
-
 <h4>前端实现</h4>
-
 <pre><code class="language-vue">&lt;!-- 数据仪表盘 --&gt;
-<p>&lt;template&gt;</p>
-<p>  &lt;div class=&quot;dashboard&quot;&gt;</p>
-<p>    &lt;el-row :gutter=&quot;20&quot;&gt;</p>
-<p>      &lt;el-col :span=&quot;8&quot;&gt;</p>
-<p>        &lt;el-card shadow=&quot;hover&quot;&gt;</p>
-<p>          &lt;template #header&gt;</p>
-<p>            &lt;div class=&quot;card-header&quot;&gt;</p>
-<p>              &lt;span&gt;用户统计&lt;/span&gt;</p>
-<p>            &lt;/div&gt;</p>
-<p>          &lt;/template&gt;</p>
-<p>          &lt;div class=&quot;stat-value&quot;&gt;{{ userCount }}&lt;/div&gt;</p>
-<p>        &lt;/el-card&gt;</p>
-<p>      &lt;/el-col&gt;</p>
-<p>      &lt;el-col :span=&quot;8&quot;&gt;</p>
-<p>        &lt;el-card shadow=&quot;hover&quot;&gt;</p>
-<p>          &lt;template #header&gt;</p>
-<p>            &lt;div class=&quot;card-header&quot;&gt;</p>
-<p>              &lt;span&gt;订单统计&lt;/span&gt;</p>
-<p>            &lt;/div&gt;</p>
-<p>          &lt;/template&gt;</p>
-<p>          &lt;div class=&quot;stat-value&quot;&gt;{{ orderCount }}&lt;/div&gt;</p>
-<p>        &lt;/el-card&gt;</p>
-<p>      &lt;/el-col&gt;</p>
-<p>      &lt;el-col :span=&quot;8&quot;&gt;</p>
-<p>        &lt;el-card shadow=&quot;hover&quot;&gt;</p>
-<p>          &lt;template #header&gt;</p>
-<p>            &lt;div class=&quot;card-header&quot;&gt;</p>
-<p>              &lt;span&gt;销售额&lt;/span&gt;</p>
-<p>            &lt;/div&gt;</p>
-<p>          &lt;/template&gt;</p>
-<p>          &lt;div class=&quot;stat-value&quot;&gt;{{ salesAmount }}&lt;/div&gt;</p>
-<p>        &lt;/el-card&gt;</p>
-<p>      &lt;/el-col&gt;</p>
-<p>    &lt;/el-row&gt;</p>
+&lt;template&gt;
+  &lt;div class=&quot;dashboard&quot;&gt;
+    &lt;el-row :gutter=&quot;20&quot;&gt;
+      &lt;el-col :span=&quot;8&quot;&gt;
+        &lt;el-card shadow=&quot;hover&quot;&gt;
+          &lt;template #header&gt;
+            &lt;div class=&quot;card-header&quot;&gt;
+              &lt;span&gt;用户统计&lt;/span&gt;
+            &lt;/div&gt;
+          &lt;/template&gt;
+          &lt;div class=&quot;stat-value&quot;&gt;{{ userCount }}&lt;/div&gt;
+        &lt;/el-card&gt;
+      &lt;/el-col&gt;
+      &lt;el-col :span=&quot;8&quot;&gt;
+        &lt;el-card shadow=&quot;hover&quot;&gt;
+          &lt;template #header&gt;
+            &lt;div class=&quot;card-header&quot;&gt;
+              &lt;span&gt;订单统计&lt;/span&gt;
+            &lt;/div&gt;
+          &lt;/template&gt;
+          &lt;div class=&quot;stat-value&quot;&gt;{{ orderCount }}&lt;/div&gt;
+        &lt;/el-card&gt;
+      &lt;/el-col&gt;
+      &lt;el-col :span=&quot;8&quot;&gt;
+        &lt;el-card shadow=&quot;hover&quot;&gt;
+          &lt;template #header&gt;
+            &lt;div class=&quot;card-header&quot;&gt;
+              &lt;span&gt;销售额&lt;/span&gt;
+            &lt;/div&gt;
+          &lt;/template&gt;
+          &lt;div class=&quot;stat-value&quot;&gt;{{ salesAmount }}&lt;/div&gt;
+        &lt;/el-card&gt;
+      &lt;/el-col&gt;
+    &lt;/el-row&gt;
+    
+    &lt;!-- 图表 --&gt;
+    &lt;el-row :gutter=&quot;20&quot; style=&quot;margin-top: 20px&quot;&gt;
+      &lt;el-col :span=&quot;12&quot;&gt;
+        &lt;el-card shadow=&quot;hover&quot;&gt;
+          &lt;template #header&gt;
+            &lt;div class=&quot;card-header&quot;&gt;
+              &lt;span&gt;月度销售额&lt;/span&gt;
+            &lt;/div&gt;
+          &lt;/template&gt;
+          &lt;div ref=&quot;salesChartRef&quot; style=&quot;height: 300px&quot;&gt;&lt;/div&gt;
+        &lt;/el-card&gt;
+      &lt;/el-col&gt;
+      &lt;el-col :span=&quot;12&quot;&gt;
+        &lt;el-card shadow=&quot;hover&quot;&gt;
+          &lt;template #header&gt;
+            &lt;div class=&quot;card-header&quot;&gt;
+              &lt;span&gt;用户增长&lt;/span&gt;
+            &lt;/div&gt;
+          &lt;/template&gt;
+          &lt;div ref=&quot;userChartRef&quot; style=&quot;height: 300px&quot;&gt;&lt;/div&gt;
+        &lt;/el-card&gt;
+      &lt;/el-col&gt;
+    &lt;/el-row&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
 
-<p>    &lt;!-- 图表 --&gt;</p>
-<p>    &lt;el-row :gutter=&quot;20&quot; style=&quot;margin-top: 20px&quot;&gt;</p>
-<p>      &lt;el-col :span=&quot;12&quot;&gt;</p>
-<p>        &lt;el-card shadow=&quot;hover&quot;&gt;</p>
-<p>          &lt;template #header&gt;</p>
-<p>            &lt;div class=&quot;card-header&quot;&gt;</p>
-<p>              &lt;span&gt;月度销售额&lt;/span&gt;</p>
-<p>            &lt;/div&gt;</p>
-<p>          &lt;/template&gt;</p>
-<p>          &lt;div ref=&quot;salesChartRef&quot; style=&quot;height: 300px&quot;&gt;&lt;/div&gt;</p>
-<p>        &lt;/el-card&gt;</p>
-<p>      &lt;/el-col&gt;</p>
-<p>      &lt;el-col :span=&quot;12&quot;&gt;</p>
-<p>        &lt;el-card shadow=&quot;hover&quot;&gt;</p>
-<p>          &lt;template #header&gt;</p>
-<p>            &lt;div class=&quot;card-header&quot;&gt;</p>
-<p>              &lt;span&gt;用户增长&lt;/span&gt;</p>
-<p>            &lt;/div&gt;</p>
-<p>          &lt;/template&gt;</p>
-<p>          &lt;div ref=&quot;userChartRef&quot; style=&quot;height: 300px&quot;&gt;&lt;/div&gt;</p>
-<p>        &lt;/el-card&gt;</p>
-<p>      &lt;/el-col&gt;</p>
-<p>    &lt;/el-row&gt;</p>
-<p>  &lt;/div&gt;</p>
-<p>&lt;/template&gt;</p>
+&lt;script setup&gt;
+import { ref, onMounted, reactive } from &#39;vue&#39;
+import * as echarts from &#39;echarts&#39;
+import { useDashboardStore } from &#39;@/store/dashboard&#39;
 
-<p>&lt;script setup&gt;</p>
-<p>import { ref, onMounted, reactive } from &#039;vue&#039;</p>
-<p>import * as echarts from &#039;echarts&#039;</p>
-<p>import { useDashboardStore } from &#039;@/store/dashboard&#039;</p>
+const dashboardStore = useDashboardStore()
+const salesChartRef = ref()
+const userChartRef = ref()
+const userCount = ref(0)
+const orderCount = ref(0)
+const salesAmount = ref(0)
 
-<p>const dashboardStore = useDashboardStore()</p>
-<p>const salesChartRef = ref()</p>
-<p>const userChartRef = ref()</p>
-<p>const userCount = ref(0)</p>
-<p>const orderCount = ref(0)</p>
-<p>const salesAmount = ref(0)</p>
+onMounted(async () =&gt; {
+  await loadStats()
+  initCharts()
+})
 
-<p>onMounted(async () =&gt; {</p>
-<p>  await loadStats()</p>
-<p>  initCharts()</p>
-<p>})</p>
+const loadStats = async () =&gt; {
+  const stats = await dashboardStore.getStats()
+  userCount.value = stats.userCount
+  orderCount.value = stats.orderCount
+  salesAmount.value = stats.salesAmount
+}
 
-<p>const loadStats = async () =&gt; {</p>
-<p>  const stats = await dashboardStore.getStats()</p>
-<p>  userCount.value = stats.userCount</p>
-<p>  orderCount.value = stats.orderCount</p>
-<p>  salesAmount.value = stats.salesAmount</p>
-<p>}</p>
-
-<p>const initCharts = () =&gt; {</p>
-<p>  // 初始化销售额图表</p>
-<p>  const salesChart = echarts.init(salesChartRef.value)</p>
-<p>  salesChart.setOption({</p>
-<p>    xAxis: {</p>
-<p>      type: &#039;category&#039;,</p>
-<p>      data: [&#039;1月&#039;, &#039;2月&#039;, &#039;3月&#039;, &#039;4月&#039;, &#039;5月&#039;, &#039;6月&#039;]</p>
-<p>    },</p>
-<p>    yAxis: {</p>
-<p>      type: &#039;value&#039;</p>
-<p>    },</p>
-<p>    series: [{</p>
-<p>      data: [120, 200, 150, 80, 70, 110],</p>
-<p>      type: &#039;line&#039;</p>
-<p>    }]</p>
-<p>  })</p>
-
-<p>  // 初始化用户增长图表</p>
-<p>  const userChart = echarts.init(userChartRef.value)</p>
-<p>  userChart.setOption({</p>
-<p>    xAxis: {</p>
-<p>      type: &#039;category&#039;,</p>
-<p>      data: [&#039;1月&#039;, &#039;2月&#039;, &#039;3月&#039;, &#039;4月&#039;, &#039;5月&#039;, &#039;6月&#039;]</p>
-<p>    },</p>
-<p>    yAxis: {</p>
-<p>      type: &#039;value&#039;</p>
-<p>    },</p>
-<p>    series: [{</p>
-<p>      data: [1200, 1900, 3000, 4000, 4500, 5000],</p>
-<p>      type: &#039;bar&#039;</p>
-<p>    }]</p>
-<p>  })</p>
-
-<p>  // 响应式调整</p>
-<p>  window.addEventListener(&#039;resize&#039;, () =&gt; {</p>
-<p>    salesChart.resize()</p>
-<p>    userChart.resize()</p>
-<p>  })</p>
-<p>}</p>
-<p>&lt;/script&gt;</p>
+const initCharts = () =&gt; {
+  // 初始化销售额图表
+  const salesChart = echarts.init(salesChartRef.value)
+  salesChart.setOption({
+    xAxis: {
+      type: &#39;category&#39;,
+      data: [&#39;1月&#39;, &#39;2月&#39;, &#39;3月&#39;, &#39;4月&#39;, &#39;5月&#39;, &#39;6月&#39;]
+    },
+    yAxis: {
+      type: &#39;value&#39;
+    },
+    series: [{
+      data: [120, 200, 150, 80, 70, 110],
+      type: &#39;line&#39;
+    }]
+  })
+  
+  // 初始化用户增长图表
+  const userChart = echarts.init(userChartRef.value)
+  userChart.setOption({
+    xAxis: {
+      type: &#39;category&#39;,
+      data: [&#39;1月&#39;, &#39;2月&#39;, &#39;3月&#39;, &#39;4月&#39;, &#39;5月&#39;, &#39;6月&#39;]
+    },
+    yAxis: {
+      type: &#39;value&#39;
+    },
+    series: [{
+      data: [1200, 1900, 3000, 4000, 4500, 5000],
+      type: &#39;bar&#39;
+    }]
+  })
+  
+  // 响应式调整
+  window.addEventListener(&#39;resize&#39;, () =&gt; {
+    salesChart.resize()
+    userChart.resize()
+  })
+}
+&lt;/script&gt;
 </code></pre>
-
 <h4>后端实现</h4>
-
 <pre><code class="language-java">// 数据统计服务
-<p>@Service</p>
-<p>public class DashboardService {</p>
-<p>    @Autowired</p>
-<p>    private UserMapper userMapper;</p>
-<p>    @Autowired</p>
-<p>    private OrderMapper orderMapper;</p>
-
-<p>    public DashboardStats getStats() {</p>
-<p>        DashboardStats stats = new DashboardStats();</p>
-
-<p>        // 获取用户数量</p>
-<p>        stats.setUserCount(userMapper.selectCount(null));</p>
-
-<p>        // 获取订单数量</p>
-<p>        stats.setOrderCount(orderMapper.selectCount(null));</p>
-
-<p>        // 获取销售额</p>
-<p>        BigDecimal salesAmount = orderMapper.selectObjs(</p>
-<p>            new QueryWrapper&lt;Order&gt;()</p>
-<p>                .select(&quot;COALESCE(SUM(amount), 0) as total&quot;)</p>
-<p>        ).stream()</p>
-<p>         .findFirst()</p>
-<p>         .map(o -&gt; (BigDecimal) o)</p>
-<p>         .orElse(BigDecimal.ZERO);</p>
-<p>        stats.setSalesAmount(salesAmount);</p>
-
-<p>        return stats;</p>
-<p>    }</p>
-
-<p>    public List&lt;MonthlySales&gt; getMonthlySales() {</p>
-<p>        // 实现月度销售额统计</p>
-<p>    }</p>
-<p>}</p>
+@Service
+public class DashboardService {
+    @Autowired
+    private UserMapper userMapper;
+    @Autowired
+    private OrderMapper orderMapper;
+    
+    public DashboardStats getStats() {
+        DashboardStats stats = new DashboardStats();
+        
+        // 获取用户数量
+        stats.setUserCount(userMapper.selectCount(null));
+        
+        // 获取订单数量
+        stats.setOrderCount(orderMapper.selectCount(null));
+        
+        // 获取销售额
+        BigDecimal salesAmount = orderMapper.selectObjs(
+            new QueryWrapper&lt;Order&gt;()
+                .select(&quot;COALESCE(SUM(amount), 0) as total&quot;)
+        ).stream()
+         .findFirst()
+         .map(o -&gt; (BigDecimal) o)
+         .orElse(BigDecimal.ZERO);
+        stats.setSalesAmount(salesAmount);
+        
+        return stats;
+    }
+    
+    public List&lt;MonthlySales&gt; getMonthlySales() {
+        // 实现月度销售额统计
+    }
+}
 </code></pre>
-
 <h3>3. 数据管理</h3>
-
 <h4>前端实现</h4>
-
 <pre><code class="language-vue">&lt;!-- 用户管理 --&gt;
-<p>&lt;template&gt;</p>
-<p>  &lt;div class=&quot;user-management&quot;&gt;</p>
-<p>    &lt;el-card&gt;</p>
-<p>      &lt;template #header&gt;</p>
-<p>        &lt;div class=&quot;card-header&quot;&gt;</p>
-<p>          &lt;span&gt;用户管理&lt;/span&gt;</p>
-<p>          &lt;el-button type=&quot;primary&quot; @click=&quot;handleAdd&quot;&gt;添加用户&lt;/el-button&gt;</p>
-<p>        &lt;/div&gt;</p>
-<p>      &lt;/template&gt;</p>
+&lt;template&gt;
+  &lt;div class=&quot;user-management&quot;&gt;
+    &lt;el-card&gt;
+      &lt;template #header&gt;
+        &lt;div class=&quot;card-header&quot;&gt;
+          &lt;span&gt;用户管理&lt;/span&gt;
+          &lt;el-button type=&quot;primary&quot; @click=&quot;handleAdd&quot;&gt;添加用户&lt;/el-button&gt;
+        &lt;/div&gt;
+      &lt;/template&gt;
+      
+      &lt;!-- 搜索表单 --&gt;
+      &lt;el-form :inline=&quot;true&quot; :model=&quot;searchForm&quot; class=&quot;mb-4&quot;&gt;
+        &lt;el-form-item label=&quot;用户名&quot;&gt;
+          &lt;el-input v-model=&quot;searchForm.username&quot; placeholder=&quot;请输入用户名&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item&gt;
+          &lt;el-button type=&quot;primary&quot; @click=&quot;handleSearch&quot;&gt;搜索&lt;/el-button&gt;
+          &lt;el-button @click=&quot;resetForm&quot;&gt;重置&lt;/el-button&gt;
+        &lt;/el-form-item&gt;
+      &lt;/el-form&gt;
+      
+      &lt;!-- 数据表格 --&gt;
+      &lt;el-table :data=&quot;userList&quot; style=&quot;width: 100%&quot;&gt;
+        &lt;el-table-column prop=&quot;id&quot; label=&quot;ID&quot; width=&quot;80&quot; /&gt;
+        &lt;el-table-column prop=&quot;username&quot; label=&quot;用户名&quot; /&gt;
+        &lt;el-table-column prop=&quot;name&quot; label=&quot;姓名&quot; /&gt;
+        &lt;el-table-column prop=&quot;email&quot; label=&quot;邮箱&quot; /&gt;
+        &lt;el-table-column prop=&quot;role&quot; label=&quot;角色&quot; /&gt;
+        &lt;el-table-column prop=&quot;createTime&quot; label=&quot;创建时间&quot; /&gt;
+        &lt;el-table-column label=&quot;操作&quot; width=&quot;180&quot;&gt;
+          &lt;template #default=&quot;scope&quot;&gt;
+            &lt;el-button type=&quot;primary&quot; size=&quot;small&quot; @click=&quot;handleEdit(scope.row)&quot;&gt;编辑&lt;/el-button&gt;
+            &lt;el-button type=&quot;danger&quot; size=&quot;small&quot; @click=&quot;handleDelete(scope.row.id)&quot;&gt;删除&lt;/el-button&gt;
+          &lt;/template&gt;
+        &lt;/el-table-column&gt;
+      &lt;/el-table&gt;
+      
+      &lt;!-- 分页 --&gt;
+      &lt;div class=&quot;pagination-container&quot;&gt;
+        &lt;el-pagination
+          v-model:current-page=&quot;pagination.currentPage&quot;
+          v-model:page-size=&quot;pagination.pageSize&quot;
+          :page-sizes=&quot;[10, 20, 50, 100]&quot;
+          layout=&quot;total, sizes, prev, pager, next, jumper&quot;
+          :total=&quot;pagination.total&quot;
+          @size-change=&quot;handleSizeChange&quot;
+          @current-change=&quot;handleCurrentChange&quot;
+        /&gt;
+      &lt;/div&gt;
+    &lt;/el-card&gt;
+    
+    &lt;!-- 添加/编辑对话框 --&gt;
+    &lt;el-dialog v-model=&quot;dialogVisible&quot; :title=&quot;dialogTitle&quot;&gt;
+      &lt;el-form :model=&quot;form&quot; :rules=&quot;rules&quot; ref=&quot;formRef&quot;&gt;
+        &lt;el-form-item label=&quot;用户名&quot; prop=&quot;username&quot;&gt;
+          &lt;el-input v-model=&quot;form.username&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;姓名&quot; prop=&quot;name&quot;&gt;
+          &lt;el-input v-model=&quot;form.name&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;邮箱&quot; prop=&quot;email&quot;&gt;
+          &lt;el-input v-model=&quot;form.email&quot; /&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item label=&quot;角色&quot; prop=&quot;role&quot;&gt;
+          &lt;el-select v-model=&quot;form.role&quot;&gt;
+            &lt;el-option label=&quot;管理员&quot; value=&quot;admin&quot; /&gt;
+            &lt;el-option label=&quot;普通用户&quot; value=&quot;user&quot; /&gt;
+          &lt;/el-select&gt;
+        &lt;/el-form-item&gt;
+        &lt;el-form-item v-if=&quot;isAdd&quot; label=&quot;密码&quot; prop=&quot;password&quot;&gt;
+          &lt;el-input v-model=&quot;form.password&quot; type=&quot;password&quot; /&gt;
+        &lt;/el-form-item&gt;
+      &lt;/el-form&gt;
+      &lt;template #footer&gt;
+        &lt;span class=&quot;dialog-footer&quot;&gt;
+          &lt;el-button @click=&quot;dialogVisible = false&quot;&gt;取消&lt;/el-button&gt;
+          &lt;el-button type=&quot;primary&quot; @click=&quot;handleSubmit&quot;&gt;确定&lt;/el-button&gt;
+        &lt;/span&gt;
+      &lt;/template&gt;
+    &lt;/el-dialog&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
 
-<p>      &lt;!-- 搜索表单 --&gt;</p>
-<p>      &lt;el-form :inline=&quot;true&quot; :model=&quot;searchForm&quot; class=&quot;mb-4&quot;&gt;</p>
-<p>        &lt;el-form-item label=&quot;用户名&quot;&gt;</p>
-<p>          &lt;el-input v-model=&quot;searchForm.username&quot; placeholder=&quot;请输入用户名&quot; /&gt;</p>
-<p>        &lt;/el-form-item&gt;</p>
-<p>        &lt;el-form-item&gt;</p>
-<p>          &lt;el-button type=&quot;primary&quot; @click=&quot;handleSearch&quot;&gt;搜索&lt;/el-button&gt;</p>
-<p>          &lt;el-button @click=&quot;resetForm&quot;&gt;重置&lt;/el-button&gt;</p>
-<p>        &lt;/el-form-item&gt;</p>
-<p>      &lt;/el-form&gt;</p>
+&lt;script setup&gt;
+import { ref, reactive, computed, onMounted } from &#39;vue&#39;
+import { ElMessage, ElMessageBox } from &#39;element-plus&#39;
+import { useUserStore } from &#39;@/store/user&#39;
 
-<p>      &lt;!-- 数据表格 --&gt;</p>
-<p>      &lt;el-table :data=&quot;userList&quot; style=&quot;width: 100%&quot;&gt;</p>
-<p>        &lt;el-table-column prop=&quot;id&quot; label=&quot;ID&quot; width=&quot;80&quot; /&gt;</p>
-<p>        &lt;el-table-column prop=&quot;username&quot; label=&quot;用户名&quot; /&gt;</p>
-<p>        &lt;el-table-column prop=&quot;name&quot; label=&quot;姓名&quot; /&gt;</p>
-<p>        &lt;el-table-column prop=&quot;email&quot; label=&quot;邮箱&quot; /&gt;</p>
-<p>        &lt;el-table-column prop=&quot;role&quot; label=&quot;角色&quot; /&gt;</p>
-<p>        &lt;el-table-column prop=&quot;createTime&quot; label=&quot;创建时间&quot; /&gt;</p>
-<p>        &lt;el-table-column label=&quot;操作&quot; width=&quot;180&quot;&gt;</p>
-<p>          &lt;template #default=&quot;scope&quot;&gt;</p>
-<p>            &lt;el-button type=&quot;primary&quot; size=&quot;small&quot; @click=&quot;handleEdit(scope.row)&quot;&gt;编辑&lt;/el-button&gt;</p>
-<p>            &lt;el-button type=&quot;danger&quot; size=&quot;small&quot; @click=&quot;handleDelete(scope.row.id)&quot;&gt;删除&lt;/el-button&gt;</p>
-<p>          &lt;/template&gt;</p>
-<p>        &lt;/el-table-column&gt;</p>
-<p>      &lt;/el-table&gt;</p>
+const userStore = useUserStore()
+const userList = ref([])
+const searchForm = reactive({ username: &#39;&#39; })
+const pagination = reactive({
+  currentPage: 1,
+  pageSize: 10,
+  total: 0
+})
 
-<p>      &lt;!-- 分页 --&gt;</p>
-<p>      &lt;div class=&quot;pagination-container&quot;&gt;</p>
-<p>        &lt;el-pagination</p>
-<p>          v-model:current-page=&quot;pagination.currentPage&quot;</p>
-<p>          v-model:page-size=&quot;pagination.pageSize&quot;</p>
-<p>          :page-sizes=&quot;[10, 20, 50, 100]&quot;</p>
-<p>          layout=&quot;total, sizes, prev, pager, next, jumper&quot;</p>
-<p>          :total=&quot;pagination.total&quot;</p>
-<p>          @size-change=&quot;handleSizeChange&quot;</p>
-<p>          @current-change=&quot;handleCurrentChange&quot;</p>
-<p>        /&gt;</p>
-<p>      &lt;/div&gt;</p>
-<p>    &lt;/el-card&gt;</p>
+const dialogVisible = ref(false)
+const dialogTitle = ref(&#39;&#39;)
+const isAdd = ref(false)
+const form = reactive({})
+const formRef = ref()
+const rules = {
+  username: [{ required: true, message: &#39;请输入用户名&#39;, trigger: &#39;blur&#39; }],
+  name: [{ required: true, message: &#39;请输入姓名&#39;, trigger: &#39;blur&#39; }],
+  email: [{ required: true, message: &#39;请输入邮箱&#39;, trigger: &#39;blur&#39; }, { type: &#39;email&#39;, message: &#39;请输入正确的邮箱格式&#39;, trigger: &#39;blur&#39; }],
+  role: [{ required: true, message: &#39;请选择角色&#39;, trigger: &#39;change&#39; }],
+  password: [{ required: true, message: &#39;请输入密码&#39;, trigger: &#39;blur&#39; }]
+}
 
-<p>    &lt;!-- 添加/编辑对话框 --&gt;</p>
-<p>    &lt;el-dialog v-model=&quot;dialogVisible&quot; :title=&quot;dialogTitle&quot;&gt;</p>
-<p>      &lt;el-form :model=&quot;form&quot; :rules=&quot;rules&quot; ref=&quot;formRef&quot;&gt;</p>
-<p>        &lt;el-form-item label=&quot;用户名&quot; prop=&quot;username&quot;&gt;</p>
-<p>          &lt;el-input v-model=&quot;form.username&quot; /&gt;</p>
-<p>        &lt;/el-form-item&gt;</p>
-<p>        &lt;el-form-item label=&quot;姓名&quot; prop=&quot;name&quot;&gt;</p>
-<p>          &lt;el-input v-model=&quot;form.name&quot; /&gt;</p>
-<p>        &lt;/el-form-item&gt;</p>
-<p>        &lt;el-form-item label=&quot;邮箱&quot; prop=&quot;email&quot;&gt;</p>
-<p>          &lt;el-input v-model=&quot;form.email&quot; /&gt;</p>
-<p>        &lt;/el-form-item&gt;</p>
-<p>        &lt;el-form-item label=&quot;角色&quot; prop=&quot;role&quot;&gt;</p>
-<p>          &lt;el-select v-model=&quot;form.role&quot;&gt;</p>
-<p>            &lt;el-option label=&quot;管理员&quot; value=&quot;admin&quot; /&gt;</p>
-<p>            &lt;el-option label=&quot;普通用户&quot; value=&quot;user&quot; /&gt;</p>
-<p>          &lt;/el-select&gt;</p>
-<p>        &lt;/el-form-item&gt;</p>
-<p>        &lt;el-form-item v-if=&quot;isAdd&quot; label=&quot;密码&quot; prop=&quot;password&quot;&gt;</p>
-<p>          &lt;el-input v-model=&quot;form.password&quot; type=&quot;password&quot; /&gt;</p>
-<p>        &lt;/el-form-item&gt;</p>
-<p>      &lt;/el-form&gt;</p>
-<p>      &lt;template #footer&gt;</p>
-<p>        &lt;span class=&quot;dialog-footer&quot;&gt;</p>
-<p>          &lt;el-button @click=&quot;dialogVisible = false&quot;&gt;取消&lt;/el-button&gt;</p>
-<p>          &lt;el-button type=&quot;primary&quot; @click=&quot;handleSubmit&quot;&gt;确定&lt;/el-button&gt;</p>
-<p>        &lt;/span&gt;</p>
-<p>      &lt;/template&gt;</p>
-<p>    &lt;/el-dialog&gt;</p>
-<p>  &lt;/div&gt;</p>
-<p>&lt;/template&gt;</p>
+onMounted(() =&gt; {
+  loadUsers()
+})
 
-<p>&lt;script setup&gt;</p>
-<p>import { ref, reactive, computed, onMounted } from &#039;vue&#039;</p>
-<p>import { ElMessage, ElMessageBox } from &#039;element-plus&#039;</p>
-<p>import { useUserStore } from &#039;@/store/user&#039;</p>
+const loadUsers = async () =&gt; {
+  const params = {
+    page: pagination.currentPage,
+    pageSize: pagination.pageSize,
+    username: searchForm.username
+  }
+  const result = await userStore.getUsers(params)
+  userList.value = result.list
+  pagination.total = result.total
+}
 
-<p>const userStore = useUserStore()</p>
-<p>const userList = ref([])</p>
-<p>const searchForm = reactive({ username: &#039;&#039; })</p>
-<p>const pagination = reactive({</p>
-<p>  currentPage: 1,</p>
-<p>  pageSize: 10,</p>
-<p>  total: 0</p>
-<p>})</p>
+const handleSearch = () =&gt; {
+  pagination.currentPage = 1
+  loadUsers()
+}
 
-<p>const dialogVisible = ref(false)</p>
-<p>const dialogTitle = ref(&#039;&#039;)</p>
-<p>const isAdd = ref(false)</p>
-<p>const form = reactive({})</p>
-<p>const formRef = ref()</p>
-<p>const rules = {</p>
-<p>  username: [{ required: true, message: &#039;请输入用户名&#039;, trigger: &#039;blur&#039; }],</p>
-<p>  name: [{ required: true, message: &#039;请输入姓名&#039;, trigger: &#039;blur&#039; }],</p>
-<p>  email: [{ required: true, message: &#039;请输入邮箱&#039;, trigger: &#039;blur&#039; }, { type: &#039;email&#039;, message: &#039;请输入正确的邮箱格式&#039;, trigger: &#039;blur&#039; }],</p>
-<p>  role: [{ required: true, message: &#039;请选择角色&#039;, trigger: &#039;change&#039; }],</p>
-<p>  password: [{ required: true, message: &#039;请输入密码&#039;, trigger: &#039;blur&#039; }]</p>
-<p>}</p>
+const resetForm = () =&gt; {
+  Object.assign(searchForm, { username: &#39;&#39; })
+  pagination.currentPage = 1
+  loadUsers()
+}
 
-<p>onMounted(() =&gt; {</p>
-<p>  loadUsers()</p>
-<p>})</p>
+const handleSizeChange = (size) =&gt; {
+  pagination.pageSize = size
+  loadUsers()
+}
 
-<p>const loadUsers = async () =&gt; {</p>
-<p>  const params = {</p>
-<p>    page: pagination.currentPage,</p>
-<p>    pageSize: pagination.pageSize,</p>
-<p>    username: searchForm.username</p>
-<p>  }</p>
-<p>  const result = await userStore.getUsers(params)</p>
-<p>  userList.value = result.list</p>
-<p>  pagination.total = result.total</p>
-<p>}</p>
+const handleCurrentChange = (current) =&gt; {
+  pagination.currentPage = current
+  loadUsers()
+}
 
-<p>const handleSearch = () =&gt; {</p>
-<p>  pagination.currentPage = 1</p>
-<p>  loadUsers()</p>
-<p>}</p>
+const handleAdd = () =&gt; {
+  dialogTitle.value = &#39;添加用户&#39;
+  isAdd.value = true
+  Object.assign(form, { username: &#39;&#39;, name: &#39;&#39;, email: &#39;&#39;, role: &#39;user&#39;, password: &#39;&#39; })
+  dialogVisible.value = true
+}
 
-<p>const resetForm = () =&gt; {</p>
-<p>  Object.assign(searchForm, { username: &#039;&#039; })</p>
-<p>  pagination.currentPage = 1</p>
-<p>  loadUsers()</p>
-<p>}</p>
+const handleEdit = (row) =&gt; {
+  dialogTitle.value = &#39;编辑用户&#39;
+  isAdd.value = false
+  Object.assign(form, { ...row })
+  dialogVisible.value = true
+}
 
-<p>const handleSizeChange = (size) =&gt; {</p>
-<p>  pagination.pageSize = size</p>
-<p>  loadUsers()</p>
-<p>}</p>
+const handleDelete = async (id) =&gt; {
+  try {
+    await ElMessageBox.confirm(&#39;确定要删除该用户吗？&#39;, &#39;提示&#39;, {
+      confirmButtonText: &#39;确定&#39;,
+      cancelButtonText: &#39;取消&#39;,
+      type: &#39;warning&#39;
+    })
+    await userStore.deleteUser(id)
+    ElMessage.success(&#39;删除成功&#39;)
+    loadUsers()
+  } catch (error) {
+    // 取消删除
+  }
+}
 
-<p>const handleCurrentChange = (current) =&gt; {</p>
-<p>  pagination.currentPage = current</p>
-<p>  loadUsers()</p>
-<p>}</p>
-
-<p>const handleAdd = () =&gt; {</p>
-<p>  dialogTitle.value = &#039;添加用户&#039;</p>
-<p>  isAdd.value = true</p>
-<p>  Object.assign(form, { username: &#039;&#039;, name: &#039;&#039;, email: &#039;&#039;, role: &#039;user&#039;, password: &#039;&#039; })</p>
-<p>  dialogVisible.value = true</p>
-<p>}</p>
-
-<p>const handleEdit = (row) =&gt; {</p>
-<p>  dialogTitle.value = &#039;编辑用户&#039;</p>
-<p>  isAdd.value = false</p>
-<p>  Object.assign(form, { ...row })</p>
-<p>  dialogVisible.value = true</p>
-<p>}</p>
-
-<p>const handleDelete = async (id) =&gt; {</p>
-<p>  try {</p>
-<p>    await ElMessageBox.confirm(&#039;确定要删除该用户吗？&#039;, &#039;提示&#039;, {</p>
-<p>      confirmButtonText: &#039;确定&#039;,</p>
-<p>      cancelButtonText: &#039;取消&#039;,</p>
-<p>      type: &#039;warning&#039;</p>
-<p>    })</p>
-<p>    await userStore.deleteUser(id)</p>
-<p>    ElMessage.success(&#039;删除成功&#039;)</p>
-<p>    loadUsers()</p>
-<p>  } catch (error) {</p>
-<p>    // 取消删除</p>
-<p>  }</p>
-<p>}</p>
-
-<p>const handleSubmit = async () =&gt; {</p>
-<p>  if (!formRef.value) return</p>
-<p>  try {</p>
-<p>    await formRef.value.validate()</p>
-<p>    if (isAdd.value) {</p>
-<p>      await userStore.addUser(form)</p>
-<p>      ElMessage.success(&#039;添加成功&#039;)</p>
-<p>    } else {</p>
-<p>      await userStore.updateUser(form)</p>
-<p>      ElMessage.success(&#039;更新成功&#039;)</p>
-<p>    }</p>
-<p>    dialogVisible.value = false</p>
-<p>    loadUsers()</p>
-<p>  } catch (error) {</p>
-<p>    ElMessage.error(&#039;操作失败&#039;)</p>
-<p>  }</p>
-<p>}</p>
-<p>&lt;/script&gt;</p>
+const handleSubmit = async () =&gt; {
+  if (!formRef.value) return
+  try {
+    await formRef.value.validate()
+    if (isAdd.value) {
+      await userStore.addUser(form)
+      ElMessage.success(&#39;添加成功&#39;)
+    } else {
+      await userStore.updateUser(form)
+      ElMessage.success(&#39;更新成功&#39;)
+    }
+    dialogVisible.value = false
+    loadUsers()
+  } catch (error) {
+    ElMessage.error(&#39;操作失败&#39;)
+  }
+}
+&lt;/script&gt;
 </code></pre>
-
 <h4>后端实现</h4>
-
 <pre><code class="language-java">// 用户控制器
-<p>@RestController</p>
-<p>@RequestMapping(&quot;/api/user&quot;)</p>
-<p>public class UserController {</p>
-<p>    @Autowired</p>
-<p>    private UserService userService;</p>
+@RestController
+@RequestMapping(&quot;/api/user&quot;)
+public class UserController {
+    @Autowired
+    private UserService userService;
+    
+    @GetMapping(&quot;/list&quot;)
+    public Result&lt;?&gt; list(@RequestParam(defaultValue = &quot;1&quot;) Integer page,
+                         @RequestParam(defaultValue = &quot;10&quot;) Integer pageSize,
+                         String username) {
+        Page&lt;User&gt; userPage = userService.page(new Page&lt;&gt;(page, pageSize),
+            new QueryWrapper&lt;User&gt;()
+                .like(StringUtils.isNotBlank(username), &quot;username&quot;, username)
+        );
+        return Result.success(userPage);
+    }
+    
+    @PostMapping(&quot;/add&quot;)
+    public Result&lt;?&gt; add(@RequestBody User user) {
+        userService.save(user);
+        return Result.success(&quot;添加成功&quot;);
+    }
+    
+    @PutMapping(&quot;/update&quot;)
+    public Result&lt;?&gt; update(@RequestBody User user) {
+        userService.updateById(user);
+        return Result.success(&quot;更新成功&quot;);
+    }
+    
+    @DeleteMapping(&quot;/delete/{id}&quot;)
+    public Result&lt;?&gt; delete(@PathVariable Long id) {
+        userService.removeById(id);
+        return Result.success(&quot;删除成功&quot;);
+    }
+}
 
-<p>    @GetMapping(&quot;/list&quot;)</p>
-<p>    public Result&lt;?&gt; list(@RequestParam(defaultValue = &quot;1&quot;) Integer page,</p>
-<p>                         @RequestParam(defaultValue = &quot;10&quot;) Integer pageSize,</p>
-<p>                         String username) {</p>
-<p>        Page&lt;User&gt; userPage = userService.page(new Page&lt;&gt;(page, pageSize),</p>
-<p>            new QueryWrapper&lt;User&gt;()</p>
-<p>                .like(StringUtils.isNotBlank(username), &quot;username&quot;, username)</p>
-<p>        );</p>
-<p>        return Result.success(userPage);</p>
-<p>    }</p>
-
-<p>    @PostMapping(&quot;/add&quot;)</p>
-<p>    public Result&lt;?&gt; add(@RequestBody User user) {</p>
-<p>        userService.save(user);</p>
-<p>        return Result.success(&quot;添加成功&quot;);</p>
-<p>    }</p>
-
-<p>    @PutMapping(&quot;/update&quot;)</p>
-<p>    public Result&lt;?&gt; update(@RequestBody User user) {</p>
-<p>        userService.updateById(user);</p>
-<p>        return Result.success(&quot;更新成功&quot;);</p>
-<p>    }</p>
-
-<p>    @DeleteMapping(&quot;/delete/{id}&quot;)</p>
-<p>    public Result&lt;?&gt; delete(@PathVariable Long id) {</p>
-<p>        userService.removeById(id);</p>
-<p>        return Result.success(&quot;删除成功&quot;);</p>
-<p>    }</p>
-<p>}</p>
-
-<p>// 用户服务</p>
-<p>@Service</p>
-<p>public class UserService extends ServiceImpl&lt;UserMapper, User&gt; {</p>
-<p>    @Autowired</p>
-<p>    private PasswordEncoder passwordEncoder;</p>
-
-<p>    @Override</p>
-<p>    public boolean save(User user) {</p>
-<p>        // 加密密码</p>
-<p>        user.setPassword(passwordEncoder.encode(user.getPassword()));</p>
-<p>        user.setCreateTime(LocalDateTime.now());</p>
-<p>        return super.save(user);</p>
-<p>    }</p>
-
-<p>    @Override</p>
-<p>    public boolean updateById(User user) {</p>
-<p>        // 如果更新密码，需要重新加密</p>
-<p>        if (StringUtils.isNotBlank(user.getPassword())) {</p>
-<p>            user.setPassword(passwordEncoder.encode(user.getPassword()));</p>
-<p>        }</p>
-<p>        return super.updateById(user);</p>
-<p>    }</p>
-<p>}</p>
+// 用户服务
+@Service
+public class UserService extends ServiceImpl&lt;UserMapper, User&gt; {
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    
+    @Override
+    public boolean save(User user) {
+        // 加密密码
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setCreateTime(LocalDateTime.now());
+        return super.save(user);
+    }
+    
+    @Override
+    public boolean updateById(User user) {
+        // 如果更新密码，需要重新加密
+        if (StringUtils.isNotBlank(user.getPassword())) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+        return super.updateById(user);
+    }
+}
 </code></pre>
-
 <h2>部署方案</h2>
-
 <h3>Docker Compose部署</h3>
+<pre><code class="language-yaml">version: &#39;3.8&#39;
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: management_system
+    ports:
+      - &quot;3306:3306&quot;
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - app-network
+  
+  redis:
+    image: redis:7.0
+    container_name: redis
+    ports:
+      - &quot;6379:6379&quot;
+    networks:
+      - app-network
+  
+  backend:
+    build: ./backend
+    container_name: backend
+    ports:
+      - &quot;8080:8080&quot;
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/management_system
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_REDIS_HOST: redis
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - app-network
+  
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - &quot;80:80&quot;
+    depends_on:
+      - backend
+    networks:
+      - app-network
 
-<pre><code class="language-yaml">version: &#039;3.8&#039;
-<p>services:</p>
-<p>  mysql:</p>
-<p>    image: mysql:8.0</p>
-<p>    container_name: mysql</p>
-<p>    environment:</p>
-<p>      MYSQL_ROOT_PASSWORD: root</p>
-<p>      MYSQL_DATABASE: management_system</p>
-<p>    ports:</p>
-<ul class="markdown-list">
-<li>&quot;3306:3306&quot;
-<p>volumes:</li></p>
-<li>mysql-data:/var/lib/mysql
-<p>networks:</li></p>
-<li>app-network</li>
-<li>redis:
-<p>image: redis:7.0</p>
-<p>container_name: redis</p>
-<p>ports:</li></p>
-<li>&quot;6379:6379&quot;
-<p>networks:</li></p>
-<li>app-network</li>
-<li>backend:
-<p>build: ./backend</p>
-<p>container_name: backend</p>
-<p>ports:</li></p>
-<li>&quot;8080:8080&quot;
-<p>environment:</p>
-<p>SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/management_system</p>
-<p>SPRING_DATASOURCE_USERNAME: root</p>
-<p>SPRING_DATASOURCE_PASSWORD: root</p>
-<p>SPRING_REDIS_HOST: redis</p>
-<p>depends_on:</li></p>
-<li>mysql</li>
-<li>redis
-<p>networks:</li></p>
-<li>app-network</li>
-<li>frontend:
-<p>build: ./frontend</p>
-<p>container_name: frontend</p>
-<p>ports:</li></p>
-<li>&quot;80:80&quot;
-<p>depends_on:</li></p>
-<li>backend
-<p>networks:</li></p>
-<li>app-network</li>
-</ul>
-<p>volumes:</p>
-<p>  mysql-data:</p>
+volumes:
+  mysql-data:
 
-<p>networks:</p>
-<p>  app-network:</p>
-<p>    driver: bridge</p>
+networks:
+  app-network:
+    driver: bridge
 </code></pre>
-
 <h3>CI/CD 配置</h3>
-
 <pre><code class="language-yaml"># .github/workflows/deploy.yml
-<p>name: Deploy Management System</p>
+name: Deploy Management System
 
-<p>on:</p>
-<p>  push:</p>
-<p>    branches: [ main ]</p>
+on:
+  push:
+    branches: [ main ]
 
-<p>jobs:</p>
-<p>  build:</p>
-<p>    runs-on: ubuntu-latest</p>
-
-<p>    steps:</p>
-<ul class="markdown-list">
-<li>uses: actions/checkout@v3</li>
-<li>name: Set up JDK 17
-<p>uses: actions/setup-java@v3</p>
-<p>with:</p>
-<p>java-version: &#039;17&#039;</p>
-<p>distribution: &#039;temurin&#039;</li></p>
-<li>name: Build backend
-<p>run: |</p>
-<p>cd backend</p>
-<p>mvn clean package -DskipTests</li></p>
-<li>name: Set up Node.js
-<p>uses: actions/setup-node@v3</p>
-<p>with:</p>
-<p>node-version: &#039;16&#039;</li></p>
-<li>name: Build frontend
-<p>run: |</p>
-<p>cd frontend</p>
-<p>npm install</p>
-<p>npm run build</li></p>
-<li>name: Deploy to server
-<p>uses: appleboy/ssh-action@v0.1.7</p>
-<p>with:</p>
-<p>host: ${{ secrets.SERVER_HOST }}</p>
-<p>username: ${{ secrets.SERVER_USER }}</p>
-<p>password: ${{ secrets.SERVER_PASSWORD }}</p>
-<p>script: |</p>
-<p># 部署脚本</p>
-<p>cd /app/management-system</p>
-<p>git pull</p>
-<p>docker-compose up -d --build</li></p>
-</ul>
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: &#39;17&#39;
+        distribution: &#39;temurin&#39;
+    
+    - name: Build backend
+      run: |
+        cd backend
+        mvn clean package -DskipTests
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: &#39;16&#39;
+    
+    - name: Build frontend
+      run: |
+        cd frontend
+        npm install
+        npm run build
+    
+    - name: Deploy to server
+      uses: appleboy/ssh-action@v0.1.7
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        password: ${{ secrets.SERVER_PASSWORD }}
+        script: |
+          # 部署脚本
+          cd /app/management-system
+          git pull
+          docker-compose up -d --build
 </code></pre>
-
 <h2>性能优化</h2>
-
 <h3>前端优化</h3>
-
 <ol class="markdown-ordered-list">
 <li><strong>代码分割</strong>：使用动态导入实现路由懒加载</li>
 <li><strong>组件缓存</strong>：使用Vue的keep-alive组件缓存常用页面</li>
@@ -1097,59 +1107,52 @@
 <li><strong>使用CDN</strong>：将静态资源部署到CDN</li>
 </ol>
 <h3>后端优化</h3>
-
 <ol class="markdown-ordered-list">
-<li><strong>数据库优化</strong>：</li>
-</ol>
+<li><p><strong>数据库优化</strong>：</p>
 <ul class="markdown-list">
 <li>合理设计索引</li>
 <li>使用连接池</li>
 <li>优化SQL查询</li>
 <li>读写分离</li>
 </ul>
-<ol class="markdown-ordered-list">
-<li><strong>缓存优化</strong>：</li>
-</ol>
+</li>
+<li><p><strong>缓存优化</strong>：</p>
 <ul class="markdown-list">
 <li>使用Redis缓存热点数据</li>
 <li>实现缓存预热</li>
 <li>合理设置缓存过期时间</li>
 </ul>
-<ol class="markdown-ordered-list">
-<li><strong>代码优化</strong>：</li>
-</ol>
+</li>
+<li><p><strong>代码优化</strong>：</p>
 <ul class="markdown-list">
 <li>使用Stream API和Lambda表达式</li>
 <li>避免重复计算</li>
 <li>使用局部变量减少方法调用</li>
 </ul>
-<ol class="markdown-ordered-list">
-<li><strong>并发优化</strong>：</li>
-</ol>
+</li>
+<li><p><strong>并发优化</strong>：</p>
 <ul class="markdown-list">
 <li>使用线程池处理并发请求</li>
 <li>合理使用同步锁</li>
 <li>避免死锁</li>
 </ul>
-<ol class="markdown-ordered-list">
-<li><strong>JVM优化</strong>：</li>
-</ol>
+</li>
+<li><p><strong>JVM优化</strong>：</p>
 <ul class="markdown-list">
 <li>合理设置JVM参数</li>
 <li>使用G1垃圾收集器</li>
 <li>监控JVM运行状态</li>
 </ul>
+</li>
+</ol>
 <h2>监控与告警</h2>
-
 <h3>前端监控</h3>
-
 <ol class="markdown-ordered-list">
 <li><strong>错误监控</strong>：使用Sentry监控前端错误</li>
 <li><strong>性能监控</strong>：使用Web Vitals监控页面性能</li>
 <li><strong>用户行为分析</strong>：使用Google Analytics分析用户行为</li>
 </ol>
 <h3>后端监控</h3>
-
 <ol class="markdown-ordered-list">
 <li><strong>应用监控</strong>：使用Spring Boot Actuator暴露监控端点</li>
 <li><strong>系统监控</strong>：使用Prometheus + Grafana监控系统指标</li>
@@ -1157,9 +1160,7 @@
 <li><strong>告警机制</strong>：配置邮件/短信告警</li>
 </ol>
 <h2>总结与展望</h2>
-
 <p>本项目实现了一个基于Vue 3 + Spring Boot的完整前后端分离管理系统，包含用户认证、权限管理、数据管理、数据可视化等核心功能。通过本项目的实践，我们掌握了以下技术点：</p>
-
 <ol class="markdown-ordered-list">
 <li><strong>前后端分离架构</strong>的设计与实现</li>
 <li><strong>Spring Boot 3</strong>的核心特性和最佳实践</li>
@@ -1170,7 +1171,6 @@
 <li><strong>CI/CD</strong>自动化部署</li>
 </ol>
 <p>在未来的发展中，我们可以考虑：</p>
-
 <ol class="markdown-ordered-list">
 <li><strong>微服务架构</strong>：将系统拆分为多个微服务</li>
 <li><strong>API网关</strong>：引入API网关统一管理API</li>
@@ -1180,10 +1180,10 @@
 <li><strong>AI集成</strong>：在系统中集成AI能力，如智能分析、预测等</li>
 </ol>
 <p>前后端分离架构是现代Web应用的主流选择，本项目为我们提供了一个完整的实践案例，希望能为大家的学习和工作提供参考。</p>
+
       </div>
     </article>
     
-    <!-- 评论区 -->
     <div id="comments" style="max-width: 800px; margin: 3rem auto; padding: 0 1rem;">
       <div style="width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin-bottom: 2rem;"></div>
       <h3 style="margin-bottom: 1.5rem; color: var(--primary);">💬 评论区</h3>
