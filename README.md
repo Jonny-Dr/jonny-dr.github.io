@@ -10,13 +10,14 @@
 
 ## ✨ 特性
 - 🚀 **静态网站**: 基于原生 HTML、CSS 和 JavaScript 构建
-- 🌙 **暗色模式**: 支持深色/浅色主题无缝切换
+- 🌙 **暗色模式**: 支持深色/浅色主题无缝切换，自动保存用户偏好
 - 📱 **响应式设计**: 完美适配各种设备屏幕
 - ⚡ **高性能**: 静态生成，快速加载
 - 🎨 **优雅设计**: 精心设计的 UI，注重用户体验
-- 🎵 **背景音乐**: 内置背景音乐播放器，支持控制
-- 📝 **Markdown 支持**: 使用 Markdown 编写文章，自动生成 HTML
-- 🔧 **自动分页**: 实现各栏目的自动分页功能
+- 🎵 **背景音乐**: 内置背景音乐播放器，页面切换不中断
+- 📝 **Markdown 支持**: 使用 marked 库解析，支持完整 GFM 语法
+- 🔧 **自动分页**: 各栏目自动分页，归档按年/月分组
+- 💬 **评论系统**: 集成 Giscus 评论
 - 📁 **模块化结构**: 清晰的目录结构，易于维护
 
 ---
@@ -27,37 +28,48 @@
 | 前端技术   | HTML5, CSS3, JavaScript |
 | 部署方式   | GitHub Pages        |
 | 自动化部署 | GitHub Actions      |
-| Markdown 解析 | 自定义 MarkdownParser 模块 |
-| 页面生成   | 自定义 generate-pagination.js 脚本 |
+| Markdown 解析 | marked (npm 库)     |
+| 代码高亮   | highlight.js        |
+| 评论系统   | Giscus              |
 
 ---
 
 ## 📁 项目结构
 
 ```
-├── css/               # 样式文件
-│   └── common.css     # 通用样式
-├── images/            # 图片资源
-│   ├── days/          # 日常图片
-│   ├── head/          # 头部背景
-│   └── music/         # 背景音乐
-├── js/                # JavaScript 文件
-│   └── theme.js       # 主题切换和音乐控制
-├── posts/             # 文章目录
-│   ├── archives/      # 归档文章
-│   ├── daily/         # 日常文章
-│   └── skill/         # 技术文章
-├── templates/         # 页面模板
+├── css/                   # 样式文件
+│   └── common.css         # 通用样式（含主题变量）
+├── images/                # 图片资源
+│   ├── days/              # 日常图片
+│   ├── head/              # 头部背景
+│   └── music/             # 背景音乐
+├── js/                    # JavaScript 文件
+│   └── theme.js           # 主题切换、音乐控制、SPA 路由
+├── posts/                 # 文章目录
+│   ├── archives/          # 归档文章
+│   │   ├── md/            # Markdown 源文件
+│   │   │   └── assets/    # 文章图片
+│   │   └── html/          # 生成的 HTML 文件
+│   ├── daily/             # 日常文章
+│   ├── project/           # 项目文章
+│   └── skill/             # 技术文章
+├── templates/             # 页面模板
 │   ├── archives-template.html
 │   ├── daily-template.html
 │   ├── default-template.html
 │   ├── index-template.html
 │   ├── nav-template.html
 │   └── skill-template.html
-├── generate-pagination.js  # 页面生成脚本
-├── markdown-parser.js      # Markdown 解析模块
-├── README.md               # 项目说明
-└── *.html                  # 生成的静态页面
+├── .github/workflows/     # GitHub Actions 配置
+│   └── pagination.yml     # 自动部署工作流
+├── .gitignore             # Git 忽略配置
+├── deploy.sh              # 一键部署脚本
+├── generate-pagination.js # 页面生成脚本
+├── markdown-parser.js     # Markdown 解析模块（基于 marked）
+├── package.json           # npm 依赖配置
+├── package-lock.json      # 依赖版本锁定
+├── transfer-images.js     # 图片迁移工具
+└── README.md              # 项目说明
 ```
 
 ---
@@ -72,19 +84,37 @@ git clone https://github.com/jonny-dr/jonny-dr.github.io.git
 cd jonny-dr.github.io
 ```
 
-2. **启动本地服务器**
+2. **安装依赖**
+```bash
+npm install
+```
+
+3. **启动本地服务器**
 ```bash
 python3 -m http.server 8000
 ```
 
-3. **访问网站**
+4. **访问网站**
 打开浏览器访问 `http://localhost:8000`
 
-### 发布新文章
+### 发布新文章（推荐使用一键部署）
+
+**最简单的方式**：使用 `deploy.sh` 一键部署脚本
+
+```bash
+# 给脚本添加执行权限（首次使用）
+chmod +x deploy.sh
+
+# 执行一键部署
+./deploy.sh
+```
+
+**手动部署步骤**：
 
 1. **在对应目录创建 Markdown 文件**
    - 技术文章: `posts/skill/md/`
    - 日常文章: `posts/daily/md/`
+   - 项目文章: `posts/project/md/`
    - 归档文章: `posts/archives/md/`
 
 2. **（可选）迁移本地图片**
@@ -121,30 +151,32 @@ git push origin main
 
 ## 🛠 工具脚本
 
+### deploy.sh - 一键部署脚本
+
+**功能**：一站式完成图片迁移、页面生成、代码提交和推送。
+
+**使用方法**：
+```bash
+# 给脚本添加执行权限（首次使用）
+chmod +x deploy.sh
+
+# 执行一键部署
+./deploy.sh
+
+# 自定义提交信息
+./deploy.sh "添加新文章：Redis 分布式锁详解"
+```
+
+**工作流程**：
+1. 检查依赖是否安装
+2. 迁移 Markdown 中引用的本地图片到项目目录
+3. 生成所有页面的 HTML 文件
+4. 自动添加、提交并推送到 GitHub
+5. 提示部署完成
+
 ### transfer-images.js - 图片迁移工具
 
 **功能**：将 Markdown 文件中引用的本地绝对路径图片（如 Typora 生成的图片）迁移到项目对应的 assets 目录，并自动更新 Markdown 中的图片路径。
-
-**使用场景**：
-- 使用 Typora 编辑 Markdown 时，图片默认保存在 `/Users/xxx/Library/Application Support/typora-user-images/`
-- 这些本地路径在 GitHub Pages 上无法访问
-- 运行此工具自动迁移图片到项目目录
-
-**目录结构**：
-```
-posts/
-  ├── skill/
-  │   ├── md/
-  │   │   ├── article.md
-  │   │   └── assets/          # skill 分类的图片目录
-  │   └── html/
-  │       └── assets/          # 自动生成，用于 HTML 引用
-  ├── daily/
-  │   ├── md/
-  │   │   └── assets/          # daily 分类的图片目录
-  │   └── html/
-  └── ...
-```
 
 **使用方法**：
 ```bash
@@ -157,16 +189,35 @@ node transfer-images.js
 # 只处理指定分类
 node transfer-images.js --category=skill
 
+# 指定 Typora 图片路径
+node transfer-images.js --typora-path=~/Pictures/Typora
+
 # 显示帮助
 node transfer-images.js --help
 ```
 
-**工作流程**：
-1. 扫描指定分类下的所有 Markdown 文件
-2. 提取其中引用的本地绝对路径图片
-3. 将图片复制到对应分类的 `md/assets/` 目录
-4. 更新 Markdown 文件中的图片路径为相对路径 `assets/xxx.png`
-5. 将图片同步复制到 `html/assets/` 目录供 HTML 文件引用
+**配置方式**（优先级从高到低）：
+1. 命令行参数: `--typora-path=/path/to/images`
+2. 环境变量: `TYPORA_IMAGE_PATH=/path/to/images`
+3. `.env` 文件: `TYPORA_IMAGE_PATH=/path/to/images`
+4. 自动检测（支持 macOS、Windows、Linux）
+
+### generate-pagination.js - 页面生成脚本
+
+**功能**：扫描所有 Markdown 文件，生成栏目分页页面和文章详情页面。
+
+**使用方法**：
+```bash
+node generate-pagination.js
+```
+
+**生成内容**：
+- 首页: `index.html`
+- 技术栏目: `skill.html`, `skill-2.html`, ...
+- 日常栏目: `daily.html`, `daily-2.html`, ...
+- 项目栏目: `project.html`, `project-2.html`, ...
+- 归档栏目: `archives.html`, `archives-2.html`, ...
+- 文章详情: `posts/{category}/html/*.html`
 
 ---
 
@@ -195,45 +246,68 @@ excerpt: 文章摘要（可选）
 - 文件名格式: `YYYY-MM-DD-文章标题.md`
 - 例如: `2026-02-12-壁纸分享.md`
 
+### 支持的 Markdown 特性
+- ✅ 标题层级（# - ######）
+- ✅ 代码块（带语法高亮）
+- ✅ 表格（GFM 语法）
+- ✅ 列表（有序/无序/任务列表）
+- ✅ 引用块
+- ✅ 加粗/斜体/删除线
+- ✅ 图片（支持本地 assets 路径）
+- ✅ 链接（自动添加 target="_blank"）
+- ✅ 水平分割线
+- ✅ YAML Front Matter
+
 ---
 
 ## 🎨 特色功能
 
 ### 主题切换
 - 支持亮色/暗色模式
-- 自动保存用户偏好
+- 自动检测系统偏好
+- 自动保存用户选择到 localStorage
 - 平滑过渡动画
 
 ### 背景音乐
 - 内置背景音乐播放器
-- 页面切换时音乐不中断
-- 音乐符号图标控制
+- 页面切换时音乐不中断（SPA 效果）
+- 音乐播放状态自动保存
+- 支持暂停/播放控制
 
-### Markdown 解析
-- 支持 YAML front matter
-- 代码语法高亮
-- 图片路径自动处理
-- 完整的 Markdown 语法支持
+### SPA 路由
+- 页面切换无刷新
+- 保留音乐播放状态
+- 自动重新初始化 highlight.js 和 Giscus
 
-### 自动分页
-- 各栏目自动分页
-- 首页显示最新文章
-- 归档页面按年/月分组
+### 评论系统
+- 集成 Giscus（基于 GitHub Discussions）
+- 支持表情反应
+- 支持深色/浅色主题适配
 
 ---
 
-## 🔧 核心脚本
+## 🔧 环境配置
 
-### generate-pagination.js
-- 生成各栏目页面
-- 实现分页功能
-- 处理文章列表
+### .gitignore
 
-### markdown-parser.js
-- 解析 Markdown 文件
-- 提取 front matter
-- 转换 Markdown 为 HTML
-- 处理图片路径
+项目已配置 `.gitignore`，忽略以下文件：
+- `node_modules/` - npm 依赖目录
+- `.env` - 环境变量配置
+- `.DS_Store` - macOS 系统文件
+- `Thumbs.db` - Windows 系统文件
+- `*.log` - 日志文件
+- `*.tmp` - 临时文件
+
+### package.json
+
+项目依赖：
+- `marked`: Markdown 解析库（v18+）
+
+### GitHub Actions
+
+自动部署工作流：
+- 触发条件: 推送到 main/master 分支，且修改了 posts/ 或相关脚本
+- 流程: Checkout → Setup Node.js → npm install → 生成页面 → Commit → Push → Deploy
 
 ---
 
