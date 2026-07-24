@@ -1,0 +1,620 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShardingSphere | 北辰</title>
+  <link rel="stylesheet" href="../../../css/common.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <style>
+    .post-content {
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+    .post-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    .post-meta {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .post-tag {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .post-tag.category {
+      background: rgba(72, 187, 120, 0.1);
+      color: #48bb78;
+    }
+    .post-tag.language {
+      background: rgba(237, 137, 54, 0.1);
+      color: #ed8936;
+    }
+    .post-body {
+      margin-bottom: 2rem;
+    }
+    .post-body h2 {
+      font-size: 1.8rem;
+      margin: 2rem 0 1rem;
+      color: var(--primary);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-body h3 {
+      font-size: 1.4rem;
+      margin: 1.5rem 0 0.8rem;
+      color: var(--primary);
+    }
+    .post-body h4 {
+      font-size: 1.2rem;
+      margin: 1.2rem 0 0.6rem;
+      color: var(--primary);
+    }
+    .post-body h5 {
+      font-size: 1.1rem;
+      margin: 1rem 0 0.5rem;
+      color: var(--text);
+    }
+    .post-body p {
+      margin-bottom: 1.2rem;
+    }
+    .post-body a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-body a:hover {
+      text-decoration: underline;
+    }
+    .post-body ul,
+    .post-body ol {
+      margin: 1rem 0 1.5rem 1.5rem;
+    }
+    .post-body li {
+      margin-bottom: 0.5rem;
+    }
+    .post-body pre {
+      background: #f8f9fa;
+      color: #333333;
+      padding: 1.5rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border);
+    }
+    .post-body code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.9rem;
+    }
+    .post-body pre code {
+      background: none;
+      padding: 0;
+    }
+    /* 暗黑模式下的代码块样式 */
+    [data-theme="dark"] .post-body pre {
+      background: #1e1e1e;
+      color: #e6e6e6;
+    }
+    [data-theme="dark"] .post-body code {
+      color: #e6e6e6;
+    }
+    .post-body img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .post-original-link {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+      color: #6c757d;
+    }
+    .post-original-link a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-original-link a:hover {
+      text-decoration: underline;
+    }
+    /* Markdown 表格样式 */
+    .post-body table.markdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .post-body table.markdown-table thead {
+      background: linear-gradient(135deg, var(--primary), #3a0ca3);
+      color: white;
+    }
+    .post-body table.markdown-table th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      border: none;
+    }
+    .post-body table.markdown-table td {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .post-body table.markdown-table td:last-child {
+      border-right: none;
+    }
+    .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(67, 97, 238, 0.03);
+    }
+    .post-body table.markdown-table tbody tr:hover {
+      background: rgba(67, 97, 238, 0.08);
+    }
+    [data-theme="dark"] .post-body table.markdown-table {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    /* 引用块样式 */
+    .post-body blockquote.markdown-blockquote {
+      border-left: 4px solid var(--primary);
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      background: rgba(67, 97, 238, 0.05);
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #666;
+    }
+    [data-theme="dark"] .post-body blockquote.markdown-blockquote {
+      background: rgba(255, 255, 255, 0.05);
+      color: #aaa;
+    }
+    /* 水平分隔线样式 */
+    .post-body hr.markdown-hr {
+      border: none;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      margin: 2rem 0;
+    }
+    /* 任务列表样式 */
+    .post-body li.task-list-item {
+      list-style: none;
+      margin-left: -1.5rem;
+    }
+    .post-body li.task-list-item input[type="checkbox"] {
+      margin-right: 0.5rem;
+      cursor: default;
+    }
+    /* 图片占位符样式 */
+    .post-body .image-placeholder {
+      transition: var(--transition);
+    }
+    .post-body .image-placeholder:hover {
+      border-color: var(--primary) !important;
+      background: rgba(67, 97, 238, 0.05) !important;
+    }
+    @media (max-width: 768px) {
+      .post-content {
+        padding: 0 1rem;
+      }
+      .post-header h1 {
+        font-size: 1.8rem;
+      }
+      .post-tags {
+        gap: 0.5rem;
+      }
+      .post-tag {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      .post-body pre {
+        padding: 1rem;
+      }
+      .post-body table.markdown-table {
+        font-size: 0.85rem;
+      }
+      .post-body table.markdown-table th,
+      .post-body table.markdown-table td {
+        padding: 0.6rem 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <button class="music-toggle" id="musicToggle" aria-label="控制音乐">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+  </button>
+
+  <header>
+    <h1>🌱 北辰的博客</h1>
+    <p class="subtitle">记录思考，分享成长 | 一个热爱技术的探索者</p>
+    <nav>
+  <a href="../../../index.html">首页</a>
+  <a href="../../../project.html">项目</a>
+  <a href="../../../skill.html">技术</a>
+  <a href="../../../daily.html">日常</a>
+  <a href="../../../about.html">关于</a>
+  <a href="../../../archives.html">归档</a>
+  <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+</nav>
+  </header>
+
+  <main class="post-content">
+    <article>
+      <div class="post-header">
+        <h1>ShardingSphere</h1>
+        <div class="post-meta">发布日期：2026-07-11</div>
+        
+        <div class="post-tags">
+          <span class="post-tag category">分库分表</span> <span class="post-tag category">性能优化</span>
+          <span class="post-tag language">Java</span> <span class="post-tag language">ShardingSphere</span>
+        </div>
+        
+      </div>
+      <div class="post-body">
+        <h1>ShardingSphere 混合分片 + 双主高可用 完整配置方案</h1>
+
+<h2>一、方案概述</h2>
+
+<h3>适用场景</h3>
+
+<ul class="markdown-list">
+<li>现有业务库 <code>dev1</code>（双主高可用架构），假设一共20张表。</li>
+<li>仅 <code>t_order</code>、<code>t_order_item</code> 2 张表需实现分库分表，其余 18 张表保持单库原逻辑运行。</li>
+<li>技术栈：Spring Boot + ShardingSphere-JDBC 5.5.0 + MyBatis + MySQL 8.0。</li>
+</ul>
+<h3>核心设计</h3>
+
+<ol class="markdown-ordered-list">
+<li><strong>混合路由</strong>: 未配置分片规则的表，自动路由到默认双主库 <code>dev1</code>，业务代码零改动。</li>
+<li><strong>分片规则</strong>: 2 个分片库 (<code>ds0</code> / <code>ds1</code>)，每个库 10 张分表，总计 20 张物理分片表。</li>
+<li><strong>高可用保障</strong>: <code>dev1</code> 原生双主故障转移，单节点宕机自动切换，分片逻辑完全无感知。</li>
+</ol>
+<h2>二、前置准备 (MySQL 侧)</h2>
+
+<h3>2.1 dev1 双主库基础配置</h3>
+
+<h4>双主自增主键防冲突</h4>
+
+<p>分别在两个主库执行，避免主备切换时出现主键冲突：</p>
+
+<pre><code class="language-sql">-- 主库1 (localhost1) 执行
+<p>SET GLOBAL auto_increment_offset = 1;</p>
+<p>SET GLOBAL auto_increment_increment = 2;</p>
+
+<ul class="markdown-list">
+<li>- 主库2 (localhost2) 执行</li>
+</ul>
+<p>SET GLOBAL auto_increment_offset = 2;</p>
+<p>SET GLOBAL auto_increment_increment = 2;</p>
+</code></pre>
+
+<h4>双主同步状态验证</h4>
+
+<p>两个节点分别执行，确认双向同步正常：</p>
+
+<pre><code class="language-sql">SHOW SLAVE STATUS\G
+<ul class="markdown-list">
+<li>- 需保证 Slave_IO_Running=Yes、 Slave_SQL_Running=Yes</li>
+</ul>
+</code></pre>
+
+<h3>2.2 分片库建库建表</h3>
+
+<p>创建 2 个分片库 <code>ds0</code>、<code>ds1</code>，每个库分别创建 10 张订单分表、10 张订单明细表。</p>
+
+<h4>建库语句</h4>
+
+<pre><code class="language-sql">CREATE DATABASE ds0 DEFAULT CHARACTER SET utf8mb4;
+<p>CREATE DATABASE ds1 DEFAULT CHARACTER SET utf8mb4;</p>
+</code></pre>
+
+<h4>建表语句 (<code>ds0</code>、<code>ds1</code> 分别全量执行)</h4>
+
+<pre><code class="language-sql">-- 订单分表 (0-9 共 10 张，表结构完全一致)
+<p>CREATE TABLE t_order_0 (</p>
+<p>    order_id BIGINT PRIMARY KEY COMMENT &#039;订单ID(雪花算法生成)&#039;,</p>
+<p>    user_id BIGINT NOT NULL COMMENT &#039;用户ID(分库键)&#039;,</p>
+<p>    amount DECIMAL(10,2) NOT NULL COMMENT &#039;订单金额&#039;,</p>
+<p>    create_time DATETIME NOT NULL COMMENT &#039;创建时间&#039;</p>
+<p>);</p>
+<ul class="markdown-list">
+<li>- 重复创建 t_order_1 ~ t_order_9</li>
+<li>- 订单明细表 (0-9 共 10 张，表结构完全一致)</li>
+</ul>
+<p>CREATE TABLE t_order_item_0 (</p>
+<p>    item_id BIGINT PRIMARY KEY COMMENT &#039;明细ID&#039;,</p>
+<p>    order_id BIGINT NOT NULL COMMENT &#039;订单ID(分表键)&#039;,</p>
+<p>    user_id BIGINT NOT NULL COMMENT &#039;用户ID(分库键)&#039;,</p>
+<p>    goods_name VARCHAR(255) NOT NULL COMMENT &#039;商品名称&#039;,</p>
+<p>    quantity INT NOT NULL COMMENT &#039;商品数量&#039;</p>
+<p>);</p>
+<ul class="markdown-list">
+<li>- 重复创建 t_order_item_1 ~ t_order_item_9</li>
+</ul>
+</code></pre>
+
+<h2>三、完整配置文件 (<code>application.yml</code>)</h2>
+
+<pre><code class="language-yaml">server:
+<p>  port: 8080</p>
+
+<p>spring:</p>
+<p>  shardingsphere:</p>
+<p>    datasource:</p>
+<p>      # 所有数据源名称: 默认双主库 dev1 + 2个分片库</p>
+<p>      names: dev1, ds0, ds1</p>
+
+<p>      # 1. 默认业务库 dev1 (双主高可用架构，所有普通表默认路由到此)</p>
+<p>      dev1:</p>
+<p>        type: com.zaxxer.hikari.HikariDataSource</p>
+<p>        driver-class-name: com.mysql.cj.jdbc.Driver</p>
+<p>        # 双主地址用逗号分隔，补充故障转移核心参数</p>
+<p>        url: jdbc:mysql://localhost1:3306,localhost2:3306/dev1?useUnicode=true&amp;characterEncoding=utf8&amp;serverTimezone=GMT%2B8&amp;useSSL=false&amp;failOverReadOnly=false&amp;autoReconnect=true&amp;maxReconnects=3&amp;initialTimeout=2</p>
+<p>        username: root</p>
+<p>        password: 你的MySQL密码</p>
+<p>        # HikariCP连接池配置</p>
+<p>        hikari:</p>
+<p>          connection-timeout: 3000</p>
+<p>          validation-timeout: 2000</p>
+<p>          maximum-pool-size: 20</p>
+<p>          connection-test-query: SELECT 1</p>
+
+<p>      # 2. 分片库0</p>
+<p>      ds0:</p>
+<p>        type: com.zaxxer.hikari.HikariDataSource</p>
+<p>        driver-class-name: com.mysql.cj.jdbc.Driver</p>
+<p>        url: jdbc:mysql://localhost:3306/ds0?useUnicode=true&amp;characterEncoding=utf8&amp;serverTimezone=GMT%2B8&amp;useSSL=false</p>
+<p>        username: root</p>
+<p>        password: 你的MySQL密码</p>
+<p>        hikari:</p>
+<p>          maximum-pool-size: 20</p>
+
+<p>      # 3. 分片库1</p>
+<p>      ds1:</p>
+<p>        type: com.zaxxer.hikari.HikariDataSource</p>
+<p>        driver-class-name: com.mysql.cj.jdbc.Driver</p>
+<p>        url: jdbc:mysql://localhost:3306/ds1?useUnicode=true&amp;characterEncoding=utf8&amp;serverTimezone=GMT%2B8&amp;useSSL=false</p>
+<p>        username: root</p>
+<p>        password: 你的MySQL密码</p>
+<p>        hikari:</p>
+<p>          maximum-pool-size: 20</p>
+
+<p>    rules:</p>
+<p>      sharding:</p>
+<p>        # 核心配置: 默认数据源，所有未配置分片规则的表，自动路由到 dev1 双主库</p>
+<p>        default-data-source-name: dev1</p>
+
+<p>        # 分片表配置: 仅配置需要分库分表的 2 张表</p>
+<p>        tables:</p>
+<p>          # 订单表分片规则</p>
+<p>          t_order:</p>
+<p>            # 真实分片节点: 2库10表，共20个物理节点</p>
+<p>            actual-data-nodes: ds$-&gt;{0..1}.t_order_$-&gt;{0..9}</p>
+<p>            # 分库策略: 按 user_id 取模</p>
+<p>            database-strategy:</p>
+<p>              standard:</p>
+<p>                sharding-column: user_id</p>
+<p>                sharding-algorithm-name: database-mod</p>
+<p>            # 分表策略: 按 order_id 取模</p>
+<p>            table-strategy:</p>
+<p>              standard:</p>
+<p>                sharding-column: order_id</p>
+<p>                sharding-algorithm-name: table-order-mod</p>
+<p>            # 分布式主键: 雪花算法自动生成 order_id</p>
+<p>            key-generate-strategy:</p>
+<p>              column: order_id</p>
+<p>              key-generator-name: snowflake</p>
+
+<p>          # 订单明细表分片规则</p>
+<p>          t_order_item:</p>
+<p>            actual-data-nodes: ds$-&gt;{0..1}.t_order_item_$-&gt;{0..9}</p>
+<p>            database-strategy:</p>
+<p>              standard:</p>
+<p>                sharding-column: user_id</p>
+<p>                sharding-algorithm-name: database-mod</p>
+<p>            table-strategy:</p>
+<p>              standard:</p>
+<p>                sharding-column: order_id</p>
+<p>                sharding-algorithm-name: table-order-item-mod</p>
+<p>            key-generate-strategy:</p>
+<p>              column: item_id</p>
+<p>              key-generator-name: snowflake</p>
+
+<p>        # 分片算法定义</p>
+<p>        sharding-algorithms:</p>
+<p>          # 分库算法 (两张表共用): user_id 对 2 取模，路由到 ds0/ds1</p>
+<p>          database-mod:</p>
+<p>            type: INLINE</p>
+<p>            props:</p>
+<p>              algorithm-expression: ds$-&gt;{user_id % 2}</p>
+
+<p>          # 订单表分表算法</p>
+<p>          table-order-mod:</p>
+<p>            type: INLINE</p>
+<p>            props:</p>
+<p>              algorithm-expression: t_order_$-&gt;{order_id % 10}</p>
+
+<p>          # 订单明细表分表算法</p>
+<p>          table-order-item-mod:</p>
+<p>            type: INLINE</p>
+<p>            props:</p>
+<p>              algorithm-expression: t_order_item_$-&gt;{order_id % 10}</p>
+
+<p>        # 分布式ID生成器</p>
+<p>        key-generators:</p>
+<p>          snowflake:</p>
+<p>            type: SNOWFLAKE</p>
+<p>            props:</p>
+<p>              worker-id: 1  # 集群部署每个实例 worker-id 必须唯一</p>
+
+<p>    props:</p>
+<p>      sql-show: true  # 测试环境开启，打印路由详情；生产环境关闭</p>
+
+<h1>MyBatis 基础配置</h1>
+<p>mybatis:</p>
+<p>  configuration:</p>
+<p>    map-underscore-to-camel-case: true  # 自动驼峰命名映射</p>
+</code></pre>
+
+<h2>四、核心配置说明</h2>
+
+<h3>4.1 默认数据源机制</h3>
+
+<code>default-data-source-name: dev1</code> 是混合分片架构的核心。
+
+<ul class="markdown-list">
+<li>所有未在 <code>tables</code> 中声明分片规则的业务表，全部直接路由到 <code>dev1</code> 双主库。</li>
+<li>业务代码无需任何修改，分片逻辑对普通表完全透明。</li>
+</ul>
+<h3>4.2 dev1 双主高可用参数说明</h3>
+
+<table class="markdown-table">
+<thead>
+<tr><th>URL 参数</th><th>作用</th><th>必要性</th></tr>
+</thead>
+<tbody>
+<tr><td>地址逗号分隔</td><td>MySQL 驱动原生双主故障转移的标准格式</td><td>必须</td></tr>
+<tr><td><code>failOverReadOnly=false</code></td><td>故障切换到备节点后，连接保持可写状态，避免写操作报只读错误</td><td>必须</td></tr>
+<tr><td><code>autoReconnect=true</code></td><td>连接断开后自动重连备用节点</td><td>推荐</td></tr>
+<tr><td><code>maxReconnects=3</code></td><td>最大重连次数，避免无限重试打爆数据库</td><td>推荐</td></tr>
+<tr><td><code>initialTimeout=2</code></td><td>重连间隔时间 (秒)</td><td>推荐</td></tr>
+</tbody>
+</table>
+
+<h3>4.3 分片节点表达式说明</h3>
+
+<code>ds$->{0..1}.t_order_$->{0..9}</code> 是 ShardingSphere 内置行表达式，自动生成所有物理分片节点：
+
+<ul class="markdown-list">
+<li><code>ds$->{0..1}</code> 枚举生成 <code>ds0</code>、<code>ds1</code> 2 个库。</li>
+<li><code>t_order_$->{0..9}</code> 枚举生成 <code>t_order_0</code> ~ <code>t_order_9</code> 10 张表。</li>
+<li>自动做笛卡尔积，覆盖全部 20 个分片节点，无需手动枚举。</li>
+</ul>
+<h2>五、双主故障转移验证步骤</h2>
+
+<h3>前置检查</h3>
+
+<ol class="markdown-ordered-list">
+<li>启动项目，调用普通表的增删改查接口，确认业务正常运行。</li>
+<li>确认双主同步正常，数据可双向同步无延迟。</li>
+</ol>
+<h3>验证步骤</h3>
+
+<ol class="markdown-ordered-list">
+<li><strong>模拟主库宕机</strong>: 停止主库1 (<code>localhost1</code>) 的 MySQL 服务。</li>
+<li><strong>验证写操作</strong>: 调用普通表新增接口，首次请求可能有短暂超时，后续自动恢复正常，说明已成功切换到主库2。</li>
+<li><strong>验证数据一致性</strong>: 登录主库2，确认新写入的数据已正常落库。</li>
+<li><strong>主库恢复</strong>: 重启主库1，等待双主同步追平数据；驱动默认不会自动回切，新连接会优先回到主库1。</li>
+</ol>
+<h2>六、注意事项与最佳实践</h2>
+
+<ol class="markdown-ordered-list">
+<li><strong>分片键携带要求</strong>: 分片表的查询尽量携带分片键，不带分片键会触发全分片扫描，性能极差。</li>
+<li><strong>主键约束</strong>: 分片表禁止使用 MySQL 自增主键，必须使用雪花算法等分布式 ID 方案。</li>
+<li><strong>跨表关联限制</strong>: 避免普通表与分片表的跨库 JOIN 查询，建议业务层拆分查询。</li>
+<li><strong>事务边界</strong>: 单库内事务原生支持；跨 <code>dev1</code> 与分片库的事务需集成分布式事务 (XA / Seata)。</li>
+<li><strong>表名唯一性</strong>: <code>dev1</code> 库中不能存在与分片逻辑表同名的表，否则会优先匹配分片规则。</li>
+<li><strong>集群部署注意</strong>: 多实例部署时，雪花算法的 <code>worker-id</code> 必须每个实例唯一，避免主键冲突。</li>
+</ol>
+<h2>七、可选扩展：主从读写分离方案</h2>
+
+<p>如果 <code>dev1</code> 是「一主多从、读多写少」场景，可替换为 ShardingSphere 原生读写分离规则，支持读负载均衡、事务读主保障，替换原有 <code>rules</code> 部分即可：</p>
+
+<pre><code class="language-yaml">rules:
+<p>  # 读写分离规则</p>
+<p>  readwrite-splitting:</p>
+<p>    data-sources:</p>
+<p>      dev1:</p>
+<p>        write-data-source-name: dev1-master</p>
+<p>        read-data-source-names: dev1-slave1, dev1-slave2</p>
+<p>        load-balancer-name: round_robin</p>
+<p>    load-balancers:</p>
+<p>      round_robin:</p>
+<p>        type: ROUND_ROBIN</p>
+
+<p>  # 分片规则保持不变，默认数据源引用读写分离逻辑名 dev1</p>
+<p>  sharding:</p>
+<p>    default-data-source-name: dev1</p>
+<p>    # 其余分片配置保持不变</p>
+</code></pre>
+
+<p>备注：</p>
+
+<p>如果不需要分库，只需要实现读写分离的话，也可以使用该方法。</p>
+      </div>
+    </article>
+    
+    <!-- 评论区 -->
+    <div id="comments" style="max-width: 800px; margin: 3rem auto; padding: 0 1rem;">
+      <div style="width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin-bottom: 2rem;"></div>
+      <h3 style="margin-bottom: 1.5rem; color: var(--primary);">💬 评论区</h3>
+      <script src="https://giscus.app/client.js" 
+           data-repo="jonny-dr/jonny-dr.github.io" 
+           data-repo-id="R_kgDORKkzfg" 
+           data-category="Announcements" 
+           data-category-id="DIC_kwDORKkzfs4C2Wdq" 
+           data-mapping="pathname" 
+           data-strict="0" 
+           data-reactions-enabled="1" 
+           data-emit-metadata="0" 
+           data-input-position="bottom" 
+           data-theme="preferred_color_scheme" 
+           data-lang="zh-CN" 
+           crossorigin="anonymous" 
+           async> 
+     </script>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 北辰 · 保持好奇，持续成长</p>
+    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
+      源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
+    </p>
+  </footer>
+
+  <button class="back-to-top" id="backToTop" aria-label="回到顶部">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="m18 15-6-6-6 6"/>
+    </svg>
+  </button>
+
+  <script src="../../../js/theme.js"></script>
+</body>
+</html>
+  

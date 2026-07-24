@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>有限资源并发抢占：生产级设计范式 | 北辰</title>
+  <title>设计思想 | 北辰</title>
   <link rel="stylesheet" href="../../../css/common.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
@@ -275,16 +275,20 @@
   <main class="post-content">
     <article>
       <div class="post-header">
-        <h1>有限资源并发抢占：生产级设计范式</h1>
+        <h1>设计思想</h1>
         <div class="post-meta">发布日期：2026-03-14</div>
         
+        <div class="post-tags">
+          <span class="post-tag category">Redis</span> <span class="post-tag category">分布式锁</span>
+          <span class="post-tag language">Java</span>
+        </div>
         
       </div>
       <div class="post-body">
         <h1>有限资源并发抢占：生产级设计范式</h1>
 
 <blockquote class="markdown-blockquote">本文档整理自一套成熟的<strong>电商库存扣减与资源抢占</strong>设计思想，旨在提供高并发下的稳定性与可靠性方案。</blockquote>
-
+<hr class="markdown-hr">
 <h2>一、这套设计的核心思想本质</h2>
 
 <p>这不是一套单纯的「电商库存扣减代码」，而是一套<strong>面向「有限资源并发抢占」场景的通用生产级设计范式</strong>。</p>
