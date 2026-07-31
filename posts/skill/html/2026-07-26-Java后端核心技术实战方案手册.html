@@ -1,0 +1,712 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Java后端核心技术实战方案手册 | 北辰</title>
+  <link rel="stylesheet" href="../../../css/common.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <style>
+    .post-content {
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+    .post-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    .post-meta {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .post-tag {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .post-tag.category {
+      background: rgba(72, 187, 120, 0.1);
+      color: #48bb78;
+    }
+    .post-tag.language {
+      background: rgba(237, 137, 54, 0.1);
+      color: #ed8936;
+    }
+    .post-body {
+      margin-bottom: 2rem;
+    }
+    .post-body h2 {
+      font-size: 1.8rem;
+      margin: 2rem 0 1rem;
+      color: var(--primary);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-body h3 {
+      font-size: 1.4rem;
+      margin: 1.5rem 0 0.8rem;
+      color: var(--primary);
+    }
+    .post-body h4 {
+      font-size: 1.2rem;
+      margin: 1.2rem 0 0.6rem;
+      color: var(--primary);
+    }
+    .post-body h5 {
+      font-size: 1.1rem;
+      margin: 1rem 0 0.5rem;
+      color: var(--text);
+    }
+    .post-body p {
+      margin-bottom: 1.2rem;
+    }
+    .post-body a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-body a:hover {
+      text-decoration: underline;
+    }
+    .post-body ul,
+    .post-body ol {
+      margin: 1rem 0 1.5rem 1.5rem;
+    }
+    .post-body li {
+      margin-bottom: 0.5rem;
+    }
+    .post-body pre {
+      background: #f8f9fa;
+      color: #333333;
+      padding: 1.5rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border);
+    }
+    .post-body code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.9rem;
+    }
+    .post-body pre code {
+      background: none;
+      padding: 0;
+    }
+    [data-theme="dark"] .post-body pre {
+      background: #1e1e1e;
+      color: #e6e6e6;
+    }
+    [data-theme="dark"] .post-body code {
+      color: #e6e6e6;
+    }
+    .post-body img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .post-original-link {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+      color: #6c757d;
+    }
+    .post-original-link a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-original-link a:hover {
+      text-decoration: underline;
+    }
+    .post-body table.markdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .post-body table.markdown-table thead {
+      background: linear-gradient(135deg, var(--primary), #3a0ca3);
+      color: white;
+    }
+    .post-body table.markdown-table th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      border: none;
+    }
+    .post-body table.markdown-table td {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .post-body table.markdown-table td:last-child {
+      border-right: none;
+    }
+    .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(67, 97, 238, 0.03);
+    }
+    .post-body table.markdown-table tbody tr:hover {
+      background: rgba(67, 97, 238, 0.08);
+    }
+    [data-theme="dark"] .post-body table.markdown-table {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .post-body blockquote.markdown-blockquote {
+      border-left: 4px solid var(--primary);
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      background: rgba(67, 97, 238, 0.05);
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #666;
+    }
+    [data-theme="dark"] .post-body blockquote.markdown-blockquote {
+      background: rgba(255, 255, 255, 0.05);
+      color: #aaa;
+    }
+    .post-body hr.markdown-hr {
+      border: none;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      margin: 2rem 0;
+    }
+    .post-body li.task-list-item {
+      list-style: none;
+      margin-left: -1.5rem;
+    }
+    .post-body li.task-list-item input[type="checkbox"] {
+      margin-right: 0.5rem;
+      cursor: default;
+    }
+    .post-body .image-placeholder {
+      transition: var(--transition);
+    }
+    .post-body .image-placeholder:hover {
+      border-color: var(--primary) !important;
+      background: rgba(67, 97, 238, 0.05) !important;
+    }
+    @media (max-width: 768px) {
+      .post-content {
+        padding: 0 1rem;
+      }
+      .post-header h1 {
+        font-size: 1.8rem;
+      }
+      .post-tags {
+        gap: 0.5rem;
+      }
+      .post-tag {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      .post-body pre {
+        padding: 1rem;
+      }
+      .post-body table.markdown-table {
+        font-size: 0.85rem;
+      }
+      .post-body table.markdown-table th,
+      .post-body table.markdown-table td {
+        padding: 0.6rem 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <button class="music-toggle" id="musicToggle" aria-label="控制音乐">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+  </button>
+
+  <header>
+    <h1>🌱 北辰的博客</h1>
+    <p class="subtitle">记录思考，分享成长 | 一个热爱技术的探索者</p>
+    <nav>
+  <a href="../../../index.html">首页</a>
+  <a href="../../../project.html">项目</a>
+  <a href="../../../skill.html">技术</a>
+  <a href="../../../daily.html">日常</a>
+  <a href="../../../about.html">关于</a>
+  <a href="../../../archives.html">归档</a>
+  <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+</nav>
+  </header>
+
+  <main class="post-content">
+    <article>
+      <div class="post-header">
+        <h1>Java后端核心技术实战方案手册</h1>
+        <div class="post-meta">发布日期：2026-07-26</div>
+        
+        <div class="post-tags">
+          <span class="post-tag category">业务组件架构</span> <span class="post-tag category">原理</span> <span class="post-tag category">设计思想</span> <span class="post-tag category">高可用</span> <span class="post-tag category">解决方案</span>
+          <span class="post-tag language">Java</span> <span class="post-tag language">JVM</span> <span class="post-tag language">MySQL</span> <span class="post-tag language">Redis</span> <span class="post-tag language">MQ</span> <span class="post-tag language">ShardingSphere</span>
+        </div>
+        
+      </div>
+      <div class="post-body">
+        <h1>Java后端核心技术实战方案手册</h1>
+<h2>一、JVM 线上OOM故障排查与内存调优</h2>
+<h3>1.1 线上OOM标准排查顺序</h3>
+<p>针对「线上OOM先看日志还是先dump」的问题，按照**「止血保服务 → 定位根因 → 修复验证」**的优先级，标准排查流程如下：</p>
+<ol class="markdown-ordered-list">
+<li><p><strong>应急止血（第一优先级）</strong></p>
+<ul class="markdown-list">
+<li>若服务已完全不可用、持续报错，优先执行<strong>切流/重启服务</strong>，避免影响线上业务；</li>
+<li>重启前务必保留现场：确保JVM配置了<code>-XX:+HeapDumpOnOutOfMemoryError</code>，OOM时会自动生成堆快照文件；同时保留GC日志、应用错误日志。</li>
+</ul>
+</li>
+<li><p><strong>初步定位：先看日志与监控</strong></p>
+<ul class="markdown-list">
+<li>先查看<strong>应用错误日志</strong>，确认OOM的类型：是堆内存溢出（<code>Java heap space</code>）、永久代/元空间溢出、栈溢出，还是堆外内存溢出；</li>
+<li>再查看<strong>GC日志与监控指标</strong>，观察溢出前的内存趋势：老年代使用率是否持续上涨、Full GC频率是否突增、单次Full GC耗时是否过长，初步判断是「流量突增导致内存不足」还是「内存泄漏」。</li>
+</ul>
+</li>
+<li><p><strong>深度分析：堆快照（dump）分析</strong></p>
+<ul class="markdown-list">
+<li>若服务仍在运行但内存持续上涨，使用<code>jmap -dump:format=b,file=heap.hprof &lt;pid&gt;</code>手动导出堆快照；</li>
+<li>使用MAT（Memory Analyzer Tool）、JVisualVM等工具分析dump文件，重点关注：<ul class="markdown-list">
+<li>大对象排行榜：哪些对象占用内存最多；</li>
+<li>泄漏嫌疑点：哪些对象被意外持有引用、无法被GC回收；</li>
+<li>对象引用链：定位泄漏对象的创建与持有位置。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>根因修复与验证</strong></p>
+<ul class="markdown-list">
+<li>结合代码定位问题：大对象创建未释放、集合无限扩容、静态变量持有大对象、第三方组件内存泄漏等；</li>
+<li>修复后调整JVM参数（堆大小、年轻代比例、GC收集器等），上线后持续监控内存与GC指标。</li>
+</ul>
+</li>
+</ol>
+<h3>1.2 老年代占用率飙升核心监控指标</h3>
+<p>当老年代占用率飙高时，按优先级重点盯以下指标：</p>
+<ol class="markdown-ordered-list">
+<li><strong>Full GC 频率与耗时</strong>：最核心指标。正常服务Full GC频率应在数小时一次以上，若几分钟一次、单次耗时超过1秒，说明内存已出现瓶颈；</li>
+<li><strong>老年代使用率增长速率</strong>：每次Young GC后，老年代使用率是否持续阶梯式上涨，若是则大概率存在内存泄漏；</li>
+<li><strong>对象晋升速率与年龄</strong>：观察Young GC后有多少对象进入老年代，是否存在「对象年龄未达阈值就提前晋升」（比如Survivor区太小）；</li>
+<li><strong>元空间使用率</strong>：排除类加载过多导致的非堆内存溢出。</li>
+</ol>
+<h3>1.3 常用排查命令</h3>
+<pre><code class="language-bash"># 查看JVM内存概览
+jstat -gc &lt;pid&gt; 1000 10  # 每秒打印一次GC统计，共10次
+jmap -heap &lt;pid&gt;          # 查看堆内存详细配置与使用情况
+
+# 导出堆快照
+jmap -dump:format=b,file=heap_$(date +%Y%m%d%H%M).hprof &lt;pid&gt;
+
+# 查看线程栈，排查是否有线程导致内存问题
+jstack &lt;pid&gt; &gt; thread_dump.txt
+</code></pre>
+<hr class="markdown-hr">
+<h2>二、并发编程：线程池核心运行逻辑</h2>
+<h3>2.1 任务提交完整执行链路</h3>
+<p>针对「核心线程满了放哪？队列满了怎么办？最大线程满了谁干活？」的问题，任务提交后执行流程按顺序如下：</p>
+<ol class="markdown-ordered-list">
+<li><p><strong>步骤1：核心线程处理</strong><br>提交任务时，若当前运行线程数 &lt; 核心线程数（<code>corePoolSize</code>），直接创建新的核心线程执行任务。</p>
+</li>
+<li><p><strong>步骤2：入阻塞队列等待</strong><br>若核心线程数已满，将任务加入阻塞队列（<code>workQueue</code>）排队等待，由空闲的核心线程调度执行。</p>
+</li>
+<li><p><strong>步骤3：非核心线程扩容</strong><br>若阻塞队列也已满，且当前运行线程数 &lt; 最大线程数（<code>maximumPoolSize</code>），创建非核心线程（救急线程）执行任务。</p>
+</li>
+<li><p><strong>步骤4：执行拒绝策略</strong><br>若当前线程数已达最大线程数，队列也全满，触发拒绝策略（<code>RejectedExecutionHandler</code>），默认抛出异常。</p>
+</li>
+</ol>
+<h3>2.2 七大参数对应链路作用</h3>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>参数</th>
+<th>作用</th>
+<th>对应链路环节</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>corePoolSize</code> 核心线程数</td>
+<td>长期存活的线程数量</td>
+<td>步骤1：任务优先由核心线程处理</td>
+</tr>
+<tr>
+<td><code>maximumPoolSize</code> 最大线程数</td>
+<td>线程池允许的最大线程总数</td>
+<td>步骤3：队列满后扩容的上限</td>
+</tr>
+<tr>
+<td><code>keepAliveTime</code> 空闲存活时间</td>
+<td>非核心线程空闲后的存活时长</td>
+<td>步骤3：非核心线程用完后多久回收</td>
+</tr>
+<tr>
+<td><code>unit</code> 时间单位</td>
+<td>存活时间的单位</td>
+<td>配合keepAliveTime使用</td>
+</tr>
+<tr>
+<td><code>workQueue</code> 阻塞队列</td>
+<td>存放等待执行任务的队列</td>
+<td>步骤2：核心线程满后任务入队</td>
+</tr>
+<tr>
+<td><code>threadFactory</code> 线程工厂</td>
+<td>用于创建线程的工厂</td>
+<td>所有线程的创建入口</td>
+</tr>
+<tr>
+<td><code>rejectedExecutionHandler</code> 拒绝策略</td>
+<td>线程池满后的处理策略</td>
+<td>步骤4：超出承载能力时的兜底</td>
+</tr>
+</tbody></table>
+<h3>2.3 常见场景调优</h3>
+<ul class="markdown-list">
+<li><strong>CPU密集型任务</strong>：核心线程数 = CPU核心数，队列不宜过长，避免堆积；</li>
+<li><strong>IO密集型任务</strong>：核心线程数可设为CPU核心数*2，最大线程数可更大，利用IO等待时间；</li>
+<li><strong>队列选择</strong>：执行短任务用有界队列防OOM，执行长任务可考虑直接扩容（SynchronousQueue）。</li>
+</ul>
+<hr class="markdown-hr">
+<h2>三、MySQL慢SQL调优三招实战</h2>
+<h3>3.1 第一招：explain 优先看 type 与 rows</h3>
+<p>执行<code>explain &lt;SQL语句&gt;</code>后，优先关注两个核心字段，快速判断SQL性能基线：</p>
+<ol class="markdown-ordered-list">
+<li><p><strong>type列：访问类型</strong><br>性能从优到劣排序：<code>system &gt; const &gt; eq_ref &gt; ref &gt; range &gt; index &gt; ALL</code></p>
+<ul class="markdown-list">
+<li>合格底线：至少达到<code>range</code>级别（索引范围扫描）；</li>
+<li>危险信号：出现<code>ALL</code>（全表扫描），必须优先优化，添加合适索引。</li>
+</ul>
+</li>
+<li><p><strong>rows列：预计扫描行数</strong><br>表示MySQL预估需要扫描多少行才能得到结果，数值越大性能越差。</p>
+<ul class="markdown-list">
+<li>优化目标：让rows尽量接近实际返回行数，减少无效扫描。</li>
+</ul>
+</li>
+</ol>
+<h3>3.2 第二招：Extra 出现 Using filesort 优化方案</h3>
+<p><code>Using filesort</code>表示MySQL无法利用索引完成排序，需要在内存/磁盘中进行文件排序，性能损耗大。</p>
+<p><strong>优化方法：</strong></p>
+<ol class="markdown-ordered-list">
+<li><strong>最左前缀匹配</strong>：让<code>ORDER BY</code>的字段顺序与联合索引的顺序完全一致，且符合最左前缀原则；</li>
+<li><strong>覆盖索引</strong>：查询的字段全部包含在索引中，避免回表，排序直接走索引；</li>
+<li><strong>减少排序数据量</strong>：只排序必要字段，避免大字段参与排序；</li>
+<li><strong>特殊场景</strong>：若排序数据量极大，可调整<code>sort_buffer_size</code>临时缓解，但本质仍需优化索引。</li>
+</ol>
+<blockquote class="markdown-blockquote">
+<p>示例：SQL为<code>select id,name from user where age = 20 order by create_time</code>，建立联合索引<code>idx_age_create_time(age, create_time)</code>，即可消除Using filesort。</p>
+</blockquote>
+<h3>3.3 第三招：优化器选错索引的强制修正</h3>
+<p>当MySQL优化器因统计信息不准、数据分布不均等原因选错索引时，使用<strong>强制索引</strong>命令手动指定索引。</p>
+<ol class="markdown-ordered-list">
+<li><strong>强制走指定索引</strong></li>
+</ol>
+<pre><code class="language-sql">SELECT * FROM 表名 FORCE INDEX(索引名) WHERE 条件;
+</code></pre>
+<p>强制优化器使用指定索引，忽略其他索引选项。</p>
+<ol start="2">
+<li><strong>建议使用索引</strong></li>
+</ol>
+<pre><code class="language-sql">SELECT * FROM 表名 USE INDEX(索引名) WHERE 条件;
+</code></pre>
+<p>给优化器建议，优先级低于FORCE INDEX。</p>
+<ol start="3">
+<li><strong>补充：长效优化</strong><br>强制索引是临时方案，长效解决可通过：<ul class="markdown-list">
+<li>执行<code>ANALYZE TABLE 表名</code>更新表统计信息；</li>
+<li>调整索引设计，删除冗余、低效索引。</li>
+</ul>
+</li>
+</ol>
+<hr class="markdown-hr">
+<h2>四、Redis 缓存防护与分布式锁方案</h2>
+<h3>4.1 缓存穿透、击穿、雪崩三层防护</h3>
+<p>按照「事前预防、事中处理、事后兜底」三层架构，三类问题的防护方案如下：</p>
+<h4>缓存穿透（查询不存在的数据，直接打到数据库）</h4>
+<ul class="markdown-list">
+<li><strong>事前</strong>：接口层做参数校验，过滤非法值；引入<strong>布隆过滤器</strong>，将所有存在的key预先存入，不存在的key直接拦截。</li>
+<li><strong>事中</strong>：对数据库查不到的数据，在缓存中存入空值（<code>null</code>）并设置短过期时间（如30秒），避免重复打库。</li>
+<li><strong>事后</strong>：接口增加限流机制，异常IP加入黑名单。</li>
+</ul>
+<h4>缓存击穿（热点key过期，瞬间流量打穿数据库）</h4>
+<ul class="markdown-list">
+<li><strong>事前</strong>：热点数据设置<strong>逻辑过期</strong>（不设置物理过期时间，后台异步更新），或永不过期；提前预热热点数据。</li>
+<li><strong>事中</strong>：使用互斥锁（分布式锁），只让一个请求去数据库查数据并更新缓存，其余请求等待重试。</li>
+<li><strong>事后</strong>：监控热点key，动态延长过期时间。</li>
+</ul>
+<h4>缓存雪崩（大量key同时过期 / Redis宕机，数据库压力暴增）</h4>
+<ul class="markdown-list">
+<li><strong>事前</strong>：缓存过期时间增加随机偏移量，避免集体过期；部署Redis哨兵/集群，保证高可用。</li>
+<li><strong>事中</strong>：服务端做限流与降级，非核心业务暂时关闭缓存、返回默认值；核心业务走熔断机制。</li>
+<li><strong>事后</strong>：开启RDB+AOF持久化，Redis重启后快速恢复缓存数据。</li>
+</ul>
+<h3>4.2 Redisson分布式锁与WatchDog机制</h3>
+<p>原生<code>setnx</code>实现分布式锁存在<strong>无法自动续期、死锁、不可重入</strong>等问题，生产环境标准方案是Redisson分布式锁，核心是WatchDog（看门狗）自动续期机制。</p>
+<ol class="markdown-ordered-list">
+<li><p><strong>核心原理</strong></p>
+<ul class="markdown-list">
+<li>获取锁成功后，Redisson会启动一个看门狗线程，默认锁的过期时间是30秒；</li>
+<li>每隔10秒（过期时间的1/3）检查一次，如果当前线程还持有锁，就重新将锁的过期时间重置为30秒，实现自动续期；</li>
+<li>业务代码执行完成后主动释放锁，或服务宕机后超时自动释放，避免死锁。</li>
+</ul>
+</li>
+<li><p><strong>优势</strong></p>
+<ul class="markdown-list">
+<li>解决了业务执行时间超过锁过期时间导致的锁提前释放问题；</li>
+<li>支持可重入、公平锁、读写锁等多种锁模式；</li>
+<li>底层基于Lua脚本保证原子性，生产级稳定性。</li>
+</ul>
+</li>
+</ol>
+<hr class="markdown-hr">
+<h2>五、Spring Boot Bean生命周期核心链路</h2>
+<p>Spring Boot启动流程无需全量背诵，核心抓住「Controller如何变成一个Bean」的主线：<strong>扫描 → 实例化 → 依赖注入 → 初始化 → 放入容器</strong>。</p>
+<h3>5.1 完整执行链路</h3>
+<ol class="markdown-ordered-list">
+<li><p><strong>组件扫描（Scan）</strong><br>启动类<code>@SpringBootApplication</code>注解包含<code>@ComponentScan</code>，启动时扫描指定包路径下所有带<code>@Component</code>及其衍生注解（<code>@Controller</code>、<code>@Service</code>、<code>@Repository</code>等）的类，将其解析为<code>BeanDefinition</code>（Bean的定义信息，包含类名、作用域、依赖关系等）。</p>
+</li>
+<li><p><strong>实例化（Instantiation）</strong><br>Spring容器根据BeanDefinition，通过反射调用类的构造方法，创建出一个原始对象（此时属性还未赋值，是&quot;半成品&quot;）。</p>
+</li>
+<li><p><strong>依赖注入（Dependency Injection）</strong><br>对实例化后的对象进行属性填充：</p>
+<ul class="markdown-list">
+<li>解析<code>@Autowired</code>、<code>@Resource</code>等注解，从容器中找到对应的依赖Bean；</li>
+<li>通过反射给字段赋值（字段注入）、调用setter方法（setter注入）或构造方法传参（构造注入），完成依赖装配。</li>
+</ul>
+</li>
+<li><p><strong>初始化（Initialization）</strong><br>执行Bean的初始化逻辑：</p>
+<ul class="markdown-list">
+<li>执行<code>Aware</code>接口回调（如<code>BeanNameAware</code>、<code>ApplicationContextAware</code>）；</li>
+<li>执行BeanPostProcessor的前置处理；</li>
+<li>执行<code>InitializingBean</code>接口的<code>afterPropertiesSet</code>方法、或<code>init-method</code>指定的自定义初始化方法；</li>
+<li>执行BeanPostProcessor的后置处理 —— <strong>AOP动态代理就在此阶段生成</strong>。</li>
+</ul>
+</li>
+<li><p><strong>存入单例池</strong><br>初始化完成后，完整的Bean对象被放入Spring容器的单例池中（一级缓存），成为可直接使用的Bean，供后续业务调用。</p>
+</li>
+</ol>
+<hr class="markdown-hr">
+<h2>六、消息队列核心问题解决方案</h2>
+<p>任选RocketMQ或RabbitMQ深入，核心只抓两个问题：<strong>消息丢失怎么办、消息积压了怎么扩</strong>。</p>
+<h3>6.1 消息丢失的三端保障方案</h3>
+<p>从生产端、Broker存储端、消费端三个环节全程保障，避免消息丢失。</p>
+<h4>生产端</h4>
+<ul class="markdown-list">
+<li><strong>发送确认机制</strong>：<ul class="markdown-list">
+<li>RocketMQ：使用同步发送方式，等待Broker返回ACK确认；重要消息使用事务消息，保证本地事务与消息发送的一致性。</li>
+<li>RabbitMQ：开启<code>Publisher Confirm</code>机制，Broker收到消息后回调确认。</li>
+</ul>
+</li>
+<li><strong>失败重试</strong>：发送失败后自动重试，重试次数与间隔可配置，多次失败后告警并落库人工处理。</li>
+</ul>
+<h4>Broker存储端</h4>
+<ul class="markdown-list">
+<li><strong>持久化配置</strong>：<ul class="markdown-list">
+<li>RocketMQ：配置同步刷盘（<code>FlushDiskType=SYNC_FLUSH</code>），确保消息写入磁盘后再返回ACK；</li>
+<li>RabbitMQ：队列开启持久化、消息设置持久化属性，避免Broker重启丢失。</li>
+</ul>
+</li>
+<li><strong>集群高可用</strong>：部署主从集群/多副本，单节点故障不丢消息。</li>
+</ul>
+<h4>消费端</h4>
+<ul class="markdown-list">
+<li><strong>手动ACK机制</strong>：关闭自动确认，业务逻辑真正执行完成后，再手动提交确认；</li>
+<li><strong>失败重试 + 死信队列</strong>：消费失败的消息自动重试，达到最大重试次数后进入死信队列，避免阻塞正常消费，后续人工兜底处理。</li>
+</ul>
+<h3>6.2 消息积压的扩容与处理方案</h3>
+<ol class="markdown-ordered-list">
+<li><p><strong>第一步：定位积压根因</strong><br>先排查是消费速度慢（业务逻辑耗时久、下游接口超时），还是消费者实例不足，还是流量突增。优先修复消费逻辑瓶颈（如优化SQL、增加缓存、异步化）。</p>
+</li>
+<li><p><strong>第二步：快速扩容消费能力</strong></p>
+<ul class="markdown-list">
+<li>横向扩容：增加消费者服务实例数量，提升并发消费能力；</li>
+<li>队列扩容：RocketMQ可增加Topic的队列数，让更多消费者线程并行消费；RabbitMQ可拆分队列，分散压力。</li>
+</ul>
+</li>
+<li><p><strong>第三步：极端积压兜底</strong><br>若消息积压量极大，Broker即将撑满：</p>
+<ul class="markdown-list">
+<li>临时转存：编写临时消费者，将积压消息批量转存到数据库/对象存储，先让Broker恢复正常；</li>
+<li>离线消费：后续再慢慢消费转存的历史消息，逐步补齐数据。</li>
+</ul>
+</li>
+</ol>
+<hr class="markdown-hr">
+<h2>七、分库分表（ShardingSphere）核心三要点</h2>
+<h3>7.1 基础配置方式</h3>
+<p>以ShardingSphere-JDBC为例，核心配置三步：</p>
+<ol class="markdown-ordered-list">
+<li><strong>配置多数据源</strong>：声明多个数据库的连接信息；</li>
+<li><strong>配置分片规则</strong>：指定逻辑表、真实表的分布，配置分片键；</li>
+<li><strong>配置分片算法</strong>：选择按范围、按哈希取模等算法，定义数据路由规则。</li>
+</ol>
+<blockquote class="markdown-blockquote">
+<p>示例（YAML配置片段）：</p>
+<pre><code class="language-yaml">sharding:
+  tables:
+    t_order:
+      actualDataNodes: ds${0..1}.t_order${0..3}
+      databaseStrategy:
+        mod:
+          shardingColumn: user_id
+          shardingAlgorithmName: db_mod
+      tableStrategy:
+        mod:
+          shardingColumn: order_id
+          shardingAlgorithmName: table_mod
+</code></pre>
+</blockquote>
+<h3>7.2 分片键选择原则</h3>
+<p>分片键是分库分表的核心，选择直接决定查询性能，遵循以下原则：</p>
+<ol class="markdown-ordered-list">
+<li><strong>高频查询维度</strong>：选择最常用的查询条件作为分片键，让大部分SQL都能路由到单库单表，避免跨片；</li>
+<li><strong>数据均匀分布</strong>：分片键的值分布要均匀，避免出现热点分片（某一个库/表数据量远大于其他）；</li>
+<li><strong>业务关联原则</strong>：关联表尽量使用相同分片键，比如订单表和订单明细表都用order_id分片，关联查询可路由到同分片。</li>
+</ol>
+<h3>7.3 跨分片查询兜底方案</h3>
+<p>跨分片查询性能差，优先从业务设计上避免，无法避免时按以下方案兜底：</p>
+<ol class="markdown-ordered-list">
+<li><strong>二级索引方案</strong>：将查询条件与分片键的映射关系存入ES/Redis，先通过查询条件找到分片键，再路由到对应分片查询；</li>
+<li><strong>广播表</strong>：字典表、配置表等小表，设置为广播表，每个分片都存一份，避免跨库关联；</li>
+<li><strong>数据同步方案</strong>：将分库分表的数据同步到ES或数仓，复杂查询、报表查询直接走数仓，不碰分片库；</li>
+<li><strong>分页优化</strong>：跨分片分页查询禁止深分页，改用游标分页（按ID滚动），避免全分片扫描后归并。</li>
+</ol>
+<hr class="markdown-hr">
+<h2>八、业务系统设计方案</h2>
+<h3>8.1 秒杀系统完整设计</h3>
+<p>围绕「流量怎么挡、库存怎么扣、订单怎么落、数据怎么拆」四层展开，逐层削峰，保护底层数据库。</p>
+<h4>1. 流量怎么挡：多层限流削峰</h4>
+<ul class="markdown-list">
+<li><strong>前端层</strong>：按钮置灰、倒计时限制，减少重复点击；静态资源CDN加速。</li>
+<li><strong>接入层</strong>：Nginx限流（按IP限流）、网关层令牌桶限流，拦截非法与超额流量。</li>
+<li><strong>服务层</strong>：接口限流（Sentinel/Guava RateLimiter），按用户维度限流，防止刷单。</li>
+<li><strong>核心思路</strong>：将流量层层过滤，最终落到数据库的流量只有原来的几十分之一。</li>
+</ul>
+<h4>2. 库存怎么扣：Redis预扣 + 数据库兜底</h4>
+<ul class="markdown-list">
+<li><strong>库存预热</strong>：活动开始前，将商品库存同步到Redis中；</li>
+<li><strong>Redis预扣库存</strong>：使用Lua脚本原子执行「判断库存 → 扣减库存」操作，防止超卖，性能极高；</li>
+<li><strong>数据库最终扣减</strong>：订单创建成功后，异步扣减数据库库存，以数据库库存为准，做最终一致性校验；</li>
+<li><strong>库存回补</strong>：订单超时未支付，释放Redis库存与数据库库存。</li>
+</ul>
+<h4>3. 订单怎么落：异步下单 + 状态流转</h4>
+<ul class="markdown-list">
+<li><strong>异步削峰</strong>：扣减Redis库存成功后，将下单信息发送到消息队列，不直接操作数据库；</li>
+<li><strong>消费下单</strong>：消费者监听队列，批量生成订单，写入数据库；</li>
+<li><strong>超时取消</strong>：使用延迟队列（RocketMQ延迟消息），订单超时未支付自动取消，回补库存。</li>
+</ul>
+<h4>4. 数据怎么拆：分库分表 + 冷热分离</h4>
+<ul class="markdown-list">
+<li>订单表按用户ID或订单ID分库分表，分散单表数据量；</li>
+<li>秒杀活动数据冷热分离，历史活动数据归档；</li>
+<li>热点商品数据单独缓存，与普通商品隔离。</li>
+</ul>
+<h3>8.2 消息分发平台设计</h3>
+<p>围绕「怎么接、怎么存、怎么推、失败怎么补、最终一致性、对账」六大核心点设计。</p>
+<h4>1. 海量消息怎么接</h4>
+<ul class="markdown-list">
+<li>接入层集群部署，水平扩展；</li>
+<li>接口限流与鉴权，防止非法请求；</li>
+<li>接收后直接写入消息队列暂存，异步处理，不直接落库，提升接入吞吐量。</li>
+</ul>
+<h4>2. 怎么存</h4>
+<ul class="markdown-list">
+<li>消息主体数据分库分表存储，按消息ID或接收时间分片；</li>
+<li>消息状态、推送记录单独存储，便于追溯；</li>
+<li>历史消息归档，冷热数据分离。</li>
+</ul>
+<h4>3. 怎么推</h4>
+<ul class="markdown-list">
+<li>多通道推送（短信、APP推送、邮件等），按优先级分级推送；</li>
+<li>批量推送机制，合并小批量请求，提升推送效率；</li>
+<li>推送链路异步化，解耦接收与推送。</li>
+</ul>
+<h4>4. 失败了怎么补</h4>
+<ul class="markdown-list">
+<li><strong>重试机制</strong>：推送失败后自动重试，采用指数退避算法（间隔逐渐拉长），避免打爆下游；</li>
+<li><strong>死信队列</strong>：达到最大重试次数仍失败的消息，进入死信队列，告警通知人工介入；</li>
+<li><strong>降级兜底</strong>：某一推送通道故障时，自动切换到备用通道。</li>
+</ul>
+<h4>5. 最终一致性保障</h4>
+<ul class="markdown-list">
+<li>本地消息表方案：消息入库与业务操作在同一个本地事务中，保证消息不丢；</li>
+<li>事务消息：RocketMQ事务消息，保证业务执行与消息发送的原子性；</li>
+<li>状态机流转：消息全生命周期状态可追溯，每一步都有记录。</li>
+</ul>
+<h4>6. 对账怎么跑</h4>
+<ul class="markdown-list">
+<li><strong>定时对账任务</strong>：T+1跑批，核对发送端、存储端、推送端三方数据；</li>
+<li><strong>差异处理</strong>：对得上的标记成功，对不上的分类处理：漏发的补推，多发的标记异常；</li>
+<li><strong>对账明细留存</strong>：所有对账结果与差异数据留存，便于审计与排查。</li>
+</ul>
+
+      </div>
+    </article>
+    
+    <div id="comments" style="max-width: 800px; margin: 3rem auto; padding: 0 1rem;">
+      <div style="width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin-bottom: 2rem;"></div>
+      <h3 style="margin-bottom: 1.5rem; color: var(--primary);">💬 评论区</h3>
+      <script src="https://giscus.app/client.js" 
+           data-repo="jonny-dr/jonny-dr.github.io" 
+           data-repo-id="R_kgDORKkzfg" 
+           data-category="Announcements" 
+           data-category-id="DIC_kwDORKkzfs4C2Wdq" 
+           data-mapping="pathname" 
+           data-strict="0" 
+           data-reactions-enabled="1" 
+           data-emit-metadata="0" 
+           data-input-position="bottom" 
+           data-theme="preferred_color_scheme" 
+           data-lang="zh-CN" 
+           crossorigin="anonymous" 
+           async> 
+     </script>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 北辰 · 保持好奇，持续成长</p>
+    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
+      源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
+    </p>
+  </footer>
+
+  <button class="back-to-top" id="backToTop" aria-label="回到顶部">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="m18 15-6-6-6 6"/>
+    </svg>
+  </button>
+
+  <script src="../../../js/theme.js"></script>
+</body>
+</html>
+  
