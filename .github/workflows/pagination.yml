@@ -5,12 +5,17 @@ on:
     branches: [main, master]
     paths:
       - 'posts/**'
+      - 'html/**'
       - 'generate-pagination.js'
       - 'markdown-parser.js'
+      - 'transfer-images.js'
       - 'templates/**'
       - 'css/**'
       - 'js/**'
       - 'images/**'
+      - 'about.html'
+      - 'package.json'
+      - 'package-lock.json'
   workflow_dispatch:
 
 permissions:

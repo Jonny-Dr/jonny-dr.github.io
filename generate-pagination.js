@@ -4,9 +4,12 @@ const MarkdownParser = require('./markdown-parser');
 
 // 为Markdown文件生成HTML文件的函数
 function generateHtmlFromMarkdown(markdownPath, htmlPath) {
+    // 文章详情页通常在 posts/xxx/html/ 下，相对根目录需要向上两级
+    const htmlDir = path.dirname(htmlPath);
+    const basePath = path.relative(htmlDir, __dirname).replace(/\\/g, '/') || '.';
     // 使用新的MarkdownParser模块生成HTML
     MarkdownParser.generateHtmlFromMarkdown(markdownPath, htmlPath, {
-        navTemplate: readNavTemplate()
+        navTemplate: readNavTemplate(basePath + '/')
     });
 }
 
@@ -24,7 +27,9 @@ const pageConfigs = [
         itemDateClass: 'post-date',
         itemExcerptClass: 'post-excerpt',
         postsPerPage: 5,
-        directory: 'posts/index'
+        directory: 'posts/index',
+        outputDir: '.',
+        basePath: './'
     },
     {
         name: 'project',
@@ -38,7 +43,9 @@ const pageConfigs = [
         itemDateClass: '',
         itemExcerptClass: 'project-desc',
         postsPerPage: 6,
-        directory: 'posts/project'
+        directory: 'posts/project',
+        outputDir: 'html/project',
+        basePath: '../../'
     },
     {
         name: 'skill',
@@ -52,7 +59,9 @@ const pageConfigs = [
         itemDateClass: 'skill-date',
         itemExcerptClass: 'skill-excerpt',
         postsPerPage: 6,
-        directory: 'posts/skill'
+        directory: 'posts/skill',
+        outputDir: 'html/skill',
+        basePath: '../../'
     },
     {
         name: 'ai',
@@ -66,7 +75,9 @@ const pageConfigs = [
         itemDateClass: 'skill-date',
         itemExcerptClass: 'skill-excerpt',
         postsPerPage: 6,
-        directory: 'posts/ai'
+        directory: 'posts/ai',
+        outputDir: 'html/ai',
+        basePath: '../../'
     },
     {
         name: 'daily',
@@ -80,7 +91,9 @@ const pageConfigs = [
         itemDateClass: 'daily-date',
         itemExcerptClass: 'daily-content',
         postsPerPage: 4,
-        directory: 'posts/daily'
+        directory: 'posts/daily',
+        outputDir: 'html/daily',
+        basePath: '../../'
     },
 
     {
@@ -95,7 +108,9 @@ const pageConfigs = [
         itemDateClass: 'archives-date',
         itemExcerptClass: 'archives-excerpt',
         postsPerPage: 10,
-        directory: 'posts/archives'
+        directory: 'posts/archives',
+        outputDir: '.',
+        basePath: './'
     }
 ];
 
@@ -106,7 +121,6 @@ pageConfigs.forEach(config => {
         fs.mkdirSync(dirPath, { recursive: true });
         console.log(`Created directory: ${config.directory}`);
     }
-    // 确保 md 和 html 子目录存在
     const mdSubDir = path.join(dirPath, 'md');
     const htmlSubDir = path.join(dirPath, 'html');
     if (!fs.existsSync(mdSubDir)) {
@@ -117,11 +131,18 @@ pageConfigs.forEach(config => {
         fs.mkdirSync(htmlSubDir, { recursive: true });
         console.log(`Created directory: ${config.directory}/html`);
     }
+    if (config.outputDir && config.outputDir !== '.') {
+        const outputPath = path.join(__dirname, config.outputDir);
+        if (!fs.existsSync(outputPath)) {
+            fs.mkdirSync(outputPath, { recursive: true });
+            console.log(`Created output directory: ${config.outputDir}`);
+        }
+    }
 });
 
 // 生成页面函数
 function generatePage(pageConfig) {
-    const { name, title, icon, headerTitle, headerSubtitle, contentClass, itemClass, itemTitleClass, itemDateClass, itemExcerptClass, postsPerPage, directory } = pageConfig;
+    const { name, title, icon, headerTitle, headerSubtitle, contentClass, itemClass, itemTitleClass, itemDateClass, itemExcerptClass, postsPerPage, directory, outputDir, basePath } = pageConfig;
 
     // 读取目录下的所有文章
     let postsDir = path.join(__dirname, directory);
@@ -207,7 +228,7 @@ function generatePage(pageConfig) {
       <div style="font-size: 4rem; margin-bottom: 1.5rem; color: var(--primary); opacity: 0.7;">📝</div>
       <h2 style="font-size: 1.8rem; margin-bottom: 1rem; color: var(--text);">暂无文章</h2>
       <p style="font-size: 1.1rem; margin-bottom: 2rem; color: #888;">内容正在整理中，敬请期待...</p>
-      <a href="index.html" style="display: inline-block; padding: 0.8rem 1.8rem; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 500; transition: var(--transition);">返回首页</a>
+      <a href="${basePath}index.html" style="display: inline-block; padding: 0.8rem 1.8rem; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 500; transition: var(--transition);">返回首页</a>
     </div>`;
             const renderedHtml = renderTemplate(template, {
                 title: title,
@@ -217,9 +238,9 @@ function generatePage(pageConfig) {
                 content: emptyContent,
                 contentClass: contentClass,
                 pagination: ''
-            });
+            }, basePath);
             const filename = `${name}.html`;
-            fs.writeFileSync(filename, renderedHtml);
+            fs.writeFileSync(path.join(__dirname, outputDir, filename), renderedHtml);
             console.log(`Generated default page: ${filename}`);
         }
         return 0;
@@ -268,10 +289,10 @@ function generatePage(pageConfig) {
 
                             return `
       <div class="post-card">
-        <h3 class="post-title"><a href="${item.path}/html/${item.file.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h3>
+        <h3 class="post-title"><a href="${basePath}${item.path}/html/${item.file.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h3>
         <div class="post-date">${displayDate}</div>
         <p class="post-excerpt">${excerpt || '这里是文章摘要...'}</p>
-        <a href="${item.path}/html/${item.file.replace('.md', '.html')}" class="post-link">阅读更多 →</a>
+        <a href="${basePath}${item.path}/html/${item.file.replace('.md', '.html')}" class="post-link">阅读更多 →</a>
       </div>
       `;
                         }
@@ -287,7 +308,7 @@ function generatePage(pageConfig) {
       <div style="font-size: 4rem; margin-bottom: 1.5rem; color: var(--primary); opacity: 0.7;">📝</div>
       <h2 style="font-size: 1.8rem; margin-bottom: 1rem; color: var(--text);">暂无文章</h2>
       <p style="font-size: 1.1rem; margin-bottom: 2rem; color: #888;">博客刚起步，正在准备精彩内容，敬请期待！</p>
-      <a href="index.html" style="display: inline-block; padding: 0.8rem 1.8rem; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 500; transition: var(--transition);">返回首页</a>
+      <a href="${basePath}index.html" style="display: inline-block; padding: 0.8rem 1.8rem; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 500; transition: var(--transition);">返回首页</a>
     </div>`;
                 }
                 break;
@@ -340,7 +361,7 @@ function generatePage(pageConfig) {
 
                         monthPosts.forEach(postItem => {
                             // 确保路径指向html目录
-                            const htmlPath = postItem.path.replace(/\.md$/, '.html').replace(/^(posts\/[^\/]+)\//, '$1/html/');
+                            const htmlPath = basePath + postItem.path.replace(/\.md$/, '.html').replace(/^(posts\/[^\/]+)\//, '$1/html/');
                             contentHtml += `
       <li class="archive-item">
         <div class="archive-title"><a href="${htmlPath}" style="color: var(--primary); text-decoration: none;">${postItem.title}</a></div>
@@ -364,7 +385,7 @@ function generatePage(pageConfig) {
                     let itemHtml = `
       <article class="${itemClass}">
         <div class="skill-header">
-          <h2 class="${itemTitleClass}"><a href="${item.path}/html/${item.file.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h2>
+          <h2 class="${itemTitleClass}"><a href="${basePath}${item.path}/html/${item.file.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h2>
           <div class="skill-meta">`;
 
                     if (itemDateClass && postDate) {
@@ -407,7 +428,7 @@ function generatePage(pageConfig) {
         <div class="${itemExcerptClass}">
           ${excerpt || '这里是文章摘要...'}
         </div>
-        <a href="${item.path}/html/${item.file.replace('.md', '.html')}" class="skill-read-more">阅读更多 →</a>
+        <a href="${basePath}${item.path}/html/${item.file.replace('.md', '.html')}" class="skill-read-more">阅读更多 →</a>
       </article>
       `;
 
@@ -423,7 +444,7 @@ function generatePage(pageConfig) {
 
                     let itemHtml = `
       <article class="${itemClass}">
-        <h2 class="${itemTitleClass}"><a href="${item.path}/html/${item.file.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h2>`;
+        <h2 class="${itemTitleClass}"><a href="${basePath}${item.path}/html/${item.file.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h2>`;
 
                     if (itemDateClass) {
                         itemHtml += `
@@ -434,7 +455,7 @@ function generatePage(pageConfig) {
         <div class="${itemExcerptClass}">
           ${excerpt || '这里是文章摘要...'}
         </div>
-        <a href="${item.path}/html/${item.file.replace('.md', '.html')}" class="${name}-read-more">阅读更多 →</a>
+        <a href="${basePath}${item.path}/html/${item.file.replace('.md', '.html')}" class="${name}-read-more">阅读更多 →</a>
       </article>
       `;
 
@@ -464,7 +485,6 @@ function generatePage(pageConfig) {
         }
 
         if (template) {
-            // 渲染模板
             const renderedHtml = renderTemplate(template, {
                 title: title,
                 icon: icon,
@@ -473,12 +493,11 @@ function generatePage(pageConfig) {
                 content: contentHtml,
                 contentClass: contentClass,
                 pagination: paginationHtml
-            });
+            }, basePath);
 
-            // 写入文件
             const filename = page === 1 ? `${name}.html` : `${name}-${page}.html`;
-            fs.writeFileSync(filename, renderedHtml);
-            console.log(`Generated ${filename}`);
+            fs.writeFileSync(path.join(__dirname, outputDir, filename), renderedHtml);
+            console.log(`Generated ${name}/${filename}`);
         }
     }
 
@@ -495,29 +514,35 @@ function readTemplate(templateName) {
 }
 
 // 读取导航栏模板的函数
-function readNavTemplate() {
+function readNavTemplate(basePath) {
+    basePath = basePath || './';
     const navTemplatePath = path.join(__dirname, 'templates', 'nav-template.html');
     if (fs.existsSync(navTemplatePath)) {
-        return fs.readFileSync(navTemplatePath, 'utf8');
+        let navTemplate = fs.readFileSync(navTemplatePath, 'utf8');
+        navTemplate = navTemplate.replace(/\{\{basePath\}\}/g, basePath);
+        return navTemplate;
     }
     // 默认导航栏
     return `
 <nav>
-  <a href="index.html">首页</a>
-  <a href="project.html">项目</a>
-  <a href="skill.html">技术</a>
-  <a href="daily.html">日常</a>
-  <a href="about.html">关于</a>
-  <a href="archives.html">归档</a>
+  <a href="${basePath}index.html">首页</a>
+  <a href="${basePath}html/project/project.html">项目</a>
+  <a href="${basePath}html/skill/skill.html">技术</a>
+  <a href="${basePath}html/ai/ai.html">AI</a>
+  <a href="${basePath}html/daily/daily.html">日常</a>
+  <a href="${basePath}about.html">关于</a>
+  <a href="${basePath}archives.html">归档</a>
   <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
 </nav>`;
 }
 
 // 渲染模板的函数
-function renderTemplate(template, data) {
+function renderTemplate(template, data, basePath) {
     let rendered = template;
+    basePath = basePath || './';
+
     // 添加导航栏
-    const navTemplate = readNavTemplate();
+    const navTemplate = readNavTemplate(basePath);
     rendered = rendered.replace(/\{\{nav\}\}/g, navTemplate);
     
     // 添加技术栈
@@ -525,6 +550,9 @@ function renderTemplate(template, data) {
     if (skillsTemplate) {
         rendered = rendered.replace(/\{\{skills\}\}/g, skillsTemplate);
     }
+
+    // 替换 {{basePath}}
+    rendered = rendered.replace(/\{\{basePath\}\}/g, basePath);
     
     // 添加其他数据
     Object.keys(data).forEach(key => {
@@ -535,7 +563,6 @@ function renderTemplate(template, data) {
     // 处理条件语法 {{content ? 'none' : 'block'}}
     rendered = rendered.replace(/\{\{([^}]+) \? ([^}]+) : ([^}]+)\}\}/g, (match, condition, trueValue, falseValue) => {
         const value = data[condition.trim()];
-        // 移除返回值中的引号
         const result = value ? trueValue : falseValue;
         return result.replace(/['"]/g, '');
     });
@@ -546,17 +573,23 @@ function renderTemplate(template, data) {
     if (fs.existsSync(musicDir)) {
         musicFiles = fs.readdirSync(musicDir)
             .filter(file => file.endsWith('.mp3') || file.endsWith('.wav') || file.endsWith('.ogg'))
-            .map(file => `/images/music/${file}`);
+            .map(file => `${basePath}images/music/${file}`);
     }
     
     // 添加背景音乐标签和音乐列表
+    // 音乐路径使用绝对路径 /images/music/，因为根目录的资源都是通过 / 访问的
+    const absoluteMusicFiles = musicFiles.map(f => f.replace(/^\.?\/?/, '/'));
     const musicConfig = `
   <script>
-    window.musicFiles = ${JSON.stringify(musicFiles)};
+    window.musicFiles = ${JSON.stringify(absoluteMusicFiles)};
   </script>
-  <audio id="backgroundMusic" src="${musicFiles[0] || '/images/music/background.mp3'}" autoplay muted loop>
+  <audio id="backgroundMusic" src="${absoluteMusicFiles[0] || '/images/music/background.mp3'}" autoplay muted loop>
 `;
-    rendered = rendered.replace(/<script src="js\/theme\.js"><\/script>/, `${musicConfig}  <script src="js/theme.js"></script>`);
+    // 注入音乐配置：在 theme.js 引用前添加音乐标签
+    const themeJsTag = `<script src="${basePath}js/theme.js"></script>`;
+    if (rendered.includes(themeJsTag)) {
+        rendered = rendered.replace(themeJsTag, `${musicConfig}  ${themeJsTag}`);
+    }
 
     return rendered;
 }
@@ -568,14 +601,21 @@ pageConfigs.forEach(config => {
     totalGenerated += pages;
 });
 
-// 修改GitHub Actions配置文件，确保它能提交所有生成的HTML文件
-const workflowPath = path.join(__dirname, '.github', 'workflows', 'pagination.yml');
-if (fs.existsSync(workflowPath)) {
-    let workflowContent = fs.readFileSync(workflowPath, 'utf8');
-    workflowContent = workflowContent.replace(/git add index.html index-\*.html.*?/g, 'git add index.html index-*.html project.html project-*.html skill.html skill-*.html daily.html daily-*.html archives.html archives-*.html posts/**/*.html ');
-    fs.writeFileSync(workflowPath, workflowContent);
-    console.log('Updated GitHub Actions workflow file');
-}
+// 清理根目录下已迁移的旧文件
+const movedPages = ['skill', 'ai', 'daily', 'project'];
+movedPages.forEach(name => {
+    let pageNum = 1;
+    while (true) {
+        const oldPath = path.join(__dirname, pageNum === 1 ? `${name}.html` : `${name}-${pageNum}.html`);
+        if (fs.existsSync(oldPath)) {
+            fs.unlinkSync(oldPath);
+            console.log(`Removed old root-level file: ${name}-${pageNum === 1 ? '' : pageNum}.html`);
+            pageNum++;
+        } else {
+            break;
+        }
+    }
+});
 
 console.log(`\nGenerated ${totalGenerated} pagination pages in total.`);
 

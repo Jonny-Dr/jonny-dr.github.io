@@ -200,14 +200,9 @@ class MarkdownParser {
 
         const htmlContent = this.markdownToHtml(content, basePath, markdownPath, htmlPath);
 
-        const navTemplate = options.navTemplate || this.getDefaultNavTemplate();
-        const relativeNav = navTemplate.replace(/href="([^"]+)"/g, (match, href) => {
-            if (href.startsWith('http')) {
-                return match;
-            }
-            const relativePath = path.relative(path.dirname(htmlPath), path.dirname(href)).replace(/\\/g, '/') || '.';
-            return `href="${relativePath}/${path.basename(href)}"`;
-        });
+        const navTemplate = options.navTemplate || this.getDefaultNavTemplate(basePath);
+        // navTemplate 已通过 readNavTemplate(basePath) 处理过 {{basePath}}，这里直接使用
+        const relativeNav = navTemplate;
 
         let tagsHtml = '';
         if (categories.length > 0 || languages.length > 0) {
@@ -547,15 +542,16 @@ class MarkdownParser {
         console.log(`Generated HTML file: ${htmlPath}`);
     }
 
-    static getDefaultNavTemplate() {
+    static getDefaultNavTemplate(basePath = '') {
         return `
 <nav>
-  <a href="index.html">首页</a>
-  <a href="project.html">项目</a>
-  <a href="skill.html">技术</a>
-  <a href="daily.html">日常</a>
-  <a href="about.html">关于</a>
-  <a href="archives.html">归档</a>
+  <a href="${basePath}index.html">首页</a>
+  <a href="${basePath}html/project/project.html">项目</a>
+  <a href="${basePath}html/skill/skill.html">技术</a>
+  <a href="${basePath}html/ai/ai.html">AI</a>
+  <a href="${basePath}html/daily/daily.html">日常</a>
+  <a href="${basePath}about.html">关于</a>
+  <a href="${basePath}archives.html">归档</a>
   <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
 </nav>`;
     }

@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let isAudioUnlocked = false;
   let isShuffle = false;
   let currentIndex = 0;
-  let musicFiles = window.musicFiles || ['/images/music/background.mp3'];
+  let musicFiles = window.musicFiles || ['./images/music/background.mp3'];
   
   function updateMusicIcon(isPlaying) {
     if (!musicToggle) return;

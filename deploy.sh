@@ -106,12 +106,14 @@ fi
 print_success "提交成功: $COMMIT_MSG"
 
 print_info "推送到远程仓库..."
-git push origin main
+# 获取当前分支名
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+git push origin "$CURRENT_BRANCH"
 if [ $? -ne 0 ]; then
     print_error "git push 失败"
     exit 1
 fi
-print_success "推送成功"
+print_success "推送成功 (分支: $CURRENT_BRANCH)"
 
 echo ""
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
