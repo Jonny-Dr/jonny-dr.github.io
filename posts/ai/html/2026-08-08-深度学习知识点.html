@@ -1,0 +1,556 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>神经网络反向传播详解（知识点整合） | 北辰</title>
+  <link rel="stylesheet" href="../../../css/common.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <style>
+    .post-content {
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+    .post-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    .post-meta {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .post-tag {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .post-tag.category {
+      background: rgba(72, 187, 120, 0.1);
+      color: #48bb78;
+    }
+    .post-tag.language {
+      background: rgba(237, 137, 54, 0.1);
+      color: #ed8936;
+    }
+    .post-body {
+      margin-bottom: 2rem;
+    }
+    .post-body h2 {
+      font-size: 1.8rem;
+      margin: 2rem 0 1rem;
+      color: var(--primary);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-body h3 {
+      font-size: 1.4rem;
+      margin: 1.5rem 0 0.8rem;
+      color: var(--primary);
+    }
+    .post-body h4 {
+      font-size: 1.2rem;
+      margin: 1.2rem 0 0.6rem;
+      color: var(--primary);
+    }
+    .post-body h5 {
+      font-size: 1.1rem;
+      margin: 1rem 0 0.5rem;
+      color: var(--text);
+    }
+    .post-body p {
+      margin-bottom: 1.2rem;
+    }
+    .post-body a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-body a:hover {
+      text-decoration: underline;
+    }
+    .post-body ul,
+    .post-body ol {
+      margin: 1rem 0 1.5rem 1.5rem;
+    }
+    .post-body li {
+      margin-bottom: 0.5rem;
+    }
+    .post-body pre {
+      background: #f8f9fa;
+      color: #333333;
+      padding: 1.5rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border);
+    }
+    .post-body code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.9rem;
+    }
+    .post-body pre code {
+      background: none;
+      padding: 0;
+    }
+    [data-theme="dark"] .post-body pre {
+      background: #1e1e1e;
+      color: #e6e6e6;
+    }
+    [data-theme="dark"] .post-body code {
+      color: #e6e6e6;
+    }
+    .post-body img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .post-original-link {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+      color: #6c757d;
+    }
+    .post-original-link a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-original-link a:hover {
+      text-decoration: underline;
+    }
+    .post-body table.markdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .post-body table.markdown-table thead {
+      background: linear-gradient(135deg, var(--primary), #3a0ca3);
+      color: white;
+    }
+    .post-body table.markdown-table th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      border: none;
+    }
+    .post-body table.markdown-table td {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .post-body table.markdown-table td:last-child {
+      border-right: none;
+    }
+    .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(67, 97, 238, 0.03);
+    }
+    .post-body table.markdown-table tbody tr:hover {
+      background: rgba(67, 97, 238, 0.08);
+    }
+    [data-theme="dark"] .post-body table.markdown-table {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .post-body blockquote.markdown-blockquote {
+      border-left: 4px solid var(--primary);
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      background: rgba(67, 97, 238, 0.05);
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #666;
+    }
+    [data-theme="dark"] .post-body blockquote.markdown-blockquote {
+      background: rgba(255, 255, 255, 0.05);
+      color: #aaa;
+    }
+    .post-body hr.markdown-hr {
+      border: none;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      margin: 2rem 0;
+    }
+    .post-body li.task-list-item {
+      list-style: none;
+      margin-left: -1.5rem;
+    }
+    .post-body li.task-list-item input[type="checkbox"] {
+      margin-right: 0.5rem;
+      cursor: default;
+    }
+    .post-body .image-placeholder {
+      transition: var(--transition);
+    }
+    .post-body .image-placeholder:hover {
+      border-color: var(--primary) !important;
+      background: rgba(67, 97, 238, 0.05) !important;
+    }
+    @media (max-width: 768px) {
+      .post-content {
+        padding: 0 1rem;
+      }
+      .post-header h1 {
+        font-size: 1.8rem;
+      }
+      .post-tags {
+        gap: 0.5rem;
+      }
+      .post-tag {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      .post-body pre {
+        padding: 1rem;
+      }
+      .post-body table.markdown-table {
+        font-size: 0.85rem;
+      }
+      .post-body table.markdown-table th,
+      .post-body table.markdown-table td {
+        padding: 0.6rem 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <button class="music-toggle" id="musicToggle" aria-label="控制音乐">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+  </button>
+
+  <header>
+    <h1>🌱 北辰的博客</h1>
+    <p class="subtitle">记录思考，分享成长 | 一个热爱技术的探索者</p>
+    <nav>
+  <a href="../../../index.html">首页</a>
+  <a href="../../../html/project/project.html">项目</a>
+  <a href="../../../html/skill/skill.html">技术</a>
+  <a href="../../../html/ai/ai.html">AI</a>
+  <a href="../../../html/daily/daily.html">日常</a>
+  <a href="../../../about.html">关于</a>
+  <a href="../../../archives.html">归档</a>
+  <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+</nav>
+  </header>
+
+  <main class="post-content">
+    <article>
+      <div class="post-header">
+        <h1>神经网络反向传播详解（知识点整合）</h1>
+        <div class="post-meta">发布日期：2026-08-08</div>
+        
+        <div class="post-tags">
+          <span class="post-tag category">深度学习</span> <span class="post-tag category">神经网络</span>
+          <span class="post-tag language">Python</span> <span class="post-tag language">PyTorch</span>
+        </div>
+        
+      </div>
+      <div class="post-body">
+        <h1>深度学习</h1>
+<h2>前置解惑——导数 / 梯度</h2>
+<p><strong>1. 模型训练的本质：改错</strong></p>
+<p>神经网络一开始权重是随机的，预测全是错的。我们需要：<strong>一点点修改权重，让错误越来越小</strong>。</p>
+<p><strong>2. 问题来了：权重到底该调大还是调小？调多少？</strong></p>
+<p>这里就需要 <strong>梯度（多元导数）</strong></p>
+<p><strong>梯度 = 损失对权重的敏感程度 + 误差下降方向</strong></p>
+<ul class="markdown-list">
+<li><p>梯度为正：权重 <strong>调小</strong>，损失会下降</p>
+</li>
+<li><p>梯度为负：权重 <strong>调大</strong>，损失会下降</p>
+</li>
+<li><p>梯度绝对值越大：当前权重误差越大，需要改得多</p>
+</li>
+<li><p>梯度接近0：模型快收敛、误差很小了</p>
+</li>
+</ul>
+<p><strong>终极一句话懂梯度：</strong></p>
+<p><strong>梯度就是告诉模型：每个权重往哪边改、改多大，能让错误变小。</strong></p>
+<p>没有梯度，模型完全不知道怎么更新参数，训练彻底不成立。</p>
+<hr class="markdown-hr">
+<h2>完整串行</h2>
+<p>知识串联总结（张量→梯度→自动微分→损失函数→梯度下降→CNN→RNN）</p>
+<hr class="markdown-hr">
+<h2>1、张量运算：深度学习的底层载体（地基）</h2>
+<p>张量就是多维数组，是PyTorch唯一计算单元：</p>
+<ul class="markdown-list">
+<li><p>标量=0维、向量=1维、矩阵=2维、图像/批次数据=3-4维张量</p>
+</li>
+<li><p>张量运算：加减乘除、矩阵乘法、切片、维度变换等</p>
+</li>
+<li><p>神经网络<strong>所有前向、反向计算</strong>，本质全是张量运算</p>
+</li>
+<li><p>GPU（MPS/CUDA）就是用来加速大批量张量并行计算</p>
+</li>
+</ul>
+<blockquote class="markdown-blockquote">
+<p><strong>一句话：所有数据、权重、计算结果，全部必须是张量。</strong></p>
+</blockquote>
+<h2>2、导数/梯度：模型优化的数学指南针</h2>
+<p>导数代表函数在某一点的<strong>变化速率</strong>。<br>在深度学习里我们叫<strong>梯度</strong>（多元函数的导数）：</p>
+<ul class="markdown-list">
+<li><p>目标：算出<strong>损失函数</strong>对每一个权重参数的梯度，看权重往哪个方向调整，能让损失变小。</p>
+</li>
+<li><p>梯度方向 = 损失<strong>上升最快</strong>的方向</p>
+</li>
+<li><p>训练要做反向操作：<strong>逆着梯度走</strong>，损失就会不断下降</p>
+</li>
+<li><p>手动求导极其繁琐，所以引出了<strong>自动微分</strong></p>
+</li>
+</ul>
+<blockquote class="markdown-blockquote">
+<p><strong>一句话：梯度给模型指明“改错方向”，是训练的核心依据。</strong></p>
+</blockquote>
+<h2>3、自动微分（Autograd）：自动算梯度的工具</h2>
+<p>自动微分 = 不用手写求导公式，框架自动计算导数。</p>
+<ol class="markdown-ordered-list">
+<li>给张量开启 <code>requires_grad=True</code>，标记它为<strong>可求导参数（权重）</strong></li>
+<li>前向传播：执行一遍张量运算，算出预测结果和损失值</li>
+<li><code>loss.backward()</code>：反向传播！沿着计算图<strong>自动求导</strong>，把梯度存入每个参数的 <code>.grad</code> 属性</li>
+<li>优化器读取梯度，更新权重参数</li>
+</ol>
+<blockquote class="markdown-blockquote">
+<p>一句话：<strong>自动微分就是深度学习的计算器，自动算出梯度，是训练的核心引擎。</strong></p>
+</blockquote>
+<h2>4、损失函数：衡量模型“错得有多离谱”</h2>
+<p>前向传播输出预测值，需要和真实标签对比。</p>
+<p><strong>损失函数 = 误差打分器</strong></p>
+<ul class="markdown-list">
+<li><p>预测越准，Loss 越小</p>
+</li>
+<li><p>预测越偏，Loss 越大</p>
+</li>
+<li><p>整个训练目标：<strong>无限降低损失值</strong></p>
+</li>
+</ul>
+<p>常见：均方误差MSE（回归）、交叉熵Loss（分类，配合Softmax）</p>
+<blockquote class="markdown-blockquote">
+<p><strong>一句话：没有损失函数，模型根本不知道自己错没错，没法训练。</strong></p>
+</blockquote>
+<p><strong>常用损失函数以及选型</strong></p>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>选择场景</th>
+<th>推荐损失函数</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>普通回归，数据干净</td>
+<td>MSE</td>
+<td>收敛快、梯度平滑</td>
+</tr>
+<tr>
+<td>回归，异常值多</td>
+<td>Huber / MAE</td>
+<td>抗噪、不被极端值带偏</td>
+</tr>
+<tr>
+<td>多分类，类别均衡</td>
+<td>Cross-Entropy</td>
+<td>标准选择，效果稳定</td>
+</tr>
+<tr>
+<td>多标签分类</td>
+<td>BCE</td>
+<td>每类独立，互不干扰</td>
+</tr>
+<tr>
+<td>类别极度不平衡</td>
+<td>Focal Loss</td>
+<td>聚焦难样本，抑制易样本</td>
+</tr>
+<tr>
+<td>图像分割（前景小）</td>
+<td>Dice Loss / BCE+Dice</td>
+<td>直接优化重叠指标</td>
+</tr>
+<tr>
+<td>目标检测框回归</td>
+<td>Smooth L1 / IoU Loss</td>
+<td>尺度不变，稳定</td>
+</tr>
+<tr>
+<td>特征学习 / 检索</td>
+<td>Triplet / Contrastive</td>
+<td>学习嵌入空间距离</td>
+</tr>
+<tr>
+<td>模型蒸馏（软标签）</td>
+<td>KL 散度</td>
+<td>对齐教师与学生分布</td>
+</tr>
+</tbody></table>
+<h2>5、梯度下降算法：真正的“参数更新规则”</h2>
+<p>有了梯度、有了损失，怎么更新权重？靠梯度下降。</p>
+<p>核心逻辑：<strong>沿着梯度反方向更新权重，降低损失</strong></p>
+<p>重点算法：Adam（整合了Momentum以及RMSProp的优点思想）</p>
+<p><strong>Adam的优点：</strong></p>
+<ul class="markdown-list">
+<li><strong>收敛快</strong>：因为有动量，能沿着正确的方向加速。</li>
+<li><strong>稳定</strong>：因为自适应学习率，不会因为某个参数梯度突然变大而崩掉。</li>
+<li><strong>省心</strong>：大部分情况下不需要手动调学习率，默认参数（β1=0.9,β2=0.999,η=0.001）就很好用。</li>
+</ul>
+<p>公式通俗理解：<br>新权重 = 旧权重 − 学习率 × 梯度</p>
+<blockquote class="markdown-blockquote">
+<p><strong>一句话：梯度下降是让模型不断自我修正、迭代变准的核心算法。</strong></p>
+</blockquote>
+<h2>6、学习率：控制模型“改错幅度”</h2>
+<p>梯度只告诉我们<strong>往哪改</strong>，学习率告诉我们<strong>改多少</strong></p>
+<p><strong>学习率过大/过小的缺点：</strong></p>
+<ul class="markdown-list">
+<li>学习率太大：步子太大，震荡不收敛、容易错过最优解</li>
+<li>学习率太小：步子太慢，训练极慢、浪费资源</li>
+</ul>
+<p><strong>学习率的控制策略：</strong></p>
+<ol class="markdown-ordered-list">
+<li>学习率衰减策略，刚开始学习率高，后续逐步减小学习率。作用是刚开始大步走，以便快速到达最优解附近，然后减小学习率，快速找到最优解</li>
+<li>自适应学习率算法（常用），在模型计算时自动跟随结果调整学习率。常见算法包括：Adam，RMSProp</li>
+</ol>
+<blockquote class="markdown-blockquote">
+<p><strong>一句话：学习率决定模型训练的快慢与稳定性，是最关键的超参数。</strong></p>
+</blockquote>
+<h2>7、激活函数：给网络赋予非线性能力</h2>
+<p>纯线性层无论叠多深，都等价于单层网络，只能拟合直线。激活函数引入<strong>非线性</strong>，让网络能拟合复杂规律。</p>
+<p>作用：<strong>引入非线性</strong>，打破纯线性的限制。</p>
+<p>常见：Sigmoid、Tanh、ReLU(Leaky ReLU、PPReLU)</p>
+<ul class="markdown-list">
+<li><p>放在每一层线性计算之后</p>
+</li>
+<li><p>没有激活函数，再深的网络等价于单层网络；有了激活函数，网络才能拟合图像、文本这类复杂规律。</p>
+</li>
+<li><p>ReLU：主流激活，解决负数抑制、效率高</p>
+</li>
+<li><p>Softmax：多分类专用，输出概率和为1</p>
+</li>
+</ul>
+<blockquote class="markdown-blockquote">
+<p><strong>一句话：激活函数给神经网络解锁学习复杂模式的能力。没有激活函数，深层神经网络毫无意义。</strong></p>
+</blockquote>
+<h2>8、CNN卷积神经网络：专攻图像、空间特征</h2>
+<p>普通全连接网络看不懂图片（像素有位置关系），专门设计CNN：</p>
+<ul class="markdown-list">
+<li><p>核心：卷积核、滑动窗口、提取局部特征</p>
+</li>
+<li><p>层级特征：浅层抓边缘纹理 → 深层抓轮廓、物体</p>
+</li>
+<li><p>池化降维、参数共享、减少计算量</p>
+</li>
+</ul>
+<blockquote class="markdown-blockquote">
+<p><strong>一句话：CNN是专门用来处理网格结构数据（图片）的网络，擅长视觉任务。</strong></p>
+</blockquote>
+<h2>9、RNN循环神经网络：专攻时序、序列数据</h2>
+<p>图片是静态的，文本、语音、时间序列是<strong>前后有关系</strong>的数据。</p>
+<ul class="markdown-list">
+<li><p>RNN拥有记忆单元，保存上一时刻信息</p>
+</li>
+<li><p>循环迭代处理每一个时间步数据</p>
+</li>
+<li><p>适配文本分类、情感分析、时间序列预测</p>
+</li>
+</ul>
+<blockquote class="markdown-blockquote">
+<p><strong>一句话：RNN专门处理前后依赖的序列数据，让模型拥有“记忆”。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>10、神经网络：多层张量运算堆叠出来的模型</h2>
+<p>神经网络 = 一层层**线性变换（张量矩阵乘法）**的叠加。<br>单层计算：<code>输出 = 权重 @ 输入 + 偏置</code>（纯张量矩阵运算）</p>
+<ul class="markdown-list">
+<li><p>如果只有多层线性运算，无论堆多少层，整个网络本质<strong>还是一个线性函数，拟合不了复杂曲线</strong>。<br>👉 这就引出了激活函数！</p>
+</li>
+<li><p>每一个神经元节点都包含两部分：</p>
+<ol class="markdown-ordered-list">
+<li>对输入进行线性求和汇总（sum）</li>
+<li>激活函数（<strong>一定是非线性的</strong>）</li>
+</ol>
+</li>
+</ul>
+<blockquote class="markdown-blockquote">
+<p>一句话：神经网络是一堆带权重的张量运算；但是光有它表达能力有限。</p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>最终完整闭环逻辑</h2>
+<p><strong>数据转张量 → 网络前向计算（线性+激活）→ 得到预测值 → 损失函数计算误差 → 自动微分求梯度（导数）→ 梯度下降算更新方向 → 学习率控制更新幅度 → 更新权重 → 循环迭代收敛</strong></p>
+<p>在此基础上：</p>
+<ul class="markdown-list">
+<li>图像任务 → 用 <strong>CNN</strong> 提取空间特征</li>
+<li>文本/时序任务 → 用 <strong>RNN</strong> 提取时序特征</li>
+</ul>
+
+      </div>
+    </article>
+    
+    <div id="comments" style="max-width: 800px; margin: 3rem auto; padding: 0 1rem;">
+      <div style="width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin-bottom: 2rem;"></div>
+      <h3 style="margin-bottom: 1.5rem; color: var(--primary);">💬 评论区</h3>
+      <script src="https://giscus.app/client.js" 
+           data-repo="jonny-dr/jonny-dr.github.io" 
+           data-repo-id="R_kgDORKkzfg" 
+           data-category="Announcements" 
+           data-category-id="DIC_kwDORKkzfs4C2Wdq" 
+           data-mapping="pathname" 
+           data-strict="0" 
+           data-reactions-enabled="1" 
+           data-emit-metadata="0" 
+           data-input-position="bottom" 
+           data-theme="preferred_color_scheme" 
+           data-lang="zh-CN" 
+           crossorigin="anonymous" 
+           async> 
+     </script>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 北辰 · 保持好奇，持续成长</p>
+    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
+      源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
+    </p>
+  </footer>
+
+  <button class="back-to-top" id="backToTop" aria-label="回到顶部">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="m18 15-6-6-6 6"/>
+    </svg>
+  </button>
+
+  <script src="../../../js/theme.js"></script>
+</body>
+</html>
+  
