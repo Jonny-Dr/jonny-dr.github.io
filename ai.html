@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🍀 技术 | 北辰</title>
+  <title>🧠 AI | 北辰</title>
   <link rel="stylesheet" href="css/common.css">
   <style>
-    /* 技术页面特有样式 */
-    .skill-container {
+    /* AI 栏目页面样式（基于 skill-template，容器改为 ai-container，其他样式复用以兼容渲染逻辑） */
+    .ai-container {
       max-width: 800px;
       margin: 0 auto;
     }
@@ -100,7 +100,7 @@
       font-weight: 700;
     }
     @media (max-width: 768px) {
-      .skill-container {
+      .ai-container {
         padding: 0 1rem;
       }
       .skill-card {
@@ -149,10 +149,10 @@
 
   <header>
     <h1>
-      <span class="header-icon">🍀</span>
-      <span class="header-title">技术</span>
+      <span class="header-icon">🧠</span>
+      <span class="header-title">人工智能</span>
     </h1>
-    <p class="subtitle">技术分享与实践 | 前端、后端、运维等</p>
+    <p class="subtitle">深度学习 | 神经网络 | 模型微调与部署 | RAG</p>
     <nav>
   <a href="index.html">首页</a>
   <a href="project.html">项目</a>
@@ -165,81 +165,15 @@
 </nav>
   </header>
 
-  <main class="skill-container">
+  <main class="ai-container">
     
-      <article class="skill-card">
-        <div class="skill-header">
-          <h2 class="skill-title"><a href="posts/skill/html/2026-02-14-spring-cloud-microservices.html" style="color: var(--primary); text-decoration: none;">Spring Cloud 微服务架构实战</a></h2>
-          <div class="skill-meta">
-            <div class="skill-meta-item">
-              <span class="label">日期：</span>
-              <span>2026-02-14</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">类别：</span>
-              <span>后端技术 · 分布式架构</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">语言：</span>
-              <span>Java · Spring Boot</span>
-            </div>
-          </div>
-          <div class="skill-tags">
-            <span class="skill-tag">后端技术</span> <span class="skill-tag">分布式架构</span>
-            <span class="skill-tag">Java</span> <span class="skill-tag">Spring Boot</span>
-          </div>
-        </div>
-        <div class="skill-excerpt">
-          从0到1搭建完整的Spring Cloud微服务体系，包括服务注册与发现、配置中心、负载均衡、熔断降级等核心功能的实现。
-        </div>
-        <a href="posts/skill/html/2026-02-14-spring-cloud-microservices.html" class="skill-read-more">阅读更多 →</a>
-      </article>
-      
-      <article class="skill-card">
-        <div class="skill-header">
-          <h2 class="skill-title"><a href="posts/skill/html/2026-02-13-mysql-master-slave-replication.html" style="color: var(--primary); text-decoration: none;">MySQL数据库主从同步原理与实践</a></h2>
-          <div class="skill-meta">
-            <div class="skill-meta-item">
-              <span class="label">日期：</span>
-              <span>2026-02-13</span>
-            </div>
-          </div>
-        </div>
-        <div class="skill-excerpt">
-          深入了解MySQL主从同步的工作原理，以及如何在实际环境中配置和管理主从复制架构。
-        </div>
-        <a href="posts/skill/html/2026-02-13-mysql-master-slave-replication.html" class="skill-read-more">阅读更多 →</a>
-      </article>
-      
-      <article class="skill-card">
-        <div class="skill-header">
-          <h2 class="skill-title"><a href="posts/skill/html/2025-01-02-Redis分布式锁.html" style="color: var(--primary); text-decoration: none;">分布式锁Redis</a></h2>
-          <div class="skill-meta">
-            <div class="skill-meta-item">
-              <span class="label">日期：</span>
-              <span>2025-01-02</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">类别：</span>
-              <span>技术 · 后端中间件</span>
-            </div>
-          </div>
-          <div class="skill-tags">
-            <span class="skill-tag">技术</span> <span class="skill-tag">后端中间件</span>
-            
-          </div>
-        </div>
-        <div class="skill-excerpt">
-          关于Redis分布式锁
-        </div>
-        <a href="posts/skill/html/2025-01-02-Redis分布式锁.html" class="skill-read-more">阅读更多 →</a>
-      </article>
-      
+    <div class="empty-container" style="text-align: center; padding: 4rem 1rem;">
+      <div style="font-size: 4rem; margin-bottom: 1.5rem; color: var(--primary); opacity: 0.7;">📝</div>
+      <h2 style="font-size: 1.8rem; margin-bottom: 1rem; color: var(--text);">暂无文章</h2>
+      <p style="font-size: 1.1rem; margin-bottom: 2rem; color: #888;">内容正在整理中，敬请期待...</p>
+      <a href="archives.html" style="display: inline-block; padding: 0.8rem 1.8rem; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 500; transition: var(--transition);">浏览归档</a>
+    </div>
     
-  <div class="pagination">
-    <a href="skill.html" class="page-link ">1</a><a href="skill-2.html" class="page-link ">2</a><a href="skill-3.html" class="page-link ">3</a><a href="skill-4.html" class="page-link active">4</a>
-  </div>
-
   </main>
 
   <footer>

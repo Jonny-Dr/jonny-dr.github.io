@@ -55,6 +55,20 @@ const pageConfigs = [
         directory: 'posts/skill'
     },
     {
+        name: 'ai',
+        title: '🧠 AI | 北辰',
+        icon: '🧠',
+        headerTitle: '人工智能',
+        headerSubtitle: '深度学习 | 神经网络 | 模型微调与部署 | RAG',
+        contentClass: 'ai-container',
+        itemClass: 'skill-card',
+        itemTitleClass: 'skill-title',
+        itemDateClass: 'skill-date',
+        itemExcerptClass: 'skill-excerpt',
+        postsPerPage: 6,
+        directory: 'posts/ai'
+    },
+    {
         name: 'daily',
         title: '✨ 日常 | 北辰',
         icon: '✨',
@@ -92,6 +106,17 @@ pageConfigs.forEach(config => {
         fs.mkdirSync(dirPath, { recursive: true });
         console.log(`Created directory: ${config.directory}`);
     }
+    // 确保 md 和 html 子目录存在
+    const mdSubDir = path.join(dirPath, 'md');
+    const htmlSubDir = path.join(dirPath, 'html');
+    if (!fs.existsSync(mdSubDir)) {
+        fs.mkdirSync(mdSubDir, { recursive: true });
+        console.log(`Created directory: ${config.directory}/md`);
+    }
+    if (!fs.existsSync(htmlSubDir)) {
+        fs.mkdirSync(htmlSubDir, { recursive: true });
+        console.log(`Created directory: ${config.directory}/html`);
+    }
 });
 
 // 生成页面函数
@@ -104,7 +129,7 @@ function generatePage(pageConfig) {
 
     if (name === 'index') {
         // 首页从所有栏目中获取最新文章，但排除归档目录
-        const allDirs = ['posts/project', 'posts/daily', 'posts/index', 'posts/skill'];
+        const allDirs = ['posts/project', 'posts/daily', 'posts/index', 'posts/skill', 'posts/ai'];
         allDirs.forEach(dir => {
             const mdDir = path.join(__dirname, dir, 'md');
             if (fs.existsSync(mdDir)) {
@@ -165,25 +190,33 @@ function generatePage(pageConfig) {
         console.log(`  - ${file.file}`);
     });
 
-    // 如果没有Markdown文件，生成对应模板的页面
+    // 如果没有Markdown文件，生成对应模板的页面（空状态）
     if (allMarkdownFiles.length === 0) {
         let template;
         if (name === 'index') {
             // 首页使用专用模板
             template = readTemplate('index');
         } else {
-            // 其他页面使用默认模板
-            template = readTemplate('default');
+            // 优先使用栏目专属模板，不存在则回退到 default
+            template = readTemplate(name) || readTemplate('default');
         }
 
         if (template) {
+            const emptyContent = `
+    <div class="empty-container" style="text-align: center; padding: 4rem 1rem;">
+      <div style="font-size: 4rem; margin-bottom: 1.5rem; color: var(--primary); opacity: 0.7;">📝</div>
+      <h2 style="font-size: 1.8rem; margin-bottom: 1rem; color: var(--text);">暂无文章</h2>
+      <p style="font-size: 1.1rem; margin-bottom: 2rem; color: #888;">内容正在整理中，敬请期待...</p>
+      <a href="archives.html" style="display: inline-block; padding: 0.8rem 1.8rem; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 500; transition: var(--transition);">浏览归档</a>
+    </div>`;
             const renderedHtml = renderTemplate(template, {
                 title: title,
                 icon: icon,
                 headerTitle: headerTitle,
                 headerSubtitle: headerSubtitle,
-                content: '',
-                contentClass: contentClass
+                content: emptyContent,
+                contentClass: contentClass,
+                pagination: ''
             });
             const filename = `${name}.html`;
             fs.writeFileSync(filename, renderedHtml);
@@ -321,7 +354,8 @@ function generatePage(pageConfig) {
                 });
                 break;
             case 'skill':
-                // 技术栏目的特殊处理
+            case 'ai':
+                // 技术栏目和 AI 栏目的特殊处理（共用 skill 渲染逻辑）
                 contentHtml = currentPosts.map(item => {
                     const markdownPath = path.join(__dirname, item.path, 'md', item.file);
                     const { title: postTitle, date: postDate, categories, languages, excerpt } = MarkdownParser.parseMarkdown(markdownPath);
@@ -485,6 +519,13 @@ function renderTemplate(template, data) {
     // 添加导航栏
     const navTemplate = readNavTemplate();
     rendered = rendered.replace(/\{\{nav\}\}/g, navTemplate);
+    
+    // 添加技术栈
+    const skillsTemplate = readTemplate('skills');
+    if (skillsTemplate) {
+        rendered = rendered.replace(/\{\{skills\}\}/g, skillsTemplate);
+    }
+    
     // 添加其他数据
     Object.keys(data).forEach(key => {
         const regex = new RegExp(`\\{\\{${key}\\}\}`, 'g');
@@ -537,3 +578,23 @@ if (fs.existsSync(workflowPath)) {
 }
 
 console.log(`\nGenerated ${totalGenerated} pagination pages in total.`);
+
+// 后处理：更新 about.html 中的技术栈
+console.log('\nProcessing about.html...');
+const aboutPath = path.join(__dirname, 'about.html');
+if (fs.existsSync(aboutPath)) {
+    let aboutHtml = fs.readFileSync(aboutPath, 'utf8');
+    const skillsTemplate = readTemplate('skills');
+    if (skillsTemplate) {
+        // 使用标记注释来定位替换位置
+        aboutHtml = aboutHtml.replace(
+            /<!-- SKILLS_START -->[\s\S]*?<!-- SKILLS_END -->/,
+            `<!-- SKILLS_START -->\n        ${skillsTemplate}\n        <!-- SKILLS_END -->`
+        );
+    }
+    
+    fs.writeFileSync(aboutPath, aboutHtml);
+    console.log('Updated about.html with shared skills');
+} else {
+    console.log('about.html not found, skipping');
+}
