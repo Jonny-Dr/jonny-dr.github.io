@@ -2,11 +2,14 @@ const fs = require('fs');
 const path = require('path');
 const MarkdownParser = require('./markdown-parser');
 
+// 项目根目录（本脚本位于 js/ 下，根目录是其上一级）
+const ROOT_DIR = path.join(__dirname, '..');
+
 // 为Markdown文件生成HTML文件的函数
 function generateHtmlFromMarkdown(markdownPath, htmlPath) {
     // 文章详情页通常在 posts/xxx/html/ 下，相对根目录需要向上两级
     const htmlDir = path.dirname(htmlPath);
-    const basePath = path.relative(htmlDir, __dirname).replace(/\\/g, '/') || '.';
+    const basePath = path.relative(htmlDir, ROOT_DIR).replace(/\\/g, '/') || '.';
     // 使用新的MarkdownParser模块生成HTML
     MarkdownParser.generateHtmlFromMarkdown(markdownPath, htmlPath, {
         navTemplate: readNavTemplate(basePath + '/')
@@ -116,7 +119,7 @@ const pageConfigs = [
 
 // 确保所有必要的目录都存在
 pageConfigs.forEach(config => {
-    const dirPath = path.join(__dirname, config.directory);
+    const dirPath = path.join(ROOT_DIR, config.directory);
     if (!fs.existsSync(dirPath)) {
         fs.mkdirSync(dirPath, { recursive: true });
         console.log(`Created directory: ${config.directory}`);
@@ -132,7 +135,7 @@ pageConfigs.forEach(config => {
         console.log(`Created directory: ${config.directory}/html`);
     }
     if (config.outputDir && config.outputDir !== '.') {
-        const outputPath = path.join(__dirname, config.outputDir);
+        const outputPath = path.join(ROOT_DIR, config.outputDir);
         if (!fs.existsSync(outputPath)) {
             fs.mkdirSync(outputPath, { recursive: true });
             console.log(`Created output directory: ${config.outputDir}`);
@@ -145,14 +148,14 @@ function generatePage(pageConfig) {
     const { name, title, icon, headerTitle, headerSubtitle, contentClass, itemClass, itemTitleClass, itemDateClass, itemExcerptClass, postsPerPage, directory, outputDir, basePath } = pageConfig;
 
     // 读取目录下的所有文章
-    let postsDir = path.join(__dirname, directory);
+    let postsDir = path.join(ROOT_DIR, directory);
     let allMarkdownFiles = [];
 
     if (name === 'index') {
         // 首页从所有栏目中获取最新文章，但排除归档目录
         const allDirs = ['posts/project', 'posts/daily', 'posts/index', 'posts/skill', 'posts/ai'];
         allDirs.forEach(dir => {
-            const mdDir = path.join(__dirname, dir, 'md');
+            const mdDir = path.join(ROOT_DIR, dir, 'md');
             if (fs.existsSync(mdDir)) {
                 const files = fs.readdirSync(mdDir);
                 const mdFiles = files.filter(file => file.endsWith('.md')).map(file => {
@@ -166,7 +169,7 @@ function generatePage(pageConfig) {
         });
     } else {
         // 其他页面从对应目录获取文章
-        const mdDir = path.join(__dirname, directory, 'md');
+        const mdDir = path.join(ROOT_DIR, directory, 'md');
         if (!fs.existsSync(mdDir)) {
             console.log(`Directory ${mdDir} does not exist. Skipping ${name} page.`);
             return 0;
@@ -184,7 +187,7 @@ function generatePage(pageConfig) {
     // 按日期排序（最新在前）
     // 首先为每个文件解析日期
     allMarkdownFiles.forEach(item => {
-        const markdownPath = path.join(__dirname, item.path, 'md', item.file);
+        const markdownPath = path.join(ROOT_DIR, item.path, 'md', item.file);
         const parsed = MarkdownParser.parseMarkdown(markdownPath);
         item.parsedDate = parsed.date;
     });
@@ -198,8 +201,8 @@ function generatePage(pageConfig) {
 
     // 为每个Markdown文件生成HTML文件
     allMarkdownFiles.forEach(item => {
-        const markdownPath = path.join(__dirname, item.path, 'md', item.file);
-        const htmlPath = path.join(__dirname, item.path, 'html', item.file.replace('.md', '.html'));
+        const markdownPath = path.join(ROOT_DIR, item.path, 'md', item.file);
+        const htmlPath = path.join(ROOT_DIR, item.path, 'html', item.file.replace('.md', '.html'));
         generateHtmlFromMarkdown(markdownPath, htmlPath);
     });
 
@@ -240,7 +243,7 @@ function generatePage(pageConfig) {
                 pagination: ''
             }, basePath);
             const filename = `${name}.html`;
-            fs.writeFileSync(path.join(__dirname, outputDir, filename), renderedHtml);
+            fs.writeFileSync(path.join(ROOT_DIR, outputDir, filename), renderedHtml);
             console.log(`Generated default page: ${filename}`);
         }
         return 0;
@@ -281,7 +284,7 @@ function generatePage(pageConfig) {
       `;
                         } else {
                             // 正常显示文章
-                            const markdownPath = path.join(__dirname, item.path, 'md', item.file);
+                            const markdownPath = path.join(ROOT_DIR, item.path, 'md', item.file);
                             const { title: postTitle, date: postDate, excerpt } = MarkdownParser.parseMarkdown(markdownPath);
                             const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
                             // 使用解析后的日期，如果没有则使用当前日期
@@ -318,7 +321,7 @@ function generatePage(pageConfig) {
 
                 // 按年份和月份分组文章
                 currentPosts.forEach(item => {
-                    const markdownPath = path.join(__dirname, item.path, 'md', item.file);
+                    const markdownPath = path.join(ROOT_DIR, item.path, 'md', item.file);
                     const { title: postTitle, date: postDate } = MarkdownParser.parseMarkdown(markdownPath);
                     const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
 
@@ -378,7 +381,7 @@ function generatePage(pageConfig) {
             case 'ai':
                 // 技术栏目和 AI 栏目的特殊处理（共用 skill 渲染逻辑）
                 contentHtml = currentPosts.map(item => {
-                    const markdownPath = path.join(__dirname, item.path, 'md', item.file);
+                    const markdownPath = path.join(ROOT_DIR, item.path, 'md', item.file);
                     const { title: postTitle, date: postDate, categories, languages, excerpt } = MarkdownParser.parseMarkdown(markdownPath);
                     const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
 
@@ -438,7 +441,7 @@ function generatePage(pageConfig) {
             default:
                 // 其他栏目的默认处理
                 contentHtml = currentPosts.map(item => {
-                    const markdownPath = path.join(__dirname, item.path, 'md', item.file);
+                    const markdownPath = path.join(ROOT_DIR, item.path, 'md', item.file);
                     const { title: postTitle, date: postDate, excerpt } = MarkdownParser.parseMarkdown(markdownPath);
                     const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
 
@@ -496,7 +499,7 @@ function generatePage(pageConfig) {
             }, basePath);
 
             const filename = page === 1 ? `${name}.html` : `${name}-${page}.html`;
-            fs.writeFileSync(path.join(__dirname, outputDir, filename), renderedHtml);
+            fs.writeFileSync(path.join(ROOT_DIR, outputDir, filename), renderedHtml);
             console.log(`Generated ${name}/${filename}`);
         }
     }
@@ -506,7 +509,7 @@ function generatePage(pageConfig) {
 
 // 读取模板文件的函数
 function readTemplate(templateName) {
-    const templatePath = path.join(__dirname, 'templates', `${templateName}-template.html`);
+    const templatePath = path.join(ROOT_DIR, 'templates', `${templateName}-template.html`);
     if (fs.existsSync(templatePath)) {
         return fs.readFileSync(templatePath, 'utf8');
     }
@@ -516,7 +519,7 @@ function readTemplate(templateName) {
 // 读取导航栏模板的函数
 function readNavTemplate(basePath) {
     basePath = basePath || './';
-    const navTemplatePath = path.join(__dirname, 'templates', 'nav-template.html');
+    const navTemplatePath = path.join(ROOT_DIR, 'templates', 'nav-template.html');
     if (fs.existsSync(navTemplatePath)) {
         let navTemplate = fs.readFileSync(navTemplatePath, 'utf8');
         navTemplate = navTemplate.replace(/\{\{basePath\}\}/g, basePath);
@@ -568,7 +571,7 @@ function renderTemplate(template, data, basePath) {
     });
 
     // 获取音乐文件夹中的所有音频文件
-    const musicDir = path.join(__dirname, 'images', 'music');
+    const musicDir = path.join(ROOT_DIR, 'images', 'music');
     let musicFiles = [];
     if (fs.existsSync(musicDir)) {
         musicFiles = fs.readdirSync(musicDir)
@@ -606,7 +609,7 @@ const movedPages = ['skill', 'ai', 'daily', 'project'];
 movedPages.forEach(name => {
     let pageNum = 1;
     while (true) {
-        const oldPath = path.join(__dirname, pageNum === 1 ? `${name}.html` : `${name}-${pageNum}.html`);
+        const oldPath = path.join(ROOT_DIR, pageNum === 1 ? `${name}.html` : `${name}-${pageNum}.html`);
         if (fs.existsSync(oldPath)) {
             fs.unlinkSync(oldPath);
             console.log(`Removed old root-level file: ${name}-${pageNum === 1 ? '' : pageNum}.html`);
@@ -621,7 +624,7 @@ console.log(`\nGenerated ${totalGenerated} pagination pages in total.`);
 
 // 后处理：更新 about.html 中的技术栈
 console.log('\nProcessing about.html...');
-const aboutPath = path.join(__dirname, 'about.html');
+const aboutPath = path.join(ROOT_DIR, 'about.html');
 if (fs.existsSync(aboutPath)) {
     let aboutHtml = fs.readFileSync(aboutPath, 'utf8');
     const skillsTemplate = readTemplate('skills');

@@ -6,9 +6,9 @@ on:
     paths:
       - 'posts/**'
       - 'html/**'
-      - 'generate-pagination.js'
-      - 'markdown-parser.js'
-      - 'transfer-images.js'
+      - 'js/generate-pagination.js'
+      - 'js/markdown-parser.js'
+      - 'js/transfer-images.js'
       - 'templates/**'
       - 'css/**'
       - 'js/**'
@@ -44,7 +44,7 @@ jobs:
         run: npm install
         
       - name: Generate pagination pages
-        run: node generate-pagination.js
+        run: node js/generate-pagination.js
         
       - name: Check for changes
         id: check_changes

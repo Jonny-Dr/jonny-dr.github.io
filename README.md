@@ -44,7 +44,11 @@
 │   ├── head/              # 头部背景
 │   └── music/             # 背景音乐
 ├── js/                    # JavaScript 文件
-│   └── theme.js           # 主题切换、音乐控制、SPA 路由
+│   ├── theme.js           # 主题切换、音乐控制、SPA 路由
+│   ├── generate-pagination.js # 页面生成脚本
+│   ├── markdown-parser.js # Markdown 解析模块（基于 marked）
+│   ├── transfer-images.js # 图片迁移工具
+│   └── update-about-nav.js # about.html 导航更新工具
 ├── posts/                 # 文章目录
 │   ├── archives/          # 归档文章
 │   │   ├── md/            # Markdown 源文件
@@ -64,11 +68,8 @@
 │   └── pagination.yml     # 自动部署工作流
 ├── .gitignore             # Git 忽略配置
 ├── deploy.sh              # 一键部署脚本
-├── generate-pagination.js # 页面生成脚本
-├── markdown-parser.js     # Markdown 解析模块（基于 marked）
 ├── package.json           # npm 依赖配置
 ├── package-lock.json      # 依赖版本锁定
-├── transfer-images.js     # 图片迁移工具
 └── README.md              # 项目说明
 ```
 
@@ -122,18 +123,18 @@ chmod +x deploy.sh
    如果使用 Typora 等工具编辑，图片可能保存在本地绝对路径。运行图片迁移工具：
    ```bash
    # 预览模式（查看哪些图片会被迁移）
-   node transfer-images.js --dry-run
+   node js/transfer-images.js --dry-run
    
    # 实际执行迁移
-   node transfer-images.js
+   node js/transfer-images.js
    
    # 只处理特定分类
-   node transfer-images.js --category=skill
+   node js/transfer-images.js --category=skill
    ```
 
 3. **运行生成脚本**
 ```bash
-node generate-pagination.js
+node js/generate-pagination.js
 ```
 
 4. **推送代码到 GitHub**
@@ -181,19 +182,19 @@ chmod +x deploy.sh
 **使用方法**：
 ```bash
 # 预览模式（查看哪些图片会被迁移，不实际执行）
-node transfer-images.js --dry-run
+node js/transfer-images.js --dry-run
 
 # 处理所有分类
-node transfer-images.js
+node js/transfer-images.js
 
 # 只处理指定分类
-node transfer-images.js --category=skill
+node js/transfer-images.js --category=skill
 
 # 指定 Typora 图片路径
-node transfer-images.js --typora-path=~/Pictures/Typora
+node js/transfer-images.js --typora-path=~/Pictures/Typora
 
 # 显示帮助
-node transfer-images.js --help
+node js/transfer-images.js --help
 ```
 
 **配置方式**（优先级从高到低）：
@@ -208,7 +209,7 @@ node transfer-images.js --help
 
 **使用方法**：
 ```bash
-node generate-pagination.js
+node js/generate-pagination.js
 ```
 
 **生成内容**：

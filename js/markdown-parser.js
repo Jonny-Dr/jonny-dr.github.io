@@ -195,7 +195,8 @@ class MarkdownParser {
         const { title, date, categories, languages, originalLink, content } = parsed;
 
         const htmlDir = path.dirname(htmlPath);
-        const projectRoot = __dirname;
+        // 本脚本位于 js/ 目录下，项目根目录是其上一级
+        const projectRoot = path.join(__dirname, '..');
         const basePath = path.relative(htmlDir, projectRoot).replace(/\\/g, '/') || '.';
 
         const htmlContent = this.markdownToHtml(content, basePath, markdownPath, htmlPath);

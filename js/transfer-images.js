@@ -8,7 +8,7 @@ function getTyporaImagePath() {
         return process.env.TYPORA_IMAGE_PATH;
     }
 
-    const envFile = path.join(__dirname, '.env');
+    const envFile = path.join(__dirname, '..', '.env');
     if (fs.existsSync(envFile)) {
         const envContent = fs.readFileSync(envFile, 'utf8');
         const match = envContent.match(/TYPORA_IMAGE_PATH=(.+)/);
@@ -42,7 +42,7 @@ function getTyporaImagePath() {
 
 const CONFIG = {
     typoraImagePath: getTyporaImagePath(),
-    postsPath: path.join(__dirname, 'posts'),
+    postsPath: path.join(__dirname, '..', 'posts'),
     imageExtensions: ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp'],
     markdownExtension: '.md'
 };
@@ -78,7 +78,7 @@ function showHelp() {
 功能：将 Markdown 文件中引用的本地绝对路径图片迁移到项目对应的 assets 目录
 
 使用方法：
-  node transfer-images.js [options]
+  node js/transfer-images.js [options]
 
 选项：
   --dry-run           预览模式，不实际执行复制和修改操作
@@ -94,11 +94,11 @@ function showHelp() {
   5. 默认值: /Users/jonny/Library/Application Support/typora-user-images
 
 示例：
-  node transfer-images.js                    # 处理所有分类
-  node transfer-images.js --category=skill   # 只处理 skill 分类
-  node transfer-images.js --dry-run          # 预览模式
-  node transfer-images.js --typora-path=~/Pictures/Typora # 指定路径
-  TYPORA_IMAGE_PATH=~/Pictures/Typora node transfer-images.js # 通过环境变量
+  node js/transfer-images.js                    # 处理所有分类
+  node js/transfer-images.js --category=skill   # 只处理 skill 分类
+  node js/transfer-images.js --dry-run          # 预览模式
+  node js/transfer-images.js --typora-path=~/Pictures/Typora # 指定路径
+  TYPORA_IMAGE_PATH=~/Pictures/Typora node js/transfer-images.js # 通过环境变量
 
 目录结构：
   posts/
@@ -336,7 +336,7 @@ function main() {
 
     if (!fs.existsSync(CONFIG.typoraImagePath)) {
         console.warn(`\n⚠️  警告：Typora 图片路径不存在，请检查配置！`);
-        console.log(`  使用方式: node transfer-images.js --typora-path=/path/to/your/images`);
+        console.log(`  使用方式: node js/transfer-images.js --typora-path=/path/to/your/images`);
     }
 
     if (options.dryRun) {
@@ -364,7 +364,7 @@ function main() {
         console.log('\n提示：这是预览模式，实际未执行任何操作。');
         console.log('      去掉 --dry-run 参数以执行实际操作。');
     } else {
-        console.log('\n提示：请运行 node generate-pagination.js 重新生成 HTML 文件');
+        console.log('\n提示：请运行 node js/generate-pagination.js 重新生成 HTML 文件');
     }
 }
 

@@ -51,7 +51,7 @@ fi
 
 print_step "2/4 迁移图片"
 
-node transfer-images.js
+node js/transfer-images.js
 if [ $? -ne 0 ]; then
     print_error "图片迁移失败"
     exit 1
@@ -60,7 +60,7 @@ print_success "图片迁移完成"
 
 print_step "3/4 生成页面"
 
-node generate-pagination.js
+node js/generate-pagination.js
 if [ $? -ne 0 ]; then
     print_error "页面生成失败"
     exit 1
