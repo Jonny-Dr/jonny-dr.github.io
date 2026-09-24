@@ -1,0 +1,550 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>基于RNN的歌词预测Demo完整流程 | 北辰</title>
+  <link rel="stylesheet" href="../../../css/common.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <style>
+    .post-content {
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+    .post-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    .post-meta {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .post-tag {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .post-tag.category {
+      background: rgba(72, 187, 120, 0.1);
+      color: #48bb78;
+    }
+    .post-tag.language {
+      background: rgba(237, 137, 54, 0.1);
+      color: #ed8936;
+    }
+    .post-body {
+      margin-bottom: 2rem;
+    }
+    .post-body h2 {
+      font-size: 1.8rem;
+      margin: 2rem 0 1rem;
+      color: var(--primary);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-body h3 {
+      font-size: 1.4rem;
+      margin: 1.5rem 0 0.8rem;
+      color: var(--primary);
+    }
+    .post-body h4 {
+      font-size: 1.2rem;
+      margin: 1.2rem 0 0.6rem;
+      color: var(--primary);
+    }
+    .post-body h5 {
+      font-size: 1.1rem;
+      margin: 1rem 0 0.5rem;
+      color: var(--text);
+    }
+    .post-body p {
+      margin-bottom: 1.2rem;
+    }
+    .post-body a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-body a:hover {
+      text-decoration: underline;
+    }
+    .post-body ul,
+    .post-body ol {
+      margin: 1rem 0 1.5rem 1.5rem;
+    }
+    .post-body li {
+      margin-bottom: 0.5rem;
+    }
+    .post-body pre {
+      background: #f8f9fa;
+      color: #333333;
+      padding: 1.5rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border);
+    }
+    .post-body code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.9rem;
+    }
+    .post-body pre code {
+      background: none;
+      padding: 0;
+    }
+    [data-theme="dark"] .post-body pre {
+      background: #1e1e1e;
+      color: #e6e6e6;
+    }
+    [data-theme="dark"] .post-body code {
+      color: #e6e6e6;
+    }
+    .post-body img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .post-original-link {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+      color: #6c757d;
+    }
+    .post-original-link a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-original-link a:hover {
+      text-decoration: underline;
+    }
+    .post-body table.markdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .post-body table.markdown-table thead {
+      background: linear-gradient(135deg, var(--primary), #3a0ca3);
+      color: white;
+    }
+    .post-body table.markdown-table th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      border: none;
+    }
+    .post-body table.markdown-table td {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .post-body table.markdown-table td:last-child {
+      border-right: none;
+    }
+    .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(67, 97, 238, 0.03);
+    }
+    .post-body table.markdown-table tbody tr:hover {
+      background: rgba(67, 97, 238, 0.08);
+    }
+    [data-theme="dark"] .post-body table.markdown-table {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .post-body blockquote.markdown-blockquote {
+      border-left: 4px solid var(--primary);
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      background: rgba(67, 97, 238, 0.05);
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #666;
+    }
+    [data-theme="dark"] .post-body blockquote.markdown-blockquote {
+      background: rgba(255, 255, 255, 0.05);
+      color: #aaa;
+    }
+    .post-body hr.markdown-hr {
+      border: none;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      margin: 2rem 0;
+    }
+    .post-body li.task-list-item {
+      list-style: none;
+      margin-left: -1.5rem;
+    }
+    .post-body li.task-list-item input[type="checkbox"] {
+      margin-right: 0.5rem;
+      cursor: default;
+    }
+    .post-body .image-placeholder {
+      transition: var(--transition);
+    }
+    .post-body .image-placeholder:hover {
+      border-color: var(--primary) !important;
+      background: rgba(67, 97, 238, 0.05) !important;
+    }
+    @media (max-width: 768px) {
+      .post-content {
+        padding: 0 1rem;
+      }
+      .post-header h1 {
+        font-size: 1.8rem;
+      }
+      .post-tags {
+        gap: 0.5rem;
+      }
+      .post-tag {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      .post-body pre {
+        padding: 1rem;
+      }
+      .post-body table.markdown-table {
+        font-size: 0.85rem;
+      }
+      .post-body table.markdown-table th,
+      .post-body table.markdown-table td {
+        padding: 0.6rem 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <button class="music-toggle" id="musicToggle" aria-label="控制音乐">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+  </button>
+
+  <header>
+    <h1>🌱 北辰的博客</h1>
+    <p class="subtitle">记录思考，分享成长 | 一个热爱技术的探索者</p>
+    <nav>
+  <a href="../../../index.html">首页</a>
+  <a href="../../../html/project/project.html">项目</a>
+  <a href="../../../html/skill/skill.html">技术</a>
+  <a href="../../../html/ai/ai.html">AI</a>
+  <a href="../../../html/daily/daily.html">日常</a>
+  <a href="../../../about.html">关于</a>
+  <a href="../../../archives.html">归档</a>
+  <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+</nav>
+  </header>
+
+  <main class="post-content">
+    <article>
+      <div class="post-header">
+        <h1>基于RNN的歌词预测Demo完整流程</h1>
+        <div class="post-meta">发布日期：2026-08-022</div>
+        
+        <div class="post-tags">
+          <span class="post-tag category">深度学习</span> <span class="post-tag category">神经网络</span>
+          <span class="post-tag language">Python</span> <span class="post-tag language">PyTorch</span>
+        </div>
+        
+      </div>
+      <div class="post-body">
+        <h1>基于RNN的歌词预测Demo完整流程</h1>
+<h2>1、构建词表</h2>
+<blockquote class="markdown-blockquote">
+<p>类似于字典，供后续模型使用</p>
+</blockquote>
+<p>获取文本数据</p>
+<p>分词，并进行去重</p>
+<p>构建词表</p>
+<p>主要是获取文本去重后的数量、文本去重后的数据集以及对应的索引、使用索引构建的数据集对象（将数组中的数据替换为词表中的索引）</p>
+<p>主要输出：</p>
+<ul class="markdown-list">
+<li>去重以后的词列表</li>
+<li>去重以后的词和索引的字典</li>
+<li>将所有数据以索引替换并且以空格索引分隔后的完整内容</li>
+<li>去重后词表的个数</li>
+</ul>
+<h2>2、构建数据集对象</h2>
+<blockquote class="markdown-blockquote">
+<p>为什么需要自己实现Dataset？<br>因为普通的Dataset不支持数据往前每次移动1位的过程</p>
+</blockquote>
+<p>自己实现Dataset，需要实现如下3个方法：</p>
+<ul class="markdown-list">
+<li><code>__init__</code>：初始化参数</li>
+<li><code>__getitem__</code>：获取x_train、y_train，y_train相对x_train是将位置往后整体移动了1位</li>
+<li><code>__len__</code>：获取分段的个数</li>
+</ul>
+<p>主要目的：</p>
+<ul class="markdown-list">
+<li><code>init</code>函数，通过传入的数据以及批次长度获取总的批次数</li>
+<li><code>getitem</code>函数，通过当前索引以及批次大小和批次数，防止索引越界，并获取对应索引位置的数据</li>
+<li><code>len</code>函数，返回需要的总批次数量</li>
+</ul>
+<h2>3、网络模型构建</h2>
+<p>使用RNN神经网络，用于实现歌词预测，主要包含三层</p>
+<ol class="markdown-ordered-list">
+<li>词嵌入层：用于将语料转换为词向量</li>
+<li>循环网络层：提取句子语义</li>
+<li>全连接层：输出对词典中每个词的预测概率</li>
+</ol>
+<h2>4、模型训练</h2>
+<h3>4.1 训练超参数配置</h3>
+<p>在训练开始前，预先定义训练所需超参数：学习率、迭代轮数(epoch)、批次大小、隐藏层维度、嵌入向量维度、设备选择（CPU/GPU）。</p>
+<p>同时定义损失函数与优化器：</p>
+<ul class="markdown-list">
+<li>损失函数：选用交叉熵损失<code>CrossEntropyLoss</code>，适合多分类任务，用来对比预测词概率分布与真实标签之间的差距。</li>
+<li>优化器：选择Adam优化器，自适应调整学习率，加快模型收敛。</li>
+</ul>
+<h3>4.2 加载数据集与迭代器</h3>
+<p>将前面自定义的Dataset数据集对象传入<code>DataLoader</code>，开启数据分批加载，设置是否打乱数据(shuffle)。歌词生成属于时序任务，一般不打乱样本顺序，保证文本上下文时序关系。</p>
+<h3>4.3 训练循环流程</h3>
+<ol class="markdown-ordered-list">
+<li>将RNN模型切换至训练模式 <code>model.train()</code>，开启Dropout等训练专属逻辑；</li>
+<li>遍历每一轮epoch；<ul class="markdown-list">
+<li>遍历DataLoader取出每一批训练样本：输入序列<code>x_train</code>、目标序列<code>y_train</code>；</li>
+<li>梯度清零：<code>optimizer.zero_grad()</code>，防止梯度累积；</li>
+<li>前向传播：将<code>x_train</code>送入RNN网络，得到每个位置所有词汇的预测输出；</li>
+<li>计算损失值：对比预测输出和真实标签<code>y_train</code>；</li>
+<li>反向传播 <code>loss.backward()</code>，自动计算各参数梯度；</li>
+<li>梯度裁剪（时序RNN可选）：解决RNN训练过程中容易出现的梯度爆炸问题；</li>
+<li>优化器执行参数更新 <code>optimizer.step()</code>；</li>
+</ul>
+</li>
+<li>每个训练轮次结束后打印当前epoch编号、本轮损失值，监控模型收敛情况；</li>
+<li>训练全部结束之后，保存训练完成的模型权重文件（<code>.pth</code>），方便后续测试、推理使用。</li>
+</ol>
+<blockquote class="markdown-blockquote">
+<p>训练核心逻辑说明：模型学习输入歌词序列，预测下一个位置出现的歌词，不断通过损失反向更新网络权重，逐步记住歌词上下文之间的词语依赖关系。</p>
+</blockquote>
+<h2>5、模型测试</h2>
+<h3>5.1 测试准备工作</h3>
+<ol class="markdown-ordered-list">
+<li>加载训练保存好的模型权重；</li>
+<li>将模型切换到评估模式 <code>model.eval()</code>；关闭梯度计算，提升推理速度，禁用训练层；</li>
+<li>关闭自动求导 <code>torch.no_grad()</code>，测试阶段不需要反向传播。</li>
+</ol>
+<h3>5.2 预测推理方案</h3>
+<blockquote class="markdown-blockquote">
+<p>歌词生成</p>
+</blockquote>
+<p>采用<strong>自回归预测</strong>方式：给定一段起始种子文本（开头几句歌词），循环生成后续歌词：</p>
+<ol class="markdown-ordered-list">
+<li>将种子文本分词，转换成词表对应的索引序列，作为初始输入；</li>
+<li>将输入序列送入训练好的RNN模型，预测得到下一个词的概率分布；</li>
+<li>选取概率最高的词汇索引（或采样策略随机选词，提升歌词多样性）；</li>
+<li>将预测出来的新词索引追加到输入序列末尾，作为下一轮预测的输入；</li>
+<li>循环迭代，直到生成歌词达到预设文本长度，停止生成。</li>
+</ol>
+<h3>5.3 结果输出</h3>
+<ol class="markdown-ordered-list">
+<li>将生成得到的索引序列反向映射回原始文字，还原出生成的完整歌词文本；</li>
+<li>输出最终生成歌词结果。</li>
+</ol>
+<h3>5.4 模型性能评估</h3>
+<p>本次歌词生成任务属于自然语言生成任务，无法使用单一准确率指标评判模型效果，采用<strong>客观量化指标+人工主观评价</strong>相结合的方案完成模型评估。</p>
+<ol class="markdown-ordered-list">
+<li><strong>困惑度(PPL)</strong>：在独立测试集上计算模型的困惑度，衡量模型预测下一个词语的不确定性，困惑度越低代表模型预测能力越强。</li>
+<li><strong>损失对比分析</strong>：对比训练集损失和测试集损失曲线，判断模型是否出现过拟合或欠拟合现象。</li>
+<li><strong>生成文本多样性指标</strong>：通过Distinct‑1、Distinct‑2指标评估生成歌词词汇的丰富程度；统计文本重复率，检测模型是否存在词语循环重复退化问题。</li>
+<li><strong>人工评估</strong>：从文本连贯性、语句流畅度、歌词风格、原创性、押韵效果5个维度，对生成歌词样本进行人工打分，综合判断歌词生成质量。</li>
+</ol>
+<h2>附录：完整PyTorch参考代码</h2>
+<pre><code class="language-python">import os
+import torch
+import torch.nn as nn
+from torch.utils.data import Dataset, DataLoader
+
+def build_vocab(file_path):
+    with open(file_path, &quot;r&quot;, encoding=&quot;utf-8&quot;) as f:
+        text_data = f.read()
+    text_data = text_data.replace(&quot;\n&quot;, &quot;&quot;).replace(&quot; &quot;, &quot;&quot;)
+    words = list(text_data)
+    unique_words = list(set(words))
+    word2idx = {word: i for i, word in enumerate(unique_words)}
+    idx2word = {i: word for i, word in enumerate(unique_words)}
+    vocab_size = len(unique_words)
+    print(f&quot;词表大小: {vocab_size}, 文本长度: {len(words)}&quot;)
+    index_data = [word2idx[w] for w in words]
+    return index_data, word2idx, idx2word, vocab_size
+
+class LyricDataset(Dataset):
+    def __init__(self, data, seq_len):
+        self.data = torch.tensor(data, dtype=torch.long)
+        self.seq_len = seq_len
+        self.total_samples = len(self.data) - seq_len
+
+    def __getitem__(self, index):
+        x = self.data[index:index + self.seq_len]
+        y = self.data[index + 1:index + self.seq_len + 1]
+        return x, y
+
+    def __len__(self):
+        return self.total_samples
+
+def create_dataloader(index_data, seq_length, batch_size=8, shuffle=False):
+    dataset = LyricDataset(index_data, seq_length)
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
+    return dataloader
+
+class LyricRNN(nn.Module):
+    def __init__(self, vocab_size, embed_dim, hidden_dim):
+        super().__init__()
+        self.embedding = nn.Embedding(vocab_size, embed_dim)
+        self.rnn = nn.RNN(embed_dim, hidden_dim, batch_first=True)
+        self.fc = nn.Linear(hidden_dim, vocab_size)
+
+    def forward(self, x, hidden=None):
+        out = self.embedding(x)
+        out, hidden = self.rnn(out, hidden)
+        out = self.fc(out)
+        return out, hidden
+
+def create_model(vocab_size, embed_dim, hidden_dim):
+    device = torch.device(&quot;cuda&quot; if torch.cuda.is_available() else &quot;cpu&quot;)
+    model = LyricRNN(vocab_size, embed_dim, hidden_dim).to(device)
+    print(model)
+    return model, device
+
+def train_model(model, dataloader, vocab_size, device, epoch_num=10, lr=0.001):
+    criterion = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    for epoch in range(epoch_num):
+        total_loss = 0.0
+        model.train()
+        for x, y in dataloader:
+            x, y = x.to(device), y.to(device)
+            optimizer.zero_grad()
+            output, _ = model(x)
+            loss = criterion(output.reshape(-1, vocab_size), y.reshape(-1))
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+            optimizer.step()
+            total_loss += loss.item()
+        avg_loss = total_loss / len(dataloader)
+        print(f&quot;Epoch:{epoch + 1}, Loss:{avg_loss:.4f}&quot;)
+    return model
+
+def save_model(model, save_path):
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    torch.save(model.state_dict(), save_path)
+    print(f&quot;模型已保存至 {save_path}&quot;)
+
+def load_model(model, save_path, device):
+    state_dict = torch.load(save_path, weights_only=True)
+    model.load_state_dict(state_dict)
+    model.to(device)
+    return model
+
+def generate_lyric(model, start_words, generate_len, word2idx, idx2word, device):
+    model.eval()
+    words = list(start_words)
+    input_idx = [word2idx[w] for w in words]
+    input_tensor = torch.tensor([input_idx], dtype=torch.long).to(device)
+    hidden = None
+    with torch.no_grad():
+        for _ in range(generate_len):
+            output, hidden = model(input_tensor, hidden)
+            predict_idx = torch.argmax(output[:, -1, :], dim=1).item()
+            words.append(idx2word[predict_idx])
+            input_tensor = torch.tensor([[predict_idx]], dtype=torch.long).to(device)
+    return &quot;&quot;.join(words)
+
+def main():
+    file_path = &quot;data/jaychou_lyrics.txt&quot;
+    save_path = &quot;model/lyric_rnn.pth&quot;
+
+    index_data, word2idx, idx2word, vocab_size = build_vocab(file_path)
+
+    seq_length = 10
+    dataloader = create_dataloader(index_data, seq_length, batch_size=8, shuffle=False)
+
+    embed_dim = 128
+    hidden_dim = 256
+    model, device = create_model(vocab_size, embed_dim, hidden_dim)
+
+    model = train_model(model, dataloader, vocab_size, device, epoch_num=10, lr=0.001)
+
+    save_model(model, save_path)
+
+    model = load_model(model, save_path, device)
+    result = generate_lyric(model, &quot;梦想&quot;, 100, word2idx, idx2word, device)
+    print(&quot;生成歌词：&quot;, result)
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+
+      </div>
+    </article>
+    
+    <div id="comments" style="max-width: 800px; margin: 3rem auto; padding: 0 1rem;">
+      <div style="width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin-bottom: 2rem;"></div>
+      <h3 style="margin-bottom: 1.5rem; color: var(--primary);">💬 评论区</h3>
+      <script src="https://giscus.app/client.js" 
+           data-repo="jonny-dr/jonny-dr.github.io" 
+           data-repo-id="R_kgDORKkzfg" 
+           data-category="Announcements" 
+           data-category-id="DIC_kwDORKkzfs4C2Wdq" 
+           data-mapping="pathname" 
+           data-strict="0" 
+           data-reactions-enabled="1" 
+           data-emit-metadata="0" 
+           data-input-position="bottom" 
+           data-theme="preferred_color_scheme" 
+           data-lang="zh-CN" 
+           crossorigin="anonymous" 
+           async> 
+     </script>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 北辰 · 保持好奇，持续成长</p>
+    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
+      源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
+    </p>
+  </footer>
+
+  <button class="back-to-top" id="backToTop" aria-label="回到顶部">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="m18 15-6-6-6 6"/>
+    </svg>
+  </button>
+
+  <script src="../../../js/theme.js"></script>
+</body>
+</html>
+  

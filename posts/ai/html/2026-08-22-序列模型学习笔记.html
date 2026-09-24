@@ -1,0 +1,704 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>深度学习序列模型学习笔记 | 北辰</title>
+  <link rel="stylesheet" href="../../../css/common.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <style>
+    .post-content {
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+    .post-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    .post-meta {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .post-tag {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .post-tag.category {
+      background: rgba(72, 187, 120, 0.1);
+      color: #48bb78;
+    }
+    .post-tag.language {
+      background: rgba(237, 137, 54, 0.1);
+      color: #ed8936;
+    }
+    .post-body {
+      margin-bottom: 2rem;
+    }
+    .post-body h2 {
+      font-size: 1.8rem;
+      margin: 2rem 0 1rem;
+      color: var(--primary);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-body h3 {
+      font-size: 1.4rem;
+      margin: 1.5rem 0 0.8rem;
+      color: var(--primary);
+    }
+    .post-body h4 {
+      font-size: 1.2rem;
+      margin: 1.2rem 0 0.6rem;
+      color: var(--primary);
+    }
+    .post-body h5 {
+      font-size: 1.1rem;
+      margin: 1rem 0 0.5rem;
+      color: var(--text);
+    }
+    .post-body p {
+      margin-bottom: 1.2rem;
+    }
+    .post-body a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-body a:hover {
+      text-decoration: underline;
+    }
+    .post-body ul,
+    .post-body ol {
+      margin: 1rem 0 1.5rem 1.5rem;
+    }
+    .post-body li {
+      margin-bottom: 0.5rem;
+    }
+    .post-body pre {
+      background: #f8f9fa;
+      color: #333333;
+      padding: 1.5rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border);
+    }
+    .post-body code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.9rem;
+    }
+    .post-body pre code {
+      background: none;
+      padding: 0;
+    }
+    [data-theme="dark"] .post-body pre {
+      background: #1e1e1e;
+      color: #e6e6e6;
+    }
+    [data-theme="dark"] .post-body code {
+      color: #e6e6e6;
+    }
+    .post-body img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .post-original-link {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+      color: #6c757d;
+    }
+    .post-original-link a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-original-link a:hover {
+      text-decoration: underline;
+    }
+    .post-body table.markdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .post-body table.markdown-table thead {
+      background: linear-gradient(135deg, var(--primary), #3a0ca3);
+      color: white;
+    }
+    .post-body table.markdown-table th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      border: none;
+    }
+    .post-body table.markdown-table td {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .post-body table.markdown-table td:last-child {
+      border-right: none;
+    }
+    .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(67, 97, 238, 0.03);
+    }
+    .post-body table.markdown-table tbody tr:hover {
+      background: rgba(67, 97, 238, 0.08);
+    }
+    [data-theme="dark"] .post-body table.markdown-table {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .post-body blockquote.markdown-blockquote {
+      border-left: 4px solid var(--primary);
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      background: rgba(67, 97, 238, 0.05);
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #666;
+    }
+    [data-theme="dark"] .post-body blockquote.markdown-blockquote {
+      background: rgba(255, 255, 255, 0.05);
+      color: #aaa;
+    }
+    .post-body hr.markdown-hr {
+      border: none;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      margin: 2rem 0;
+    }
+    .post-body li.task-list-item {
+      list-style: none;
+      margin-left: -1.5rem;
+    }
+    .post-body li.task-list-item input[type="checkbox"] {
+      margin-right: 0.5rem;
+      cursor: default;
+    }
+    .post-body .image-placeholder {
+      transition: var(--transition);
+    }
+    .post-body .image-placeholder:hover {
+      border-color: var(--primary) !important;
+      background: rgba(67, 97, 238, 0.05) !important;
+    }
+    @media (max-width: 768px) {
+      .post-content {
+        padding: 0 1rem;
+      }
+      .post-header h1 {
+        font-size: 1.8rem;
+      }
+      .post-tags {
+        gap: 0.5rem;
+      }
+      .post-tag {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      .post-body pre {
+        padding: 1rem;
+      }
+      .post-body table.markdown-table {
+        font-size: 0.85rem;
+      }
+      .post-body table.markdown-table th,
+      .post-body table.markdown-table td {
+        padding: 0.6rem 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <button class="music-toggle" id="musicToggle" aria-label="控制音乐">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+  </button>
+
+  <header>
+    <h1>🌱 北辰的博客</h1>
+    <p class="subtitle">记录思考，分享成长 | 一个热爱技术的探索者</p>
+    <nav>
+  <a href="../../../index.html">首页</a>
+  <a href="../../../html/project/project.html">项目</a>
+  <a href="../../../html/skill/skill.html">技术</a>
+  <a href="../../../html/ai/ai.html">AI</a>
+  <a href="../../../html/daily/daily.html">日常</a>
+  <a href="../../../about.html">关于</a>
+  <a href="../../../archives.html">归档</a>
+  <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+</nav>
+  </header>
+
+  <main class="post-content">
+    <article>
+      <div class="post-header">
+        <h1>深度学习序列模型学习笔记</h1>
+        <div class="post-meta">发布日期：2026-08-022</div>
+        
+        <div class="post-tags">
+          <span class="post-tag category">深度学习</span> <span class="post-tag category">神经网络</span>
+          <span class="post-tag language">Python</span> <span class="post-tag language">PyTorch</span>
+        </div>
+        
+      </div>
+      <div class="post-body">
+        <h1>深度学习序列模型学习笔记</h1>
+<blockquote class="markdown-blockquote">
+<p>RNN‑CNN‑Transformer</p>
+<p>学习记录：循环神经网络、卷积神经网络、Transformer原理+代码实战</p>
+</blockquote>
+<h2>目录</h2>
+<ol class="markdown-ordered-list">
+<li>循环神经网络 RNN</li>
+<li>RNN PyTorch代码示例</li>
+<li>CNN卷积神经网络 VS RNN循环神经网络对比</li>
+<li>Transformer完整通俗讲解</li>
+<li>Transformer极简PyTorch示例</li>
+<li>核心知识点速查表</li>
+</ol>
+<hr class="markdown-hr">
+<h1>一、循环神经网络</h1>
+<h2>1. 什么是RNN</h2>
+<p>普通全连接、CNN神经网络输入之间相互独立，<strong>没有记忆能力</strong>。<br>循环神经网络专门用来处理<strong>序列数据</strong>，自带记忆；每一步输出依赖：<strong>当前输入 + 上一时刻的隐藏状态(记忆)</strong>。</p>
+<blockquote class="markdown-blockquote">
+<p>序列数据举例：文本、语音、时间序列、股票、视频帧</p>
+</blockquote>
+<h2>2. 网络展开</h2>
+<pre><code class="language-plaintext">t0: x0 → h0 → y0
+t1: x1 + h0 → h1 → y1
+t2: x2 + h1 → h2 → y2
+</code></pre>
+<h2>3. RNN 三种任务模式</h2>
+<ol class="markdown-ordered-list">
+<li><strong>一对一</strong>：普通输入输出，如图像分类</li>
+<li><strong>多对一</strong>：多个序列输入，单个输出 → 情感分类（一段话输出正面/负面）</li>
+<li><strong>多对多</strong>：输入序列，输出序列 → 机器翻译、语音转文字</li>
+</ol>
+<h2>4. 原生RNN致命缺陷</h2>
+<p><strong>长距离依赖问题 + 梯度消失/梯度爆炸</strong><br>句子很长时，很早之前的信息传到后面几乎丢失，记不住久远内容。</p>
+<h2>5. RNN改进版本</h2>
+<ol class="markdown-ordered-list">
+<li><strong>LSTM（长短期记忆网络）</strong><br> 新增遗忘门、输入门、输出门、细胞状态Cell‑State，大幅缓解长距离记忆丢失，工业最常用。</li>
+<li><strong>GRU（门控循环单元）</strong><br> LSTM简化版，只有更新门、重置门；参数更少，训练速度更快。</li>
+</ol>
+<blockquote class="markdown-blockquote">
+<p>现状：NLP主流已经被Transformer替代；时序预测、语音场景仍大量使用LSTM/GRU。</p>
+</blockquote>
+<h2>6. 通俗例子</h2>
+<p>句子：<strong>我昨天去公园，那里风景很美</strong><br>原始RNN读到&quot;很美&quot;时，很难记住开头的&quot;公园&quot;；LSTM可以长久保存这条信息。</p>
+<hr class="markdown-hr">
+<h1>二、RNN PyTorch实战代码</h1>
+<blockquote class="markdown-blockquote">
+<p>RNN时序预测代码样例</p>
+</blockquote>
+<p>任务：使用单层RNN学习正弦曲线，用一段序列预测下一个数值</p>
+<pre><code class="language-python">import torch
+import torch.nn as nn
+import numpy as np
+
+# ---------------------- 1. 构造数据集 ----------------------
+# 正弦曲线时序数据
+time_steps = np.linspace(0, 20, 200)
+data = np.sin(time_steps)
+data = data.reshape(-1, 1)
+
+# 超参数
+seq_len = 10      # 输入序列长度
+batch_size = 1
+input_size = 1    # 每一时刻特征维度
+hidden_size = 16  # RNN隐藏层神经元
+output_size = 1
+
+# 构造样本：前seq_len个点预测下1个点
+def create_seq_data(data, seq_len):
+    xs, ys = [], []
+    for i in range(len(data)-seq_len):
+        x = data[i:i+seq_len]
+        y = data[i+seq_len]
+        xs.append(x)
+        ys.append(y)
+    return np.array(xs), np.array(ys)
+
+X, Y = create_seq_data(data, seq_len)
+
+# 转为tensor, shape: [样本数, seq_len, input_size]
+X = torch.from_numpy(X).float()
+Y = torch.from_numpy(Y).float()
+
+# ---------------------- 2. 定义RNN模型 ----------------------
+class SimpleRNN(nn.Module):
+    def __init__(self, input_size, hidden_size, output_size):
+        super().__init__()
+        self.hidden_size = hidden_size
+        # RNN层
+        self.rnn = nn.RNN(
+            input_size=input_size,
+            hidden_size=hidden_size,
+            num_layers=1,
+            batch_first=True   # 输入格式 (batch, seq_len, feature)
+        )
+        # 全连接输出层
+        self.linear = nn.Linear(hidden_size, output_size)
+
+    def forward(self, x):
+        # 初始隐藏状态 h0
+        h0 = torch.zeros(1, x.size(0), self.hidden_size)
+        # out: (batch, seq_len, hidden_size)
+        out, _ = self.rnn(x, h0)
+        # 取序列最后一步的隐藏状态做预测
+        out = self.linear(out[:, -1, :])
+        return out
+
+model = SimpleRNN(input_size, hidden_size, output_size)
+
+# ---------------------- 3. 损失函数&amp;优化器 ----------------------
+criterion = nn.MSELoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+
+# ---------------------- 4. 训练 ----------------------
+epochs = 100
+for epoch in range(epochs):
+    optimizer.zero_grad()
+    pred = model(X)
+    loss = criterion(pred, Y)
+    loss.backward()
+    optimizer.step()
+
+    if (epoch+1) % 10 == 0:
+        print(f&quot;Epoch:{epoch+1:3d}, Loss:{loss.item():.4f}&quot;)
+
+# ---------------------- 5. 测试预测 ----------------------
+test_seq = X[0:1]   # 取第一条序列
+y_pred = model(test_seq)
+print(&quot;\n输入序列最后一段预测值：&quot;, y_pred.item())
+</code></pre>
+<blockquote class="markdown-blockquote">
+<p>切换LSTM只需修改两处</p>
+</blockquote>
+<pre><code class="language-python"># 1. 网络定义处
+self.rnn = nn.LSTM(input_size, hidden_size, num_layers=1, batch_first=True)
+
+# 2. 前向传播初始化
+h0 = torch.zeros(1, x.size(0), self.hidden_size)
+c0 = torch.zeros(1, x.size(0), self.hidden_size)
+out, _ = self.rnn(x, (h0, c0))
+</code></pre>
+<hr class="markdown-hr">
+<h1>三、CNN卷积神经网络 VS RNN循环神经网络对比</h1>
+<h2>核心一句话区分</h2>
+<ul class="markdown-list">
+<li><strong>CNN（卷积神经网络）</strong>：提取<strong>空间局部特征</strong>；输入之间无先后时序关系</li>
+<li><strong>RNN/LSTM</strong>：提取<strong>时序上下文特征</strong>；数据有先后顺序，依靠隐藏状态保存记忆</li>
+</ul>
+<h2>详细对比表</h2>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>对比维度</th>
+<th>CNN卷积神经网络</th>
+<th>RNN循环神经网络(LSTM/GRU)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>适用数据</td>
+<td>空间数据：图片、图像、矩阵</td>
+<td>序列数据：文本、语音、时间序列、视频帧</td>
+</tr>
+<tr>
+<td>核心思想</td>
+<td>滑动卷积核提取局部空间特征</td>
+<td>循环传递隐藏状态，保存历史记忆</td>
+</tr>
+<tr>
+<td>数据依赖</td>
+<td>样本之间<strong>相互独立</strong>，无先后顺序</td>
+<td>当前结果依赖<strong>前面历史时刻数据</strong></td>
+</tr>
+<tr>
+<td>权重共享</td>
+<td>卷积核在<strong>空间维度</strong>共享权重</td>
+<td>循环单元在<strong>时间维度</strong>共享权重</td>
+</tr>
+<tr>
+<td>长距离问题</td>
+<td>感受野有限，远距离像素难关联；无梯度消失问题</td>
+<td>原始RNN存在<strong>梯度消失，记不住久远信息</strong></td>
+</tr>
+<tr>
+<td>运算方式</td>
+<td>并行计算，GPU加速很快</td>
+<td>时序串行，t1算完才能算t2，很难并行</td>
+</tr>
+<tr>
+<td>典型任务</td>
+<td>图像分类、目标检测、图像分割</td>
+<td>文本情感分类、机器翻译、时序预测</td>
+</tr>
+</tbody></table>
+<h2>通俗案例</h2>
+<ol class="markdown-ordered-list">
+<li>CNN：识别猫咪图片，卷积依次识别边缘→线条→耳朵→猫咪，不需要记住之前看过哪个像素。</li>
+<li>RNN：句子<code>我喝完水，然后去打球</code>；读到打球时，模型需要记住前面主语&quot;我&quot;是谁。</li>
+</ol>
+<h2>混合方案 CNN‑RNN</h2>
+<ul class="markdown-list">
+<li>视频识别：CNN提取每一帧图像特征 → RNN学习帧与帧之间时序关系</li>
+<li>文本：CNN提取局部词组特征 → RNN学习长上下文</li>
+</ul>
+<hr class="markdown-hr">
+<h1>四、Transformer（注意力机制）</h1>
+<blockquote class="markdown-blockquote">
+<p>论文：Attention Is All You Need(2017 Google)；GPT、LLaMA、BERT底层骨架</p>
+</blockquote>
+<h2>1. 为什么诞生Transformer</h2>
+<ul class="markdown-list">
+<li>RNN/LSTM：串行计算，训练慢；长序列容易丢失久远信息</li>
+<li>CNN：只能看到局部窗口；远距离依赖需要堆叠很多层网络</li>
+</ul>
+<p>✅ Transformer两大优势：</p>
+<ol class="markdown-ordered-list">
+<li><strong>所有文字Token同时并行计算，训练速度飞快</strong></li>
+<li><strong>自注意力Self‑Attention</strong>：任意两个单词直接建立联系，一步捕获长距离依赖</li>
+</ol>
+<h2>2. 大白话理解自注意力</h2>
+<p>句子：<code>猫 追 老鼠，它跑得很快</code></p>
+<ul class="markdown-list">
+<li>RNN：一个字一个字顺序读；读到&quot;它&quot;，费力回忆前面内容，长句子容易忘</li>
+<li>Transformer：一眼扫完整句话；读到&quot;它&quot;瞬间直接找到&quot;老鼠&quot;，知道指代对象</li>
+</ul>
+<blockquote class="markdown-blockquote">
+<p>Transformer灵魂：<strong>让每个字都可以和句子中任何一个字直接计算关系强弱</strong></p>
+</blockquote>
+<h2>3. Q、K、V通俗解释</h2>
+<ul class="markdown-list">
+<li><strong>Q(Query 查询)：我要去找谁？</strong> &quot;它&quot;想要寻找自己指代的对象</li>
+<li><strong>K(Key 键/名片)：每个单词亮出自己的身份名片</strong></li>
+<li><strong>V(Value 值)：每个单词携带的真实内容信息</strong></li>
+</ul>
+<p>流程：</p>
+<ol class="markdown-ordered-list">
+<li>&quot;它&quot;拿着Q，挨个对比句子所有单词的K，计算匹配度</li>
+<li>匹配度最高的是&quot;老鼠&quot;，给老鼠打很高的注意力权重</li>
+<li>把老鼠携带的信息V拿过来给自己</li>
+<li>&quot;它&quot;就知道自己指代老鼠</li>
+</ol>
+<h2>4. 缩放点积注意力公式</h2>
+<p>$$<br>Attention(Q,K,V)=softmax\left(\frac{QK^T}{\sqrt{d_k}}\right)V<br>$$<br>步骤：</p>
+<ol class="markdown-ordered-list">
+<li>$Q\cdot K^T$：计算两两单词相关性得分</li>
+<li>除以$\sqrt{d_k}$缩放，防止向量维度太大数值爆炸</li>
+<li>softmax转为0‑1权重，权重之和=1</li>
+<li>权重 × V，加权求和得到融合上下文的向量</li>
+</ol>
+<h2>5. 多头注意力 Multi‑Head‑Attention</h2>
+<p>把QKV切分成多份，并行跑多次注意力。<br>好比8个人从8个不同角度读一句话：</p>
+<ul class="markdown-list">
+<li>头1：代词指代关系</li>
+<li>头2：主谓关系</li>
+<li>头3：时序关系<br>最后拼接所有结果，信息更全面。</li>
+</ul>
+<h2>6. 位置编码 Positional Encoding</h2>
+<p>Transformer一次性读取全部文字，<strong>天生分不清词语顺序</strong>。<br><code>我打你</code> 和 <code>你打我</code> 文字相同，顺序不同语义相反。<br>解决方案：手动给每个token打上位置序号，词向量+位置向量 =最终输入向量。</p>
+<h2>7. Encoder 编码器（BERT‑双向阅读理解）</h2>
+<p>单层Encoder内部结构：</p>
+<blockquote class="markdown-blockquote">
+<p>多头自注意力 → Add&amp;Norm(残差+层归一化) → FFN前馈网络 → Add&amp;Norm</p>
+</blockquote>
+<ul class="markdown-list">
+<li>双向注意力：每个单词既可以向左看，又可以向右看全部文字</li>
+<li>使用场景：文本分类、情感分析、语义向量提取</li>
+</ul>
+<h2>8. Decoder解码器（GPT‑单向生成）</h2>
+<p>单层Decoder内部结构：</p>
+<blockquote class="markdown-blockquote">
+<p>掩码多头自注意力 → Add&amp;Norm → 交叉注意力(翻译专用) → Add&amp;Norm → FFN前馈网络</p>
+</blockquote>
+<ul class="markdown-list">
+<li><strong>掩码Mask</strong>：生成文字的时候，遮住未来还没有生成的词，禁止偷看后面内容</li>
+<li>GPT属于<strong>纯Decoder架构</strong>，自左向右一个字一个字生成文本</li>
+<li>交叉注意力：仅Encoder‑Decoder翻译架构使用，GPT无此模块</li>
+</ul>
+<h2>9. 三大Transformer架构路线</h2>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>架构类型</th>
+<th>代表模型</th>
+<th>结构</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Encoder‑Only</td>
+<td>BERT</td>
+<td>只用编码器</td>
+<td>理解任务：分类、情感分析、语义向量</td>
+</tr>
+<tr>
+<td>Decoder‑Only</td>
+<td>GPT‑3.5/4、LLaMA、通义千问</td>
+<td>纯解码器+掩码注意力</td>
+<td>生成任务：对话、写文章、代码续写</td>
+</tr>
+<tr>
+<td>Encoder+Decoder</td>
+<td>T5、Bart</td>
+<td>编码器+解码器</td>
+<td>序列转换任务：机器翻译、文本摘要</td>
+</tr>
+</tbody></table>
+<h2>10. Transformer VS RNN总结对比</h2>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>RNN/LSTM</th>
+<th>Transformer</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>串行计算 t1→t2→t3，训练慢</td>
+<td>全部token并行计算，GPU训练飞快</td>
+</tr>
+<tr>
+<td>信息一步步传递，长距离信息容易丢失</td>
+<td>自注意力直接连通任意两个词，长距离依赖友好</td>
+</tr>
+<tr>
+<td>自带时序属性，无需位置编码</td>
+<td>无顺序概念，必须手动添加位置编码</td>
+</tr>
+<tr>
+<td>上下文单向流动</td>
+<td>Encoder双向自注意力，可以同时看左右所有单词</td>
+</tr>
+</tbody></table>
+<hr class="markdown-hr">
+<h1>五、Transformer极简示例</h1>
+<pre><code class="language-python">import torch
+import torch.nn as nn
+
+# 超参数
+vocab_size = 1000   # 词表大小
+d_model = 128       # 词向量维度
+nhead = 2           # 注意力头数
+num_layers = 2      # decoder层数
+seq_len = 10
+
+# 1. 词嵌入层：数字token → 向量
+embedding = nn.Embedding(vocab_size, d_model)
+
+# 2. Transformer解码器层
+decoder_layer = nn.TransformerDecoderLayer(d_model, nhead, batch_first=True)
+transformer_decoder = nn.TransformerDecoder(decoder_layer, num_layers=num_layers)
+
+# 3. 输出层：向量转回单词概率
+linear = nn.Linear(d_model, vocab_size)
+
+# 模拟输入：一批句子，每个句子10个词(用数字代表单词)
+x = torch.randint(0, vocab_size, (2, seq_len))  # batch=2, 序列长10
+
+# 生成掩码：遮住未来位置，GPT必须要有
+mask = nn.Transformer.generate_square_subsequent_mask(seq_len)
+
+# 前向传播
+x_emb = embedding(x)
+# 纯decoder的时候memory可以传全0占位
+memory = torch.zeros_like(x_emb)
+out = transformer_decoder(tgt=x_emb, memory=memory, tgt_mask=mask)
+logits = linear(out)
+
+print(&quot;输出shape:&quot;, logits.shape)
+# [batch, seq_len, vocab_size]，每个位置预测下一个词
+</code></pre>
+<hr class="markdown-hr">
+<h1>六、知识点速查卡片</h1>
+<ol class="markdown-ordered-list">
+<li><strong>RNN</strong>：时序串行，靠隐藏状态传递记忆；长序列梯度消失。升级版LSTM/GRU</li>
+<li><strong>CNN</strong>：空间并行；卷积核提取局部图像特征，无记忆</li>
+<li><strong>Self‑Attention自注意力</strong>：token之间直接计算相关性，长距离依赖一步到位，并行训练</li>
+<li><strong>QKV</strong>：查询、键、值；注意力机制三要素</li>
+<li><strong>Encoder(BERT)</strong>：双向注意力，理解文本</li>
+<li><strong>Decoder(GPT)</strong>：掩码单向注意力，自回归生成文本</li>
+<li><strong>位置编码</strong>：给Transformer增加词语先后顺序信息</li>
+</ol>
+
+      </div>
+    </article>
+    
+    <div id="comments" style="max-width: 800px; margin: 3rem auto; padding: 0 1rem;">
+      <div style="width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin-bottom: 2rem;"></div>
+      <h3 style="margin-bottom: 1.5rem; color: var(--primary);">💬 评论区</h3>
+      <script src="https://giscus.app/client.js" 
+           data-repo="jonny-dr/jonny-dr.github.io" 
+           data-repo-id="R_kgDORKkzfg" 
+           data-category="Announcements" 
+           data-category-id="DIC_kwDORKkzfs4C2Wdq" 
+           data-mapping="pathname" 
+           data-strict="0" 
+           data-reactions-enabled="1" 
+           data-emit-metadata="0" 
+           data-input-position="bottom" 
+           data-theme="preferred_color_scheme" 
+           data-lang="zh-CN" 
+           crossorigin="anonymous" 
+           async> 
+     </script>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 北辰 · 保持好奇，持续成长</p>
+    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
+      源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
+    </p>
+  </footer>
+
+  <button class="back-to-top" id="backToTop" aria-label="回到顶部">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="m18 15-6-6-6 6"/>
+    </svg>
+  </button>
+
+  <script src="../../../js/theme.js"></script>
+</body>
+</html>
+  

@@ -1,0 +1,1034 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Java 内存模型（JMM）完全解读 | 北辰</title>
+  <link rel="stylesheet" href="../../../css/common.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <style>
+    .post-content {
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+    .post-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    .post-meta {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .post-tag {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .post-tag.category {
+      background: rgba(72, 187, 120, 0.1);
+      color: #48bb78;
+    }
+    .post-tag.language {
+      background: rgba(237, 137, 54, 0.1);
+      color: #ed8936;
+    }
+    .post-body {
+      margin-bottom: 2rem;
+    }
+    .post-body h2 {
+      font-size: 1.8rem;
+      margin: 2rem 0 1rem;
+      color: var(--primary);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-body h3 {
+      font-size: 1.4rem;
+      margin: 1.5rem 0 0.8rem;
+      color: var(--primary);
+    }
+    .post-body h4 {
+      font-size: 1.2rem;
+      margin: 1.2rem 0 0.6rem;
+      color: var(--primary);
+    }
+    .post-body h5 {
+      font-size: 1.1rem;
+      margin: 1rem 0 0.5rem;
+      color: var(--text);
+    }
+    .post-body p {
+      margin-bottom: 1.2rem;
+    }
+    .post-body a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-body a:hover {
+      text-decoration: underline;
+    }
+    .post-body ul,
+    .post-body ol {
+      margin: 1rem 0 1.5rem 1.5rem;
+    }
+    .post-body li {
+      margin-bottom: 0.5rem;
+    }
+    .post-body pre {
+      background: #f8f9fa;
+      color: #333333;
+      padding: 1.5rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border);
+    }
+    .post-body code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.9rem;
+    }
+    .post-body pre code {
+      background: none;
+      padding: 0;
+    }
+    [data-theme="dark"] .post-body pre {
+      background: #1e1e1e;
+      color: #e6e6e6;
+    }
+    [data-theme="dark"] .post-body code {
+      color: #e6e6e6;
+    }
+    .post-body img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .post-original-link {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+      color: #6c757d;
+    }
+    .post-original-link a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-original-link a:hover {
+      text-decoration: underline;
+    }
+    .post-body table.markdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .post-body table.markdown-table thead {
+      background: linear-gradient(135deg, var(--primary), #3a0ca3);
+      color: white;
+    }
+    .post-body table.markdown-table th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      border: none;
+    }
+    .post-body table.markdown-table td {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .post-body table.markdown-table td:last-child {
+      border-right: none;
+    }
+    .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(67, 97, 238, 0.03);
+    }
+    .post-body table.markdown-table tbody tr:hover {
+      background: rgba(67, 97, 238, 0.08);
+    }
+    [data-theme="dark"] .post-body table.markdown-table {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .post-body blockquote.markdown-blockquote {
+      border-left: 4px solid var(--primary);
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      background: rgba(67, 97, 238, 0.05);
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #666;
+    }
+    [data-theme="dark"] .post-body blockquote.markdown-blockquote {
+      background: rgba(255, 255, 255, 0.05);
+      color: #aaa;
+    }
+    .post-body hr.markdown-hr {
+      border: none;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      margin: 2rem 0;
+    }
+    .post-body li.task-list-item {
+      list-style: none;
+      margin-left: -1.5rem;
+    }
+    .post-body li.task-list-item input[type="checkbox"] {
+      margin-right: 0.5rem;
+      cursor: default;
+    }
+    .post-body .image-placeholder {
+      transition: var(--transition);
+    }
+    .post-body .image-placeholder:hover {
+      border-color: var(--primary) !important;
+      background: rgba(67, 97, 238, 0.05) !important;
+    }
+    @media (max-width: 768px) {
+      .post-content {
+        padding: 0 1rem;
+      }
+      .post-header h1 {
+        font-size: 1.8rem;
+      }
+      .post-tags {
+        gap: 0.5rem;
+      }
+      .post-tag {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      .post-body pre {
+        padding: 1rem;
+      }
+      .post-body table.markdown-table {
+        font-size: 0.85rem;
+      }
+      .post-body table.markdown-table th,
+      .post-body table.markdown-table td {
+        padding: 0.6rem 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <button class="music-toggle" id="musicToggle" aria-label="控制音乐">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+  </button>
+
+  <header>
+    <h1>🌱 北辰的博客</h1>
+    <p class="subtitle">记录思考，分享成长 | 一个热爱技术的探索者</p>
+    <nav>
+  <a href="../../../index.html">首页</a>
+  <a href="../../../html/project/project.html">项目</a>
+  <a href="../../../html/skill/skill.html">技术</a>
+  <a href="../../../html/ai/ai.html">AI</a>
+  <a href="../../../html/daily/daily.html">日常</a>
+  <a href="../../../about.html">关于</a>
+  <a href="../../../archives.html">归档</a>
+  <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+</nav>
+  </header>
+
+  <main class="post-content">
+    <article>
+      <div class="post-header">
+        <h1>Java 内存模型（JMM）完全解读</h1>
+        <div class="post-meta">发布日期：2026-09-12</div>
+        
+        <div class="post-tags">
+          <span class="post-tag category">JVM</span> <span class="post-tag category">JMM</span> <span class="post-tag category">设计思想</span> <span class="post-tag category">解决方案</span>
+          <span class="post-tag language">Java</span> <span class="post-tag language">JVM</span> <span class="post-tag language">JMM</span>
+        </div>
+        
+      </div>
+      <div class="post-body">
+        <h1>Java 内存模型（JMM）完全解读</h1>
+<blockquote class="markdown-blockquote">
+<p>从「为什么需要 JMM」到「8 大原子操作」，再到 volatile / synchronized / final 的内存语义，一次讲透。<br>主线：<strong>可见性 · 有序性 · 原子性</strong> —— 这三座大山，就是 JMM 全部规则存在的理由。</p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>序章：先破除三个最流行的误解</h2>
+<p>在展开之前，必须先拆掉三堵墙，否则后面全是白听。</p>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>常见误解</th>
+<th>真相</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>❌ JMM 就是 JVM 的堆、栈、方法区</td>
+<td><strong>完全两回事</strong>。堆/栈/方法区是「JVM 运行时数据区」，描述内存怎么划分；JMM 是「并发读写共享变量的<strong>行为规范</strong>」，描述线程之间怎么看见彼此的写。前者管<strong>放哪</strong>，后者管<strong>怎么看</strong>。</td>
+</tr>
+<tr>
+<td>❌ 主内存就是内存条，工作内存就是 CPU 缓存</td>
+<td><strong>不对</strong>。它们是 JMM 为了跨平台而造出来的<strong>抽象概念</strong>，可大致对应到「内存条 + 寄存器/缓存」，但 JMM 刻意不绑定任何具体硬件——这样同一套规则既能跑在 x86 上，也能跑在 ARM 上。</td>
+</tr>
+<tr>
+<td>❌ JMM 是一个真实的内存结构</td>
+<td><strong>不是</strong>。它是一组<strong>规则/契约</strong>（JSR-133 定义）：只要你按它的规则写并发代码，JVM 就必须保证你得到它承诺的结果。</td>
+</tr>
+</tbody></table>
+<blockquote class="markdown-blockquote">
+<p><strong>一句话定性：JMM 是 Java 语言级别的「内存可见性与顺序」规范，它屏蔽硬件差异，告诉程序员&quot;什么情况下一个线程的写，一定能被另一个线程看到&quot;。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>第一章：JMM 因何而生 —— 并发的三大源头问题</h2>
+<p>JMM 不是拍脑袋想出来的，它是被三个硬件/编译器层面的&quot;优化原罪&quot;逼出来的。</p>
+<h3>1.1 源头一：CPU 缓存 → 可见性问题</h3>
+<p>现代 CPU 的速度和内存条的速度差了两个数量级。为了填补这个鸿沟，硬件引入了多级缓存：</p>
+<pre><code class="language-plaintext">CPU 核心 → L1 缓存 → L2 缓存 → L3 缓存（多核共享） → 主内存
+            ↑ 每核私有                        ↑ 所有核共享
+</code></pre>
+<p><strong>后果</strong>：线程 A 在 CPU-1 上改了变量 <code>x</code>，新值可能只躺在 CPU-1 的 L1 缓存里，还没刷回主内存；线程 B 在 CPU-2 上读 <code>x</code>，拿到的是自己缓存里的<strong>旧值</strong>。这就是<strong>可见性问题</strong>——一个线程改了，另一个线程看不见。</p>
+<pre><code class="language-java">static boolean running = true;   // 普通变量，无 volatile
+
+// 线程 B
+while (running) { /* 空转 */ }
+System.out.println(&quot;B 结束&quot;);     // 可能永远执行不到
+
+// 线程 A（1 秒后）
+running = false;                  // B 可能永远看不到！
+</code></pre>
+<h3>1.2 源头二：重排序 → 有序性问题</h3>
+<p>为了跑得更快，至少有三层角色会<strong>打乱你写的代码顺序</strong>：</p>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>重排序来源</th>
+<th>谁干的</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>编译器重排序</td>
+<td>javac / JIT</td>
+<td>编译器认为调整指令顺序不改变单线程语义，就调了</td>
+</tr>
+<tr>
+<td>指令级并行重排序</td>
+<td>CPU</td>
+<td>现代 CPU 乱序发射，多条指令并行执行</td>
+</tr>
+<tr>
+<td>内存系统重排序</td>
+<td>缓存 / 写缓冲</td>
+<td>由于写缓冲区存在，读到的可能是&quot;陈旧&quot;的缓存值，看起来像执行顺序被打乱</td>
+</tr>
+</tbody></table>
+<p><strong>后果</strong>：代码写的是 <code>a = 1; flag = true;</code>，另一个线程可能先看到 <code>flag == true</code>，再看到 <code>a == 1</code>（甚至看不到）。这就是<strong>有序性问题</strong>。</p>
+<h3>1.3 源头三：线程切换 + 非原子操作 → 原子性问题</h3>
+<p>即使看起来天经地义的一行 <code>i++</code>，在字节码层面都是<strong>三步</strong>：</p>
+<pre><code class="language-plaintext">1. 读取 i 的值到操作数栈        （read + load + use）
+2. 加 1                        （CPU 计算）
+3. 写回 i                      （assign + store + write）
+</code></pre>
+<p>线程在这三步之间随时可能被 OS 挂起。两个线程同时 <code>i++</code>，各读到 0，各算出 1，各写回 1 —— 两次自增，结果只加了 1。这就是<strong>原子性问题</strong>。</p>
+<blockquote class="markdown-blockquote">
+<p><strong>可见性、有序性、原子性 —— 这&quot;并发三座大山&quot;就是 JMM 要解决的问题。</strong> 记住这条主线，后面所有规则都围绕它们展开。</p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>第二章：JMM 的抽象世界 —— 主内存与工作内存</h2>
+<h3>2.1 抽象结构全景</h3>
+<pre><code class="language-plaintext">   ┌──────────────────────┐              ┌──────────────────────┐
+   │      线程 A           │              │      线程 B           │
+   │  ┌────────────────┐  │              │  ┌────────────────┐  │
+   │  │  CPU 执行引擎   │  │              │  │  CPU 执行引擎   │  │
+   │  └───▲────────┬───┘  │              │  └───▲────────┬───┘  │
+   │   use│        │assign│              │   use│        │assign│
+   │  ┌───┴────────▼───┐  │              │  ┌───┴────────▼───┐  │
+   │  │  工作内存 A     │  │              │  │  工作内存 B     │  │
+   │  │  变量副本 x&#39;,y&#39; │  │              │  │  变量副本 x&#39;,y&#39; │  │
+   │  └───▲────────┬───┘  │              │  └───▲────────┬───┘  │
+   └──────┼────────┼──────┘              └──────┼────────┼──────┘
+      read│        │store/write             read│        │store/write
+       load        ▼                        load         ▼
+   ┌────────────────────────────────────────────────────────────┐
+   │            主内存 Main Memory（所有线程共享）                  │
+   │            共享变量：x, y, sharedObj ...                     │
+   └────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3>2.2 两条铁律</h3>
+<ol class="markdown-ordered-list">
+<li><strong>线程不能直接读写主内存</strong>，所有操作必须经过自己的工作内存：先拷贝副本 → 操作副本 → 再刷回。</li>
+<li><strong>工作内存之间完全隔离</strong>，线程 A 看不到线程 B 的工作内存。线程间通信<strong>只能</strong>通过主内存这个&quot;中转站&quot;。</li>
+</ol>
+<blockquote class="markdown-blockquote">
+<p>⚠️ <strong>关键澄清：工作内存是抽象概念</strong>，它实际对应 CPU 寄存器 + L1/L2 缓存 + 写缓冲区的一个<strong>逻辑合集</strong>。不要在硬件里找&quot;哪个盒子是工作内存&quot;。</p>
+</blockquote>
+<h3>2.3 哪些变量住在主内存（重点）</h3>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>住在主内存（共享，有并发风险）</th>
+<th>不在主内存（线程私有，天然安全）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>实例字段（对象成员变量）</td>
+<td>局部变量</td>
+</tr>
+<tr>
+<td>静态字段（static）</td>
+<td>方法参数</td>
+</tr>
+<tr>
+<td>数组元素</td>
+<td>异常处理参数</td>
+</tr>
+</tbody></table>
+<p><strong>这就是为什么局部变量永远不会有线程安全问题</strong> —— 它压根不在共享内存里，每个线程自己栈里一份。</p>
+<h3>2.4 八大原子操作：主内存与工作内存的唯一交互方式</h3>
+<p>主内存与工作内存之间，只能靠这 8 个不可分割的操作交互：</p>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>操作</th>
+<th>作用域</th>
+<th>含义</th>
+<th>关键约束</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>lock</code></td>
+<td>主内存</td>
+<td>把变量标记为线程独占</td>
+<td>加锁后<strong>清空</strong>该变量在工作内存的副本，用前必须重新 load</td>
+</tr>
+<tr>
+<td><code>unlock</code></td>
+<td>主内存</td>
+<td>释放独占</td>
+<td>必须在 <code>write</code> <strong>完成之后</strong>才能解锁</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>主内存</td>
+<td>从主内存读出值，传给工作内存</td>
+<td>与 <code>load</code> <strong>必须成对顺序出现</strong></td>
+</tr>
+<tr>
+<td><code>load</code></td>
+<td>工作内存</td>
+<td>把 read 来的值放入变量副本</td>
+<td>同上</td>
+</tr>
+<tr>
+<td><code>use</code></td>
+<td>工作内存</td>
+<td>把副本值交给 CPU 执行引擎</td>
+<td>变量必须先 read+load 才能 use</td>
+</tr>
+<tr>
+<td><code>assign</code></td>
+<td>工作内存</td>
+<td>把 CPU 计算结果写回副本</td>
+<td>赋值操作必须执行 assign</td>
+</tr>
+<tr>
+<td><code>store</code></td>
+<td>工作内存</td>
+<td>把副本值传出去，准备写主内存</td>
+<td>与 <code>write</code> <strong>必须成对顺序出现</strong></td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>主内存</td>
+<td>把 store 来的值写入主内存变量</td>
+<td>同上</td>
+</tr>
+</tbody></table>
+<h4>🔒 锁相关（synchronized 使用，volatile 不涉及）</h4>
+<p><strong><code>lock</code>（主内存）</strong>：锁定主内存变量，标记为当前线程独占。</p>
+<blockquote class="markdown-blockquote">
+<p>约束：加锁后<strong>清空</strong>当前线程工作内存中该变量的副本，使用变量前必须重新 <code>load</code>。</p>
+</blockquote>
+<p><strong><code>unlock</code>（主内存）</strong>：解锁主内存变量，释放独占，其他线程可竞争锁。</p>
+<blockquote class="markdown-blockquote">
+<p>约束：</p>
+<ul class="markdown-list">
+<li>加锁后必须解锁；解锁前必须先加锁（同一线程可重入 lock 多次，unlock 次数必须相同）</li>
+<li><code>write</code> 完成之后才能解锁</li>
+</ul>
+</blockquote>
+<h4>📥 读取链路：主内存 → 工作内存 → CPU（read → load → use）</h4>
+<ul class="markdown-list">
+<li><p><strong><code>read</code>（主内存）</strong>：从主内存读取变量值，传递给工作内存。</p>
+<blockquote class="markdown-blockquote">
+<p>约束：<code>read</code> 和 <code>load</code> <strong>必须成对顺序出现</strong>（不允许 read 而无 load）</p>
+</blockquote>
+</li>
+<li><p><strong><code>load</code>（工作内存）</strong>：把 read 拿到的值，加载到线程工作内存的变量副本。</p>
+</li>
+<li><p><strong><code>use</code>（工作内存）</strong>：将工作内存变量的值传递给 CPU 执行引擎，用于计算。</p>
+</li>
+</ul>
+<h4>📤 写入链路：CPU → 工作内存 → 主内存（assign → store → write）</h4>
+<ul class="markdown-list">
+<li><p><strong><code>assign</code>（工作内存）</strong>：CPU 计算完成，将结果写回工作内存变量副本。</p>
+<blockquote class="markdown-blockquote">
+<p>约束：赋值操作必须执行 <code>assign</code>；且 assign 之后必须同步回主内存（store + write）</p>
+</blockquote>
+</li>
+<li><p><strong><code>store</code>（工作内存）</strong>：把工作内存变量的值传递出去，准备写入主内存。</p>
+<blockquote class="markdown-blockquote">
+<p>约束：<code>store</code> 和 <code>write</code> <strong>必须成对顺序出现</strong>（不允许 store 而无 write）</p>
+</blockquote>
+</li>
+<li><p><strong><code>write</code>（主内存）</strong>：将 store 传递的值，写入主内存共享变量。</p>
+</li>
+</ul>
+<h3>2.5 三条完整数据流（记忆主干）</h3>
+<p><strong>① 读链路：主内存 → 线程 CPU</strong><br><code>read</code>（读主存）→ <code>load</code>（加载到工作内存）→ <code>use</code>（交给 CPU 运算）</p>
+<blockquote class="markdown-blockquote">
+<p>read 与 load 必须成对连续执行</p>
+</blockquote>
+<p><strong>② 写链路：CPU → 主内存</strong><br>CPU 运算 → <code>assign</code>（更新工作内存副本）→ <code>store</code>（传递数据）→ <code>write</code>（写入主存）</p>
+<blockquote class="markdown-blockquote">
+<p>store 与 write 必须成对连续执行</p>
+</blockquote>
+<p><strong>③ synchronized 锁链路</strong><br><code>lock</code> 锁定主内存变量 → <strong>清空工作内存副本</strong> → read+load 加载最新值 → use 运算 → assign 修改副本 → store+write 刷入主内存 → <code>unlock</code> 解锁</p>
+<blockquote class="markdown-blockquote">
+<p>unlock 前必须完成 write，保证修改对其他线程可见</p>
+</blockquote>
+<h3>2.6 约束规则汇总</h3>
+<ol class="markdown-ordered-list">
+<li><code>lock</code> 与 <code>unlock</code> 成对：加锁必解锁，解锁前必须加锁</li>
+<li><code>lock</code> 后清空工作内存副本，使用变量前必须重新 <code>load</code></li>
+<li><code>unlock</code> 前必须完成 <code>write</code>，数据刷入主内存才能解锁</li>
+<li><code>read</code> 和 <code>load</code> 必须成对顺序出现</li>
+<li><code>store</code> 和 <code>write</code> 必须成对顺序出现</li>
+<li>CPU 赋值运算，必须执行 <code>assign</code> 写回工作内存</li>
+<li>变量只能诞生于主内存：<code>use</code> / <code>store</code> 之前，必须先经过 <code>read</code>+<code>load</code> / <code>assign</code></li>
+<li>未被 <code>assign</code> 过的变量，不允许 <code>store</code> 回主内存</li>
+</ol>
+<blockquote class="markdown-blockquote">
+<p>📌 <strong>注</strong>：8 个原子操作是 JMM 的<strong>经典教学表述</strong>（源自 JSR-133 之前的定义方式）。JSR-133 之后，JMM 的正式定义改用 <strong>happens-before 规则</strong>（第四章）描述，8 个操作退化为&quot;帮助理解&quot;的模型。但要知道它和 happens-before 是<strong>同一件事的两种说法</strong>：8 个操作描述&quot;数据怎么搬&quot;，happens-before 描述&quot;结果什么时候可见&quot;。</p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>第三章：重排序 —— JMM 的头号对手</h2>
+<h3>3.1 数据依赖性</h3>
+<p>如果两个操作访问<strong>同一个变量</strong>，且其中<strong>至少一个是写操作</strong>，那它们之间有数据依赖。编译器和 CPU <strong>不会</strong>重排有数据依赖的操作（否则单线程语义会被破坏）。</p>
+<pre><code class="language-java">a = 1;  b = a;   // 写后读（RAW）：不能重排
+a = 1;  a = 2;   // 写后写（WAW）：不能重排
+b = a;  a = 1;   // 读后写（WAR）：不能重排
+</code></pre>
+<p><strong>但是</strong> —— 如果操作之间<strong>没有</strong>数据依赖（比如访问不同变量），重排序就完全合法：</p>
+<pre><code class="language-java">int a = 1;        // ①
+int b = 2;        // ② ← 与 ① 无依赖，可重排
+boolean f = true; // ③ ← 与 ①② 无依赖，可重排
+</code></pre>
+<p>单线程里这无所谓，但<strong>多线程里，另一个线程可能正在观察这些操作的顺序</strong> —— 灾难就此产生。</p>
+<h3>3.2 as-if-serial 语义</h3>
+<p>这是给<strong>单线程</strong>的承诺：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>不管编译器和 CPU 怎么重排序，单线程程序的执行结果不能被改变。</strong></p>
+</blockquote>
+<p>所以你在单线程里永远察觉不到重排序。但也正因为 as-if-serial <strong>只保护单线程</strong>，多线程下它是失效的 —— 这正是 JMM 必须额外提供 happens-before 的原因。</p>
+<h3>3.3 重排序如何在多线程下&quot;犯罪&quot;</h3>
+<pre><code class="language-java">// 线程 A
+a = 1;          // ①
+flag = true;    // ②
+
+// 线程 B
+if (flag) {        // ③ 读到 true
+    int r = a;     // ④ r 可能是 0！不是 1
+}
+</code></pre>
+<p>①②无数据依赖 → 可能被重排成 ②① → 线程 B 在 ③ 看到 <code>flag=true</code>，但 ④ 读 <code>a</code> 时 ① 还没执行，拿到 0。<strong>这就是有序性问题的现场。</strong></p>
+<hr class="markdown-hr">
+<h2>第四章：happens-before —— JMM 的灵魂</h2>
+<p>这是 JMM 中最重要、也最容易被误读的概念。</p>
+<h3>4.1 定义（务必咬文嚼字）</h3>
+<blockquote class="markdown-blockquote">
+<p><strong>如果操作 A happens-before 操作 B，那么 A 的执行结果必须对 B 可见，且 A 的执行顺序排在 B 之前。</strong></p>
+</blockquote>
+<p>三个致命细节：</p>
+<ol class="markdown-ordered-list">
+<li><strong>happens-before ≠ 时间上的先后</strong>。A 在时间上先发生，不代表 A hb B；反过来，<strong>A hb B 也不意味着时间上 A 一定先跑</strong>（只要结果正确，JVM 可以自由重排）。</li>
+<li>它是 JMM 对<strong>程序员的承诺</strong>：你只要能推导出 A hb B，JVM 就担保 B 能看到 A 的结果，<strong>不管底层怎么重排序</strong>。</li>
+<li>它是<strong>可以传递</strong>的：A hb B，B hb C ⟹ A hb C。</li>
+</ol>
+<h3>4.2 happens-before 八条规则</h3>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>#</th>
+<th>规则</th>
+<th>含义</th>
+<th>代码形态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><strong>程序顺序规则</strong></td>
+<td>同一线程内，前面的操作 hb 后面的操作</td>
+<td><code>a=1; b=2;</code> ⟹ <code>a=1</code> hb <code>b=2</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>监视器锁规则</strong></td>
+<td>对同一个锁，<strong>unlock</strong> hb 后续的 <strong>lock</strong></td>
+<td>线程 A 在 synchronized 块里的写，线程 B 进块后必看到</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>volatile 变量规则</strong></td>
+<td>对同一个 volatile 变量，<strong>写</strong> hb 后续的 <strong>读</strong></td>
+<td>volatile 可见性的理论依据</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>线程启动规则</strong></td>
+<td><code>Thread.start()</code> hb 该线程的任何操作</td>
+<td>主线程 start 前的写，子线程全看得到</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>线程终止规则</strong></td>
+<td>线程内所有操作 hb 其他线程检测到它终止</td>
+<td><code>t.join()</code> 返回后，t 里所有写都可见</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>线程中断规则</strong></td>
+<td><code>interrupt()</code> hb 被中断线程检测到中断</td>
+<td>—</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>对象终结规则</strong></td>
+<td>对象构造函数结束 hb <code>finalize()</code> 开始</td>
+<td>—</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>传递性</strong></td>
+<td>A hb B，B hb C ⟹ A hb C</td>
+<td>把上面所有规则串起来的胶水</td>
+</tr>
+</tbody></table>
+<h3>4.3 用 happens-before 修复 3.3 的&quot;犯罪现场&quot;</h3>
+<p>只要把 <code>flag</code> 声明为 <code>volatile</code>：</p>
+<pre><code class="language-java">volatile boolean flag = false;
+int a = 0;
+
+// 线程 A
+a = 1;          // ①
+flag = true;    // ② volatile 写
+
+// 线程 B
+if (flag) {        // ③ volatile 读
+    int r = a;     // ④ 一定是 1
+}
+</code></pre>
+<p>推导链：</p>
+<ul class="markdown-list">
+<li>① hb ②（规则 1：程序顺序）</li>
+<li>② hb ③（规则 3：volatile 写 hb 后续 volatile 读）</li>
+<li>③ hb ④（规则 1：程序顺序）</li>
+<li>⟹ <strong>① hb ④</strong>（规则 8：传递性）</li>
+</ul>
+<p>所以 <code>a=1</code> 一定对 ④ 可见。同时 volatile 还会<strong>禁止</strong> ① 和 ② 的重排序（见第五章），双保险。</p>
+<h3>4.4 JMM 的设计智慧（重点）</h3>
+<p>JMM 采取了非常聪明的<strong>双层策略</strong>：</p>
+<ul class="markdown-list">
+<li><strong>对程序员（上层）</strong>：用 happens-before 给出强承诺 —— 只要能推导出 hb 关系，结果就正确。程序员不需要懂内存屏障。</li>
+<li><strong>对编译器和 CPU（下层）</strong>：<strong>能放开就尽量放开</strong>。只要不破坏 hb 关系，想怎么重排序、怎么优化都行。</li>
+</ul>
+<p>这就是为什么 Java 既能保证正确性，又能保持高性能。JMM 追求的不是&quot;禁止一切优化&quot;，而是&quot;<strong>在不改变程序执行结果的前提下，尽可能放开对编译器和处理器的限制</strong>&quot;。</p>
+<hr class="markdown-hr">
+<h2>第五章：volatile 深度解剖</h2>
+<h3>5.1 volatile 在这套模型中的位置</h3>
+<p>回到八大原子操作的视角：<strong>volatile 不使用 lock/unlock，它是对 read/load/use/assign/store/write 这 6 个操作的&quot;指令重排与时机&quot;做限制。</strong></p>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>维度</th>
+<th>volatile 的表现</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>可见性</td>
+<td>强制 <code>store</code>/<code>write</code> 立刻刷入主内存；读取时强制 <code>read</code>/<code>load</code>，不用工作内存旧副本</td>
+</tr>
+<tr>
+<td>有序性</td>
+<td>通过内存屏障，限制 JVM/CPU 不能随意打乱相关 load、store 指令顺序</td>
+</tr>
+<tr>
+<td>原子性</td>
+<td>❌ 没有 <code>lock</code>/<code>unlock</code>，无法保证复合操作（如 <code>i++</code>）原子性</td>
+</tr>
+</tbody></table>
+<h3>5.2 可见性的实现</h3>
+<ul class="markdown-list">
+<li><strong>写</strong>一个 volatile 变量：JMM 强制把该线程工作内存里的<strong>所有共享变量副本</strong>立刻 <code>store + write</code> 刷回主内存；</li>
+<li><strong>读</strong>一个 volatile 变量：JMM 强制该线程<strong>重新 <code>read + load</code></strong> 主内存最新值，丢弃工作内存里的旧副本。</li>
+</ul>
+<blockquote class="markdown-blockquote">
+<p>注意是&quot;所有共享变量&quot;，不只是 volatile 那个 —— 这也是 4.3 里普通变量 <code>a</code> 能被看到的深层原因之一。</p>
+</blockquote>
+<h3>5.3 禁止重排序：内存屏障（Memory Barrier）</h3>
+<p>JMM 定义了 4 种屏障，插在 volatile 读写的前后：</p>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>屏障</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>StoreStore</code></td>
+<td>禁止前面的普通写 与 后面的 volatile 写 重排序</td>
+</tr>
+<tr>
+<td><code>StoreLoad</code></td>
+<td>禁止前面的 volatile 写 与 后面的 volatile 读/写 重排序（<strong>开销最大</strong>，也最关键）</td>
+</tr>
+<tr>
+<td><code>LoadLoad</code></td>
+<td>禁止前面的 volatile 读 与 后面的普通读 重排序</td>
+</tr>
+<tr>
+<td><code>LoadStore</code></td>
+<td>禁止前面的 volatile 读 与 后面的普通写 重排序</td>
+</tr>
+</tbody></table>
+<p><strong>插入策略：</strong></p>
+<pre><code class="language-plaintext">volatile 写操作：
+    StoreStore 屏障          ← 前面所有普通写必须先刷回主存
+    [ volatile 写 ]
+    StoreLoad  屏障          ← 防止 volatile 写与后续 volatile 读重排
+
+volatile 读操作：
+    [ volatile 读 ]
+    LoadLoad   屏障          ← 防止后面的普通读被提前
+    LoadStore  屏障          ← 防止后面的普通写被提前
+</code></pre>
+<p><strong>底层实现</strong>：在 x86 上，volatile 写通过一条带 <strong><code>lock</code> 前缀</strong>的指令实现（如 <code>lock addl $0x0,(%rsp)</code>）。它会：</p>
+<ol class="markdown-ordered-list">
+<li>触发 CPU 缓存一致性协议（MESI），把修改<strong>立即写回主内存</strong>，并<strong>失效其他 CPU 的缓存行</strong>；</li>
+<li>充当内存屏障，阻止前后指令重排。</li>
+</ol>
+<h3>5.4 为什么 volatile 不保证原子性（重点）</h3>
+<p>因为它<strong>缺少 lock/unlock</strong>。看 <code>i++</code> 的拆解：</p>
+<pre><code class="language-java">volatile int i = 0;   // 加 volatile 也没用
+
+// 线程 A 和 B 同时执行 i++，各 10000 次
+// 结果几乎必然 &lt; 20000
+</code></pre>
+<p><code>i++</code> = 读 → 改 → 写 三步。volatile 只保证：</p>
+<ul class="markdown-list">
+<li>读的时候拿到最新值（可见性 ✅）</li>
+<li>写的时候立刻刷回（可见性 ✅）</li>
+<li>这三步不被内部重排（有序性 ✅）</li>
+</ul>
+<p>但它<strong>没法把这三步&quot;捆成一个不可分割的整体&quot;</strong>。线程 A 读到 i=5，还没来得及加 1 写回，线程 B 也读到 i=5 —— 两个都算出 6，写回 6。<strong>原子性 ❌</strong>。</p>
+<blockquote class="markdown-blockquote">
+<p>要原子性，请用 <code>synchronized</code>、<code>Lock</code>，或 <code>AtomicInteger</code>（CAS）。</p>
+</blockquote>
+<h3>5.5 volatile 的正确使用场景</h3>
+<p>✅ <strong>状态标志位</strong>（最经典）</p>
+<pre><code class="language-java">volatile boolean shutdown = false;
+void shutdown() { shutdown = true; }
+void doWork()   { while (!shutdown) { /* ... */ } }
+</code></pre>
+<p>✅ <strong>双重检查锁定（DCL）单例</strong> —— 见 5.6</p>
+<p>✅ <strong>独立观察 / 一次性发布</strong></p>
+<pre><code class="language-java">volatile Config config;
+void init() { config = new Config(...); }   // 安全发布给其他线程
+</code></pre>
+<p>❌ <strong>不适合</strong>：<code>i++</code> 类复合操作、依赖多个变量的不变式（volatile 救不了 <code>lower &lt; upper</code> 这种跨变量约束）。</p>
+<h3>5.6 重点王炸：DCL 单例为什么必须加 volatile</h3>
+<pre><code class="language-java">public class Singleton {
+    private static volatile Singleton instance;   // ← 这个 volatile 不能省！
+
+    public static Singleton getInstance() {
+        if (instance == null) {                    // 第一次检查
+            synchronized (Singleton.class) {
+                if (instance == null) {            // 第二次检查
+                    instance = new Singleton();    // ← 问题出在这行
+                }
+            }
+        }
+        return instance;
+    }
+}
+</code></pre>
+<p><code>instance = new Singleton()</code> 看起来是原子的，实际分三步：</p>
+<pre><code class="language-plaintext">1. memory = allocate();        // 分配对象内存空间
+2. ctorInstance(memory);       // 初始化对象（调构造函数）
+3. instance = memory;          // 把引用指向这块内存
+</code></pre>
+<p><strong>第 2 步和第 3 步没有数据依赖，JIT 可以重排成 1→3→2！</strong></p>
+<p>于是：线程 A 执行到 ③（引用已赋值，但对象还没初始化），线程 B 此时调用 <code>getInstance()</code>，第一次检查发现 <code>instance != null</code>，<strong>直接返回一个尚未初始化的半成品对象</strong> → 崩溃或行为异常。</p>
+<p><strong>加上 volatile 后</strong>：<code>StoreStore</code> 屏障禁止&quot;对象初始化（普通写）&quot;被重排到&quot;volatile 写（引用赋值）&quot;之后，1→2→3 的顺序被锁死。</p>
+<hr class="markdown-hr">
+<h2>第六章：锁（synchronized）的内存语义</h2>
+<h3>6.1 synchronized 的三重保证</h3>
+<p><code>synchronized</code> 是 JMM 里唯一能<strong>同时</strong>保证三性的原生机制：</p>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>特性</th>
+<th>synchronized 如何保证</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>原子性</strong></td>
+<td><code>monitorenter</code> / <code>monitorexit</code> 之间的代码互斥，同一时刻只有一个线程执行</td>
+</tr>
+<tr>
+<td><strong>可见性</strong></td>
+<td><strong>unlock 前必须把变量同步回主内存</strong>（对应八大操作：<code>write</code> 完成后才能 <code>unlock</code>）；<strong>lock 时会清空工作内存副本</strong>，用前必须重新 <code>read + load</code></td>
+</tr>
+<tr>
+<td><strong>有序性</strong></td>
+<td>一个变量同一时刻只允许一个线程 <code>lock</code>，相当于把并发执行&quot;拉直&quot;成串行，天然有序</td>
+</tr>
+</tbody></table>
+<h3>6.2 锁的内存语义 ≡ volatile 的内存语义（重点）</h3>
+<table class="markdown-table">
+<thead>
+<tr>
+<th></th>
+<th>volatile</th>
+<th>锁</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>写 / 释放</strong></td>
+<td>volatile <strong>写</strong> → 立刻刷回主内存</td>
+<td><strong>释放锁</strong>（unlock）→ 立刻刷回主内存</td>
+</tr>
+<tr>
+<td><strong>读 / 获取</strong></td>
+<td>volatile <strong>读</strong> → 重新从主内存加载</td>
+<td><strong>获取锁</strong>（lock）→ 清空副本，重新加载</td>
+</tr>
+</tbody></table>
+<blockquote class="markdown-blockquote">
+<p><strong>结论：<code>锁的释放-获取</code> 与 <code>volatile 的写-读</code> 具有完全相同的内存语义。</strong></p>
+<ul class="markdown-list">
+<li>线程 A 释放锁 hb 线程 B 获取同一个锁（happens-before 规则 2）</li>
+<li>volatile 写 hb volatile 读（happens-before 规则 3）</li>
+</ul>
+<p><code>ReentrantLock</code> 这类 AQS 实现的锁，其内存语义正是靠内部一个 <code>volatile int state</code> 达成的 —— <strong>用 volatile 的 happens-before 撑起了锁的可见性</strong>。</p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>第七章：final 字段的内存语义</h2>
+<p><code>final</code> 不只是&quot;不可改&quot;，它在 JMM 里也有<strong>明确的重排序规则</strong>，保证你拿到 final 字段时一定是正确初始化的值。</p>
+<h3>7.1 两条规则</h3>
+<p><strong>规则一（写 final 域）</strong>：在构造函数里对一个 final 域的写入，与随后把这个被构造对象的引用赋值给一个引用变量，<strong>这两个操作不能重排序</strong>。</p>
+<pre><code class="language-java">class Holder {
+    final int x;
+    int y;
+    static Holder obj;
+
+    public Holder() {
+        x = 1;     // ① 写 final 域
+        y = 2;     // ② 写普通域
+    }
+
+    public static void writer() {
+        obj = new Holder();   // ③ 发布引用
+    }
+}
+</code></pre>
+<p>① 不会被重排到 ③ 之后 ⟹ 其他线程只要看到 <code>obj != null</code>，<strong>保证读到 <code>x == 1</code></strong>。<br>但 ②（普通域 y）可能被重排到 ③ 之后 ⟹ 其他线程<strong>可能读到 <code>y == 0</code></strong>。</p>
+<p><strong>规则二（读 final 域）</strong>：初次读一个含 final 域对象的<strong>引用</strong>，与随后初次读这个 <strong>final 域</strong>，这两个操作不能重排序。</p>
+<h3>7.2 ⚠️ 逃逸陷阱：final 也救不了 this 逃逸</h3>
+<pre><code class="language-java">class Holder {
+    final int x;
+    static Holder obj;
+
+    public Holder() {
+        x = 1;
+        obj = this;   // ❌ 在构造函数里把 this 发布出去！
+    }
+}
+</code></pre>
+<p>即使在构造函数最后一行发布 <code>this</code>，其他线程也可能看到一个 <code>x</code> 还没初始化的对象。<strong>final 的规则只保证&quot;构造函数正常结束后&quot;的安全发布，救不了构造函数内部的 this 逃逸。</strong></p>
+<blockquote class="markdown-blockquote">
+<p>这也解释了为什么 DCL 单例的引用赋值不能夹在构造逻辑中间。</p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>第八章：三大特性的终极保障总表</h2>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>特性</th>
+<th>问题来源</th>
+<th>保障手段</th>
+<th>关键机制</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>可见性</strong></td>
+<td>CPU 缓存导致的工作内存副本陈旧</td>
+<td><code>volatile</code> / <code>synchronized</code> / <code>final</code> / <code>Lock</code></td>
+<td>volatile 强制 store/write + read/load；锁的 lock 清空副本、unlock 前 write；final 的发布规则</td>
+</tr>
+<tr>
+<td><strong>有序性</strong></td>
+<td>编译器 + CPU + 内存系统三重重排序</td>
+<td><code>volatile</code> / <code>synchronized</code> / <code>Lock</code></td>
+<td>内存屏障（volatile）；happens-before 规则；锁的互斥串行化</td>
+</tr>
+<tr>
+<td><strong>原子性</strong></td>
+<td>线程切换打断&quot;读-改-写&quot;复合操作</td>
+<td><code>synchronized</code> / <code>Lock</code> / <code>Atomic*</code> (CAS)</td>
+<td>互斥（lock/unlock）；CAS 硬件原子指令</td>
+</tr>
+</tbody></table>
+<blockquote class="markdown-blockquote">
+<p><strong>一句话对照：volatile 管可见 + 有序，不管原子；synchronized 三样全管；final 管安全发布的可见性。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>第九章：问题汇总</h2>
+<p><strong>Q：volatile 能替代 synchronized 吗？</strong></p>
+<blockquote class="markdown-blockquote">
+<p>不能。volatile 不保证原子性。只有在&quot;一个线程写、多个线程读&quot;的<strong>纯标志位 / 状态发布</strong>场景下，volatile 才是 synchronized 的轻量替代品。一旦涉及复合操作（<code>i++</code>）或多个变量的不变式，必须用锁。</p>
+</blockquote>
+<p><strong>Q：long / double 有什么特殊？</strong></p>
+<blockquote class="markdown-blockquote">
+<p>JMM 允许虚拟机把<strong>未被 volatile 修饰的 64 位数据（long/double）的读写</strong>拆成两次 32 位操作，即<strong>非原子性协定</strong>。所以多线程下读写共享的 long/double 可能读到&quot;半个值&quot;（高 32 位来自一次写、低 32 位来自另一次写）。实践中主流 64 位 JVM 都已实现为原子操作，但<strong>语义上仍建议对共享的 long/double 加 volatile</strong>。</p>
+</blockquote>
+<p><strong>Q：什么是顺序一致性？JMM 保证它吗？</strong></p>
+<blockquote class="markdown-blockquote">
+<p>顺序一致性是一个理想模型：多线程程序的执行效果，等同于所有线程的操作按<strong>某种全局顺序</strong>依次执行，且每个线程内部保持原有顺序。<br><strong>JMM 只保证&quot;正确同步的程序&quot;具有顺序一致性。</strong> 未正确同步（共享变量不加 volatile、不用锁）的程序，JMM 不提供任何顺序保证，可能出现各种反直觉结果。</p>
+</blockquote>
+<p><strong>Q：一句话讲清 JMM！</strong></p>
+<blockquote class="markdown-blockquote">
+<p><strong>JMM 是一套围绕&quot;可见性、有序性、原子性&quot;建立的线程通信规范：它把内存抽象成主内存与工作内存，用八大原子操作描述交互，用 happens-before 向程序员承诺可见性与顺序，同时尽可能放开对编译器和 CPU 的重排序限制以换取性能。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>附：一页纸记忆卡片</h2>
+<p><strong>八大原子操作口诀</strong></p>
+<blockquote class="markdown-blockquote">
+<p>锁：lock 清副本，unlock 要写完；<br>读：read-load-use，成对不能断；<br>写：assign-store-write，顺序不能乱；<br>volatile：不保原子，可见、禁重排。</p>
+</blockquote>
+<p><strong>知识地图</strong></p>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>维度</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>为什么需要</strong></td>
+<td>缓存致不可见、重排致无序、切换致非原子</td>
+</tr>
+<tr>
+<td><strong>抽象结构</strong></td>
+<td>主内存（共享）+ 工作内存（私有副本），通信必经主存</td>
+</tr>
+<tr>
+<td><strong>八大操作</strong></td>
+<td>读：read→load→use；写：assign→store→write；锁：lock/unlock</td>
+</tr>
+<tr>
+<td><strong>重排序</strong></td>
+<td>三种来源（编译器 / CPU / 内存系统），单线程有 as-if-serial 保底</td>
+</tr>
+<tr>
+<td><strong>核心规则</strong></td>
+<td>happens-before 八条，可传递，不等于时间先后</td>
+</tr>
+<tr>
+<td><strong>volatile</strong></td>
+<td>可见 + 禁重排（内存屏障），<strong>不保原子</strong></td>
+</tr>
+<tr>
+<td><strong>synchronized</strong></td>
+<td>原子 + 可见 + 有序，全包；释放-获取 ≡ volatile 写-读</td>
+</tr>
+<tr>
+<td><strong>final</strong></td>
+<td>写 final 与发布引用不重排；但救不了 this 逃逸</td>
+</tr>
+</tbody></table>
+
+      </div>
+    </article>
+    
+    <div id="comments" style="max-width: 800px; margin: 3rem auto; padding: 0 1rem;">
+      <div style="width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin-bottom: 2rem;"></div>
+      <h3 style="margin-bottom: 1.5rem; color: var(--primary);">💬 评论区</h3>
+      <script src="https://giscus.app/client.js" 
+           data-repo="jonny-dr/jonny-dr.github.io" 
+           data-repo-id="R_kgDORKkzfg" 
+           data-category="Announcements" 
+           data-category-id="DIC_kwDORKkzfs4C2Wdq" 
+           data-mapping="pathname" 
+           data-strict="0" 
+           data-reactions-enabled="1" 
+           data-emit-metadata="0" 
+           data-input-position="bottom" 
+           data-theme="preferred_color_scheme" 
+           data-lang="zh-CN" 
+           crossorigin="anonymous" 
+           async> 
+     </script>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 北辰 · 保持好奇，持续成长</p>
+    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
+      源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
+    </p>
+  </footer>
+
+  <button class="back-to-top" id="backToTop" aria-label="回到顶部">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="m18 15-6-6-6 6"/>
+    </svg>
+  </button>
+
+  <script src="../../../js/theme.js"></script>
+</body>
+</html>
+  
