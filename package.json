@@ -1,5 +1,9 @@
 {
   "dependencies": {
     "marked": "^18.0.7"
+  },
+  "scripts": {
+    "check:content": "node js/check-content.js",
+    "build:site": "npm run check:content && node js/generate-pagination.js && node js/check-content.js --check-generated"
   }
 }

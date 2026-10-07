@@ -38,13 +38,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           
       - name: Install dependencies
-        run: npm install
-        
+        run: npm ci
+
       - name: Generate pagination pages
-        run: node js/generate-pagination.js
+        run: npm run build:site
         
       - name: Check for changes
         id: check_changes

@@ -49,14 +49,15 @@
 │   ├── markdown-parser.js # Markdown 解析模块（基于 marked）
 │   ├── transfer-images.js # 图片迁移工具
 │   └── update-about-nav.js # about.html 导航更新工具
-├── posts/                 # 文章目录
+├── posts/                 # 按分类存放文章源文件和生成页面
+│   ├── ai/                # AI 文章
 │   ├── archives/          # 归档文章
-│   │   ├── md/            # Markdown 源文件
-│   │   │   └── assets/    # 文章图片
-│   │   └── html/          # 生成的 HTML 文件
 │   ├── daily/             # 日常文章
 │   ├── project/           # 项目文章
 │   └── skill/             # 技术文章
+│       ├── md/            # Markdown 源文件（所有分类都有）
+│       ├── html/          # 生成的文章页（所有分类都有）
+│       └── ppt/           # 部分技术文章的配套演示文稿
 ├── templates/             # 页面模板
 │   ├── archives-template.html
 │   ├── daily-template.html
@@ -132,10 +133,12 @@ chmod +x deploy.sh
    node js/transfer-images.js --category=skill
    ```
 
-3. **运行生成脚本**
+3. **检查内容并生成页面**
 ```bash
-node js/generate-pagination.js
+npm run build:site
 ```
+
+构建会先校验 Front Matter，再生成文章页和栏目分页，最后检查 HTML 中的本地链接与资源路径。发现孤立的旧 HTML 页面时只会提示，不会自动删除。
 
 4. **推送代码到 GitHub**
 ```bash
@@ -171,7 +174,7 @@ chmod +x deploy.sh
 **工作流程**：
 1. 检查依赖是否安装
 2. 迁移 Markdown 中引用的本地图片到项目目录
-3. 生成所有页面的 HTML 文件
+3. 运行 `npm run build:site` 校验文章、生成页面并检查本地引用
 4. 自动添加、提交并推送到 GitHub
 5. 提示部署完成
 
@@ -211,6 +214,17 @@ node js/transfer-images.js --help
 ```bash
 node js/generate-pagination.js
 ```
+
+日常使用请运行 `npm run build:site`，它会在生成页面前后执行内容校验。
+
+### check-content.js - 内容与生成结果检查
+
+```bash
+npm run check:content  # 检查文章元数据
+npm run build:site     # 完整构建，并检查生成 HTML 的本地链接与资源
+```
+
+Front Matter 可以省略以兼容现有文章；提供 `date` 时必须是有效的 `YYYY-MM-DD` 日期，`categories`、`languages` 和 `tags` 使用数组格式。数组支持行内写法和 YAML 列表写法。孤立的旧文章 HTML 只会提示，不会自动删除。
 
 **生成内容**：
 - 首页: `index.html`
@@ -308,7 +322,7 @@ excerpt: 文章摘要（可选）
 
 自动部署工作流：
 - 触发条件: 推送到 main/master 分支，且修改了 posts/ 或相关脚本
-- 流程: Checkout → Setup Node.js → npm install → 生成页面 → Commit → Push → Deploy
+- 流程: Checkout → Setup Node.js → `npm ci` → `npm run build:site` → 提交生成文件 → 部署 GitHub Pages
 
 ---
 

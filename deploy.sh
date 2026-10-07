@@ -60,7 +60,7 @@ print_success "图片迁移完成"
 
 print_step "3/4 生成页面"
 
-node js/generate-pagination.js
+npm run build:site
 if [ $? -ne 0 ]; then
     print_error "页面生成失败"
     exit 1

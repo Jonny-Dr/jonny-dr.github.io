@@ -604,22 +604,6 @@ pageConfigs.forEach(config => {
     totalGenerated += pages;
 });
 
-// 清理根目录下已迁移的旧文件
-const movedPages = ['skill', 'ai', 'daily', 'project'];
-movedPages.forEach(name => {
-    let pageNum = 1;
-    while (true) {
-        const oldPath = path.join(ROOT_DIR, pageNum === 1 ? `${name}.html` : `${name}-${pageNum}.html`);
-        if (fs.existsSync(oldPath)) {
-            fs.unlinkSync(oldPath);
-            console.log(`Removed old root-level file: ${name}-${pageNum === 1 ? '' : pageNum}.html`);
-            pageNum++;
-        } else {
-            break;
-        }
-    }
-});
-
 console.log(`\nGenerated ${totalGenerated} pagination pages in total.`);
 
 // 后处理：更新 about.html 中的技术栈

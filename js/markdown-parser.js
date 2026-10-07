@@ -16,7 +16,7 @@ class MarkdownParser {
 
         const frontMatter = this.extractFrontMatter(content);
 
-        const cleanContent = content.replace(/^---[\s\S]*?---/m, '').trim();
+        const cleanContent = content.replace(/^---\r?\n[\s\S]*?\r?\n---\s*/, '').trim();
 
         let title = frontMatter.title;
         if (!title) {
@@ -99,31 +99,50 @@ class MarkdownParser {
     }
 
     static extractFrontMatter(content) {
-        const frontMatterMatch = content.match(/^---[\s\S]*?---/m);
-        if (!frontMatterMatch) {
-            return {};
-        }
-
-        const frontMatterText = frontMatterMatch[0].replace(/^---|---$/g, '').trim();
-        const frontMatter = {};
-
-        const lines = frontMatterText.split('\n');
-        lines.forEach(line => {
-            const match = line.match(/^\s*(\w+):\s*(.*)$/);
-            if (match) {
-                const [, key, value] = match;
-                if (value.startsWith('[') && value.endsWith(']')) {
-                    frontMatter[key] = value
-                        .substring(1, value.length - 1)
-                        .split(',')
-                        .map(item => item.trim().replace(/['"]/g, ''));
-                } else {
-                    frontMatter[key] = value.trim().replace(/['"]/g, '');
-                }
+        const block = content.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/);
+        if (!block) return {};
+        const result = {};
+        const lines = block[1].split(/\r?\n/);
+        const scalar = value => {
+            const text = value.trim();
+            if (text.length >= 2 && text[0] === '"' && text[text.length - 1] === '"') return text.slice(1, -1).replace(/\\(["\\])/g, '$1');
+            if (text.length >= 2 && text[0] === "'" && text[text.length - 1] === "'") return text.slice(1, -1).replace(/''/g, "'");
+            if (text === 'null' || text === '~') return '';
+            return text.replace(/\s+#.*$/, '').trim();
+        };
+        const parseInlineArray = value => {
+            const items = [];
+            let item = '', quote = null, escaped = false;
+            for (const char of value.slice(1, -1)) {
+                if (escaped) { item += char; escaped = false; continue; }
+                if (char === '\\' && quote === '"') { item += char; escaped = true; continue; }
+                if ((char === '"' || char === "'") && (!quote || quote === char)) { quote = quote ? null : char; item += char; continue; }
+                if (char === ',' && !quote) { if (item.trim()) items.push(scalar(item)); item = ''; continue; }
+                item += char;
             }
-        });
-
-        return frontMatter;
+            if (item.trim()) items.push(scalar(item));
+            return items;
+        };
+        for (let i = 0; i < lines.length; i++) {
+            const match = lines[i].match(/^([\w-]+):(?:\s*(.*))?$/);
+            if (!match) continue;
+            const [, key, raw = ''] = match;
+            const value = raw.trim();
+            if (value === '|' || value === '>') {
+                const parts = [];
+                while (i + 1 < lines.length && /^\s+/.test(lines[i + 1])) parts.push(lines[++i].trim());
+                result[key] = parts.join(value === '>' ? ' ' : '\n');
+            } else if (!value && i + 1 < lines.length && /^\s+-\s+/.test(lines[i + 1])) {
+                const items = [];
+                while (i + 1 < lines.length && /^\s+-\s+/.test(lines[i + 1])) items.push(scalar(lines[++i].replace(/^\s+-\s+/, '')));
+                result[key] = items;
+            } else if (value.startsWith('[') && value.endsWith(']')) {
+                result[key] = parseInlineArray(value);
+            } else {
+                result[key] = scalar(value);
+            }
+        }
+        return result;
     }
 
     static markdownToHtml(markdown, basePath = '', markdownPath = '', htmlPath = '') {
