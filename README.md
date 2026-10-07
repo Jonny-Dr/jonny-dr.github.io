@@ -226,6 +226,8 @@ npm run build:site     # 完整构建，并检查生成 HTML 的本地链接与�
 
 Front Matter 可以省略以兼容现有文章；提供 `date` 时必须是有效的 `YYYY-MM-DD` 日期，`categories`、`languages` 和 `tags` 使用数组格式。数组支持行内写法和 YAML 列表写法。孤立的旧文章 HTML 只会提示，不会自动删除。
 
+技术文章的主分类和标签规范见 [posts/skill/CONTENT_GUIDE.md](posts/skill/CONTENT_GUIDE.md)。新技术文章须提供一个 `category` 主分类和至少一个 `tags` 标签。
+
 **生成内容**：
 - 首页: `index.html`
 - 技术栏目: `skill.html`, `skill-2.html`, ...

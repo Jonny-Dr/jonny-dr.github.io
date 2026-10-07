@@ -1,6 +1,8 @@
 ---
 title: Websocket高可用解决方案
 date: 2026-07-18
+category: 分布式与微服务
+tags: [WebSocket, 集群, 双活, RocketMQ]
 categories: [业务组件封装, 架构优化, 性能优化, 高可用]
 languages: [Java, WebSocket, 微服务]
 excerpt: 针对Java WebSocket单机本地SessionMap集群/双活失效问题!彻底解决两大核心痛点!
@@ -357,4 +359,3 @@ public class WsPushConsumer implements RocketMQListener<WsMessage> {
 - 双活部署需保证Redis跨机房同步延迟可控，避免读写不一致
 - 前端必须实现指数退避重连，避免故障瞬间大量请求打垮网关
 - 定时任务清理失效session，避免内存溢出（必要）
-

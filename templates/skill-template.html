@@ -99,6 +99,26 @@
       color: var(--primary);
       font-weight: 700;
     }
+    .skill-category-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin: 0 0 2rem;
+    }
+    .skill-category-nav a {
+      color: var(--primary);
+      background: rgba(67, 97, 238, 0.1);
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+    .skill-category-nav a:hover,
+    .skill-category-nav a.active {
+      background: var(--primary);
+      color: white;
+    }
     @media (max-width: 768px) {
       .skill-container {
         padding: 0 1rem;
@@ -157,6 +177,7 @@
   </header>
 
   <main class="skill-container">
+    {{categoryNavigation}}
     {{content}}
     {{pagination}}
   </main>

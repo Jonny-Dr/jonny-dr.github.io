@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🧠 AI | 北辰</title>
+  <title>🍀 Java 与 JVM | 北辰</title>
   <link rel="stylesheet" href="../../css/common.css">
   <style>
-    /* AI 栏目页面样式（基于 skill-template，容器改为 ai-container，其他样式复用以兼容渲染逻辑） */
-    .ai-container {
+    /* 技术页面特有样式 */
+    .skill-container {
       max-width: 800px;
       margin: 0 auto;
     }
@@ -99,8 +99,28 @@
       color: var(--primary);
       font-weight: 700;
     }
+    .skill-category-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin: 0 0 2rem;
+    }
+    .skill-category-nav a {
+      color: var(--primary);
+      background: rgba(67, 97, 238, 0.1);
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+    .skill-category-nav a:hover,
+    .skill-category-nav a.active {
+      background: var(--primary);
+      color: white;
+    }
     @media (max-width: 768px) {
-      .ai-container {
+      .skill-container {
         padding: 0 1rem;
       }
       .skill-card {
@@ -149,10 +169,10 @@
 
   <header>
     <h1>
-      <span class="header-icon">🧠</span>
-      <span class="header-title">人工智能</span>
+      <span class="header-icon">🍀</span>
+      <span class="header-title">Java 与 JVM</span>
     </h1>
-    <p class="subtitle">深度学习 | 神经网络 | 模型微调与部署 | RAG</p>
+    <p class="subtitle">技术文章 · 4 篇</p>
     <nav>
   <a href="../../index.html">首页</a>
   <a href="../../html/project/project.html">项目</a>
@@ -165,104 +185,64 @@
 </nav>
   </header>
 
-  <main class="ai-container">
+  <main class="skill-container">
+    <nav class="skill-category-nav" aria-label="技术文章分类">
+      <a href="skill.html" class="">全部</a>
+      <a href="category-java-jvm.html" class="active">Java 与 JVM</a><a href="category-database.html" class="">数据库</a><a href="category-middleware.html" class="">缓存与中间件</a><a href="category-distributed.html" class="">分布式与微服务</a><a href="category-architecture.html" class="">架构与工程</a><a href="category-ai-engineering.html" class="">AI 工程</a>
+    </nav>
     
       <article class="skill-card">
         <div class="skill-header">
-          <h2 class="skill-title"><a href="../../posts/ai/html/2026-08-22-基于RNN的歌词预测Demo.html" style="color: var(--primary); text-decoration: none;">基于RNN的歌词预测Demo完整流程</a></h2>
+          <h2 class="skill-title"><a href="../../posts/skill/html/2026-09-12-CAS与AQS深度解析.html" style="color: var(--primary); text-decoration: none;">CAS / AQS 深度解析与实战</a></h2>
           <div class="skill-meta">
-            <div class="skill-meta-item">
-              <span class="label">日期：</span>
-              <span>2026-08-22</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">类别：</span>
-              <span>深度学习</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">语言：</span>
-              <span>Python · PyTorch</span>
-            </div>
+            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-09-12</span></div>
+            <div class="skill-meta-item"><span class="label">类别：</span><span>Java 与 JVM</span></div>
+            <div class="skill-meta-item"><span class="label">语言：</span><span>Java · JUC</span></div>
           </div>
+          <div class="skill-tags"><span class="skill-tag">CAS</span> <span class="skill-tag">AQS</span> <span class="skill-tag">JUC</span> <span class="skill-tag">并发编程</span></div>
         </div>
-        <div class="skill-excerpt">
-          从数学推导到代码实现，本篇以代码实现为主...
-        </div>
-        <a href="../../posts/ai/html/2026-08-22-基于RNN的歌词预测Demo.html" class="skill-read-more">阅读更多 →</a>
+        <div class="skill-excerpt">CAS / AQS 深度解析（包括底层原理的一些细节）与实战…</div>
+        <a href="../../posts/skill/html/2026-09-12-CAS与AQS深度解析.html" class="skill-read-more">阅读更多 →</a>
       </article>
-      
       <article class="skill-card">
         <div class="skill-header">
-          <h2 class="skill-title"><a href="../../posts/ai/html/2026-08-22-序列模型学习笔记.html" style="color: var(--primary); text-decoration: none;">深度学习序列模型学习笔记</a></h2>
+          <h2 class="skill-title"><a href="../../posts/skill/html/2026-09-12-JVM低延迟与IO深度解析.html" style="color: var(--primary); text-decoration: none;">JVM 低延迟与 IO 深度解析</a></h2>
           <div class="skill-meta">
-            <div class="skill-meta-item">
-              <span class="label">日期：</span>
-              <span>2026-08-22</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">类别：</span>
-              <span>深度学习</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">语言：</span>
-              <span>Python · PyTorch</span>
-            </div>
+            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-09-12</span></div>
+            <div class="skill-meta-item"><span class="label">类别：</span><span>Java 与 JVM</span></div>
+            <div class="skill-meta-item"><span class="label">语言：</span><span>Java · JVM · JMM</span></div>
           </div>
+          <div class="skill-tags"><span class="skill-tag">JVM</span> <span class="skill-tag">GC</span> <span class="skill-tag">IO</span> <span class="skill-tag">低延迟</span></div>
         </div>
-        <div class="skill-excerpt">
-          从数学推导到代码实现，本篇以代码实现为主...
-        </div>
-        <a href="../../posts/ai/html/2026-08-22-序列模型学习笔记.html" class="skill-read-more">阅读更多 →</a>
+        <div class="skill-excerpt">从JVM-GC到STW停滞底层细节解读…</div>
+        <a href="../../posts/skill/html/2026-09-12-JVM低延迟与IO深度解析.html" class="skill-read-more">阅读更多 →</a>
       </article>
-      
       <article class="skill-card">
         <div class="skill-header">
-          <h2 class="skill-title"><a href="../../posts/ai/html/2026-08-08-深度学习完整流程.html" style="color: var(--primary); text-decoration: none;">神经网络反向传播详解（流程串联）</a></h2>
+          <h2 class="skill-title"><a href="../../posts/skill/html/2026-09-12-Java内存模型JMM解读.html" style="color: var(--primary); text-decoration: none;">Java 内存模型（JMM）完全解读</a></h2>
           <div class="skill-meta">
-            <div class="skill-meta-item">
-              <span class="label">日期：</span>
-              <span>2026-08-08</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">类别：</span>
-              <span>深度学习</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">语言：</span>
-              <span>Python · PyTorch</span>
-            </div>
+            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-09-12</span></div>
+            <div class="skill-meta-item"><span class="label">类别：</span><span>Java 与 JVM</span></div>
+            <div class="skill-meta-item"><span class="label">语言：</span><span>Java · JVM · JMM</span></div>
           </div>
+          <div class="skill-tags"><span class="skill-tag">JMM</span> <span class="skill-tag">JVM</span> <span class="skill-tag">volatile</span> <span class="skill-tag">并发编程</span></div>
         </div>
-        <div class="skill-excerpt">
-          从数学推导到代码实现，本篇以代码实现为主...
-        </div>
-        <a href="../../posts/ai/html/2026-08-08-深度学习完整流程.html" class="skill-read-more">阅读更多 →</a>
+        <div class="skill-excerpt">JVM-JMM底层细节解读…</div>
+        <a href="../../posts/skill/html/2026-09-12-Java内存模型JMM解读.html" class="skill-read-more">阅读更多 →</a>
       </article>
-      
       <article class="skill-card">
         <div class="skill-header">
-          <h2 class="skill-title"><a href="../../posts/ai/html/2026-08-08-深度学习知识点.html" style="color: var(--primary); text-decoration: none;">神经网络反向传播详解（知识点整合）</a></h2>
+          <h2 class="skill-title"><a href="../../posts/skill/html/2026-02-15-Spring Boot 常用注解手册.html" style="color: var(--primary); text-decoration: none;">Spring Boot 常用注解手册</a></h2>
           <div class="skill-meta">
-            <div class="skill-meta-item">
-              <span class="label">日期：</span>
-              <span>2026-08-08</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">类别：</span>
-              <span>深度学习</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">语言：</span>
-              <span>Python · PyTorch</span>
-            </div>
+            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-02-15</span></div>
+            <div class="skill-meta-item"><span class="label">类别：</span><span>Java 与 JVM</span></div>
+            <div class="skill-meta-item"><span class="label">语言：</span><span>Java</span></div>
           </div>
+          <div class="skill-tags"><span class="skill-tag">Spring Boot</span> <span class="skill-tag">注解</span> <span class="skill-tag">Spring MVC</span></div>
         </div>
-        <div class="skill-excerpt">
-          从数学推导到代码实现...
-        </div>
-        <a href="../../posts/ai/html/2026-08-08-深度学习知识点.html" class="skill-read-more">阅读更多 →</a>
+        <div class="skill-excerpt">汇总 Spring Boot 常用注解的用途、关键属性和示例。</div>
+        <a href="../../posts/skill/html/2026-02-15-Spring Boot 常用注解手册.html" class="skill-read-more">阅读更多 →</a>
       </article>
-      
     
   </main>
 

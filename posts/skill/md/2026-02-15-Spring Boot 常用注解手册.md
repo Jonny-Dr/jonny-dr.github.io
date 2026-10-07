@@ -1,3 +1,12 @@
+---
+title: Spring Boot 常用注解手册
+date: 2026-02-15
+category: Java 与 JVM
+tags: [Spring Boot, 注解, Spring MVC]
+languages: [Java]
+excerpt: 汇总 Spring Boot 常用注解的用途、关键属性和示例。
+---
+
 # Spring Boot 常用注解手册
 
 本文档基于提供的文章内容，提炼了其中涉及的40个Spring Boot常用注解的核心定义、主要用途、关键属性及用法示例。

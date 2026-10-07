@@ -49,7 +49,8 @@ class MarkdownParser {
             }
         }
 
-        let categories = frontMatter.categories || [];
+        const primaryCategory = frontMatter.category || '';
+        let categories = frontMatter.categories || (primaryCategory ? [primaryCategory] : []);
         if (!categories.length) {
             const categoryMatch = content.match(/^categories:\s+\[(.*?)\]$/m);
             if (categoryMatch) {
@@ -62,6 +63,14 @@ class MarkdownParser {
             const languageMatch = content.match(/^languages:\s+\[(.*?)\]$/m);
             if (languageMatch) {
                 languages = languageMatch[1].split(',').map(lang => lang.trim().replace(/['"]/g, ''));
+            }
+        }
+
+        let tags = frontMatter.tags || [];
+        if (!tags.length) {
+            const tagMatch = content.match(/^tags:\s+\[(.*?)\]$/m);
+            if (tagMatch) {
+                tags = tagMatch[1].split(',').map(tag => tag.trim().replace(/['"]/g, ''));
             }
         }
 
@@ -90,6 +99,8 @@ class MarkdownParser {
             title,
             date,
             categories,
+            primaryCategory,
+            tags,
             languages,
             originalLink,
             excerpt,
@@ -211,7 +222,7 @@ class MarkdownParser {
 
     static generateHtmlFromMarkdown(markdownPath, htmlPath, options = {}) {
         const parsed = this.parseMarkdown(markdownPath);
-        const { title, date, categories, languages, originalLink, content } = parsed;
+        const { title, date, primaryCategory, categories, tags, languages, originalLink, content } = parsed;
 
         const htmlDir = path.dirname(htmlPath);
         // 本脚本位于 js/ 目录下，项目根目录是其上一级
@@ -225,10 +236,12 @@ class MarkdownParser {
         const relativeNav = navTemplate;
 
         let tagsHtml = '';
-        if (categories.length > 0 || languages.length > 0) {
+        const displayCategory = primaryCategory || categories[0] || '';
+        if (displayCategory || tags.length > 0 || languages.length > 0) {
             tagsHtml = `
         <div class="post-tags">
-          ${categories.map(cat => `<span class="post-tag category">${cat}</span>`).join(' ')}
+          ${displayCategory ? `<span class="post-tag category">${displayCategory}</span>` : ''}
+          ${tags.map(tag => `<span class="post-tag">${tag}</span>`).join(' ')}
           ${languages.map(lang => `<span class="post-tag language">${lang}</span>`).join(' ')}
         </div>`;
         }

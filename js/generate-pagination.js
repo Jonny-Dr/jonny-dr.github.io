@@ -143,6 +143,81 @@ pageConfigs.forEach(config => {
     }
 });
 
+const skillCategorySlugs = {
+    'Java 与 JVM': 'java-jvm',
+    '数据库': 'database',
+    '缓存与中间件': 'middleware',
+    '分布式与微服务': 'distributed',
+    '架构与工程': 'architecture',
+    'AI 工程': 'ai-engineering'
+};
+
+function getSortedSkillPosts() {
+    const mdDir = path.join(ROOT_DIR, 'posts', 'skill', 'md');
+    return fs.readdirSync(mdDir)
+        .filter(file => file.endsWith('.md'))
+        .map(file => {
+            const markdownPath = path.join(mdDir, file);
+            return { file, path: 'posts/skill', parsed: MarkdownParser.parseMarkdown(markdownPath) };
+        })
+        .sort((a, b) => (b.parsed.date || '1970-01-01').localeCompare(a.parsed.date || '1970-01-01'));
+}
+
+function renderSkillCards(posts, basePath) {
+    return posts.map(item => {
+        const { title, date, primaryCategory, categories, tags, languages, excerpt } = item.parsed || MarkdownParser.parseMarkdown(path.join(ROOT_DIR, item.path, 'md', item.file));
+        const cleanTitle = title || item.file.replace('.md', '').replace(/-/g, ' ');
+        const displayCategory = primaryCategory || categories[0] || '';
+        return `
+      <article class="skill-card">
+        <div class="skill-header">
+          <h2 class="skill-title"><a href="${basePath}${item.path}/html/${item.file.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h2>
+          <div class="skill-meta">
+            ${date ? `<div class="skill-meta-item"><span class="label">日期：</span><span>${date}</span></div>` : ''}
+            ${displayCategory ? `<div class="skill-meta-item"><span class="label">类别：</span><span>${displayCategory}</span></div>` : ''}
+            ${languages.length ? `<div class="skill-meta-item"><span class="label">语言：</span><span>${languages.join(' · ')}</span></div>` : ''}
+          </div>
+          ${tags.length ? `<div class="skill-tags">${tags.map(tag => `<span class="skill-tag">${tag}</span>`).join(' ')}</div>` : ''}
+        </div>
+        <div class="skill-excerpt">${excerpt || '这里是文章摘要...'}</div>
+        <a href="${basePath}${item.path}/html/${item.file.replace('.md', '.html')}" class="skill-read-more">阅读更多 →</a>
+      </article>`;
+    }).join('');
+}
+
+function renderSkillCategoryNavigation(activeCategory = '') {
+    const categories = Object.entries(skillCategorySlugs);
+    return `<nav class="skill-category-nav" aria-label="技术文章分类">
+      <a href="skill.html" class="${activeCategory ? '' : 'active'}">全部</a>
+      ${categories.map(([name, slug]) => `<a href="category-${slug}.html" class="${activeCategory === name ? 'active' : ''}">${name}</a>`).join('')}
+    </nav>`;
+}
+
+function generateSkillCategoryPages() {
+    const basePath = '../../';
+    const template = readTemplate('skill');
+    const posts = getSortedSkillPosts();
+    let count = 0;
+    for (const [category, slug] of Object.entries(skillCategorySlugs)) {
+        const categoryPosts = posts.filter(item => (item.parsed.primaryCategory || item.parsed.categories[0]) === category);
+        if (!categoryPosts.length) continue;
+        const html = renderTemplate(template, {
+            title: `🍀 ${category} | 北辰`,
+            icon: '🍀',
+            headerTitle: category,
+            headerSubtitle: `技术文章 · ${categoryPosts.length} 篇`,
+            categoryNavigation: renderSkillCategoryNavigation(category),
+            contentClass: 'skill-container',
+            content: renderSkillCards(categoryPosts, basePath),
+            pagination: ''
+        }, basePath);
+        fs.writeFileSync(path.join(ROOT_DIR, 'html', 'skill', `category-${slug}.html`), html);
+        console.log(`Generated skill/category-${slug}.html`);
+        count++;
+    }
+    return count;
+}
+
 // 生成页面函数
 function generatePage(pageConfig) {
     const { name, title, icon, headerTitle, headerSubtitle, contentClass, itemClass, itemTitleClass, itemDateClass, itemExcerptClass, postsPerPage, directory, outputDir, basePath } = pageConfig;
@@ -378,12 +453,15 @@ function generatePage(pageConfig) {
                 });
                 break;
             case 'skill':
+                contentHtml = renderSkillCards(currentPosts, basePath);
+                break;
             case 'ai':
-                // 技术栏目和 AI 栏目的特殊处理（共用 skill 渲染逻辑）
+                // AI 栏目沿用技术文章卡片的展示样式。
                 contentHtml = currentPosts.map(item => {
                     const markdownPath = path.join(ROOT_DIR, item.path, 'md', item.file);
-                    const { title: postTitle, date: postDate, categories, languages, excerpt } = MarkdownParser.parseMarkdown(markdownPath);
+                    const { title: postTitle, date: postDate, primaryCategory, categories, tags, languages, excerpt } = MarkdownParser.parseMarkdown(markdownPath);
                     const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
+                    const displayCategory = primaryCategory || categories[0] || '';
 
                     let itemHtml = `
       <article class="${itemClass}">
@@ -399,11 +477,11 @@ function generatePage(pageConfig) {
             </div>`;
                     }
 
-                    if (categories.length > 0) {
+                    if (displayCategory) {
                         itemHtml += `
             <div class="skill-meta-item">
               <span class="label">类别：</span>
-              <span>${categories.join(' · ')}</span>
+              <span>${displayCategory}</span>
             </div>`;
                     }
 
@@ -418,11 +496,10 @@ function generatePage(pageConfig) {
                     itemHtml += `
           </div>`;
 
-                    if (categories.length > 0 || languages.length > 0) {
+                    if (tags.length > 0) {
                         itemHtml += `
           <div class="skill-tags">
-            ${categories.map(cat => `<span class="skill-tag">${cat}</span>`).join(' ')}
-            ${languages.map(lang => `<span class="skill-tag">${lang}</span>`).join(' ')}
+            ${tags.map(tag => `<span class="skill-tag">${tag}</span>`).join(' ')}
           </div>`;
                     }
 
@@ -493,6 +570,7 @@ function generatePage(pageConfig) {
                 icon: icon,
                 headerTitle: headerTitle,
                 headerSubtitle: headerSubtitle,
+                categoryNavigation: name === 'skill' ? renderSkillCategoryNavigation() : '',
                 content: contentHtml,
                 contentClass: contentClass,
                 pagination: paginationHtml
@@ -603,6 +681,7 @@ pageConfigs.forEach(config => {
     const pages = generatePage(config);
     totalGenerated += pages;
 });
+totalGenerated += generateSkillCategoryPages();
 
 console.log(`\nGenerated ${totalGenerated} pagination pages in total.`);
 

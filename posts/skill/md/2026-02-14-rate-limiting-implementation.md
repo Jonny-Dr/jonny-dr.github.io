@@ -1,6 +1,8 @@
 ---
 title: 限流技术详解与实践
 date: 2026-02-14
+category: 分布式与微服务
+tags: [限流, Sentinel, 系统设计]
 categories:
   - 后端技术
   - 系统设计

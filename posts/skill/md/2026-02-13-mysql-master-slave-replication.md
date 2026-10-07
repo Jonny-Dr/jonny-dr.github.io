@@ -1,6 +1,8 @@
 ---
 title: MySQL数据库主从同步原理与实践
 date: 2026-02-13
+category: 数据库
+tags: [MySQL, 主从复制, 数据同步]
 categories:
   - 数据库
   - 后端技术

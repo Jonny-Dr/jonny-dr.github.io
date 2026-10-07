@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🧠 AI | 北辰</title>
+  <title>🍀 分布式与微服务 | 北辰</title>
   <link rel="stylesheet" href="../../css/common.css">
   <style>
-    /* AI 栏目页面样式（基于 skill-template，容器改为 ai-container，其他样式复用以兼容渲染逻辑） */
-    .ai-container {
+    /* 技术页面特有样式 */
+    .skill-container {
       max-width: 800px;
       margin: 0 auto;
     }
@@ -99,8 +99,28 @@
       color: var(--primary);
       font-weight: 700;
     }
+    .skill-category-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin: 0 0 2rem;
+    }
+    .skill-category-nav a {
+      color: var(--primary);
+      background: rgba(67, 97, 238, 0.1);
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+    .skill-category-nav a:hover,
+    .skill-category-nav a.active {
+      background: var(--primary);
+      color: white;
+    }
     @media (max-width: 768px) {
-      .ai-container {
+      .skill-container {
         padding: 0 1rem;
       }
       .skill-card {
@@ -149,10 +169,10 @@
 
   <header>
     <h1>
-      <span class="header-icon">🧠</span>
-      <span class="header-title">人工智能</span>
+      <span class="header-icon">🍀</span>
+      <span class="header-title">分布式与微服务</span>
     </h1>
-    <p class="subtitle">深度学习 | 神经网络 | 模型微调与部署 | RAG</p>
+    <p class="subtitle">技术文章 · 3 篇</p>
     <nav>
   <a href="../../index.html">首页</a>
   <a href="../../html/project/project.html">项目</a>
@@ -165,104 +185,51 @@
 </nav>
   </header>
 
-  <main class="ai-container">
+  <main class="skill-container">
+    <nav class="skill-category-nav" aria-label="技术文章分类">
+      <a href="skill.html" class="">全部</a>
+      <a href="category-java-jvm.html" class="">Java 与 JVM</a><a href="category-database.html" class="">数据库</a><a href="category-middleware.html" class="">缓存与中间件</a><a href="category-distributed.html" class="active">分布式与微服务</a><a href="category-architecture.html" class="">架构与工程</a><a href="category-ai-engineering.html" class="">AI 工程</a>
+    </nav>
     
       <article class="skill-card">
         <div class="skill-header">
-          <h2 class="skill-title"><a href="../../posts/ai/html/2026-08-22-基于RNN的歌词预测Demo.html" style="color: var(--primary); text-decoration: none;">基于RNN的歌词预测Demo完整流程</a></h2>
+          <h2 class="skill-title"><a href="../../posts/skill/html/2026-07-18-WebSocket集群_双活高可用部署运维方案.html" style="color: var(--primary); text-decoration: none;">Websocket高可用解决方案</a></h2>
           <div class="skill-meta">
-            <div class="skill-meta-item">
-              <span class="label">日期：</span>
-              <span>2026-08-22</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">类别：</span>
-              <span>深度学习</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">语言：</span>
-              <span>Python · PyTorch</span>
-            </div>
+            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-07-18</span></div>
+            <div class="skill-meta-item"><span class="label">类别：</span><span>分布式与微服务</span></div>
+            <div class="skill-meta-item"><span class="label">语言：</span><span>Java · WebSocket · 微服务</span></div>
           </div>
+          <div class="skill-tags"><span class="skill-tag">WebSocket</span> <span class="skill-tag">集群</span> <span class="skill-tag">双活</span> <span class="skill-tag">RocketMQ</span></div>
         </div>
-        <div class="skill-excerpt">
-          从数学推导到代码实现，本篇以代码实现为主...
-        </div>
-        <a href="../../posts/ai/html/2026-08-22-基于RNN的歌词预测Demo.html" class="skill-read-more">阅读更多 →</a>
+        <div class="skill-excerpt">针对Java WebSocket单机本地SessionMap集群/双活失效问题!彻底解决两大核心痛点!</div>
+        <a href="../../posts/skill/html/2026-07-18-WebSocket集群_双活高可用部署运维方案.html" class="skill-read-more">阅读更多 →</a>
       </article>
-      
       <article class="skill-card">
         <div class="skill-header">
-          <h2 class="skill-title"><a href="../../posts/ai/html/2026-08-22-序列模型学习笔记.html" style="color: var(--primary); text-decoration: none;">深度学习序列模型学习笔记</a></h2>
+          <h2 class="skill-title"><a href="../../posts/skill/html/2026-02-14-rate-limiting-implementation.html" style="color: var(--primary); text-decoration: none;">限流技术详解与实践</a></h2>
           <div class="skill-meta">
-            <div class="skill-meta-item">
-              <span class="label">日期：</span>
-              <span>2026-08-22</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">类别：</span>
-              <span>深度学习</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">语言：</span>
-              <span>Python · PyTorch</span>
-            </div>
+            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-02-14</span></div>
+            <div class="skill-meta-item"><span class="label">类别：</span><span>分布式与微服务</span></div>
+            <div class="skill-meta-item"><span class="label">语言：</span><span>Java · Python</span></div>
           </div>
+          <div class="skill-tags"><span class="skill-tag">限流</span> <span class="skill-tag">Sentinel</span> <span class="skill-tag">系统设计</span></div>
         </div>
-        <div class="skill-excerpt">
-          从数学推导到代码实现，本篇以代码实现为主...
-        </div>
-        <a href="../../posts/ai/html/2026-08-22-序列模型学习笔记.html" class="skill-read-more">阅读更多 →</a>
+        <div class="skill-excerpt">深入探讨限流技术的原理、常见实现方案以及在实际项目中的应用，包括Sentinel的使用和基于IP的流量限制实现。</div>
+        <a href="../../posts/skill/html/2026-02-14-rate-limiting-implementation.html" class="skill-read-more">阅读更多 →</a>
       </article>
-      
       <article class="skill-card">
         <div class="skill-header">
-          <h2 class="skill-title"><a href="../../posts/ai/html/2026-08-08-深度学习完整流程.html" style="color: var(--primary); text-decoration: none;">神经网络反向传播详解（流程串联）</a></h2>
+          <h2 class="skill-title"><a href="../../posts/skill/html/2026-02-14-spring-cloud-microservices.html" style="color: var(--primary); text-decoration: none;">Spring Cloud 微服务架构实战</a></h2>
           <div class="skill-meta">
-            <div class="skill-meta-item">
-              <span class="label">日期：</span>
-              <span>2026-08-08</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">类别：</span>
-              <span>深度学习</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">语言：</span>
-              <span>Python · PyTorch</span>
-            </div>
+            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-02-14</span></div>
+            <div class="skill-meta-item"><span class="label">类别：</span><span>分布式与微服务</span></div>
+            <div class="skill-meta-item"><span class="label">语言：</span><span>Java · Spring Boot</span></div>
           </div>
+          <div class="skill-tags"><span class="skill-tag">Spring Cloud</span> <span class="skill-tag">微服务</span> <span class="skill-tag">服务治理</span></div>
         </div>
-        <div class="skill-excerpt">
-          从数学推导到代码实现，本篇以代码实现为主...
-        </div>
-        <a href="../../posts/ai/html/2026-08-08-深度学习完整流程.html" class="skill-read-more">阅读更多 →</a>
+        <div class="skill-excerpt">从0到1搭建完整的Spring Cloud微服务体系，包括服务注册与发现、配置中心、负载均衡、熔断降级等核心功能的实现。</div>
+        <a href="../../posts/skill/html/2026-02-14-spring-cloud-microservices.html" class="skill-read-more">阅读更多 →</a>
       </article>
-      
-      <article class="skill-card">
-        <div class="skill-header">
-          <h2 class="skill-title"><a href="../../posts/ai/html/2026-08-08-深度学习知识点.html" style="color: var(--primary); text-decoration: none;">神经网络反向传播详解（知识点整合）</a></h2>
-          <div class="skill-meta">
-            <div class="skill-meta-item">
-              <span class="label">日期：</span>
-              <span>2026-08-08</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">类别：</span>
-              <span>深度学习</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">语言：</span>
-              <span>Python · PyTorch</span>
-            </div>
-          </div>
-        </div>
-        <div class="skill-excerpt">
-          从数学推导到代码实现...
-        </div>
-        <a href="../../posts/ai/html/2026-08-08-深度学习知识点.html" class="skill-read-more">阅读更多 →</a>
-      </article>
-      
     
   </main>
 

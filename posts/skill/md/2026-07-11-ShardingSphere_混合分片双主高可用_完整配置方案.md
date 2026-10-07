@@ -1,6 +1,8 @@
 ---
 title: ShardingSphere
 date: 2026-07-11
+category: 数据库
+tags: [ShardingSphere, 分库分表, MySQL, 高可用]
 categories: [分库分表, 性能优化]
 languages: [Java, ShardingSphere]
 excerpt: 深入分析ShardingSphere分片流程。以及单表分库的实现
@@ -283,4 +285,3 @@ rules:
 备注：
 
 如果不需要分库，只需要实现读写分离的话，也可以使用该方法。
-

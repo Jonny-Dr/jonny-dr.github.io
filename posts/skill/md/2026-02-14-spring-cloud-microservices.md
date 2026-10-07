@@ -1,6 +1,8 @@
 ---
 title: Spring Cloud 微服务架构实战
 date: 2026-02-14
+category: 分布式与微服务
+tags: [Spring Cloud, 微服务, 服务治理]
 categories: [后端技术, 分布式架构]
 languages: [Java, Spring Boot]
 excerpt: 从0到1搭建完整的Spring Cloud微服务体系，包括服务注册与发现、配置中心、负载均衡、熔断降级等核心功能的实现。

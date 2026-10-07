@@ -1,6 +1,8 @@
 ---
 title: Redis 缓存穿透/击穿/雪崩解决方案
 date: 2026-02-15
+category: 缓存与中间件
+tags: [Redis, 缓存穿透, 缓存击穿, 缓存雪崩]
 categories: [缓存中间件, 性能优化]
 languages: [Java, Redis]
 excerpt: 深入分析Redis缓存的三大常见问题：缓存穿透、缓存击穿和缓存雪崩，并提供完整的解决方案和代码实现。

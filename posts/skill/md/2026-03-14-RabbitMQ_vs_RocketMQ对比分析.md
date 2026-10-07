@@ -1,3 +1,11 @@
+---
+title: RabbitMQ vs RocketMQ 对比分析总结
+date: 2026-03-14
+category: 缓存与中间件
+tags: [RabbitMQ, RocketMQ, 消息队列]
+languages: [Java]
+excerpt: 对比 RabbitMQ 与 RocketMQ 的吞吐、延迟、路由和事务能力。
+---
 
 # RabbitMQ vs RocketMQ 对比分析总结
 

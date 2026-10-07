@@ -4,6 +4,7 @@ const MarkdownParser = require('./markdown-parser');
 
 const ROOT = path.join(__dirname, '..');
 const categories = ['ai', 'archives', 'daily', 'project', 'skill'];
+const skillCategories = new Set(['Java 与 JVM', '数据库', '缓存与中间件', '分布式与微服务', '架构与工程', 'AI 工程']);
 const errors = [];
 const warnings = [];
 const markdownFiles = [];
@@ -50,6 +51,11 @@ for (const category of categories) {
             if (Object.hasOwn(meta, key) && !Array.isArray(meta[key])) errors.push(`${relative}: ${key} 必须使用数组格式`);
         }
         if (Object.hasOwn(meta, 'title') && !String(meta.title).trim()) errors.push(`${relative}: title 不能为空`);
+        if (category === 'skill') {
+            if (!meta.category) errors.push(`${relative}: 技术文章必须提供 category 主分类`);
+            else if (!skillCategories.has(meta.category)) errors.push(`${relative}: category 必须是以下之一：${[...skillCategories].join('、')}`);
+            if (!Array.isArray(meta.tags) || meta.tags.length === 0) errors.push(`${relative}: 技术文章必须提供至少一个 tags 标签`);
+        }
     }
 }
 

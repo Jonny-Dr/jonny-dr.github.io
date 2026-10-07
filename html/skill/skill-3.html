@@ -99,6 +99,26 @@
       color: var(--primary);
       font-weight: 700;
     }
+    .skill-category-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin: 0 0 2rem;
+    }
+    .skill-category-nav a {
+      color: var(--primary);
+      background: rgba(67, 97, 238, 0.1);
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+    .skill-category-nav a:hover,
+    .skill-category-nav a.active {
+      background: var(--primary);
+      color: white;
+    }
     @media (max-width: 768px) {
       .skill-container {
         padding: 0 1rem;
@@ -166,157 +186,89 @@
   </header>
 
   <main class="skill-container">
+    <nav class="skill-category-nav" aria-label="技术文章分类">
+      <a href="skill.html" class="active">全部</a>
+      <a href="category-java-jvm.html" class="">Java 与 JVM</a><a href="category-database.html" class="">数据库</a><a href="category-middleware.html" class="">缓存与中间件</a><a href="category-distributed.html" class="">分布式与微服务</a><a href="category-architecture.html" class="">架构与工程</a><a href="category-ai-engineering.html" class="">AI 工程</a>
+    </nav>
     
       <article class="skill-card">
         <div class="skill-header">
           <h2 class="skill-title"><a href="../../posts/skill/html/2026-03-15-Java的AI框架对比.html" style="color: var(--primary); text-decoration: none;">AI框架</a></h2>
           <div class="skill-meta">
-            <div class="skill-meta-item">
-              <span class="label">日期：</span>
-              <span>2026-03-15</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">类别：</span>
-              <span>AI</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">语言：</span>
-              <span>Java · AI</span>
-            </div>
+            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-03-15</span></div>
+            <div class="skill-meta-item"><span class="label">类别：</span><span>AI 工程</span></div>
+            <div class="skill-meta-item"><span class="label">语言：</span><span>Java · AI</span></div>
           </div>
-          <div class="skill-tags">
-            <span class="skill-tag">AI</span>
-            <span class="skill-tag">Java</span> <span class="skill-tag">AI</span>
-          </div>
+          <div class="skill-tags"><span class="skill-tag">Java</span> <span class="skill-tag">AI 框架</span> <span class="skill-tag">Spring AI</span></div>
         </div>
-        <div class="skill-excerpt">
-          基于Java语言的AI框架分析。
-        </div>
+        <div class="skill-excerpt">基于Java语言的AI框架分析。</div>
         <a href="../../posts/skill/html/2026-03-15-Java的AI框架对比.html" class="skill-read-more">阅读更多 →</a>
       </article>
-      
       <article class="skill-card">
         <div class="skill-header">
           <h2 class="skill-title"><a href="../../posts/skill/html/2026-03-15-RAG 检索增强生成技术解析.html" style="color: var(--primary); text-decoration: none;">RAG</a></h2>
           <div class="skill-meta">
-            <div class="skill-meta-item">
-              <span class="label">日期：</span>
-              <span>2026-03-15</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">类别：</span>
-              <span>向量数据库</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">语言：</span>
-              <span>Java · RAG</span>
-            </div>
+            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-03-15</span></div>
+            <div class="skill-meta-item"><span class="label">类别：</span><span>AI 工程</span></div>
+            <div class="skill-meta-item"><span class="label">语言：</span><span>Java · RAG</span></div>
           </div>
-          <div class="skill-tags">
-            <span class="skill-tag">向量数据库</span>
-            <span class="skill-tag">Java</span> <span class="skill-tag">RAG</span>
-          </div>
+          <div class="skill-tags"><span class="skill-tag">RAG</span> <span class="skill-tag">向量数据库</span> <span class="skill-tag">检索增强生成</span></div>
         </div>
-        <div class="skill-excerpt">
-          RAG 基本概念分析。
-        </div>
+        <div class="skill-excerpt">RAG 基本概念分析。</div>
         <a href="../../posts/skill/html/2026-03-15-RAG 检索增强生成技术解析.html" class="skill-read-more">阅读更多 →</a>
       </article>
-      
       <article class="skill-card">
         <div class="skill-header">
           <h2 class="skill-title"><a href="../../posts/skill/html/2026-03-15-SpringAI完整流程指南.html" style="color: var(--primary); text-decoration: none;">SpringAI</a></h2>
           <div class="skill-meta">
-            <div class="skill-meta-item">
-              <span class="label">日期：</span>
-              <span>2026-03-15</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">类别：</span>
-              <span>SpringAI · AI</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">语言：</span>
-              <span>Java · Spring AI</span>
-            </div>
+            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-03-15</span></div>
+            <div class="skill-meta-item"><span class="label">类别：</span><span>AI 工程</span></div>
+            <div class="skill-meta-item"><span class="label">语言：</span><span>Java · Spring AI</span></div>
           </div>
-          <div class="skill-tags">
-            <span class="skill-tag">SpringAI</span> <span class="skill-tag">AI</span>
-            <span class="skill-tag">Java</span> <span class="skill-tag">Spring AI</span>
-          </div>
+          <div class="skill-tags"><span class="skill-tag">Spring AI</span> <span class="skill-tag">大语言模型</span> <span class="skill-tag">智能助手</span></div>
         </div>
-        <div class="skill-excerpt">
-          基于SpringAI实现的智能助手Demo。
-        </div>
+        <div class="skill-excerpt">基于SpringAI实现的智能助手Demo。</div>
         <a href="../../posts/skill/html/2026-03-15-SpringAI完整流程指南.html" class="skill-read-more">阅读更多 →</a>
       </article>
-      
       <article class="skill-card">
         <div class="skill-header">
           <h2 class="skill-title"><a href="../../posts/skill/html/2026-03-14-RabbitMQ_vs_RocketMQ对比分析.html" style="color: var(--primary); text-decoration: none;">RabbitMQ vs RocketMQ 对比分析总结</a></h2>
           <div class="skill-meta">
-            <div class="skill-meta-item">
-              <span class="label">日期：</span>
-              <span>2026-03-14</span>
-            </div>
+            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-03-14</span></div>
+            <div class="skill-meta-item"><span class="label">类别：</span><span>缓存与中间件</span></div>
+            <div class="skill-meta-item"><span class="label">语言：</span><span>Java</span></div>
           </div>
+          <div class="skill-tags"><span class="skill-tag">RabbitMQ</span> <span class="skill-tag">RocketMQ</span> <span class="skill-tag">消息队列</span></div>
         </div>
-        <div class="skill-excerpt">
-          RabbitMQ vs RocketMQ 对比分析总结
-## 1. 为什么需要消息队列？
-核心价值：解耦、异步、削峰。
-示例：通过对比有无消息队列的订单创建流程，展示消息队列如何通过异步处理提升系统响
-        </div>
+        <div class="skill-excerpt">对比 RabbitMQ 与 RocketMQ 的吞吐、延迟、路由和事务能力。</div>
         <a href="../../posts/skill/html/2026-03-14-RabbitMQ_vs_RocketMQ对比分析.html" class="skill-read-more">阅读更多 →</a>
       </article>
-      
       <article class="skill-card">
         <div class="skill-header">
           <h2 class="skill-title"><a href="../../posts/skill/html/2026-03-14-分布式锁-占用资源的设计范式.html" style="color: var(--primary); text-decoration: none;">设计思想</a></h2>
           <div class="skill-meta">
-            <div class="skill-meta-item">
-              <span class="label">日期：</span>
-              <span>2026-03-14</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">类别：</span>
-              <span>Redis · 分布式锁</span>
-            </div>
-            <div class="skill-meta-item">
-              <span class="label">语言：</span>
-              <span>Java</span>
-            </div>
+            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-03-14</span></div>
+            <div class="skill-meta-item"><span class="label">类别：</span><span>架构与工程</span></div>
+            <div class="skill-meta-item"><span class="label">语言：</span><span>Java</span></div>
           </div>
-          <div class="skill-tags">
-            <span class="skill-tag">Redis</span> <span class="skill-tag">分布式锁</span>
-            <span class="skill-tag">Java</span>
-          </div>
+          <div class="skill-tags"><span class="skill-tag">分布式锁</span> <span class="skill-tag">Redis</span> <span class="skill-tag">并发控制</span> <span class="skill-tag">高可用</span></div>
         </div>
-        <div class="skill-excerpt">
-          有限资源并发抢占：生产级设计范式。
-        </div>
+        <div class="skill-excerpt">有限资源并发抢占：生产级设计范式。</div>
         <a href="../../posts/skill/html/2026-03-14-分布式锁-占用资源的设计范式.html" class="skill-read-more">阅读更多 →</a>
       </article>
-      
       <article class="skill-card">
         <div class="skill-header">
           <h2 class="skill-title"><a href="../../posts/skill/html/2026-03-14-秒杀落地方案.html" style="color: var(--primary); text-decoration: none;">高并发秒杀系统完整落地方案</a></h2>
           <div class="skill-meta">
-            <div class="skill-meta-item">
-              <span class="label">日期：</span>
-              <span>2026-03-14</span>
-            </div>
+            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-03-14</span></div>
+            <div class="skill-meta-item"><span class="label">类别：</span><span>架构与工程</span></div>
+            <div class="skill-meta-item"><span class="label">语言：</span><span>Java</span></div>
           </div>
+          <div class="skill-tags"><span class="skill-tag">秒杀</span> <span class="skill-tag">高并发</span> <span class="skill-tag">Redis</span> <span class="skill-tag">RocketMQ</span> <span class="skill-tag">限流</span></div>
         </div>
-        <div class="skill-excerpt">
-          高并发秒杀系统完整落地方案
-## 一、核心设计思想与整体请求链路
-### 核心设计原则
-在原生产级方案基础上做定向升级：移除本地缓存以简化架构，强化前端防重、网关限流、前置过滤能力，遵循「前端拦无效、
-        </div>
+        <div class="skill-excerpt">从前端防重到异步落库的高并发秒杀系统分层设计方案。</div>
         <a href="../../posts/skill/html/2026-03-14-秒杀落地方案.html" class="skill-read-more">阅读更多 →</a>
       </article>
-      
     
   <div class="pagination">
     <a href="skill.html" class="page-link ">1</a><a href="skill-2.html" class="page-link ">2</a><a href="skill-3.html" class="page-link active">3</a><a href="skill-4.html" class="page-link ">4</a>
