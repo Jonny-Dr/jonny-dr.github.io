@@ -1,0 +1,1503 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>从零理解 Transformer：TinyTransformer 学习笔记 | 北辰</title>
+  <link rel="stylesheet" href="../../../css/common.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <style>
+    .post-content {
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+    .post-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    .post-meta {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .post-tag {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .post-tag.category {
+      background: rgba(72, 187, 120, 0.1);
+      color: #48bb78;
+    }
+    .post-tag.language {
+      background: rgba(237, 137, 54, 0.1);
+      color: #ed8936;
+    }
+    .post-body {
+      margin-bottom: 2rem;
+    }
+    .post-body h2 {
+      font-size: 1.8rem;
+      margin: 2rem 0 1rem;
+      color: var(--primary);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-body h3 {
+      font-size: 1.4rem;
+      margin: 1.5rem 0 0.8rem;
+      color: var(--primary);
+    }
+    .post-body h4 {
+      font-size: 1.2rem;
+      margin: 1.2rem 0 0.6rem;
+      color: var(--primary);
+    }
+    .post-body h5 {
+      font-size: 1.1rem;
+      margin: 1rem 0 0.5rem;
+      color: var(--text);
+    }
+    .post-body p {
+      margin-bottom: 1.2rem;
+    }
+    .post-body a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-body a:hover {
+      text-decoration: underline;
+    }
+    .post-body ul,
+    .post-body ol {
+      margin: 1rem 0 1.5rem 1.5rem;
+    }
+    .post-body li {
+      margin-bottom: 0.5rem;
+    }
+    .post-body pre {
+      background: #f8f9fa;
+      color: #333333;
+      padding: 1.5rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border);
+    }
+    .post-body code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.9rem;
+    }
+    .post-body pre code {
+      background: none;
+      padding: 0;
+    }
+    [data-theme="dark"] .post-body pre {
+      background: #1e1e1e;
+      color: #e6e6e6;
+    }
+    [data-theme="dark"] .post-body code {
+      color: #e6e6e6;
+    }
+    .post-body img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .post-original-link {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+      color: #6c757d;
+    }
+    .post-original-link a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-original-link a:hover {
+      text-decoration: underline;
+    }
+    .post-body table.markdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .post-body table.markdown-table thead {
+      background: linear-gradient(135deg, var(--primary), #3a0ca3);
+      color: white;
+    }
+    .post-body table.markdown-table th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      border: none;
+    }
+    .post-body table.markdown-table td {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .post-body table.markdown-table td:last-child {
+      border-right: none;
+    }
+    .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(67, 97, 238, 0.03);
+    }
+    .post-body table.markdown-table tbody tr:hover {
+      background: rgba(67, 97, 238, 0.08);
+    }
+    [data-theme="dark"] .post-body table.markdown-table {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .post-body blockquote.markdown-blockquote {
+      border-left: 4px solid var(--primary);
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      background: rgba(67, 97, 238, 0.05);
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #666;
+    }
+    [data-theme="dark"] .post-body blockquote.markdown-blockquote {
+      background: rgba(255, 255, 255, 0.05);
+      color: #aaa;
+    }
+    .post-body hr.markdown-hr {
+      border: none;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      margin: 2rem 0;
+    }
+    .post-body li.task-list-item {
+      list-style: none;
+      margin-left: -1.5rem;
+    }
+    .post-body li.task-list-item input[type="checkbox"] {
+      margin-right: 0.5rem;
+      cursor: default;
+    }
+    .post-body .image-placeholder {
+      transition: var(--transition);
+    }
+    .post-body .image-placeholder:hover {
+      border-color: var(--primary) !important;
+      background: rgba(67, 97, 238, 0.05) !important;
+    }
+    @media (max-width: 768px) {
+      .post-content {
+        padding: 0 1rem;
+      }
+      .post-header h1 {
+        font-size: 1.8rem;
+      }
+      .post-tags {
+        gap: 0.5rem;
+      }
+      .post-tag {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      .post-body pre {
+        padding: 1rem;
+      }
+      .post-body table.markdown-table {
+        font-size: 0.85rem;
+      }
+      .post-body table.markdown-table th,
+      .post-body table.markdown-table td {
+        padding: 0.6rem 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <button class="music-toggle" id="musicToggle" aria-label="控制音乐">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+  </button>
+
+  <header>
+    <h1>🌱 北辰的博客</h1>
+    <p class="subtitle">记录思考，分享成长 | 一个热爱技术的探索者</p>
+    <nav>
+  <a href="../../../index.html">首页</a>
+  <a href="../../../html/project/project.html">项目</a>
+  <a href="../../../html/skill/skill.html">技术</a>
+  <a href="../../../html/ai/ai.html">AI</a>
+  <a href="../../../html/daily/daily.html">日常</a>
+  <a href="../../../about.html">关于</a>
+  <a href="../../../archives.html">归档</a>
+  <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+</nav>
+  </header>
+
+  <main class="post-content">
+    <article>
+      <div class="post-header">
+        <h1>从零理解 Transformer：TinyTransformer 学习笔记</h1>
+        <div class="post-meta">发布日期：2026-10-05</div>
+        
+        <div class="post-tags">
+          <span class="post-tag category">AI 工程</span>
+          <span class="post-tag">Transformer</span> <span class="post-tag">Attention</span> <span class="post-tag">大语言模型</span> <span class="post-tag">TinyTransformer</span>
+          <span class="post-tag language">Python</span>
+        </div>
+        
+      </div>
+      <div class="post-body">
+        <h1>TinyTransformer 学习笔记：从零理解 Transformer</h1>
+<blockquote class="markdown-blockquote">
+<p>本文用最简单直白的方式，把 Datawhale <code>TinyTransformer</code> 中涉及的核心概念一路串起来。</p>
+<p>学习主线：<strong>Token → Embedding → 位置 → Q/K/V → Attention → Causal Mask → Multi-Head → Residual → LayerNorm → MLP → Transformer Layer → Encoder / Decoder → 输出 → Loss → 训练 → 生成</strong>。</p>
+<p>文章地址：<a href="https://github.com/datawhalechina/tiny-universe/tree/main/content/TinyTransformer">https://github.com/datawhalechina/tiny-universe/tree/main/content/TinyTransformer</a></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>一、先用一句话理解 Transformer</h1>
+<p>Transformer 可以简单理解成：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>先把词变成数字向量，再让每个词看看其他词、决定应该关注谁，然后把得到的信息重新加工，重复很多层，最后预测结果。</strong></p>
+</blockquote>
+<p>对于 GPT 这种语言模型，可以再简单一点理解成：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>每个词不断参考前面的词，最终预测下一个词。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>二、为什么需要 Transformer？</h1>
+<p>传统 RNN / LSTM 更偏向这样处理：</p>
+<pre><code class="language-text">我
+ ↓
+喜欢
+ ↓
+吃
+ ↓
+苹果
+</code></pre>
+<p>一个接一个。</p>
+<p>Transformer 的思路是：</p>
+<pre><code class="language-text">我  喜欢  吃  苹果
+ \   |    |   /
+   同时建立关系
+</code></pre>
+<p>也就是说：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>让一个词直接关注其他词。</strong></p>
+</blockquote>
+<p>这个机制就是 Attention。</p>
+<hr class="markdown-hr">
+<h1>三、Attention 到底是什么？</h1>
+<p>一句话：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>Attention = 决定应该关注谁，然后从这些人那里拿信息。</strong></p>
+</blockquote>
+<p>例如：</p>
+<pre><code class="language-text">我 喜欢 吃 苹果
+</code></pre>
+<p>当模型处理“吃”时，它可能会认为：</p>
+<pre><code class="language-text">我      10%
+喜欢    20%
+吃      10%
+苹果    60%
+</code></pre>
+<p>于是模型会重点拿“苹果”的信息。</p>
+<p>所以 Attention 本质上就是：</p>
+<pre><code class="language-text">先决定看谁
+↓
+再决定看多少
+↓
+按这个比例拿信息
+</code></pre>
+<hr class="markdown-hr">
+<h1>四、Q、K、V 到底是什么？</h1>
+<p>最简单的记法：</p>
+<pre><code class="language-text">Q = 我想找什么？
+K = 你是什么？你和我匹不匹配？
+V = 你能给我什么信息？
+</code></pre>
+<p>可以类比成“搜索”：</p>
+<pre><code class="language-text">Q：我要找什么
+ ↓
+和每个 K 比较
+ ↓
+判断谁最相关
+ ↓
+从对应的 V 里拿信息
+</code></pre>
+<p>所以：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>Q 和 K 决定“关注谁”，V 决定“拿什么”。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>五、Attention 最核心的三步</h1>
+<p>整个 Attention 最核心的流程只有三步：</p>
+<pre><code class="language-text">Q × K
+↓
+算关系
+
+Softmax
+↓
+算关注比例
+
+Attention × V
+↓
+按比例拿信息
+</code></pre>
+<p>数学形式：</p>
+<pre><code class="language-text">Attention(Q,K,V)
+= Softmax(QKᵀ / √d) V
+</code></pre>
+<p>初学阶段只需要理解成：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>QKᵀ：找谁重要。</strong></p>
+<p><strong>Softmax：决定各自有多重要。</strong></p>
+<p><strong>×V：真正拿信息。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>六、<code>@</code> 是什么意思？</h1>
+<p>Python / PyTorch 中：</p>
+<pre><code class="language-python">A @ B
+</code></pre>
+<p>表示：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>矩阵乘法。</strong></p>
+</blockquote>
+<p>例如：</p>
+<pre><code class="language-python">A = [[1, 2],
+     [3, 4]]
+
+B = [[5, 6],
+     [7, 8]]
+</code></pre>
+<pre><code class="language-python">A @ B
+</code></pre>
+<p>得到：</p>
+<pre><code class="language-text">[ [19, 22],
+  [43, 50] ]
+</code></pre>
+<p>所以代码：</p>
+<pre><code class="language-python">att = q @ k.transpose(-2, -1)
+</code></pre>
+<p>就是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>Q 和转置后的 K 做矩阵乘法，用来计算词与词之间的关系。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>七、<code>transpose(-2, -1)</code> 是什么意思？</h1>
+<p>假设：</p>
+<pre><code class="language-text">k.shape = (B, H, T, D)
+</code></pre>
+<p>从后往前数：</p>
+<pre><code class="language-text">-1 = 最后一个维度 D
+-2 = 倒数第二个维度 T
+</code></pre>
+<p>所以：</p>
+<pre><code class="language-python">k.transpose(-2, -1)
+</code></pre>
+<p>就是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>把最后两个维度交换。</strong></p>
+</blockquote>
+<p>也就是：</p>
+<pre><code class="language-text">(B, H, T, D)
+↓
+(B, H, D, T)
+</code></pre>
+<p>这样才能让：</p>
+<pre><code class="language-text">Q:      (B,H,T,D)
+Kᵀ:     (B,H,D,T)
+              ↓
+结果:   (B,H,T,T)
+</code></pre>
+<p>这里的目的不是“为了形式好看”，而是为了让矩阵乘法能够成立。</p>
+<hr class="markdown-hr">
+<h1>八、为什么 <code>Q × Kᵀ</code> 是 <code>(B,H,T,T)</code>？</h1>
+<p>这是整个 Attention 里非常重要的一个理解点。</p>
+<p>假设一句话有 <code>T</code> 个词。</p>
+<p>每一个词都要问：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>“我应该关注这句话里的哪个词？”</strong></p>
+</blockquote>
+<p>于是：</p>
+<pre><code class="language-text">词1 → 看词1、词2、词3……
+词2 → 看词1、词2、词3……
+词3 → 看词1、词2、词3……
+</code></pre>
+<p>所以就会产生一个：</p>
+<pre><code class="language-text">T × T
+</code></pre>
+<p>的“关系表”。</p>
+<p>可以想象成：</p>
+<pre><code class="language-text">          词1   词2   词3   词4
+词1        ?     ?     ?     ?
+词2        ?     ?     ?     ?
+词3        ?     ?     ?     ?
+词4        ?     ?     ?     ?
+</code></pre>
+<p>它表示：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>每一个词，分别和所有词比较。</strong></p>
+</blockquote>
+<p>所以：</p>
+<pre><code class="language-text">Q × Kᵀ → (B,H,T,T)
+</code></pre>
+<p>其中最后两个 <code>T</code> 就是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>Query 有多少个词 × Key 有多少个词。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>九、为什么 <code>Attention × V</code> 又变回 <code>(B,H,T,D)</code>？</h1>
+<p>因为：</p>
+<pre><code class="language-text">Attention：告诉每个词“应该从谁那里拿多少信息”
+V：        保存每个词真正要提供的信息
+</code></pre>
+<p>假设一句话有两个词：</p>
+<pre><code class="language-text">V：
+词1 → [1,2,3,4]
+词2 → [5,6,7,8]
+</code></pre>
+<p>如果词1的注意力是：</p>
+<pre><code class="language-text">词1：20%
+词2：80%
+</code></pre>
+<p>那么词1的新表示就是：</p>
+<pre><code class="language-text">20% × 词1的信息
++
+80% × 词2的信息
+</code></pre>
+<p>最后还是一个 4 维向量。</p>
+<p>而一句话有几个词，就会得到几个这样的新向量。</p>
+<p>所以：</p>
+<pre><code class="language-text">Attention × V
+→ (T,D)
+</code></pre>
+<p>加上 Batch 和 Head：</p>
+<pre><code class="language-text">(B,H,T,T)
+×
+(B,H,T,D)
+↓
+(B,H,T,D)
+</code></pre>
+<p>最简单的理解：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>QKᵀ 负责“找谁”，Attention×V 负责“从这些人那里拿信息”。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>十、B、T、C、H、D 到底是什么？</h1>
+<p>这些字母是看 Transformer 源码时最重要的几个符号。</p>
+<pre><code class="language-text">B = Batch Size
+T = Token 数量 / 序列长度
+C = 每个词的总维度
+H = Head 数量
+D = 每个 Head 的维度
+</code></pre>
+<p>其中：</p>
+<pre><code class="language-text">C = H × D
+</code></pre>
+<p>例如：</p>
+<pre><code class="language-text">C = 8
+H = 2
+D = 4
+</code></pre>
+<p>意味着：</p>
+<pre><code class="language-text">一个词总共有 8 个数字
+↓
+分给 2 个 Head
+↓
+每个 Head 4 个数字
+</code></pre>
+<p>也就是：</p>
+<pre><code class="language-text">8 = 2 × 4
+</code></pre>
+<hr class="markdown-hr">
+<h1>十一、C = 8 到底意味着什么？</h1>
+<p>例如一个词“我”的向量是：</p>
+<pre><code class="language-text">[0.2, 0.8, 0.1, 0.5, 0.3, 0.9, 0.4, 0.7]
+</code></pre>
+<p>一共 8 个数字。</p>
+<p>所以：</p>
+<pre><code class="language-text">C = 8
+</code></pre>
+<p>这里的 C 表示：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>一个词最终用多少个数字来表示。</strong></p>
+</blockquote>
+<p>如果：</p>
+<pre><code class="language-text">H = 2
+</code></pre>
+<p>那么：</p>
+<pre><code class="language-text">8维
+↓
+Head 1：4维
+Head 2：4维
+</code></pre>
+<hr class="markdown-hr">
+<h1>十二、<code>view()</code> 为什么要把 C 拆开？</h1>
+<p>原来：</p>
+<pre><code class="language-text">(B,T,C)
+</code></pre>
+<p>例如：</p>
+<pre><code class="language-text">(2,4,8)
+</code></pre>
+<p>含义：</p>
+<pre><code class="language-text">2句话
+每句话4个词
+每个词8维
+</code></pre>
+<p>假设：</p>
+<pre><code class="language-text">H = 2
+D = 4
+</code></pre>
+<p>那么：</p>
+<pre><code class="language-python">q.view(B, T, H, D)
+</code></pre>
+<p>得到：</p>
+<pre><code class="language-text">(B,T,H,D)
+</code></pre>
+<p>例如：</p>
+<pre><code class="language-text">(2,4,8)
+↓
+(2,4,2,4)
+</code></pre>
+<p>本质上就是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>把每个词的 8 维拆成 2 个 Head，每个 Head 4 维。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>十三、为什么还要 <code>transpose(1,2)</code>？</h1>
+<p><code>view()</code> 后是：</p>
+<pre><code class="language-text">(B,T,H,D)
+</code></pre>
+<p>但是 Attention 更喜欢：</p>
+<pre><code class="language-text">(B,H,T,D)
+</code></pre>
+<p>也就是：</p>
+<pre><code class="language-text">Batch
+ ↓
+Head
+ ↓
+Token
+ ↓
+Head 内部维度
+</code></pre>
+<p>所以：</p>
+<pre><code class="language-python">q.transpose(1,2)
+</code></pre>
+<p>就是把 <code>T</code> 和 <code>H</code> 的位置交换。</p>
+<p>例如：</p>
+<pre><code class="language-text">(B,T,H,D)
+↓
+(B,H,T,D)
+</code></pre>
+<hr class="markdown-hr">
+<h1>十四、Multi-Head 到底是什么？</h1>
+<p>假设：</p>
+<pre><code class="language-text">C = 768
+H = 12
+</code></pre>
+<p>那么：</p>
+<pre><code class="language-text">768 = 12 × 64
+</code></pre>
+<p>于是：</p>
+<pre><code class="language-text">一个 768 维的词
+↓
+拆成 12 个 Head
+↓
+每个 Head 64 维
+</code></pre>
+<p>不同 Head 可以学习不同类型的关系，例如：</p>
+<pre><code class="language-text">Head 1 → 语法
+Head 2 → 语义
+Head 3 → 位置
+Head 4 → 长距离关系
+...
+</code></pre>
+<p>最简单的理解：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>Multi-Head = 同时从多个角度看一句话。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>十五、Causal Mask / 下三角到底是什么？</h1>
+<p>GPT 不能让当前词偷看未来。</p>
+<p>比如：</p>
+<pre><code class="language-text">我 爱 吃 苹果
+</code></pre>
+<p>如果处理“吃”：</p>
+<pre><code class="language-text">可以看：我、爱、吃
+不能看：苹果
+</code></pre>
+<p>所以允许关系是：</p>
+<pre><code class="language-text">        我   爱   吃   苹果
+我       ✓   ✗   ✗   ✗
+爱       ✓   ✓   ✗   ✗
+吃       ✓   ✓   ✓   ✗
+苹果     ✓   ✓   ✓   ✓
+</code></pre>
+<p>这就是下三角结构。</p>
+<hr class="markdown-hr">
+<h1>十六、为什么用 <code>-∞</code> 做 Mask？</h1>
+<p>例如：</p>
+<pre><code class="language-text">[10, -∞, -∞, -∞]
+</code></pre>
+<p>经过 Softmax 后：</p>
+<pre><code class="language-text">[100%, 0, 0, 0]
+</code></pre>
+<p>所以未来词的注意力权重最终会变成 0。</p>
+<p>代码里：</p>
+<pre><code class="language-python">att = att.masked_fill(mask == 0, float(&#39;-inf&#39;))
+</code></pre>
+<p>就是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>把不允许看的位置变成负无穷。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>十七、为什么训练时可以“一次算完”，却又不会偷看未来？</h1>
+<p>这是 GPT 很重要的一个特点。</p>
+<p>训练时输入可以是：</p>
+<pre><code class="language-text">我 爱 吃 苹果
+</code></pre>
+<p>一次性送进去。</p>
+<p>Mask 限制每一个位置能看到什么：</p>
+<pre><code class="language-text">我      → 只能看 我
+爱      → 只能看 我、爱
+吃      → 只能看 我、爱、吃
+苹果    → 只能看 我、爱、吃、苹果
+</code></pre>
+<p>所以四个位置可以同时计算，但每个位置的信息访问权限不同。</p>
+<p>重点：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>Mask 限制的是“信息能不能看到”，不是“计算能不能一起做”。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>十八、训练和生成要区分</h1>
+<h2>训练</h2>
+<p>可以一次送入：</p>
+<pre><code class="language-text">我 爱 吃 苹果
+</code></pre>
+<p>Mask 后并行计算。</p>
+<h2>生成</h2>
+<p>真正写文章时并不知道未来，因此：</p>
+<pre><code class="language-text">我
+↓
+预测 爱
+
+我 爱
+↓
+预测 吃
+
+我 爱 吃
+↓
+预测 苹果
+</code></pre>
+<p>这是自回归生成。</p>
+<p>所以：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>训练时并行，生成时一步一步。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>十九、Flash Attention 是什么？</h1>
+<p>代码：</p>
+<pre><code class="language-python">torch.nn.functional.scaled_dot_product_attention(...)
+</code></pre>
+<p>可以先简单理解成：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>PyTorch 提供的高效 Attention 实现。</strong></p>
+</blockquote>
+<p>相比手写 Attention，它会更高效地组织计算和显存访问。</p>
+<p>所以代码中可以先判断：</p>
+<pre><code class="language-python">self.flash = hasattr(
+    torch.nn.functional,
+    &#39;scaled_dot_product_attention&#39;
+)
+</code></pre>
+<p>有的话就优先使用。</p>
+<hr class="markdown-hr">
+<h1>二十、<code>register_buffer()</code> 是什么？</h1>
+<p>Causal Mask 不需要训练，但它属于模型的一部分。</p>
+<p>所以可以：</p>
+<pre><code class="language-python">self.register_buffer(&quot;bias&quot;, mask)
+</code></pre>
+<p>它和普通参数的区别是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>不参与训练，但会跟着模型一起移动到 GPU。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>二十一、Attention 只是 Transformer 的一部分</h1>
+<p>这是非常重要的认识：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>Transformer ≠ 只有 Attention。</strong></p>
+</blockquote>
+<p>一个 Transformer Layer 还需要：</p>
+<pre><code class="language-text">LayerNorm
+Attention
+Residual
+MLP
+</code></pre>
+<hr class="markdown-hr">
+<h1>二十二、Residual（残差）是什么？</h1>
+<p>最简单的形式：</p>
+<pre><code class="language-python">x = x + attention(x)
+</code></pre>
+<p>意思是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>新信息加回来，但原来的信息不要丢。</strong></p>
+</blockquote>
+<p>可以理解成一条“高速公路”：</p>
+<pre><code class="language-text">        ┌────────────────────┐
+        │                    ↓
+输入 ──→ Attention ───────→ 加法
+  │                         ↑
+  └─────────────────────────┘
+</code></pre>
+<p>所以 Residual 的核心思想就是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>保留旧信息，再叠加新信息。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>二十三、LayerNorm 是什么？</h1>
+<p>初学阶段只需要知道：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>LayerNorm 是把数据整理得更稳定，让训练更容易。</strong></p>
+</blockquote>
+<p>它不是用来“提取信息”的，主要是为了稳定网络内部的数据分布。</p>
+<p>TinyTransformer 的实现使用了 Pre-Norm 风格，也就是先做 LayerNorm，再进入 Attention / MLP。</p>
+<hr class="markdown-hr">
+<h1>二十四、MLP 是什么？</h1>
+<p>最简单：</p>
+<pre><code class="language-text">输入
+↓
+Linear
+↓
+激活函数
+↓
+Linear
+↓
+输出
+</code></pre>
+<p>在 Transformer 里常见：</p>
+<pre><code class="language-text">768
+↓
+3072
+↓
+激活函数
+↓
+768
+</code></pre>
+<p>可以非常直白地理解成：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>Attention 负责“和别人交流”，MLP 负责“自己加工”。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>二十五、一个 Transformer Layer 到底做了什么？</h1>
+<p>最简单的流程：</p>
+<pre><code class="language-text">输入
+↓
+LayerNorm
+↓
+Attention
+↓
++ 原来的输入
+↓
+LayerNorm
+↓
+MLP
+↓
++ 原来的输入
+↓
+输出
+</code></pre>
+<p>代码常见形式：</p>
+<pre><code class="language-python">x = x + self.attn(self.ln_1(x))
+x = x + self.mlp(self.ln_2(x))
+</code></pre>
+<p>翻译成人话：</p>
+<pre><code class="language-text">先整理一下
+↓
+和别人交流
+↓
+保留原来的信息
+↓
+再整理一下
+↓
+自己加工
+↓
+再保留原来的信息
+</code></pre>
+<hr class="markdown-hr">
+<h1>二十六、Encoder 是什么？</h1>
+<p>一个 Transformer Layer 不够，就堆很多个：</p>
+<pre><code class="language-text">Layer
+↓
+Layer
+↓
+Layer
+↓
+Layer
+</code></pre>
+<p>很多 Encoder Layer 叠起来：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>Encoder</strong></p>
+</blockquote>
+<p>可以理解成：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>把输入一步一步加工得越来越“懂”。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>二十七、Decoder 是什么？</h1>
+<p>经典 Encoder-Decoder Transformer 的 Decoder Layer 多一类重要操作：</p>
+<pre><code class="language-text">1. Masked Self-Attention
+2. Cross-Attention
+3. MLP
+</code></pre>
+<hr class="markdown-hr">
+<h1>二十八、Cross-Attention 是什么？</h1>
+<p>Self-Attention：</p>
+<pre><code class="language-text">Q、K、V 都来自自己
+</code></pre>
+<p>Cross-Attention：</p>
+<pre><code class="language-text">Q 来自 Decoder
+K、V 来自 Encoder
+</code></pre>
+<p>可以理解成：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>Decoder 在问 Encoder：“你那里有什么信息可以帮助我？”</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>二十九、Encoder 和 Decoder 最简单的区别</h1>
+<pre><code class="language-text">Encoder：自己看自己
+
+Decoder：
+先自己看自己
+再去看 Encoder
+</code></pre>
+<hr class="markdown-hr">
+<h1>三十、Embedding 是什么？</h1>
+<p>模型不直接理解：</p>
+<pre><code class="language-text">我
+喜欢
+吃
+苹果
+</code></pre>
+<p>先把 Token 变成 ID：</p>
+<pre><code class="language-text">我 → 0
+喜欢 → 1
+吃 → 2
+苹果 → 3
+</code></pre>
+<p>然后：</p>
+<pre><code class="language-text">0 → 一个向量
+1 → 一个向量
+2 → 一个向量
+3 → 一个向量
+</code></pre>
+<p>这个过程就是 Embedding。</p>
+<p>最简单一句：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>Embedding = Token ID → 可学习向量。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>三十一、为什么需要位置编码？</h1>
+<p>Attention 本身很擅长处理“谁和谁相关”，但它天然不会直接知道顺序。</p>
+<p>例如：</p>
+<pre><code class="language-text">我 喜欢 你
+</code></pre>
+<p>和：</p>
+<pre><code class="language-text">你 喜欢 我
+</code></pre>
+<p>顺序不同，意义也不同。</p>
+<p>因此需要给模型位置信息。</p>
+<p>可以记成：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>Embedding 告诉模型“我是谁”，位置编码告诉模型“我在哪”。</strong></p>
+</blockquote>
+<p>TinyTransformer 的教学实现使用了经典的正余弦位置编码。</p>
+<hr class="markdown-hr">
+<h1>三十二、完整 Transformer 的整体流程</h1>
+<pre><code class="language-text">Token ID
+↓
+Embedding
+↓
+Position Encoding
+↓
+Encoder / Decoder
+↓
+Attention
+↓
+MLP
+↓
+重复很多层
+↓
+Linear
+↓
+Logits
+↓
+Softmax
+↓
+预测结果
+</code></pre>
+<p>对于经典 Encoder-Decoder Transformer：</p>
+<pre><code class="language-text">输入
+↓
+Encoder
+↓
+Encoder 输出
+↓
+Decoder
+↓
+Linear
+↓
+词概率
+</code></pre>
+<hr class="markdown-hr">
+<h1>三十三、最后的 Linear 是做什么？</h1>
+<p>假设：</p>
+<pre><code class="language-text">Transformer 输出 = 768维
+</code></pre>
+<p>词表有：</p>
+<pre><code class="language-text">50000 个词
+</code></pre>
+<p>最后就需要：</p>
+<pre><code class="language-text">768
+↓
+Linear
+↓
+50000
+</code></pre>
+<p>得到 50000 个分数。</p>
+<p>这就是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>每个候选词的预测分数。</strong></p>
+</blockquote>
+<p>这些分数通常叫 logits。</p>
+<p>再经过 Softmax，就可以得到概率。</p>
+<hr class="markdown-hr">
+<h1>三十四、Loss 是什么？</h1>
+<p>假设正确答案是：</p>
+<pre><code class="language-text">苹果
+</code></pre>
+<p>模型预测：</p>
+<pre><code class="language-text">苹果 20%
+香蕉 30%
+汽车 10%
+...
+</code></pre>
+<p>这时候模型答得不够好。</p>
+<p>Loss 可以简单理解成：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>模型这次答得有多差。</strong></p>
+</blockquote>
+<p>训练就是让 Loss 越来越小。</p>
+<p>基本流程：</p>
+<pre><code class="language-text">预测
+↓
+算 Loss
+↓
+反向传播
+↓
+修改参数
+↓
+再次预测
+↓
+Loss 变小
+</code></pre>
+<p>TinyTransformer 的训练部分使用交叉熵来计算预测损失。</p>
+<hr class="markdown-hr">
+<h1>三十五、AdamW 是什么？</h1>
+<p>模型里有很多参数。</p>
+<p>Loss 算出来以后，要解决一个问题：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>这些参数到底应该怎么改？</strong></p>
+</blockquote>
+<p>优化器负责这件事。</p>
+<p>TinyTransformer 使用 <code>AdamW</code>。</p>
+<p>最简单理解：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>AdamW = 帮模型更新参数，让 Loss 越来越小的工具。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>三十六、生成文字是怎么做的？</h1>
+<p>生成是一步一步来的：</p>
+<pre><code class="language-text">我 喜欢
+↓
+预测：吃
+
+我 喜欢 吃
+↓
+预测：苹果
+
+我 喜欢 吃 苹果
+↓
+预测：。
+</code></pre>
+<p>所以生成本质是：</p>
+<pre><code class="language-text">预测一个 Token
+↓
+把它加回输入
+↓
+再预测一个 Token
+↓
+循环
+</code></pre>
+<p>这就是自回归生成。</p>
+<hr class="markdown-hr">
+<h1>三十七、Temperature 是什么？</h1>
+<p>Temperature 可以简单理解成：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>控制模型输出的随机程度。</strong></p>
+</blockquote>
+<p>温度低：</p>
+<pre><code class="language-text">更保守
+</code></pre>
+<p>温度高：</p>
+<pre><code class="language-text">更大胆、更随机
+</code></pre>
+<p>代码常见形式：</p>
+<pre><code class="language-python">logits = logits / temperature
+</code></pre>
+<hr class="markdown-hr">
+<h1>三十八、Top-K 是什么？</h1>
+<p>假设词表里有 50000 个候选词。</p>
+<p>Top-K 会只保留最可能的前 K 个词，例如：</p>
+<pre><code class="language-text">只保留前 50 个
+</code></pre>
+<p>然后只在这 50 个里面选择。</p>
+<p>它的作用可以简单理解成：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>别让模型在所有词里胡乱选择，只在最有可能的一小部分里选。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>三十九、TinyTransformer 整体流程</h1>
+<pre><code class="language-text">                 Token
+                   ↓
+               Embedding
+                   ↓
+            Position Encoding
+                   ↓
+        ┌─────────────────────┐
+        │     Transformer     │
+        │                     │
+        │  LayerNorm          │
+        │      ↓              │
+        │  Multi-Head Attn    │
+        │      ↓              │
+        │  Residual           │
+        │      ↓              │
+        │  LayerNorm          │
+        │      ↓              │
+        │  MLP                │
+        │      ↓              │
+        │  Residual           │
+        └─────────────────────┘
+                   ↓
+                 Linear
+                   ↓
+                 Logits
+                   ↓
+                Softmax
+                   ↓
+               下一个词
+</code></pre>
+<p>这张图基本可以概括整个 TinyTransformer 的学习主线。</p>
+<hr class="markdown-hr">
+<h1>四十、经典 Transformer 和 GPT 的关系</h1>
+<p>TinyTransformer 教的是比较经典的 Transformer 思路，也就是 Encoder + Decoder。</p>
+<p>而现代 GPT、Llama、Qwen、很多 Decoder-only LLM 更常见的是：</p>
+<pre><code class="language-text">只有 Decoder
+</code></pre>
+<p>也就是说：</p>
+<pre><code class="language-text">经典 Transformer = Encoder + Decoder
+
+GPT 类模型 = Decoder-only
+</code></pre>
+<p>但是很多核心零件依然一致：</p>
+<pre><code class="language-text">Attention
+Multi-Head
+Causal Mask
+Residual
+LayerNorm / RMSNorm
+MLP
+Embedding
+位置机制
+Linear 输出
+</code></pre>
+<p>所以学习 TinyTransformer 之后，再进入 GPT 类模型是很自然的。</p>
+<hr class="markdown-hr">
+<h1>四十一、核心代码分析</h1>
+<p>核心代码：</p>
+<pre><code class="language-python">q, k, v = ...
+</code></pre>
+<p>意思：</p>
+<blockquote class="markdown-blockquote">
+<p>把输入变成 Q、K、V。</p>
+</blockquote>
+<pre><code class="language-python">q = q.view(B, T, n_head, C // n_head)
+</code></pre>
+<p>意思：</p>
+<blockquote class="markdown-blockquote">
+<p>把一个大向量拆成多个 Head。</p>
+</blockquote>
+<pre><code class="language-python">q = q.transpose(1, 2)
+</code></pre>
+<p>意思：</p>
+<blockquote class="markdown-blockquote">
+<p>把维度顺序调整成适合 Attention 的样子。</p>
+</blockquote>
+<pre><code class="language-python">att = q @ k.transpose(-2, -1)
+</code></pre>
+<p>意思：</p>
+<blockquote class="markdown-blockquote">
+<p>计算“每个词应该关注谁”。</p>
+</blockquote>
+<pre><code class="language-python">att = att / sqrt(d)
+</code></pre>
+<p>意思：</p>
+<blockquote class="markdown-blockquote">
+<p>控制数值规模，让 Softmax 更稳定。</p>
+</blockquote>
+<pre><code class="language-python">att = att.masked_fill(..., -inf)
+</code></pre>
+<p>意思：</p>
+<blockquote class="markdown-blockquote">
+<p>不允许看到未来。</p>
+</blockquote>
+<pre><code class="language-python">att = softmax(att)
+</code></pre>
+<p>意思：</p>
+<blockquote class="markdown-blockquote">
+<p>把关注分数变成关注比例。</p>
+</blockquote>
+<pre><code class="language-python">y = att @ v
+</code></pre>
+<p>意思：</p>
+<blockquote class="markdown-blockquote">
+<p>按照关注比例，把别人提供的信息拿过来。</p>
+</blockquote>
+<pre><code class="language-python">y = y.transpose(...).contiguous().view(B, T, C)
+</code></pre>
+<p>意思：</p>
+<blockquote class="markdown-blockquote">
+<p>把所有 Head 的结果重新拼回一个完整向量。</p>
+</blockquote>
+<pre><code class="language-python">y = self.c_proj(y)
+</code></pre>
+<p>意思：</p>
+<blockquote class="markdown-blockquote">
+<p>再把所有 Head 的信息重新混合一下。</p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>四十二、特别重要的“人话翻译”</h1>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>技术名词</th>
+<th>最简单理解</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Embedding</td>
+<td>Token ID 变成向量</td>
+</tr>
+<tr>
+<td>Position Encoding</td>
+<td>告诉模型“我在哪”</td>
+</tr>
+<tr>
+<td>Q</td>
+<td>我想找什么</td>
+</tr>
+<tr>
+<td>K</td>
+<td>你和我匹不匹配</td>
+</tr>
+<tr>
+<td>V</td>
+<td>你能给我什么</td>
+</tr>
+<tr>
+<td>QKᵀ</td>
+<td>谁和谁更相关</td>
+</tr>
+<tr>
+<td>Mask</td>
+<td>不允许看未来</td>
+</tr>
+<tr>
+<td>Softmax</td>
+<td>各自有多重要</td>
+</tr>
+<tr>
+<td>Attention × V</td>
+<td>按比例拿信息</td>
+</tr>
+<tr>
+<td>Multi-Head</td>
+<td>从多个角度看</td>
+</tr>
+<tr>
+<td>Residual</td>
+<td>原来的信息不要丢</td>
+</tr>
+<tr>
+<td>LayerNorm</td>
+<td>把数据整理稳定</td>
+</tr>
+<tr>
+<td>MLP</td>
+<td>自己进一步加工</td>
+</tr>
+<tr>
+<td>Encoder</td>
+<td>不断加工输入</td>
+</tr>
+<tr>
+<td>Decoder</td>
+<td>一边生成一边参考上下文</td>
+</tr>
+<tr>
+<td>Cross-Attention</td>
+<td>Decoder 去读取 Encoder</td>
+</tr>
+<tr>
+<td>Linear</td>
+<td>把隐藏向量变成词表分数</td>
+</tr>
+<tr>
+<td>Loss</td>
+<td>这次答得有多差</td>
+</tr>
+<tr>
+<td>AdamW</td>
+<td>帮模型修改参数</td>
+</tr>
+<tr>
+<td>Temperature</td>
+<td>控制随机程度</td>
+</tr>
+<tr>
+<td>Top-K</td>
+<td>只在最可能的前 K 个里选</td>
+</tr>
+</tbody></table>
+<hr class="markdown-hr">
+<h1>四十三、重点理解</h1>
+<h2>1. C、H、D</h2>
+<pre><code class="language-text">C = H × D
+</code></pre>
+<p>其中：</p>
+<pre><code class="language-text">C = 总维度
+H = Head 数量
+D = 每个 Head 的维度
+</code></pre>
+<hr class="markdown-hr">
+<h2>2. Attention 的两个关键操作</h2>
+<pre><code class="language-text">Q × Kᵀ
+↓
+找谁重要
+</code></pre>
+<pre><code class="language-text">Attention × V
+↓
+拿信息
+</code></pre>
+<hr class="markdown-hr">
+<h2>3. Causal Attention</h2>
+<pre><code class="language-text">词1 → 看词1
+词2 → 看词1、词2
+词3 → 看词1、词2、词3
+词4 → 看词1、词2、词3、词4
+</code></pre>
+<hr class="markdown-hr">
+<h2>4. Transformer Layer</h2>
+<pre><code class="language-text">LayerNorm
+↓
+Attention
+↓
+Residual
+↓
+LayerNorm
+↓
+MLP
+↓
+Residual
+</code></pre>
+<hr class="markdown-hr">
+<h1>四十四、把 Transformer 想成一个“开会”系统</h1>
+<p>这是最适合长期记忆的类比。</p>
+<p>一句话中的每个 Token 都可以看成一个人。</p>
+<h3>Attention</h3>
+<p>大家互相交流：</p>
+<blockquote class="markdown-blockquote">
+<p>“你知道的东西和我有没有关系？”</p>
+</blockquote>
+<h3>Q</h3>
+<blockquote class="markdown-blockquote">
+<p>“我想找什么？”</p>
+</blockquote>
+<h3>K</h3>
+<blockquote class="markdown-blockquote">
+<p>“我有什么特点？”</p>
+</blockquote>
+<h3>V</h3>
+<blockquote class="markdown-blockquote">
+<p>“这是我真正能提供的信息。”</p>
+</blockquote>
+<h3>Multi-Head</h3>
+<blockquote class="markdown-blockquote">
+<p>“我们从多个角度讨论。”</p>
+</blockquote>
+<h3>Causal Mask</h3>
+<blockquote class="markdown-blockquote">
+<p>“不能讨论未来发生的事情。”</p>
+</blockquote>
+<h3>Residual</h3>
+<blockquote class="markdown-blockquote">
+<p>“刚才我自己的想法也别丢。”</p>
+</blockquote>
+<h3>LayerNorm</h3>
+<blockquote class="markdown-blockquote">
+<p>“先把状态整理稳定一点。”</p>
+</blockquote>
+<h3>MLP</h3>
+<blockquote class="markdown-blockquote">
+<p>“交流结束后，我自己再想一想。”</p>
+</blockquote>
+<p>这个类比基本可以覆盖 Transformer 的大部分核心概念。</p>
+<hr class="markdown-hr">
+<h1>四十五、最终总结</h1>
+<ol class="markdown-ordered-list">
+<li><strong>Embedding：把 Token 变成向量。</strong></li>
+<li><strong>位置编码：告诉模型 Token 在哪里。</strong></li>
+<li><strong>Q：我想找什么。</strong></li>
+<li><strong>K：谁和我匹配。</strong></li>
+<li><strong>V：谁能给我什么信息。</strong></li>
+<li><strong>QKᵀ：决定关注谁。</strong></li>
+<li><strong>Mask：不允许看到未来。</strong></li>
+<li><strong>Attention×V：按照关注比例拿信息。</strong></li>
+<li><strong>Multi-Head：从多个角度同时看。</strong></li>
+<li><strong>MLP + Residual + LayerNorm：把信息继续加工、稳定和保留。</strong></li>
+</ol>
+<p>最终，Transformer 做的事情可以概括为：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>让每个词在不偷看未来的前提下，参考上下文中的其他词，然后不断加工这些信息，最终做出预测。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>附：最值得反复看的核心图</h2>
+<pre><code class="language-text">输入 Token
+    ↓
+Embedding
+    ↓
+Position
+    ↓
+Q / K / V
+    ↓
+拆成多个 Head
+    ↓
+Q × Kᵀ
+    ↓
+“我应该看谁？”
+    ↓
+Causal Mask
+    ↓
+“不准看未来”
+    ↓
+Softmax
+    ↓
+“每个人看多少？”
+    ↓
+Attention × V
+    ↓
+“按比例拿信息”
+    ↓
+多头结果拼起来
+    ↓
+Residual + LayerNorm + MLP
+    ↓
+重复很多层
+    ↓
+Linear
+    ↓
+Logits
+    ↓
+Softmax
+    ↓
+预测下一个 Token
+</code></pre>
+<blockquote class="markdown-blockquote">
+<p><strong>Transformer 的核心，不是“很多复杂公式”，而是“让每个词有选择地从上下文中获取信息”。</strong></p>
+</blockquote>
+
+      </div>
+    </article>
+    
+    <div id="comments" style="max-width: 800px; margin: 3rem auto; padding: 0 1rem;">
+      <div style="width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin-bottom: 2rem;"></div>
+      <h3 style="margin-bottom: 1.5rem; color: var(--primary);">💬 评论区</h3>
+      <script src="https://giscus.app/client.js" 
+           data-repo="jonny-dr/jonny-dr.github.io" 
+           data-repo-id="R_kgDORKkzfg" 
+           data-category="Announcements" 
+           data-category-id="DIC_kwDORKkzfs4C2Wdq" 
+           data-mapping="pathname" 
+           data-strict="0" 
+           data-reactions-enabled="1" 
+           data-emit-metadata="0" 
+           data-input-position="bottom" 
+           data-theme="preferred_color_scheme" 
+           data-lang="zh-CN" 
+           crossorigin="anonymous" 
+           async> 
+     </script>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 北辰 · 保持好奇，持续成长</p>
+    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
+      源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
+    </p>
+  </footer>
+
+  <button class="back-to-top" id="backToTop" aria-label="回到顶部">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="m18 15-6-6-6 6"/>
+    </svg>
+  </button>
+
+  <script src="../../../js/theme.js"></script>
+</body>
+</html>
+  

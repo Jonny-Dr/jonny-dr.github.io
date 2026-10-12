@@ -1,0 +1,1517 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Synchronized 锁升级原理与实战 | 北辰</title>
+  <link rel="stylesheet" href="../../../css/common.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <style>
+    .post-content {
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+    .post-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    .post-meta {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .post-tag {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .post-tag.category {
+      background: rgba(72, 187, 120, 0.1);
+      color: #48bb78;
+    }
+    .post-tag.language {
+      background: rgba(237, 137, 54, 0.1);
+      color: #ed8936;
+    }
+    .post-body {
+      margin-bottom: 2rem;
+    }
+    .post-body h2 {
+      font-size: 1.8rem;
+      margin: 2rem 0 1rem;
+      color: var(--primary);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-body h3 {
+      font-size: 1.4rem;
+      margin: 1.5rem 0 0.8rem;
+      color: var(--primary);
+    }
+    .post-body h4 {
+      font-size: 1.2rem;
+      margin: 1.2rem 0 0.6rem;
+      color: var(--primary);
+    }
+    .post-body h5 {
+      font-size: 1.1rem;
+      margin: 1rem 0 0.5rem;
+      color: var(--text);
+    }
+    .post-body p {
+      margin-bottom: 1.2rem;
+    }
+    .post-body a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-body a:hover {
+      text-decoration: underline;
+    }
+    .post-body ul,
+    .post-body ol {
+      margin: 1rem 0 1.5rem 1.5rem;
+    }
+    .post-body li {
+      margin-bottom: 0.5rem;
+    }
+    .post-body pre {
+      background: #f8f9fa;
+      color: #333333;
+      padding: 1.5rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border);
+    }
+    .post-body code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.9rem;
+    }
+    .post-body pre code {
+      background: none;
+      padding: 0;
+    }
+    [data-theme="dark"] .post-body pre {
+      background: #1e1e1e;
+      color: #e6e6e6;
+    }
+    [data-theme="dark"] .post-body code {
+      color: #e6e6e6;
+    }
+    .post-body img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .post-original-link {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+      color: #6c757d;
+    }
+    .post-original-link a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-original-link a:hover {
+      text-decoration: underline;
+    }
+    .post-body table.markdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .post-body table.markdown-table thead {
+      background: linear-gradient(135deg, var(--primary), #3a0ca3);
+      color: white;
+    }
+    .post-body table.markdown-table th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      border: none;
+    }
+    .post-body table.markdown-table td {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .post-body table.markdown-table td:last-child {
+      border-right: none;
+    }
+    .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(67, 97, 238, 0.03);
+    }
+    .post-body table.markdown-table tbody tr:hover {
+      background: rgba(67, 97, 238, 0.08);
+    }
+    [data-theme="dark"] .post-body table.markdown-table {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .post-body blockquote.markdown-blockquote {
+      border-left: 4px solid var(--primary);
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      background: rgba(67, 97, 238, 0.05);
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #666;
+    }
+    [data-theme="dark"] .post-body blockquote.markdown-blockquote {
+      background: rgba(255, 255, 255, 0.05);
+      color: #aaa;
+    }
+    .post-body hr.markdown-hr {
+      border: none;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      margin: 2rem 0;
+    }
+    .post-body li.task-list-item {
+      list-style: none;
+      margin-left: -1.5rem;
+    }
+    .post-body li.task-list-item input[type="checkbox"] {
+      margin-right: 0.5rem;
+      cursor: default;
+    }
+    .post-body .image-placeholder {
+      transition: var(--transition);
+    }
+    .post-body .image-placeholder:hover {
+      border-color: var(--primary) !important;
+      background: rgba(67, 97, 238, 0.05) !important;
+    }
+    @media (max-width: 768px) {
+      .post-content {
+        padding: 0 1rem;
+      }
+      .post-header h1 {
+        font-size: 1.8rem;
+      }
+      .post-tags {
+        gap: 0.5rem;
+      }
+      .post-tag {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      .post-body pre {
+        padding: 1rem;
+      }
+      .post-body table.markdown-table {
+        font-size: 0.85rem;
+      }
+      .post-body table.markdown-table th,
+      .post-body table.markdown-table td {
+        padding: 0.6rem 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <button class="music-toggle" id="musicToggle" aria-label="控制音乐">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+  </button>
+
+  <header>
+    <h1>🌱 北辰的博客</h1>
+    <p class="subtitle">记录思考，分享成长 | 一个热爱技术的探索者</p>
+    <nav>
+  <a href="../../../index.html">首页</a>
+  <a href="../../../html/project/project.html">项目</a>
+  <a href="../../../html/skill/skill.html">技术</a>
+  <a href="../../../html/ai/ai.html">AI</a>
+  <a href="../../../html/daily/daily.html">日常</a>
+  <a href="../../../about.html">关于</a>
+  <a href="../../../archives.html">归档</a>
+  <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+</nav>
+  </header>
+
+  <main class="post-content">
+    <article>
+      <div class="post-header">
+        <h1>Synchronized 锁升级原理与实战</h1>
+        <div class="post-meta">发布日期：2026-10-05</div>
+        
+        <div class="post-tags">
+          <span class="post-tag category">Java 与 JVM</span>
+          <span class="post-tag">synchronized</span> <span class="post-tag">锁升级</span> <span class="post-tag">Monitor</span> <span class="post-tag">JDK 8</span>
+          <span class="post-tag language">Java</span>
+        </div>
+        
+      </div>
+      <div class="post-body">
+        <h1>Synchronized 锁升级原理与实战</h1>
+<blockquote class="markdown-blockquote">
+<p>本文重点以 <strong>JDK 8 HotSpot</strong> 的经典实现为主，解释 <code>synchronized</code> 的对象头、偏向锁、轻量级锁、重量级锁、锁撤销、锁膨胀、JVM 参数、Demo 与调优。</p>
+<p><strong>重要版本说明：</strong> 偏向锁属于历史性的 HotSpot 优化机制。JDK 15 开始偏向锁默认禁用并弃用相关参数，JDK 18 的迁移文档已将其列为移除/弃用组件。因此，本文中“无锁 → 偏向锁 → 轻量级锁 → 重量级锁”的完整链路主要用于理解 JDK 8 等历史版本；现代 JDK 应重点关注轻量级快速路径、Monitor、锁膨胀以及 JIT 对同步代码的优化。</p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>1. synchronized 到底是什么？</h2>
+<p><code>synchronized</code> 是 Java 提供的内置同步机制，用来保证同一时刻只有符合规则的线程进入某段临界区，同时提供与监视器锁相关的内存语义。</p>
+<p>最简单的代码：</p>
+<pre><code class="language-java">public void increment() {
+    synchronized (this) {
+        count++;
+    }
+}
+</code></pre>
+<p>从源码角度看，我们看到的是：</p>
+<pre><code class="language-text">synchronized
+    ↓
+monitorenter
+    ↓
+临界区
+    ↓
+monitorexit
+</code></pre>
+<p>从 HotSpot 实现角度看，真正复杂的是：</p>
+<pre><code class="language-text">Object
+  ↓
+Object Header
+  ↓
+Mark Word
+  ↓
+不同锁状态
+  ├── 偏向锁（JDK 8 经典实现）
+  ├── 轻量级锁
+  └── 重量级锁 / Monitor
+</code></pre>
+<p>所以，学习 <code>synchronized</code> 不能只停留在“加锁、解锁”四个字，还需要理解：</p>
+<ul class="markdown-list">
+<li>对象头中的 Mark Word 保存了什么。</li>
+<li>为什么可以利用 CAS 实现轻量级竞争。</li>
+<li>为什么需要线程栈中的 Lock Record。</li>
+<li>为什么竞争激烈时要进行锁膨胀（inflate）。</li>
+<li>为什么重量级锁会和阻塞/唤醒联系起来。</li>
+</ul>
+<hr class="markdown-hr">
+<h1>2. 先建立整体认知：经典 JDK 8 锁升级模型</h1>
+<p>经典 JDK 8 HotSpot 的学习模型可以记成：</p>
+<pre><code class="language-text">                    synchronized
+                         │
+                         ▼
+                       无锁
+                         │
+                         ▼
+                      偏向锁
+                         │
+                  其他线程开始竞争
+                         │
+                         ▼
+                    偏向锁撤销
+                         │
+                         ▼
+                     轻量级锁
+                         │
+                     CAS + 自旋
+                         │
+                ┌────────┴────────┐
+                │                 │
+             很快释放          长时间竞争
+                │                 │
+                ▼                 ▼
+             获取成功          锁膨胀
+                                  │
+                                  ▼
+                             重量级锁
+                                  │
+                             ObjectMonitor
+                                  │
+                               阻塞/唤醒
+</code></pre>
+<p>这里有一个非常重要的认识：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>“锁升级”不是 <code>synchronized</code> 的语法层面升级，而是 HotSpot 为了降低同步成本，在运行时对对象锁状态采用不同实现路径。</strong></p>
+</blockquote>
+<p>而且这个图是<strong>学习模型</strong>，不能理解成任何情况下都必须严格、机械地依次经过每一个状态。</p>
+<hr class="markdown-hr">
+<h1>3. 对象头：理解锁升级的入口</h1>
+<h2>3.1 Java 对象的大致结构</h2>
+<p>一个对象可以粗略理解成：</p>
+<pre><code class="language-text">┌───────────────────────────────┐
+│        Object Header          │
+│                               │
+│       ┌───────────────┐       │
+│       │   Mark Word   │       │
+│       └───────────────┘       │
+│                               │
+│       Klass Pointer           │
+├───────────────────────────────┤
+│        Instance Data          │
+├───────────────────────────────┤
+│        Alignment              │
+└───────────────────────────────┘
+</code></pre>
+<p>不同 JVM、位数、压缩指针配置都会影响具体布局，所以不要把某一个 64 位二进制字符串当成永远不变的标准答案。</p>
+<p>真正和锁升级最相关的是：</p>
+<pre><code class="language-text">Mark Word
+</code></pre>
+<hr class="markdown-hr">
+<h2>3.2 Mark Word 保存什么？</h2>
+<p>在经典 64 位 JDK 8 HotSpot 中，可以用下面这张表帮助理解：</p>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>对象状态</th>
+<th>Mark Word 重点内容（抽象理解）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>无锁</td>
+<td>identity hash、GC age 等信息</td>
+</tr>
+<tr>
+<td>偏向锁</td>
+<td>线程 ID、epoch、age、biased 标志等</td>
+</tr>
+<tr>
+<td>轻量级锁</td>
+<td>指向线程栈中 Lock Record 的信息</td>
+</tr>
+<tr>
+<td>重量级锁</td>
+<td>指向 ObjectMonitor 的信息</td>
+</tr>
+<tr>
+<td>GC 标记</td>
+<td>GC 使用的标记状态</td>
+</tr>
+</tbody></table>
+<p>锁状态位常被简化为：</p>
+<pre><code class="language-text">01  → 无锁/偏向相关状态
+00  → 轻量级锁
+10  → 重量级锁
+11  → GC 标记
+</code></pre>
+<p>注意：偏向状态不能只看最后两位，还需要结合 biased 标志判断。</p>
+<hr class="markdown-hr">
+<h1>4. 什么是偏向锁？</h1>
+<h2>4.1 为什么需要偏向锁？</h2>
+<p>假设：</p>
+<pre><code class="language-java">for (int i = 0; i &lt; 1_000_000; i++) {
+    synchronized (lock) {
+        // 很少量工作
+    }
+}
+</code></pre>
+<p>而整个过程中几乎都是同一个线程：</p>
+<pre><code class="language-text">Thread-1
+  │
+  ├── lock
+  ├── unlock
+  ├── lock
+  ├── unlock
+  └── ...
+</code></pre>
+<p>这时候并不存在真正的多线程竞争。</p>
+<p>如果每一次都走完整的竞争路径，就会产生不必要的同步成本。</p>
+<p>偏向锁的设计思路就是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>既然长期以来基本只有同一个线程来获取这把锁，那么我把锁“偏向”这个线程。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>4.2 偏向锁的本质</h2>
+<p>可以简单理解为：</p>
+<pre><code class="language-text">obj
+ ↓
+Mark Word
+ ↓
+偏向 Thread-1
+</code></pre>
+<p>第一次 Thread-1 获取锁后，JVM 会在对象头中记录与线程相关的信息。</p>
+<p>后续如果还是 Thread-1：</p>
+<pre><code class="language-text">当前线程 == Mark Word 中记录的线程
+                    │
+                    ▼
+                  直接进入
+</code></pre>
+<p>目标是尽量减少无竞争场景下的同步开销。</p>
+<hr class="markdown-hr">
+<h1>5. 偏向锁第一次加锁过程</h1>
+<p>假设：</p>
+<pre><code class="language-java">Object lock = new Object();
+
+synchronized (lock) {
+    System.out.println(&quot;hello&quot;);
+}
+</code></pre>
+<h3>第一步：对象刚创建</h3>
+<pre><code class="language-text">lock
+ ↓
+Mark Word
+ ↓
+处于可偏向/初始状态
+</code></pre>
+<h3>第二步：Thread-1 第一次进入 synchronized</h3>
+<p>JVM 判断：</p>
+<pre><code class="language-text">对象是否允许偏向？
+        ↓
+       是
+        ↓
+当前有没有已经偏向其他线程？
+        ↓
+       没有
+        ↓
+记录当前线程
+</code></pre>
+<p>得到：</p>
+<pre><code class="language-text">lock
+ ↓
+Mark Word
+ ├── biased = 1
+ ├── thread = Thread-1
+ └── 其他锁状态信息
+</code></pre>
+<h3>第三步：Thread-1 再次进入</h3>
+<pre><code class="language-text">当前线程       = Thread-1
+对象偏向线程   = Thread-1
+
+结果：继续复用偏向状态
+</code></pre>
+<p>这就是偏向锁最典型的低竞争优化。</p>
+<hr class="markdown-hr">
+<h1>6. Demo：观察偏向锁</h1>
+<p>推荐使用 JOL（Java Object Layout）观察对象头。</p>
+<h2>6.1 Maven 依赖</h2>
+<pre><code class="language-xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.openjdk.jol&lt;/groupId&gt;
+    &lt;artifactId&gt;jol-core&lt;/artifactId&gt;
+    &lt;version&gt;0.17&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+<h2>6.2 Java Demo</h2>
+<pre><code class="language-java">import org.openjdk.jol.info.ClassLayout;
+
+public class BiasedLockDemo {
+
+    public static void main(String[] args) {
+        Object lock = new Object();
+
+        System.out.println(&quot;========== 创建对象 ==========&quot;);
+        System.out.println(
+                ClassLayout.parseInstance(lock).toPrintable()
+        );
+
+        synchronized (lock) {
+            System.out.println(&quot;========== 第一次加锁 ==========&quot;);
+            System.out.println(
+                    ClassLayout.parseInstance(lock).toPrintable()
+            );
+        }
+
+        System.out.println(&quot;========== 第一次解锁 ==========&quot;);
+        System.out.println(
+                ClassLayout.parseInstance(lock).toPrintable()
+        );
+
+        synchronized (lock) {
+            System.out.println(&quot;========== 同一线程再次加锁 ==========&quot;);
+            System.out.println(
+                    ClassLayout.parseInstance(lock).toPrintable()
+            );
+        }
+    }
+}
+</code></pre>
+<hr class="markdown-hr">
+<h1>7. 做偏向锁 Demo 时必须注意 JVM 启动延迟</h1>
+<p>这是很多教程最容易忽略的地方。</p>
+<h2>7.1 JDK 8 经典情况</h2>
+<p>经典 JDK 8 HotSpot 中，偏向锁默认开启，同时存在一个启动延迟：</p>
+<pre><code class="language-text">JVM 启动
+   │
+   ├── 启动后的前一小段时间：偏向锁尚未生效
+   │
+   └── 延迟结束后：开始正常使用偏向锁
+</code></pre>
+<p>常见 JDK 8 实现中的默认延迟是 <strong>4000ms（4 秒）</strong>。</p>
+<p>因此做实验时，不建议依赖默认延迟，直接显式指定：</p>
+<pre><code class="language-bash">-XX:+UseBiasedLocking
+-XX:BiasedLockingStartupDelay=0
+</code></pre>
+<p>这样可以避免“程序启动太快导致没看到偏向锁”的实验偏差。</p>
+<blockquote class="markdown-blockquote">
+<p>注意：这里讨论的是 JDK 8 及其相关 HotSpot 实现。后续 JDK 已经调整了这个参数的默认行为，并最终移除了偏向锁机制。</p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>8. 偏向锁撤销</h1>
+<h2>8.1 为什么需要撤销？</h2>
+<p>最开始：</p>
+<pre><code class="language-text">obj
+ ↓
+偏向 Thread-1
+</code></pre>
+<p>然后 Thread-2 也过来了：</p>
+<pre><code class="language-text">Thread-1 ────────┐
+                 │
+                 ▼
+                obj
+                 ▲
+                 │
+Thread-2 ────────┘
+</code></pre>
+<p>JVM 发现：</p>
+<pre><code class="language-text">对象偏向线程 = Thread-1
+当前线程     = Thread-2
+</code></pre>
+<p>于是原来的“单线程偏向”假设被打破。</p>
+<p>这时候需要：</p>
+<pre><code class="language-text">偏向锁撤销（revoke）
+</code></pre>
+<hr class="markdown-hr">
+<h2>8.2 撤销偏向锁时 JVM 要解决什么问题？</h2>
+<p>最关键的问题是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>Thread-1 当前到底还持不持有这把锁？</strong></p>
+</blockquote>
+<p>不能简单理解成：</p>
+<pre><code class="language-text">biased = 0
+</code></pre>
+<p>就结束了。</p>
+<p>JVM 需要结合对象头、线程执行状态、锁记录等信息安全地确定当前同步状态。</p>
+<hr class="markdown-hr">
+<h2>8.3 情况一：Thread-1 已经退出 synchronized</h2>
+<p>例如：</p>
+<pre><code class="language-java">synchronized (lock) {
+    // Thread-1
+}
+
+// Thread-1 已经退出临界区
+</code></pre>
+<p>此时 Thread-2 过来：</p>
+<pre><code class="language-text">obj
+ ↓
+原来偏向 Thread-1
+ ↓
+检查发现 Thread-1 已经没有持有锁
+ ↓
+撤销偏向
+ ↓
+恢复到可竞争的普通状态
+ ↓
+Thread-2 继续获取
+</code></pre>
+<hr class="markdown-hr">
+<h2>8.4 情况二：Thread-1 仍然持有锁</h2>
+<p>例如：</p>
+<pre><code class="language-java">synchronized (lock) {
+    Thread.sleep(10_000);
+}
+</code></pre>
+<p>此时：</p>
+<pre><code class="language-text">Thread-1
+  │
+  └── 持有 lock
+
+Thread-2
+  │
+  └── 想获取 lock
+</code></pre>
+<p>此时不能直接让 Thread-2 抢走锁。</p>
+<p>需要进一步进入更适合竞争的同步路径，经典模型下可以理解为：</p>
+<pre><code class="language-text">偏向锁
+   ↓
+撤销偏向
+   ↓
+轻量级锁/竞争路径
+</code></pre>
+<hr class="markdown-hr">
+<h1>9. 为什么偏向锁撤销是比较重的操作？</h1>
+<p>经典 HotSpot 的偏向锁实现需要安全地检查线程与锁记录之间的关系，撤销过程涉及安全点等 JVM 机制。</p>
+<p>所以偏向锁是一种“无竞争非常便宜、发生撤销时反而更复杂”的优化。</p>
+<p>这也解释了它后来为什么被淘汰：现代应用中线程池、异步任务、ForkJoinPool、RPC 等场景越来越普遍，同一对象被不同线程访问的情况比早期假设更常见。</p>
+<hr class="markdown-hr">
+<h1>10. 偏向锁升级到轻量级锁</h1>
+<p>现在进入经典并发场景：</p>
+<pre><code class="language-text">Thread-1
+   │
+   └── 持有 lock
+
+Thread-2
+   │
+   └── 同时尝试 lock
+</code></pre>
+<p>此时 JVM 希望先避免让 Thread-2 立刻阻塞。</p>
+<p>于是使用轻量级锁的核心策略：</p>
+<pre><code class="language-text">CAS + 自旋
+</code></pre>
+<hr class="markdown-hr">
+<h1>11. 什么是轻量级锁？</h1>
+<p>轻量级锁主要针对这样的场景：</p>
+<pre><code class="language-text">线程之间存在竞争
+
+但是：
+
+持锁线程很快就会释放
+</code></pre>
+<p>例如：</p>
+<pre><code class="language-text">Thread-1
+   │
+   ├── 获取锁
+   ├── 执行少量代码
+   └── 很快释放
+
+Thread-2
+   │
+   └── 稍等一会儿即可获取
+</code></pre>
+<p>这时候直接阻塞/唤醒，可能反而不划算。</p>
+<hr class="markdown-hr">
+<h1>12. Lock Record 是什么？</h1>
+<p>轻量级锁的一个核心概念是线程栈中的：</p>
+<pre><code class="language-text">Lock Record
+</code></pre>
+<p>可以抽象理解成：</p>
+<pre><code class="language-text">Thread-1 Stack
+
+┌──────────────────────┐
+│      Lock Record     │
+├──────────────────────┤
+│   displaced header   │
+└──────────────────────┘
+</code></pre>
+<p>其中 <code>displaced header</code> 可以理解为：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>保存对象原来的 Mark Word。</strong></p>
+</blockquote>
+<p>因为轻量级锁要修改对象头，所以先把原来的对象头信息保存到线程的锁记录中。</p>
+<hr class="markdown-hr">
+<h1>13. 轻量级锁加锁过程</h1>
+<p>可以拆成几个步骤。</p>
+<h2>第一步：创建 Lock Record</h2>
+<pre><code class="language-text">Thread-1 Stack
+      │
+      ▼
+Lock Record
+      │
+      └── 保存对象原 Mark Word
+</code></pre>
+<h2>第二步：CAS 修改对象 Mark Word</h2>
+<p>目标是让对象头指向当前线程的 Lock Record：</p>
+<pre><code class="language-text">obj Mark Word
+      │
+      ▼
+Thread-1 的 Lock Record
+</code></pre>
+<p>抽象成：</p>
+<pre><code class="language-java">CAS(
+    obj.markWord,
+    expectedOldMarkWord,
+    lockRecordAddress
+)
+</code></pre>
+<p>CAS 成功：</p>
+<pre><code class="language-text">Thread-1
+   │
+   ▼
+成功获得轻量级锁
+</code></pre>
+<hr class="markdown-hr">
+<h1>14. Thread-2 为什么会 CAS 失败？</h1>
+<p>Thread-2 也想获取同一个对象：</p>
+<pre><code class="language-text">Thread-2
+   │
+   ▼
+创建 Lock Record
+   │
+   ▼
+CAS
+</code></pre>
+<p>但是现在：</p>
+<pre><code class="language-text">obj Mark Word
+      │
+      ▼
+Thread-1 Lock Record
+</code></pre>
+<p>因此 Thread-2 的 CAS 期望值已经不匹配：</p>
+<pre><code class="language-text">CAS
+ ↓
+失败
+</code></pre>
+<p>于是进入竞争处理。</p>
+<hr class="markdown-hr">
+<h1>15. 自旋是什么？</h1>
+<p>简单理解：</p>
+<pre><code class="language-text">CAS 失败
+   ↓
+不要马上阻塞
+   ↓
+先原地等待一会儿
+   ↓
+再次尝试
+</code></pre>
+<p>伪代码可以理解成：</p>
+<pre><code class="language-java">while (true) {
+    if (tryLock()) {
+        break;
+    }
+
+    // 自旋一小段时间
+}
+</code></pre>
+<p>如果 Thread-1 很快释放：</p>
+<pre><code class="language-text">Thread-2
+   │
+   ├── CAS 失败
+   ├── 自旋
+   ├── CAS 失败
+   └── CAS 成功
+</code></pre>
+<p>整个过程不需要让 Thread-2 立刻进入阻塞。</p>
+<hr class="markdown-hr">
+<h1>16. 为什么自旋不是越久越好？</h1>
+<p>自旋的代价是 CPU。</p>
+<p>假设：</p>
+<pre><code class="language-java">synchronized (lock) {
+    Thread.sleep(10_000);
+}
+</code></pre>
+<p>Thread-2 如果自旋 10 秒：</p>
+<pre><code class="language-text">Thread-2
+   │
+   ├── CAS
+   ├── CAS
+   ├── CAS
+   ├── CAS
+   └── ...
+</code></pre>
+<p>它一直占着 CPU 做无效等待。</p>
+<p>因此一个非常重要的原则是：</p>
+<pre><code class="language-text">等待时间短
+    ↓
+自旋更划算
+
+等待时间长
+    ↓
+自旋不划算
+    ↓
+阻塞更划算
+</code></pre>
+<hr class="markdown-hr">
+<h1>17. 轻量级锁升级到重量级锁</h1>
+<p>当竞争持续加剧：</p>
+<pre><code class="language-text">CAS 失败
+   ↓
+自旋
+   ↓
+仍未释放
+   ↓
+继续竞争
+   ↓
+自旋成本开始不划算
+   ↓
+锁膨胀（inflate）
+   ↓
+重量级锁
+</code></pre>
+<p>这里最重要的单词就是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>Inflation：锁膨胀。</strong></p>
+</blockquote>
+<p>HotSpot 的 <code>ObjectSynchronizer::inflate()</code> 会处理把对象原有的锁状态转换为 <code>ObjectMonitor</code> 的过程；经典 HotSpot 源码可以看到它处理 <code>Stack-locked -&gt; inflated</code>、<code>Neutral -&gt; inflated</code> 等路径。</p>
+<hr class="markdown-hr">
+<h1>18. 什么是重量级锁？</h1>
+<p>重量级锁可以抽象为：</p>
+<pre><code class="language-text">Object
+  │
+  ▼
+ObjectMonitor
+  │
+  ├── Owner
+  ├── EntryList
+  └── WaitSet
+</code></pre>
+<h3>Owner</h3>
+<p>当前持有 Monitor 的线程。</p>
+<h3>EntryList</h3>
+<p>竞争 Monitor、等待进入的线程。</p>
+<h3>WaitSet</h3>
+<p>调用：</p>
+<pre><code class="language-java">obj.wait();
+</code></pre>
+<p>之后进入等待集合的线程。</p>
+<p>因此必须区分：</p>
+<pre><code class="language-text">BLOCKED
+</code></pre>
+<p>和：</p>
+<pre><code class="language-text">WAITING
+</code></pre>
+<p>它们的原因并不一样。</p>
+<hr class="markdown-hr">
+<h1>19. 为什么重量级锁比较“重”？</h1>
+<p>竞争失败的线程可能进入：</p>
+<pre><code class="language-text">RUNNABLE
+   ↓
+BLOCKED
+</code></pre>
+<p>等锁释放以后，再被唤醒并重新竞争：</p>
+<pre><code class="language-text">BLOCKED
+   ↓
+被唤醒
+   ↓
+重新竞争
+</code></pre>
+<p>与单纯的：</p>
+<pre><code class="language-text">CAS + 短时间自旋
+</code></pre>
+<p>相比，阻塞/唤醒涉及更复杂的线程调度与同步路径，因此通常成本更高。</p>
+<hr class="markdown-hr">
+<h1>20. Demo：制造锁竞争</h1>
+<p>下面的 Demo 用多个线程同时争抢同一个锁，并且故意增加临界区持有时间。</p>
+<pre><code class="language-java">import org.openjdk.jol.info.ClassLayout;
+
+import java.util.concurrent.CountDownLatch;
+
+public class HeavyweightLockDemo {
+
+    private static final Object LOCK = new Object();
+
+    public static void main(String[] args) throws Exception {
+
+        int threadCount = 20;
+
+        CountDownLatch start = new CountDownLatch(1);
+        CountDownLatch ready = new CountDownLatch(threadCount);
+
+        for (int i = 0; i &lt; threadCount; i++) {
+
+            Thread t = new Thread(() -&gt; {
+
+                ready.countDown();
+
+                try {
+                    start.await();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+
+                synchronized (LOCK) {
+
+                    System.out.println(
+                            Thread.currentThread().getName()
+                                    + &quot; 获取锁&quot;
+                    );
+
+                    try {
+                        // 故意延长持锁时间
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+
+                    System.out.println(
+                            ClassLayout.parseInstance(LOCK)
+                                    .toPrintable()
+                    );
+                }
+            }, &quot;Thread-&quot; + i);
+
+            t.start();
+        }
+
+        // 等所有线程就绪
+        ready.await();
+
+        System.out.println(&quot;开始制造锁竞争&quot;);
+
+        // 让所有线程尽可能同时竞争
+        start.countDown();
+    }
+}
+</code></pre>
+<p>启动时，如果使用 JDK 8 并希望把实验重点放在历史锁模型上，可以：</p>
+<pre><code class="language-bash">java \
+  -XX:+UseBiasedLocking \
+  -XX:BiasedLockingStartupDelay=0 \
+  -cp your.jar \
+  HeavyweightLockDemo
+</code></pre>
+<p>然后另开窗口查看线程状态：</p>
+<pre><code class="language-bash">jstack &lt;PID&gt;
+</code></pre>
+<p>或者：</p>
+<pre><code class="language-bash">jcmd &lt;PID&gt; Thread.print
+</code></pre>
+<p>竞争激烈时，可能看到多个线程处于：</p>
+<pre><code class="language-text">java.lang.Thread.State: BLOCKED
+</code></pre>
+<blockquote class="markdown-blockquote">
+<p>Demo 的目标是制造“高竞争”，不是保证某一行 JOL 输出永远精确出现某一个 bit。锁实现受 JDK 版本、CPU、线程调度、JIT 编译等因素影响，因此 Demo 应观察整体行为，而不是死记单次输出。</p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>21. JOL、jstack、JFR 分别看什么？</h1>
+<p>理解锁问题时可以把这些工具分工理解。</p>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>工具</th>
+<th>更适合观察什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>JOL</td>
+<td>对象头、Mark Word、对象布局</td>
+</tr>
+<tr>
+<td>jstack</td>
+<td>线程状态、BLOCKED/WAITING 等</td>
+</tr>
+<tr>
+<td>jcmd Thread.print</td>
+<td>线程栈与线程状态</td>
+</tr>
+<tr>
+<td>JFR</td>
+<td>生产环境里的锁竞争、线程、CPU、延迟等综合事件</td>
+</tr>
+<tr>
+<td>async-profiler</td>
+<td>CPU、锁等待等性能热点分析</td>
+</tr>
+</tbody></table>
+<p>不要指望一个工具解决所有问题。</p>
+<p>比如：</p>
+<pre><code class="language-text">JOL
+  → 对象头是什么状态
+
+jstack
+  → 哪些线程被卡住
+
+JFR / profiler
+  → 为什么线上会产生大量锁竞争
+</code></pre>
+<hr class="markdown-hr">
+<h1>22. 锁升级到底是不是严格一级一级走？</h1>
+<p>不应该机械地理解成：</p>
+<pre><code class="language-text">无锁
+ ↓
+偏向
+ ↓
+轻量
+ ↓
+重量
+</code></pre>
+<p>这更像是一张非常适合学习的“经典模型图”。</p>
+<p>实际 HotSpot 会根据对象当前状态、线程竞争方式以及具体同步操作走不同路径。</p>
+<p>例如：</p>
+<ul class="markdown-list">
+<li><code>wait()</code> / <code>notify()</code> 会直接涉及 Monitor 相关机制。</li>
+<li>对象 identity hash code 与偏向对象头之间存在特殊关系，可能导致偏向撤销/锁膨胀路径。</li>
+<li>JIT 还可能做锁消除、锁粗化等优化。</li>
+</ul>
+<p>所以真正严谨的理解应该是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>锁升级是 HotSpot 为了同步性能而选择不同实现路径的抽象描述，而不是 Java 语言规范规定的固定状态机。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>23. identityHashCode 为什么和偏向锁有关？</h1>
+<p>Java 代码：</p>
+<pre><code class="language-java">System.identityHashCode(lock);
+</code></pre>
+<p>需要对象维持 identity hash code 信息，而偏向锁状态下对象头的可用 bit 布局受到限制。</p>
+<p>因此经典 HotSpot 的处理过程中，如果对象处于偏向状态又需要保存 identity hash code，可能会触发偏向撤销并进一步走到 Monitor 相关路径。</p>
+<p>这也是为什么有时候看到：</p>
+<pre><code class="language-text">“为什么我没多线程竞争，只调用 hashCode，锁状态却发生变化？”
+</code></pre>
+<p>原因并不是 <code>hashCode()</code> 天生“会加重量级锁”，而是它与对象头信息布局发生了关系。</p>
+<hr class="markdown-hr">
+<h1>24. JVM 调优：偏向锁相关参数</h1>
+<h2>24.1 开启偏向锁（JDK 8）</h2>
+<pre><code class="language-bash">-XX:+UseBiasedLocking
+</code></pre>
+<p>经典 JDK 8 中，该选项默认开启。</p>
+<h2>24.2 关闭偏向锁（JDK 8）</h2>
+<pre><code class="language-bash">-XX:-UseBiasedLocking
+</code></pre>
+<h2>24.3 关闭启动延迟</h2>
+<p>做实验时推荐：</p>
+<pre><code class="language-bash">-XX:BiasedLockingStartupDelay=0
+</code></pre>
+<p>这不是为了线上“神奇调优”，而是为了让实验结果更稳定、更容易复现。</p>
+<h2>24.4 偏向锁统计</h2>
+<p>JDK 8 实验环境可以尝试：</p>
+<pre><code class="language-bash">-XX:+UnlockDiagnosticVMOptions \
+-XX:+PrintBiasedLockingStatistics
+</code></pre>
+<p>它更适合诊断/实验，不建议没有目的地在线上长期开启大量诊断输出。</p>
+<hr class="markdown-hr">
+<h1>25. 一个非常重要的版本区别</h1>
+<h2>JDK 8</h2>
+<p>可以重点学习完整经典链路：</p>
+<pre><code class="language-text">无锁
+ ↓
+偏向锁
+ ↓
+轻量级锁
+ ↓
+重量级锁
+</code></pre>
+<p>并可用于实验：</p>
+<pre><code class="language-bash">-XX:+UseBiasedLocking
+-XX:BiasedLockingStartupDelay=0
+</code></pre>
+<h2>JDK 15</h2>
+<p>偏向锁被禁用并弃用。</p>
+<h2>JDK 18+</h2>
+<p>偏向锁相关实现已经移除，不应该再用 JDK 8 的完整偏向锁模型解释现代 JVM。</p>
+<p>因此：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>面试问“偏向锁”时，可以用 JDK 8 模型回答；实际排查现代 JDK 性能问题时，不要假定偏向锁仍然存在。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>26. JVM 调优不能只靠调锁参数</h1>
+<p>这是实际工作里非常重要的一点。</p>
+<p>如果发现：</p>
+<pre><code class="language-text">大量 synchronized
+</code></pre>
+<p>第一反应不应该是：</p>
+<pre><code class="language-bash">-XX:+UseBiasedLocking
+</code></pre>
+<p>或：</p>
+<pre><code class="language-bash">-XX:-UseBiasedLocking
+</code></pre>
+<p>正确思路更接近：</p>
+<pre><code class="language-text">业务压测
+   ↓
+发现 synchronized 是热点
+   ↓
+JFR / profiler / 线程栈
+   ↓
+确认是不是锁竞争
+   ↓
+分析锁持有时间
+   ↓
+分析锁粒度
+   ↓
+优化代码结构
+   ↓
+最后再考虑 JVM 参数
+</code></pre>
+<hr class="markdown-hr">
+<h1>27. 真正有效的锁优化通常发生在业务代码层</h1>
+<p>例如：</p>
+<pre><code class="language-java">public synchronized void process() {
+    queryDatabase();
+    callRpc();
+    calculate();
+    updateSharedState();
+}
+</code></pre>
+<p>问题在于：</p>
+<pre><code class="language-text">数据库查询
+RPC
+计算
+</code></pre>
+<p>可能都不需要在锁里执行。</p>
+<p>更合理的思路可能是：</p>
+<pre><code class="language-java">public void process() {
+
+    queryDatabase();
+
+    callRpc();
+
+    calculate();
+
+    synchronized (lock) {
+        updateSharedState();
+    }
+}
+</code></pre>
+<p>这样：</p>
+<pre><code class="language-text">锁持有时间
+   ↓
+缩短
+
+竞争概率
+   ↓
+降低
+
+Monitor / BLOCKED
+   ↓
+减少
+</code></pre>
+<p>这通常比“调一个 JVM 参数”更有实际价值。</p>
+<hr class="markdown-hr">
+<h1>28. 锁粗化与锁消除</h1>
+<p>在分析 <code>synchronized</code> 时，还需要理解 JIT 的两个重要优化。</p>
+<h2>28.1 锁消除（Lock Elimination）</h2>
+<p>如果 JIT 经过逃逸分析判断某对象不会被其他线程看到，那么某些同步可能根本不需要保留。</p>
+<p>例如某些只在方法内部创建、不会逃逸的对象。</p>
+<pre><code class="language-java">public void test() {
+    Object lock = new Object();
+
+    synchronized (lock) {
+        // 如果 lock 不可能被别的线程访问
+    }
+}
+</code></pre>
+<p>编译器在满足条件时可能消除没有实际意义的同步。</p>
+<h2>28.2 锁粗化（Lock Coarsening）</h2>
+<p>如果非常短的多个同步区域连续出现，JIT 在满足条件时可能合并它们，减少频繁加锁解锁的开销。</p>
+<p>因此：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>源码中“看到 synchronized 很多”，不等于机器最终执行时“每一个 synchronized 都原样存在”。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>29. 为什么性能测试建议用 JMH？</h1>
+<p>下面这种：</p>
+<pre><code class="language-java">long start = System.currentTimeMillis();
+
+for (...) {
+    synchronized (lock) {
+    }
+}
+
+long end = System.currentTimeMillis();
+</code></pre>
+<p>非常容易受到：</p>
+<ul class="markdown-list">
+<li>JIT 编译</li>
+<li>预热不足</li>
+<li>常量折叠</li>
+<li>死代码消除</li>
+<li>GC</li>
+<li>操作系统调度</li>
+<li>CPU 频率变化</li>
+</ul>
+<p>等因素干扰。</p>
+<p>如果要严肃比较：</p>
+<pre><code class="language-text">偏向锁 vs 非偏向
+CAS vs Monitor
+不同锁竞争程度
+</code></pre>
+<p>推荐使用 <strong>JMH</strong> 做基准测试。</p>
+<hr class="markdown-hr">
+<h1>30. 推荐的实验方案</h1>
+<h2>实验 1：单线程、低竞争</h2>
+<p>目标：理解偏向锁历史优化。</p>
+<p>JDK 8 参数：</p>
+<pre><code class="language-bash">-XX:+UseBiasedLocking
+-XX:BiasedLockingStartupDelay=0
+</code></pre>
+<p>观察：</p>
+<pre><code class="language-text">JOL
+</code></pre>
+<hr class="markdown-hr">
+<h2>实验 2：关闭偏向锁进行对照</h2>
+<pre><code class="language-bash">-XX:-UseBiasedLocking
+</code></pre>
+<p>与实验 1 对比：</p>
+<pre><code class="language-text">对象头状态
+
+以及
+
+性能结果
+</code></pre>
+<p>注意不能只跑一次，要做预热和多次重复。</p>
+<hr class="markdown-hr">
+<h2>实验 3：两个线程短竞争</h2>
+<p>制造：</p>
+<pre><code class="language-text">Thread-1
+持锁很短
+
+Thread-2
+很快拿到锁
+</code></pre>
+<p>观察：</p>
+<pre><code class="language-text">CAS
+自旋
+线程没有长期 BLOCKED
+</code></pre>
+<hr class="markdown-hr">
+<h2>实验 4：多个线程高竞争</h2>
+<p>制造：</p>
+<pre><code class="language-text">20+ 线程
++
+持锁时间较长
+</code></pre>
+<p>观察：</p>
+<pre><code class="language-text">jstack
+ ↓
+BLOCKED
+</code></pre>
+<p>同时结合 JFR 分析锁竞争事件。</p>
+<hr class="markdown-hr">
+<h1>31. 整个流程最终怎么记？</h1>
+<p>可以把它浓缩成下面四句话。</p>
+<h3>偏向锁</h3>
+<pre><code class="language-text">一个线程反复使用
+→ 记住线程
+→ 尽量不做复杂竞争
+</code></pre>
+<h3>轻量级锁</h3>
+<pre><code class="language-text">存在竞争但很短
+→ CAS
+→ 自旋
+→ 尽量不阻塞
+</code></pre>
+<h3>重量级锁</h3>
+<pre><code class="language-text">竞争持续较久
+→ 锁膨胀
+→ ObjectMonitor
+→ 线程可能 BLOCKED
+</code></pre>
+<h3>JVM 调优</h3>
+<pre><code class="language-text">先确认竞争
+→ 再分析持锁时间/锁粒度
+→ 代码优化优先
+→ 参数调优最后
+</code></pre>
+<hr class="markdown-hr">
+<h1>32. 一张完整的锁升级图</h1>
+<pre><code class="language-text">                                 synchronized
+                                      │
+                                      ▼
+                                Object Header
+                                      │
+                                      ▼
+                                   Mark Word
+                                      │
+                       ┌──────────────┴──────────────┐
+                       │                             │
+                     无锁                         特殊状态
+                       │
+               第一个线程进入
+                       │
+                       ▼
+               ┌────────────────┐
+               │     偏向锁      │
+               │                │
+               │ Thread ID      │
+               └───────┬────────┘
+                       │
+                其他线程开始竞争
+                       │
+                       ▼
+                  偏向锁撤销
+                       │
+                       ▼
+               ┌────────────────┐
+               │    轻量级锁     │
+               │                │
+               │ Lock Record    │
+               │      +         │
+               │     CAS        │
+               │      +         │
+               │     自旋        │
+               └───────┬────────┘
+                       │
+               竞争持续时间较长
+                       │
+                       ▼
+                Lock Inflation
+                       │
+                       ▼
+               ┌────────────────┐
+               │    重量级锁     │
+               │                │
+               │ ObjectMonitor  │
+               │      +         │
+               │  阻塞/唤醒     │
+               └───────┬────────┘
+                       │
+                       ▼
+                 线程可能 BLOCKED
+</code></pre>
+<hr class="markdown-hr">
+<h1>33. 小总结</h1>
+<p>问：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>“synchronized 的锁升级过程是什么？”</strong></p>
+</blockquote>
+<p>答：</p>
+<blockquote class="markdown-blockquote">
+<p>在经典 JDK 8 HotSpot 实现中，<code>synchronized</code> 的锁状态主要与对象头 Mark Word 有关。为了适应不同程度的线程竞争，JVM 会采用不同的同步路径。</p>
+<p>在几乎没有竞争、而且长期由同一个线程使用时，可以采用偏向锁，在对象头中记录偏向线程的信息，同一个线程再次进入时可以快速通过。</p>
+<p>当其他线程开始竞争时，需要撤销偏向。如果竞争不激烈，可以使用轻量级锁，通过线程栈中的 Lock Record 保存原对象头，并通过 CAS 尝试把对象头与锁记录关联；竞争线程失败后先自旋等待。</p>
+<p>如果竞争持续较久，自旋的 CPU 成本就开始不划算，锁会进一步发生膨胀（inflate），关联到 ObjectMonitor，竞争线程可能进入 BLOCKED 状态，形成重量级锁路径。</p>
+<p>所以经典模型可以概括为：</p>
+<pre><code class="language-text">无锁 → 偏向锁 → 轻量级锁 → 重量级锁
+      Thread ID   Lock Record     ObjectMonitor
+                  CAS + 自旋      阻塞/唤醒
+</code></pre>
+<p>但是偏向锁已经在 JDK 15 被禁用并弃用，在 JDK 18 相关实现已经移除，所以这套完整模型主要用于理解 JDK 8 等历史 HotSpot。现代 JDK 更应该关注轻量级锁、Monitor、锁膨胀以及 JIT 对同步代码的优化。</p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>34. 常见误区</h1>
+<h2>误区 1：偏向锁一出现就一定会升级到重量级锁</h2>
+<p>错误。</p>
+<p>偏向撤销之后可能只是回到普通/可竞争状态，也可能进入轻量级竞争，并不是一次竞争就直接进入重量级锁。</p>
+<h2>误区 2：轻量级锁就是“没有阻塞”</h2>
+<p>不严谨。</p>
+<p>轻量级锁倾向于先采用 CAS 和自旋减少阻塞，但竞争持续较久时仍可能膨胀为重量级 Monitor。</p>
+<h2>误区 3：自旋时间越长越好</h2>
+<p>错误。</p>
+<p>自旋需要消耗 CPU。只有锁很可能马上释放时，自旋才更划算。</p>
+<h2>误区 4：JOL 看到一次输出就是 JVM 永远的锁状态</h2>
+<p>错误。</p>
+<p>线程调度、JIT、JDK 版本、对象状态都会影响实验结果。</p>
+<h2>误区 5：线上锁竞争问题优先靠 JVM 参数解决</h2>
+<p>通常不是。</p>
+<p>先分析：</p>
+<pre><code class="language-text">锁粒度
+锁持有时间
+竞争线程数
+业务临界区内容
+</code></pre>
+<p>再决定是否需要 JVM 参数层面的调整。</p>
+<hr class="markdown-hr">
+<h1>35. 源码阅读入口</h1>
+<p>如果继续深入 HotSpot 源码，推荐从下面几个入口开始：</p>
+<pre><code class="language-text">ObjectSynchronizer
+    ↓
+fast_enter / fast_exit
+    ↓
+轻量级锁快速路径
+    ↓
+inflate()
+    ↓
+ObjectMonitor
+</code></pre>
+<p>偏向锁相关可以重点看：</p>
+<pre><code class="language-text">BiasedLocking
+</code></pre>
+<p>经典 JDK 8 HotSpot 中，<code>ObjectSynchronizer::inflate()</code> 会明确处理对象从栈锁状态到 inflated Monitor 状态的转换，这是理解“轻量级 → 重量级”的重要源码入口。</p>
+<hr class="markdown-hr">
+<h1>36. 学习路线建议</h1>
+<p>推荐按照下面的顺序继续深入：</p>
+<pre><code class="language-text">第一层：Java 语法层
+synchronized / monitorenter / monitorexit
+
+        ↓
+
+第二层：对象模型
+Object Header / Mark Word
+
+        ↓
+
+第三层：经典锁优化
+偏向锁 / Lock Record / CAS / 自旋
+
+        ↓
+
+第四层：重量级锁
+ObjectMonitor / inflate / BLOCKED
+
+        ↓
+
+第五层：JIT
+锁消除 / 锁粗化 / 逃逸分析
+
+        ↓
+
+第六层：线上性能
+JFR / jstack / async-profiler / JMH
+</code></pre>
+<p>看到这里，你就不再只是“知道 synchronized 有锁升级”，而是能够清晰的明白：</p>
+<pre><code class="language-text">为什么要升级？
+为什么 CAS？
+为什么自旋？
+为什么还要 Monitor？
+什么时候会 BLOCKED？
+为什么现代 JDK 去掉偏向锁？
+线上怎么定位锁竞争？
+</code></pre>
+<hr class="markdown-hr">
+<h1>37. 参考资料</h1>
+<ol class="markdown-ordered-list">
+<li><p>Oracle Java SE 8 <code>java</code> 命令文档（<code>UseBiasedLocking</code> 等）：<br><a href="https://docs.oracle.com/javase/8/docs/technotes/tools/windows/java.html">https://docs.oracle.com/javase/8/docs/technotes/tools/windows/java.html</a></p>
+</li>
+<li><p>Oracle JDK 15 Migration Guide：偏向锁禁用并弃用相关参数：<br><a href="https://docs.oracle.com/en/java/javase/15/migrate/">https://docs.oracle.com/en/java/javase/15/migrate/</a></p>
+</li>
+<li><p>Oracle JDK 18 Migration Guide：偏向锁相关组件/选项变化：<br><a href="https://docs.oracle.com/en/java/javase/18/migrate/removed-tools-and-components.html">https://docs.oracle.com/en/java/javase/18/migrate/removed-tools-and-components.html</a></p>
+</li>
+<li><p>OpenJDK HotSpot 经典 <code>ObjectSynchronizer::inflate()</code> 源码：<br><a href="https://cr.openjdk.org/~apetushkov/jfr8/hotspot/src/share/vm/runtime/synchronizer.cpp-.html">https://cr.openjdk.org/~apetushkov/jfr8/hotspot/src/share/vm/runtime/synchronizer.cpp-.html</a></p>
+</li>
+<li><p>OpenJDK HotSpot 偏向锁相关源码：<br><a href="https://cr.openjdk.org/~apetushkov/aarch32jdk9.0.4%2B12/hotspot/src/share/vm/runtime/biasedLocking.cpp-.html">https://cr.openjdk.org/~apetushkov/aarch32jdk9.0.4%2B12/hotspot/src/share/vm/runtime/biasedLocking.cpp-.html</a></p>
+</li>
+</ol>
+<hr class="markdown-hr">
+<h1>38. 一句话总结</h1>
+<blockquote class="markdown-blockquote">
+<p><strong>经典 JDK 8 的 synchronized 锁优化，本质上是在“无竞争、短竞争、强竞争”三类场景之间选择不同成本的实现：偏向锁记录线程，轻量级锁使用 Lock Record + CAS + 自旋，竞争激烈后通过 inflate 进入 ObjectMonitor 和阻塞/唤醒路径。真正的性能优化重点通常不是“盲目调锁参数”，而是减少锁粒度、缩短持锁时间、降低竞争，并结合 JFR、jstack、profiler 与 JMH 做验证。</strong></p>
+</blockquote>
+
+      </div>
+    </article>
+    
+    <div id="comments" style="max-width: 800px; margin: 3rem auto; padding: 0 1rem;">
+      <div style="width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin-bottom: 2rem;"></div>
+      <h3 style="margin-bottom: 1.5rem; color: var(--primary);">💬 评论区</h3>
+      <script src="https://giscus.app/client.js" 
+           data-repo="jonny-dr/jonny-dr.github.io" 
+           data-repo-id="R_kgDORKkzfg" 
+           data-category="Announcements" 
+           data-category-id="DIC_kwDORKkzfs4C2Wdq" 
+           data-mapping="pathname" 
+           data-strict="0" 
+           data-reactions-enabled="1" 
+           data-emit-metadata="0" 
+           data-input-position="bottom" 
+           data-theme="preferred_color_scheme" 
+           data-lang="zh-CN" 
+           crossorigin="anonymous" 
+           async> 
+     </script>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 北辰 · 保持好奇，持续成长</p>
+    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
+      源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
+    </p>
+  </footer>
+
+  <button class="back-to-top" id="backToTop" aria-label="回到顶部">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="m18 15-6-6-6 6"/>
+    </svg>
+  </button>
+
+  <script src="../../../js/theme.js"></script>
+</body>
+</html>
+  

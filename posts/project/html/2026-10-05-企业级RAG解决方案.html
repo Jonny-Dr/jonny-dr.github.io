@@ -1,0 +1,1401 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>企业级 RAG 文件解析、知识切分与检索方案 | 北辰</title>
+  <link rel="stylesheet" href="../../../css/common.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <style>
+    .post-content {
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+    .post-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    .post-meta {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .post-tag {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .post-tag.category {
+      background: rgba(72, 187, 120, 0.1);
+      color: #48bb78;
+    }
+    .post-tag.language {
+      background: rgba(237, 137, 54, 0.1);
+      color: #ed8936;
+    }
+    .post-body {
+      margin-bottom: 2rem;
+    }
+    .post-body h2 {
+      font-size: 1.8rem;
+      margin: 2rem 0 1rem;
+      color: var(--primary);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-body h3 {
+      font-size: 1.4rem;
+      margin: 1.5rem 0 0.8rem;
+      color: var(--primary);
+    }
+    .post-body h4 {
+      font-size: 1.2rem;
+      margin: 1.2rem 0 0.6rem;
+      color: var(--primary);
+    }
+    .post-body h5 {
+      font-size: 1.1rem;
+      margin: 1rem 0 0.5rem;
+      color: var(--text);
+    }
+    .post-body p {
+      margin-bottom: 1.2rem;
+    }
+    .post-body a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-body a:hover {
+      text-decoration: underline;
+    }
+    .post-body ul,
+    .post-body ol {
+      margin: 1rem 0 1.5rem 1.5rem;
+    }
+    .post-body li {
+      margin-bottom: 0.5rem;
+    }
+    .post-body pre {
+      background: #f8f9fa;
+      color: #333333;
+      padding: 1.5rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border);
+    }
+    .post-body code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.9rem;
+    }
+    .post-body pre code {
+      background: none;
+      padding: 0;
+    }
+    [data-theme="dark"] .post-body pre {
+      background: #1e1e1e;
+      color: #e6e6e6;
+    }
+    [data-theme="dark"] .post-body code {
+      color: #e6e6e6;
+    }
+    .post-body img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .post-original-link {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+      color: #6c757d;
+    }
+    .post-original-link a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-original-link a:hover {
+      text-decoration: underline;
+    }
+    .post-body table.markdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .post-body table.markdown-table thead {
+      background: linear-gradient(135deg, var(--primary), #3a0ca3);
+      color: white;
+    }
+    .post-body table.markdown-table th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      border: none;
+    }
+    .post-body table.markdown-table td {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .post-body table.markdown-table td:last-child {
+      border-right: none;
+    }
+    .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(67, 97, 238, 0.03);
+    }
+    .post-body table.markdown-table tbody tr:hover {
+      background: rgba(67, 97, 238, 0.08);
+    }
+    [data-theme="dark"] .post-body table.markdown-table {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .post-body blockquote.markdown-blockquote {
+      border-left: 4px solid var(--primary);
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      background: rgba(67, 97, 238, 0.05);
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #666;
+    }
+    [data-theme="dark"] .post-body blockquote.markdown-blockquote {
+      background: rgba(255, 255, 255, 0.05);
+      color: #aaa;
+    }
+    .post-body hr.markdown-hr {
+      border: none;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      margin: 2rem 0;
+    }
+    .post-body li.task-list-item {
+      list-style: none;
+      margin-left: -1.5rem;
+    }
+    .post-body li.task-list-item input[type="checkbox"] {
+      margin-right: 0.5rem;
+      cursor: default;
+    }
+    .post-body .image-placeholder {
+      transition: var(--transition);
+    }
+    .post-body .image-placeholder:hover {
+      border-color: var(--primary) !important;
+      background: rgba(67, 97, 238, 0.05) !important;
+    }
+    @media (max-width: 768px) {
+      .post-content {
+        padding: 0 1rem;
+      }
+      .post-header h1 {
+        font-size: 1.8rem;
+      }
+      .post-tags {
+        gap: 0.5rem;
+      }
+      .post-tag {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      .post-body pre {
+        padding: 1rem;
+      }
+      .post-body table.markdown-table {
+        font-size: 0.85rem;
+      }
+      .post-body table.markdown-table th,
+      .post-body table.markdown-table td {
+        padding: 0.6rem 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <button class="music-toggle" id="musicToggle" aria-label="控制音乐">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+  </button>
+
+  <header>
+    <h1>🌱 北辰的博客</h1>
+    <p class="subtitle">记录思考，分享成长 | 一个热爱技术的探索者</p>
+    <nav>
+  <a href="../../../index.html">首页</a>
+  <a href="../../../html/project/project.html">项目</a>
+  <a href="../../../html/skill/skill.html">技术</a>
+  <a href="../../../html/ai/ai.html">AI</a>
+  <a href="../../../html/daily/daily.html">日常</a>
+  <a href="../../../about.html">关于</a>
+  <a href="../../../archives.html">归档</a>
+  <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+</nav>
+  </header>
+
+  <main class="post-content">
+    <article>
+      <div class="post-header">
+        <h1>企业级 RAG 文件解析、知识切分与检索方案</h1>
+        <div class="post-meta">发布日期：2026-10-05</div>
+        
+        <div class="post-tags">
+          <span class="post-tag category">AI 工程</span>
+          <span class="post-tag">RAG</span> <span class="post-tag">文档解析</span> <span class="post-tag">向量数据库</span> <span class="post-tag">Milvus</span> <span class="post-tag">Rerank</span>
+          <span class="post-tag language">Java</span>
+        </div>
+        
+      </div>
+      <div class="post-body">
+        <h1>企业级 RAG 文件解析、知识切分与检索方案</h1>
+<blockquote class="markdown-blockquote">
+<p><strong>目标</strong>：设计一套可扩展、可维护、适合企业知识库的 RAG（Retrieval-Augmented Generation）方案。</p>
+<p>核心思想：</p>
+<p><strong>原文件保留 → 文件类型识别 → 专用解析 → 统一标准化 → 结构化 Chunk → Token 校验 → Embedding → Milvus → Rerank → LLM</strong></p>
+<p>对于复杂实体关系场景，再增加：</p>
+<p><strong>Neo4j + Graph Retrieval + Hybrid Retrieval</strong></p>
+</blockquote>
+<h2>一、先明确：企业级 RAG 真正解决的是“知识工程 + 检索 + 生成”</h2>
+<p>不要把 RAG 简化成：</p>
+<pre><code class="language-text">文件 → Embedding → 向量库 → LLM
+</code></pre>
+<p>生产环境更合理的主线是：</p>
+<pre><code class="language-text">原始文件
+  ↓
+文件类型识别
+  ↓
+专用 Parser
+  ↓
+ParsedDocument / Document AST
+  ↓
+结构化 Chunk
+  ↓
+Token 校验
+  ↓
+Embedding
+  ↓
+Vector / Keyword / Graph Index
+  ↓
+Hybrid Retrieval
+  ↓
+Rerank
+  ↓
+Context Builder
+  ↓
+LLM
+  ↓
+Citation / Guardrail
+  ↓
+最终回答
+</code></pre>
+<p>核心原则：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>前面按文件类型专用解析，后面统一成 Document，再统一做 Chunk、Embedding、Retrieval；生产能力则围绕可靠性、安全性、可观测性和可迭代性展开。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>二、文件处理路线：专用解析，统一处理</h1>
+<p>不同文件不能强行用同一种解析方式：</p>
+<pre><code class="language-text">PDF    → PDF Parser
+Word   → DOCX Parser
+Excel  → Excel Parser
+PPT    → PPT Parser
+HTML   → HTML Parser
+MD     → Markdown Parser
+Image  → OCR + Vision
+</code></pre>
+<p>Parser 不直接对接 Milvus，而统一输出：</p>
+<pre><code class="language-text">ParsedDocument
+├── metadata
+├── sections
+├── tables
+├── images
+├── codeBlocks
+└── sourceLocations
+</code></pre>
+<p>推荐使用接口 + 工厂：</p>
+<pre><code class="language-java">public interface DocumentParser {
+    boolean supports(FileType type);
+    ParsedDocument parse(File file);
+}
+
+DocumentParser parser = parserFactory.getParser(fileType);
+ParsedDocument document = parser.parse(file);
+</code></pre>
+<h3>Markdown 与 Document AST 的关系</h3>
+<p>Markdown 适合展示和统一文本处理；Document AST 负责保存程序真正需要的结构。</p>
+<pre><code class="language-text">Parser
+  ↓
+Document AST
+  ├── Section
+  ├── Paragraph
+  ├── Table
+  ├── Image
+  ├── CodeBlock
+  └── SourceLocation
+  ↓
+Markdown / Chunk
+</code></pre>
+<p><strong>不要把 Markdown 当作唯一事实来源。</strong> 原始文件是 Source of Truth，Markdown/AST 是 Derived Data。</p>
+<hr class="markdown-hr">
+<h1>三、文件存储：对象存储与业务数据库分离</h1>
+<p>原始文件不要存 MySQL BLOB。采用统一抽象：</p>
+<pre><code class="language-text">Upload API
+   ↓
+FileStorageService
+   ↓
+NAS / MinIO / OSS / S3
+</code></pre>
+<p>业务数据库只保存元数据和关联关系：</p>
+<pre><code class="language-text">MySQL
+├── knowledge_file
+├── knowledge_document
+├── knowledge_chunk
+├── knowledge_image
+├── knowledge_table
+└── knowledge_task
+</code></pre>
+<p>推荐最基本的文件表：</p>
+<pre><code class="language-sql">CREATE TABLE knowledge_file (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    knowledge_base_id BIGINT NOT NULL,
+    file_name VARCHAR(512) NOT NULL,
+    file_type VARCHAR(50) NOT NULL,
+    file_size BIGINT,
+    md5 VARCHAR(64),
+    storage_key VARCHAR(1024) NOT NULL,
+    version INT NOT NULL,
+    status VARCHAR(32) NOT NULL,
+    created_at DATETIME,
+    updated_at DATETIME,
+    UNIQUE KEY uk_tenant_kb_md5 (tenant_id, knowledge_base_id, md5)
+);
+</code></pre>
+<p>存储职责：</p>
+<pre><code class="language-text">MinIO / NAS / OSS：原文件、解析产物、图片等大对象
+MySQL：文件、版本、状态、权限、任务、Chunk 元数据
+Milvus：向量与检索字段
+Neo4j：实体与关系（有需要再启用）
+</code></pre>
+<hr class="markdown-hr">
+<h1>四、Document、Chunk 与数据血缘</h1>
+<p>生产环境不要只保存一个 <code>content</code>，必须能回答：</p>
+<blockquote class="markdown-blockquote">
+<p>“这个向量到底来自哪个文件、哪个版本、哪个切分配置、哪个模型？”</p>
+</blockquote>
+<p>因此建立完整血缘：</p>
+<pre><code class="language-text">Original File
+   ↓
+File Version
+   ↓
+Parser Version
+   ↓
+Document Version
+   ↓
+Chunk Config Version
+   ↓
+Chunk
+   ↓
+Embedding Model Version
+   ↓
+Vector Index Version
+</code></pre>
+<p>推荐 Chunk 至少保存：</p>
+<pre><code class="language-json">{
+  &quot;chunkId&quot;: &quot;chunk_10001&quot;,
+  &quot;tenantId&quot;: 1,
+  &quot;knowledgeBaseId&quot;: 10,
+  &quot;documentId&quot;: 100,
+  &quot;documentVersion&quot;: 3,
+  &quot;chunkConfigVersion&quot;: 5,
+  &quot;content&quot;: &quot;员工入职满一年后，每年享有5天年假。&quot;,
+  &quot;chunkType&quot;: &quot;TEXT&quot;,
+  &quot;sectionPath&quot;: [&quot;员工手册&quot;, &quot;假期制度&quot;, &quot;年假制度&quot;],
+  &quot;pageStart&quot;: 10,
+  &quot;pageEnd&quot;: 10,
+  &quot;tokenCount&quot;: 68,
+  &quot;prevChunkId&quot;: &quot;chunk_10000&quot;,
+  &quot;nextChunkId&quot;: &quot;chunk_10002&quot;
+}
+</code></pre>
+<p>这样后续才能做重建、审计、问题追踪和版本切换。</p>
+<hr class="markdown-hr">
+<h1>五、PDF / Word / Excel / 图片 / HTML 的处理原则</h1>
+<h2>1. PDF</h2>
+<p>保留：</p>
+<pre><code class="language-text">page_number
+heading
+paragraph
+table
+image
+source_location
+</code></pre>
+<p>最终回答可以定位到：</p>
+<pre><code class="language-text">《员工手册》 → 第 10 页
+</code></pre>
+<h2>2. Word</h2>
+<p>尽量恢复 Heading、Paragraph、Table、Image，而不是把全文拼成一段。</p>
+<h2>3. Excel</h2>
+<p>Excel 是结构化数据，不建议只转成 Markdown 表格。</p>
+<p>至少保留三种视图：</p>
+<pre><code class="language-text">原始表格结构
++
+Markdown 表格
++
+行级语义文本
+</code></pre>
+<p>例如：</p>
+<pre><code class="language-text">张三所在部门为 Java，年假额度为 10 天。
+</code></pre>
+<p>这样对“按人、按产品、按部门查询”的检索更稳定。</p>
+<h2>4. 图片</h2>
+<p>第一阶段：</p>
+<pre><code class="language-text">Image → OCR → Vision Description → Text Embedding
+</code></pre>
+<p>同时保留：</p>
+<pre><code class="language-text">image_path
+page
+ocr_text
+vision_description
+</code></pre>
+<p>这属于“图片转文本的 RAG”。真正多模态检索可以在后续增加 Image Embedding。</p>
+<h2>5. HTML</h2>
+<p>保留：</p>
+<pre><code class="language-text">title / heading / paragraph / list / table / code / link
+</code></pre>
+<p>而不是简单 strip tags。</p>
+<hr class="markdown-hr">
+<h1>六、Chunk：结构优先，长度其次</h1>
+<p>原则：</p>
+<pre><code class="language-text">标题
+ ↓
+章节
+ ↓
+段落
+ ↓
+句子
+ ↓
+Token 校验
+</code></pre>
+<p>只有上一层仍然过长时，才继续向下切。</p>
+<h2>Chunk 不应该只有 text</h2>
+<p>至少要包含：</p>
+<pre><code class="language-text">chunk_id
+content
+chunk_type
+title
+section_path
+page_start / page_end
+token_count
+prev_chunk_id / next_chunk_id
+permission metadata
+version metadata
+</code></pre>
+<p>类型建议：</p>
+<pre><code class="language-text">TEXT / TABLE / IMAGE / CODE / LIST / QUOTE
+</code></pre>
+<hr class="markdown-hr">
+<h1>七、Chunk 参数：实验默认值 + 用户可配置 + 页面预览</h1>
+<p>Chunk 不应该写死为：</p>
+<pre><code class="language-text">BGE 永远 700
+BCE 永远 832
+</code></pre>
+<p>正确方式：</p>
+<pre><code class="language-text">实验数据
+  ↓
+默认参数
+  ↓
+用户可修改 chunk_size / overlap
+  ↓
+试切分
+  ↓
+页面展示切分结果
+  ↓
+用户动态调整
+  ↓
+确认
+  ↓
+保存 ChunkConfigVersion
+  ↓
+正式切分
+</code></pre>
+<p>推荐配置：</p>
+<pre><code class="language-json">{
+  &quot;chunkSize&quot;: 800,
+  &quot;overlap&quot;: 120,
+  &quot;separatorStrategy&quot;: &quot;STRUCTURE_FIRST&quot;,
+  &quot;tokenizer&quot;: &quot;model-tokenizer&quot;,
+  &quot;version&quot;: 5
+}
+</code></pre>
+<h3>为什么需要 Preview？</h3>
+<p>因为 Chunk 最终是业务数据质量问题，不是纯算法问题。用户看到：</p>
+<pre><code class="language-text">Chunk 1：标题 + 完整段落
+Chunk 2：继续段落
+Chunk 3：完整表格
+</code></pre>
+<p>比单纯看到 <code>chunk_size=800</code> 更容易判断是否合理。</p>
+<hr class="markdown-hr">
+<h1>八、Token 校验必须在正式 Embedding 前完成</h1>
+<p>字符数不等于 Token 数：</p>
+<pre><code class="language-text">字符数 ≠ Token 数
+</code></pre>
+<p>流程：</p>
+<pre><code class="language-text">Chunk
+ ↓
+Tokenizer
+ ↓
+tokenCount
+ ↓
+是否超限？
+ ├─ 否 → Embedding
+ └─ 是 → 继续切分
+</code></pre>
+<p>伪代码：</p>
+<pre><code class="language-python">ids = tokenizer.encode(chunk, truncation=False)
+token_len = len(ids)
+
+if token_len &gt; MAX_TOKENS:
+    chunk = split_again(chunk)
+</code></pre>
+<p>不要把超长内容直接交给模型自动截断，否则会产生隐性信息丢失。</p>
+<hr class="markdown-hr">
+<h1>九、Embedding 与索引版本</h1>
+<p>Embedding 流程：</p>
+<pre><code class="language-text">Chunk
+ ↓
+Tokenizer
+ ↓
+Embedding Model
+ ↓
+Vector
+ ↓
+Milvus
+</code></pre>
+<p>必须记录：</p>
+<pre><code class="language-text">embedding_model
+embedding_model_version
+vector_collection_version
+</code></pre>
+<p>模型切换时不要直接把不同模型混在同一个向量空间：</p>
+<pre><code class="language-text">Collection V1 → BGE
+Collection V2 → BCE
+</code></pre>
+<p>推荐升级流程：</p>
+<pre><code class="language-text">创建新索引
+ ↓
+离线评估
+ ↓
+Shadow Retrieval
+ ↓
+新旧结果对比
+ ↓
+灰度切换
+ ↓
+旧索引保留一段时间
+ ↓
+确认稳定后下线
+</code></pre>
+<hr class="markdown-hr">
+<h1>十、MySQL、Milvus、Neo4j 的职责边界</h1>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>组件</th>
+<th>主要职责</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>NAS / MinIO / OSS / S3</td>
+<td>原始文件、解析产物、图片</td>
+</tr>
+<tr>
+<td>MySQL</td>
+<td>租户、知识库、文件、版本、任务、权限、Chunk 元数据</td>
+</tr>
+<tr>
+<td>Milvus</td>
+<td>Vector Search</td>
+</tr>
+<tr>
+<td>Keyword Index</td>
+<td>BM25 / 精确关键词检索</td>
+</tr>
+<tr>
+<td>Neo4j</td>
+<td>实体、关系、路径、依赖</td>
+</tr>
+</tbody></table>
+<p>不要把所有业务数据塞进 Milvus。</p>
+<p>Neo4j 也不应该默认上线：</p>
+<pre><code class="language-text">普通制度问答 → Vector / Keyword 已足够
+复杂实体关系 → 再启用 Graph Retrieval
+</code></pre>
+<hr class="markdown-hr">
+<h1>十一、生产级入库必须是异步任务系统</h1>
+<p>不要：</p>
+<pre><code class="language-text">HTTP 上传
+ ↓
+同步解析 10 分钟
+ ↓
+HTTP 一直等待
+</code></pre>
+<p>而是：</p>
+<pre><code class="language-text">上传
+ ↓
+创建 task_id
+ ↓
+立即返回
+ ↓
+消息队列
+ ↓
+Worker 异步处理
+</code></pre>
+<p>任务状态建议：</p>
+<pre><code class="language-text">PENDING
+ ↓
+PARSING
+ ↓
+PARSED
+ ↓
+CHUNKING
+ ↓
+CHUNKED
+ ↓
+EMBEDDING
+ ↓
+INDEXING
+ ↓
+SUCCESS
+</code></pre>
+<p>失败至少区分：</p>
+<pre><code class="language-text">RETRYABLE_FAILED
+PERMANENT_FAILED
+PARTIAL_SUCCESS
+</code></pre>
+<p>记录：</p>
+<pre><code class="language-text">error_code
+error_message
+failed_stage
+retry_count
+last_retry_at
+</code></pre>
+<hr class="markdown-hr">
+<h1>十二、任务可靠性：幂等、重试、死信队列</h1>
+<p>生产环境一定会出现：</p>
+<pre><code class="language-text">Milvus 写入成功
+ ↓
+Worker 宕机
+ ↓
+消息重新投递
+ ↓
+再次执行
+</code></pre>
+<p>必须保证重复执行不会产生重复向量。</p>
+<p>推荐业务幂等键：</p>
+<pre><code class="language-text">idempotency_key =
+ tenant_id
+ + document_version
+ + chunk_id
+ + embedding_model_version
+</code></pre>
+<p>数据库 / Milvus 写入采用 Upsert 或唯一键策略。</p>
+<p>消息处理：</p>
+<pre><code class="language-text">Main Queue
+   ↓
+Retry Queue
+   ↓
+超过次数
+   ↓
+Dead Letter Queue
+</code></pre>
+<p>重试必须区分：</p>
+<pre><code class="language-text">网络超时 → 可重试
+模型限流 → 可重试
+文件损坏 → 不应无限重试
+参数错误 → 不应无限重试
+</code></pre>
+<hr class="markdown-hr">
+<h1>十三、增量更新：不要每次修改都全量重建</h1>
+<p>生产知识库最重要的优化之一是增量处理。</p>
+<h3>原文件没有变化</h3>
+<pre><code class="language-text">MD5 未变化
+ ↓
+无需重新解析
+</code></pre>
+<h3>只修改 Chunk 参数</h3>
+<pre><code class="language-text">Parser 不变
+Document 不变
+ ↓
+重新 Chunk
+ ↓
+重新 Embedding
+ ↓
+更新索引
+</code></pre>
+<h3>只更换 Embedding 模型</h3>
+<pre><code class="language-text">Parser 不动
+Document 不动
+Chunk 不动
+ ↓
+重新 Embedding
+ ↓
+新 Collection
+</code></pre>
+<h3>只修改一个章节</h3>
+<p>后续可扩展为：</p>
+<pre><code class="language-text">Document Diff
+ ↓
+只重建变化 Section
+ ↓
+只更新相关 Chunk
+</code></pre>
+<hr class="markdown-hr">
+<h1>十四、删除一致性：采用最终一致性，而不是强行做分布式事务</h1>
+<p>MySQL、Milvus、Neo4j、对象存储之间通常无法依赖一个真正的分布式事务完成删除。</p>
+<p>推荐：</p>
+<pre><code class="language-text">DELETE_REQUESTED
+ ↓
+MySQL 标记不可检索
+ ↓
+创建删除任务
+ ↓
+Milvus 删除
+ ↓
+Neo4j 删除（如启用）
+ ↓
+对象存储删除
+ ↓
+全部完成
+ ↓
+DELETED
+</code></pre>
+<p>如果中途失败：</p>
+<pre><code class="language-text">FAILED
+ ↓
+重试
+</code></pre>
+<p>推荐使用：</p>
+<pre><code class="language-text">Soft Delete / Tombstone
++
+异步物理删除
+</code></pre>
+<p>这样即使 Milvus 删除存在延迟，查询侧也可以通过状态过滤，避免旧数据继续参与回答。</p>
+<hr class="markdown-hr">
+<h1>十五、多租户与权限：权限必须成为检索硬约束</h1>
+<p>企业 RAG 不能只做：</p>
+<pre><code class="language-text">Query → TopK
+</code></pre>
+<p>必须是：</p>
+<pre><code class="language-text">User Identity
+ ↓
+Tenant / Knowledge Base
+ ↓
+Permission Snapshot
+ ↓
+Metadata Filter
+ ↓
+Retrieval
+</code></pre>
+<p>Chunk 建议至少带：</p>
+<pre><code class="language-text">tenant_id
+knowledge_base_id
+department_id
+permission_id
+document_id
+</code></pre>
+<p>检索时强制过滤：</p>
+<pre><code class="language-text">tenant_id = currentTenant
+AND knowledge_base_id = currentKnowledgeBase
+AND permission_id IN userPermissions
+AND document_status = ACTIVE
+</code></pre>
+<p>不要依赖“开发人员记得加条件”，而应该封装成统一的 Retrieval Filter Service。</p>
+<h3>权限变化</h3>
+<p>用户权限被撤销后，不应该继续使用旧缓存结果。因此建议：</p>
+<pre><code class="language-text">IAM / Permission Service
+ ↓
+Permission Snapshot
+ ↓
+短 TTL 缓存
+ ↓
+Retrieval Filter
+</code></pre>
+<hr class="markdown-hr">
+<h1>十六、检索：不要只做 Vector Search</h1>
+<p>企业知识库里同时存在两类问题：</p>
+<h3>语义问题</h3>
+<pre><code class="language-text">“员工休假规则是什么？”
+</code></pre>
+<p>适合 Vector Search。</p>
+<h3>精确问题</h3>
+<pre><code class="language-text">“ERR_CONNECTION_RESET”
+“CK-202610-000123”
+“OrderService”
+</code></pre>
+<p>Keyword / BM25 往往更可靠。</p>
+<p>因此推荐：</p>
+<pre><code class="language-text">                  Query
+                    ↓
+              Query Analysis
+                    ↓
+        ┌───────────┴───────────┐
+        ↓                       ↓
+   Vector Search           Keyword Search
+        ↓                       ↓
+      Top 50                  Top 50
+        └───────────┬───────────┘
+                    ↓
+               Fusion / RRF
+                    ↓
+                 Rerank
+                    ↓
+                  Top K
+</code></pre>
+<p>Graph Retrieval 作为特定场景补充：</p>
+<pre><code class="language-text">Vector Retrieval
++
+Graph Retrieval
+↓
+Hybrid Context
+</code></pre>
+<hr class="markdown-hr">
+<h1>十七、Parent-Child Chunk：兼顾召回精度与上下文完整性</h1>
+<p>单层 Chunk 很容易遇到：</p>
+<pre><code class="language-text">Chunk 小 → 召回准，但上下文不足
+Chunk 大 → 上下文完整，但召回噪声大
+</code></pre>
+<p>生产环境推荐父子 Chunk：</p>
+<pre><code class="language-text">Parent Section
+├── Child Chunk 1
+├── Child Chunk 2
+├── Child Chunk 3
+└── Child Chunk 4
+</code></pre>
+<p>检索：</p>
+<pre><code class="language-text">Query
+ ↓
+Child Chunk Retrieval
+ ↓
+找到相关 Parent
+ ↓
+补充 Parent Context
+ ↓
+Rerank
+ ↓
+LLM
+</code></pre>
+<p>这样可以让 Embedding 针对更小的语义单元，同时给 LLM 更完整的上下文。</p>
+<hr class="markdown-hr">
+<h1>十八、Rerank、Threshold 与“拒答”</h1>
+<p>Vector Search 适合：</p>
+<pre><code class="language-text">海量数据 → Top N
+</code></pre>
+<p>Rerank 负责：</p>
+<pre><code class="language-text">Top N → Top K
+</code></pre>
+<p>不要只使用一个固定 similarity threshold。</p>
+<p>推荐：</p>
+<pre><code class="language-text">Query Classification
+ ↓
+Vector / Keyword Retrieval
+ ↓
+Fusion
+ ↓
+Rerank
+ ↓
+Rerank Threshold / Confidence
+ ↓
+Context
+</code></pre>
+<p>如果：</p>
+<pre><code class="language-text">Top score 很低
+Rerank 也很低
+</code></pre>
+<p>不要强行进入 LLM，可以直接返回：</p>
+<pre><code class="language-text">知识库中没有找到足够可靠的依据。
+</code></pre>
+<p>也就是说，<strong>“正确拒答”本身就是 RAG 的能力。</strong></p>
+<p>阈值不要拍脑袋固定，而应该使用业务验证集确定：</p>
+<pre><code class="language-text">验证集
+ ↓
+统计 score 分布
+ ↓
+测试 threshold
+ ↓
+Recall / Precision / F1
+ ↓
+最终配置
+</code></pre>
+<hr class="markdown-hr">
+<h1>十九、Context Builder：不要简单把 TopK 全塞给 LLM</h1>
+<p>召回后还需要做上下文构建：</p>
+<pre><code class="language-text">Retrieved Chunks
+ ↓
+去重
+ ↓
+Parent Context 扩展
+ ↓
+按章节排序
+ ↓
+控制 Token
+ ↓
+保留来源
+ ↓
+最终 Context
+</code></pre>
+<p>推荐 Context 项至少包含：</p>
+<pre><code class="language-text">document_id
+file_name
+version
+page
+section_path
+chunk_id
+content
+score
+</code></pre>
+<p>这样最终回答可以输出：</p>
+<pre><code class="language-text">根据《员工手册》员工请假制度……
+来源：《员工手册》第10页。
+</code></pre>
+<hr class="markdown-hr">
+<h1>二十、LLM 安全：Prompt Injection 与 Citation 校验</h1>
+<p>RAG 中检索出来的文档属于<strong>不可信外部内容</strong>，不能把文档中的文字当成系统指令。</p>
+<p>Prompt 建议明确分区：</p>
+<pre><code class="language-text">System Instruction
+  ↓
+Retrieved Evidence（不可信知识）
+  ↓
+User Question
+</code></pre>
+<p>并明确：</p>
+<pre><code class="language-text">Retrieved Evidence 只能作为回答依据，不能覆盖系统指令。
+</code></pre>
+<h2>Citation Validator</h2>
+<p>LLM 输出：</p>
+<pre><code class="language-text">Answer + Citation
+</code></pre>
+<p>不能直接认为 Citation 一定正确。</p>
+<p>生产环境可以增加：</p>
+<pre><code class="language-text">Answer
+ ↓
+Citation Validator
+ ↓
+检查回答是否能被 Evidence 支持
+ ↓
+通过 → 返回
+不通过 → 修正 / 拒答
+</code></pre>
+<hr class="markdown-hr">
+<h1>二十一、RAG Evaluation：建立离线验证集与线上指标</h1>
+<p>RAG 优化不能靠“感觉”。</p>
+<p>建议建立标准验证集：</p>
+<pre><code class="language-text">Question
+Ground Truth
+Expected Documents
+Expected Chunks
+Expected Answer
+</code></pre>
+<h2>Retrieval 指标</h2>
+<pre><code class="language-text">Hit Rate
+Recall@K
+Precision@K
+MRR
+NDCG
+</code></pre>
+<h2>Generation 指标</h2>
+<pre><code class="language-text">Faithfulness
+Answer Relevance
+Context Relevance
+Citation Correctness
+</code></pre>
+<h2>System 指标</h2>
+<pre><code class="language-text">P50 / P95 / P99
+QPS
+失败率
+任务耗时
+Token 消耗
+模型成本
+</code></pre>
+<p>每次修改：</p>
+<pre><code class="language-text">Chunk 参数
+Embedding 模型
+Reranker
+Prompt
+Query Rewrite
+</code></pre>
+<p>都应该先跑离线评估，再进行线上灰度。</p>
+<hr class="markdown-hr">
+<h1>二十二、可观测性：必须能够完整重放一次回答</h1>
+<p>线上至少记录：</p>
+<pre><code class="language-text">request_id
+tenant_id
+user_id
+knowledge_base_id
+query
+query_rewrite
+retrieval_topk
+retrieved_chunk_ids
+retrieval_scores
+rerank_scores
+final_context
+prompt_tokens
+completion_tokens
+llm_model
+latency
+cost
+</code></pre>
+<p>当用户说“为什么回答错了？”时，应能追踪：</p>
+<pre><code class="language-text">用户问题
+ ↓
+Query Rewrite
+ ↓
+召回结果
+ ↓
+Rerank
+ ↓
+最终 Context
+ ↓
+Prompt
+ ↓
+LLM
+ ↓
+Answer
+</code></pre>
+<p>这样才能真正定位：</p>
+<pre><code class="language-text">Parser 错？
+Chunk 错？
+Embedding 错？
+Retrieval 错？
+Rerank 错？
+Prompt 错？
+LLM 错？
+</code></pre>
+<hr class="markdown-hr">
+<h1>二十三、成本控制：优先做缓存、增量与分层</h1>
+<p>企业 RAG 成本主要来自：</p>
+<pre><code class="language-text">Embedding
+Vision
+LLM
+存储
+检索
+</code></pre>
+<p>建议：</p>
+<pre><code class="language-text">1. MD5 / Hash 去重
+2. Parser 结果缓存
+3. Embedding 缓存
+4. 增量 Chunk / Embedding
+5. 小模型处理普通文档
+6. Vision 只处理必要图片
+7. LLM 分层路由
+</code></pre>
+<p>典型路由：</p>
+<pre><code class="language-text">简单 FAQ
+ ↓
+小模型
+
+复杂推理
+ ↓
+大模型
+</code></pre>
+<p>不要因为“企业级”就默认所有请求走最贵模型。</p>
+<hr class="markdown-hr">
+<h1>二十四、推荐的生产系统架构</h1>
+<pre><code class="language-text">                                用户
+                                  │
+                           API Gateway / Auth
+                                  │
+                  ┌───────────────┴───────────────┐
+                  ↓                               ↓
+             Upload API                       Chat API
+                  │                               │
+                  ↓                               ↓
+         FileStorageService                Retrieval Service
+                  │                               │
+          NAS / MinIO / OSS              ┌────────┴────────┐
+                  │                      ↓                 ↓
+                  ↓                  Permission       Query Analysis
+             MySQL Metadata              ↓                 ↓
+                  │                 Hybrid Retrieval       │
+                  ↓                      │                 │
+             Task / MQ                   └────────┬────────┘
+                  │                               ↓
+        ┌─────────┼─────────┐                  Rerank
+        ↓         ↓         ↓                    ↓
+      Parser    Chunk    Embedding          Context Builder
+        │         │         │                    ↓
+        └─────────┴─────────┘                   LLM
+                  │                              ↓
+                  ↓                       Citation Validator
+          Document / Chunk                      ↓
+                  │                           Answer
+          ┌───────┴────────┐
+          ↓                ↓
+       MySQL            Milvus
+     Metadata           Vector
+                           │
+                      Keyword Index
+                           │
+                      Neo4j（可选）
+</code></pre>
+<p>系统外围必须统一提供：</p>
+<pre><code class="language-text">租户隔离
+权限
+幂等
+重试
+死信
+版本
+监控
+Trace
+评估
+成本控制
+审计
+</code></pre>
+<hr class="markdown-hr">
+<h1>二十五、推荐项目结构</h1>
+<pre><code class="language-text">rag-system/
+├── rag-api/
+│   ├── upload/
+│   ├── search/
+│   └── chat/
+├── rag-parser/
+│   ├── pdf/
+│   ├── word/
+│   ├── excel/
+│   ├── ppt/
+│   ├── html/
+│   └── image/
+├── rag-document/
+│   ├── ParsedDocument
+│   ├── DocumentSection
+│   ├── DocumentTable
+│   └── DocumentImage
+├── rag-chunk/
+│   ├── StructureChunker
+│   ├── ParentChildChunker
+│   └── TokenValidator
+├── rag-index/
+│   ├── EmbeddingService
+│   ├── MilvusIndexService
+│   └── KeywordIndexService
+├── rag-retrieval/
+│   ├── VectorRetriever
+│   ├── KeywordRetriever
+│   ├── HybridRetriever
+│   ├── GraphRetriever
+│   └── Reranker
+├── rag-security/
+│   ├── TenantFilter
+│   ├── PermissionFilter
+│   └── PromptGuard
+├── rag-task/
+│   ├── TaskStateMachine
+│   ├── RetryHandler
+│   └── DeadLetterHandler
+├── rag-evaluation/
+│   ├── RetrievalEvaluator
+│   └── GenerationEvaluator
+└── rag-common/
+    ├── DTO
+    ├── Exception
+    ├── Trace
+    └── Utils
+</code></pre>
+<hr class="markdown-hr">
+<h1>二十六、推荐的 MVP 与演进路线</h1>
+<h2>Phase 1：先把主链路做对</h2>
+<pre><code class="language-text">文件上传
+ ↓
+对象存储 + MySQL
+ ↓
+PDF / Word / Excel / Markdown Parser
+ ↓
+Document AST
+ ↓
+Structure-aware Chunk
+ ↓
+Token Validation
+ ↓
+Embedding
+ ↓
+Milvus
+ ↓
+Rerank
+ ↓
+LLM + Citation
+</code></pre>
+<h2>Phase 2：补生产可靠性</h2>
+<pre><code class="language-text">异步任务
+幂等
+Retry / DLQ
+版本管理
+增量更新
+删除最终一致性
+权限 / 多租户
+可观测性
+</code></pre>
+<h2>Phase 3：提升检索质量</h2>
+<pre><code class="language-text">Keyword Search
+ ↓
+Hybrid Search
+ ↓
+Parent-Child Chunk
+ ↓
+Query Rewrite
+ ↓
+RAG Evaluation
+</code></pre>
+<h2>Phase 4：复杂场景</h2>
+<pre><code class="language-text">Neo4j
+Graph Retrieval
+多模态 Embedding
+Agent
+</code></pre>
+<p>原则：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>先把解析、Chunk、Retrieval、权限、可靠性做扎实，再增加 Graph RAG 和 Agent。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>二十七、生产环境最终检查清单</h1>
+<p>上线前至少确认：</p>
+<pre><code class="language-text">[ ] 原始文件不会丢失
+[ ] 文件存储与 MySQL 已解耦
+[ ] Parser 有版本
+[ ] ChunkConfig 有版本
+[ ] Embedding Model 有版本
+[ ] Chunk 支持 Preview
+[ ] Token 有硬限制
+[ ] 入库流程异步化
+[ ] 任务可重试
+[ ] 有 Dead Letter Queue
+[ ] 任务具备幂等性
+[ ] 支持增量更新
+[ ] 删除使用最终一致性
+[ ] 多租户强隔离
+[ ] 权限进入 Retrieval Filter
+[ ] Vector + Keyword 可组合
+[ ] 支持 Rerank
+[ ] 支持低置信度拒答
+[ ] Parent-Child Chunk 已评估
+[ ] Citation 可追溯
+[ ] Prompt Injection 有防护
+[ ] 有离线 RAG Evaluation
+[ ] 有线上 Trace / Metrics
+[ ] 有成本统计
+[ ] 模型和索引支持灰度切换
+</code></pre>
+<hr class="markdown-hr">
+<h1>二十八、最终结论</h1>
+<p>生产级企业 RAG 不应该理解成：</p>
+<pre><code class="language-text">Parser + Vector DB + LLM
+</code></pre>
+<p>真正完整的系统应该是：</p>
+<pre><code class="language-text">                 Enterprise RAG
+                      │
+      ┌───────────────┼────────────────┐
+      ↓               ↓                ↓
+ Data Pipeline   Retrieval Pipeline   Generation
+      │               │                │
+ Parser             Hybrid            LLM
+ Document           Search            Citation
+ Chunk              Rerank            Guardrail
+ Embedding          Permission
+ Index              Threshold
+      │               │                │
+      └───────────────┼────────────────┘
+                      ↓
+             Platform Capabilities
+                      │
+          ┌───────────┼───────────┐
+          ↓           ↓           ↓
+       Reliability  Security   Observability
+          │           │           │
+       Idempotency  Tenant     Trace / Eval
+       Retry / DLQ  ACL        Metrics / Cost
+       Version      Audit
+</code></pre>
+<p>最终最核心的落地原则只有四条：</p>
+<ol class="markdown-ordered-list">
+<li><strong>原始数据与派生数据分离。</strong></li>
+<li><strong>解析专用化，后续流程统一化。</strong></li>
+<li><strong>检索不仅依赖向量，还要考虑关键词、权限、Rerank 和拒答。</strong></li>
+<li><strong>所有关键链路必须可版本化、可重试、可观测、可评估。</strong></li>
+</ol>
+<p>做到这些，这套方案才真正从“RAG 技术设计”进入“可以长期维护和迭代的企业级生产系统”。</p>
+
+      </div>
+    </article>
+    
+    <div id="comments" style="max-width: 800px; margin: 3rem auto; padding: 0 1rem;">
+      <div style="width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin-bottom: 2rem;"></div>
+      <h3 style="margin-bottom: 1.5rem; color: var(--primary);">💬 评论区</h3>
+      <script src="https://giscus.app/client.js" 
+           data-repo="jonny-dr/jonny-dr.github.io" 
+           data-repo-id="R_kgDORKkzfg" 
+           data-category="Announcements" 
+           data-category-id="DIC_kwDORKkzfs4C2Wdq" 
+           data-mapping="pathname" 
+           data-strict="0" 
+           data-reactions-enabled="1" 
+           data-emit-metadata="0" 
+           data-input-position="bottom" 
+           data-theme="preferred_color_scheme" 
+           data-lang="zh-CN" 
+           crossorigin="anonymous" 
+           async> 
+     </script>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 北辰 · 保持好奇，持续成长</p>
+    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
+      源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
+    </p>
+  </footer>
+
+  <button class="back-to-top" id="backToTop" aria-label="回到顶部">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="m18 15-6-6-6 6"/>
+    </svg>
+  </button>
+
+  <script src="../../../js/theme.js"></script>
+</body>
+</html>
+  

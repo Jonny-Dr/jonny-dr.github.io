@@ -1,0 +1,3968 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAS / AQS 深度解析与实战（增强版） | 北辰</title>
+  <link rel="stylesheet" href="../../../css/common.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <style>
+    .post-content {
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+    .post-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    .post-meta {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .post-tag {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .post-tag.category {
+      background: rgba(72, 187, 120, 0.1);
+      color: #48bb78;
+    }
+    .post-tag.language {
+      background: rgba(237, 137, 54, 0.1);
+      color: #ed8936;
+    }
+    .post-body {
+      margin-bottom: 2rem;
+    }
+    .post-body h2 {
+      font-size: 1.8rem;
+      margin: 2rem 0 1rem;
+      color: var(--primary);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-body h3 {
+      font-size: 1.4rem;
+      margin: 1.5rem 0 0.8rem;
+      color: var(--primary);
+    }
+    .post-body h4 {
+      font-size: 1.2rem;
+      margin: 1.2rem 0 0.6rem;
+      color: var(--primary);
+    }
+    .post-body h5 {
+      font-size: 1.1rem;
+      margin: 1rem 0 0.5rem;
+      color: var(--text);
+    }
+    .post-body p {
+      margin-bottom: 1.2rem;
+    }
+    .post-body a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-body a:hover {
+      text-decoration: underline;
+    }
+    .post-body ul,
+    .post-body ol {
+      margin: 1rem 0 1.5rem 1.5rem;
+    }
+    .post-body li {
+      margin-bottom: 0.5rem;
+    }
+    .post-body pre {
+      background: #f8f9fa;
+      color: #333333;
+      padding: 1.5rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border);
+    }
+    .post-body code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.9rem;
+    }
+    .post-body pre code {
+      background: none;
+      padding: 0;
+    }
+    [data-theme="dark"] .post-body pre {
+      background: #1e1e1e;
+      color: #e6e6e6;
+    }
+    [data-theme="dark"] .post-body code {
+      color: #e6e6e6;
+    }
+    .post-body img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .post-original-link {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+      color: #6c757d;
+    }
+    .post-original-link a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-original-link a:hover {
+      text-decoration: underline;
+    }
+    .post-body table.markdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .post-body table.markdown-table thead {
+      background: linear-gradient(135deg, var(--primary), #3a0ca3);
+      color: white;
+    }
+    .post-body table.markdown-table th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      border: none;
+    }
+    .post-body table.markdown-table td {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .post-body table.markdown-table td:last-child {
+      border-right: none;
+    }
+    .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(67, 97, 238, 0.03);
+    }
+    .post-body table.markdown-table tbody tr:hover {
+      background: rgba(67, 97, 238, 0.08);
+    }
+    [data-theme="dark"] .post-body table.markdown-table {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .post-body blockquote.markdown-blockquote {
+      border-left: 4px solid var(--primary);
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      background: rgba(67, 97, 238, 0.05);
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #666;
+    }
+    [data-theme="dark"] .post-body blockquote.markdown-blockquote {
+      background: rgba(255, 255, 255, 0.05);
+      color: #aaa;
+    }
+    .post-body hr.markdown-hr {
+      border: none;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      margin: 2rem 0;
+    }
+    .post-body li.task-list-item {
+      list-style: none;
+      margin-left: -1.5rem;
+    }
+    .post-body li.task-list-item input[type="checkbox"] {
+      margin-right: 0.5rem;
+      cursor: default;
+    }
+    .post-body .image-placeholder {
+      transition: var(--transition);
+    }
+    .post-body .image-placeholder:hover {
+      border-color: var(--primary) !important;
+      background: rgba(67, 97, 238, 0.05) !important;
+    }
+    @media (max-width: 768px) {
+      .post-content {
+        padding: 0 1rem;
+      }
+      .post-header h1 {
+        font-size: 1.8rem;
+      }
+      .post-tags {
+        gap: 0.5rem;
+      }
+      .post-tag {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      .post-body pre {
+        padding: 1rem;
+      }
+      .post-body table.markdown-table {
+        font-size: 0.85rem;
+      }
+      .post-body table.markdown-table th,
+      .post-body table.markdown-table td {
+        padding: 0.6rem 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <button class="music-toggle" id="musicToggle" aria-label="控制音乐">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+  </button>
+
+  <header>
+    <h1>🌱 北辰的博客</h1>
+    <p class="subtitle">记录思考，分享成长 | 一个热爱技术的探索者</p>
+    <nav>
+  <a href="../../../index.html">首页</a>
+  <a href="../../../html/project/project.html">项目</a>
+  <a href="../../../html/skill/skill.html">技术</a>
+  <a href="../../../html/ai/ai.html">AI</a>
+  <a href="../../../html/daily/daily.html">日常</a>
+  <a href="../../../about.html">关于</a>
+  <a href="../../../archives.html">归档</a>
+  <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+</nav>
+  </header>
+
+  <main class="post-content">
+    <article>
+      <div class="post-header">
+        <h1>CAS / AQS 深度解析与实战（增强版）</h1>
+        <div class="post-meta">发布日期：2026-10-05</div>
+        
+        <div class="post-tags">
+          <span class="post-tag category">Java 与 JVM</span>
+          <span class="post-tag">CAS</span> <span class="post-tag">AQS</span> <span class="post-tag">JUC</span> <span class="post-tag">LockSupport</span> <span class="post-tag">并发编程</span>
+          <span class="post-tag language">Java</span> <span class="post-tag language">JUC</span>
+        </div>
+        
+      </div>
+      <div class="post-body">
+        <h1>CAS / AQS 深度解析与实战</h1>
+<blockquote class="markdown-blockquote">
+<p>主题：CAS、AQS、LockSupport（park/unpark）、Thread.join()、公平/非公平锁、无锁 vs 加锁选型<br>适用：Java 8 ~ Java 21<br>定位：从「会用」到「能讲清原理 + 能排错 + 能扛追问」</p>
+<p><strong>阅读方式：</strong><br>本文保留原文的核心内容和重点 Demo，但重新组织知识顺序，并补充 JMM、内存语义、取消机制、Condition 迁移、版本差异、工程陷阱等容易被遗漏的部分。</p>
+<p><strong>源码版本说明：</strong></p>
+<ul class="markdown-list">
+<li>涉及 <code>waitStatus</code>、<code>acquireQueued()</code> 等经典源码时，以 <strong>JDK 8</strong> 代码作为学习主线；</li>
+<li>涉及现代实现时，额外说明 <strong>JDK 21</strong> 的源码结构变化；</li>
+<li>不把某一个 JDK 版本的 HotSpot 私有实现当成 Java 语言规范本身。</li>
+</ul>
+</blockquote>
+<hr class="markdown-hr">
+<h2>1. 先建立一张总图：为什么需要 CAS、LockSupport 和 AQS</h2>
+<p>很多人学习并发时容易把 CAS、AQS、LockSupport 当成三个平行知识点。</p>
+<p>实际上，它们是一条逐层递进的链：</p>
+<pre><code class="language-mermaid">graph TD
+    A[并发访问共享状态] --&gt; B{需要解决什么问题?}
+
+    B --&gt; C[单个变量的原子更新]
+    C --&gt; D[CAS]
+    D --&gt; E[AtomicXXX / VarHandle]
+
+    B --&gt; F[线程竞争后怎么办?]
+    F --&gt; G{继续自旋还是阻塞?}
+    G --&gt; H[低竞争/极短临界区]
+    H --&gt; D
+    G --&gt; I[高竞争/等待时间不确定]
+    I --&gt; J[LockSupport park/unpark]
+    J --&gt; K[AQS]
+
+    K --&gt; L[state]
+    K --&gt; M[同步队列]
+    K --&gt; N[Node]
+    K --&gt; O[Condition 条件队列]
+
+    K --&gt; P[ReentrantLock]
+    K --&gt; Q[Semaphore]
+    K --&gt; R[CountDownLatch]
+    K --&gt; S[ReentrantReadWriteLock]
+</code></pre>
+<h3>1.1 一句话理解三者关系</h3>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>组件</th>
+<th>本质</th>
+<th>主要解决的问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CAS</td>
+<td>原子读-改-写原语</td>
+<td>多线程同时修改一个共享状态时，如何保证一次更新只有一个成功</td>
+</tr>
+<tr>
+<td>LockSupport</td>
+<td>线程阻塞/唤醒原语</td>
+<td>线程竞争失败后，如何停止空转、等待条件满足</td>
+</tr>
+<tr>
+<td>AQS</td>
+<td>同步器框架</td>
+<td>如何把 CAS、队列、阻塞/唤醒、取消、共享/独占等机制组织成可复用的同步器</td>
+</tr>
+</tbody></table>
+<p>因此：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>CAS 解决“怎么原子地抢一次”；LockSupport 解决“抢不到之后怎么等”；AQS 解决“很多线程同时抢、等、醒、取消时，怎么把整个过程管理起来”。</strong></p>
+</blockquote>
+<p>这也是理解全文最重要的一条主线。</p>
+<hr class="markdown-hr">
+<h2>2. 先补齐一个非常重要的基础：原子性、可见性、有序性不是一回事</h2>
+<p>并发问题经常被混成一句“线程安全”。</p>
+<p>实际上至少需要区分：</p>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>能力</th>
+<th>解决什么问题</th>
+<th>典型手段</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>原子性</td>
+<td>操作是否能被并发线程“拆开”</td>
+<td>CAS、锁</td>
+</tr>
+<tr>
+<td>可见性</td>
+<td>一个线程修改后，另一个线程能否看到</td>
+<td><code>volatile</code>、锁、线程启动/终止规则</td>
+</tr>
+<tr>
+<td>有序性</td>
+<td>操作是否可能被重排序</td>
+<td><code>volatile</code>、锁、happens-before 规则</td>
+</tr>
+</tbody></table>
+<h3>2.1 <code>i++</code> 为什么不是原子操作</h3>
+<pre><code class="language-java">i++;
+</code></pre>
+<p>逻辑上至少可以拆成：</p>
+<pre><code class="language-text">1. 读取 i
+2. i + 1
+3. 写回 i
+</code></pre>
+<p>两个线程可能同时读到 <code>100</code>：</p>
+<pre><code class="language-text">线程A：读 100
+线程B：读 100
+
+线程A：写 101
+线程B：写 101
+</code></pre>
+<p>最终结果是 <code>101</code>，而不是 <code>102</code>。</p>
+<p>因此：</p>
+<blockquote class="markdown-blockquote">
+<p><code>volatile</code> 可以解决可见性，但不能把 <code>i++</code> 变成原子操作。</p>
+</blockquote>
+<p>此时要么使用锁，要么使用 CAS 类原子更新。</p>
+<h3>2.2 CAS 为什么不仅仅是“原子”</h3>
+<p>以 <code>AtomicInteger.compareAndSet()</code> 为例，它不仅提供条件更新，还具有相应的内存语义。</p>
+<p>JDK 21 的 <code>AtomicInteger.compareAndSet()</code> 明确规定，其内存效果遵循 <code>VarHandle.compareAndSet(...)</code>；普通 <code>get()</code> 对应 volatile 读取语义。</p>
+<p>因此，理解原子类时不要只记：</p>
+<blockquote class="markdown-blockquote">
+<p>“AtomicInteger 就是不会丢更新。”</p>
+</blockquote>
+<p>还应该理解：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>原子更新 + 合适的内存语义，才能组成可靠的并发同步机制。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>3. CAS：最小粒度的乐观并发原语</h2>
+<h3>3.1 什么是 CAS</h3>
+<p>CAS：</p>
+<blockquote class="markdown-blockquote">
+<p>Compare-And-Swap / Compare-And-Set</p>
+</blockquote>
+<p>可以抽象成：</p>
+<pre><code class="language-text">V = 当前内存值
+A = 期望值
+B = 新值
+
+if (V == A) {
+    V = B;
+    return true;
+}
+return false;
+</code></pre>
+<p>三个关键参数：</p>
+<pre><code class="language-text">V：内存中的当前值
+A：线程认为应该存在的旧值
+B：希望写入的新值
+</code></pre>
+<p>核心过程：</p>
+<pre><code class="language-text">读取当前值
+    ↓
+判断当前值 == 期望值？
+    ↓
+   是 ─────→ 写入新值并成功
+    │
+   否
+    ↓
+什么都不改并失败
+</code></pre>
+<p>CAS 的关键不是“交换”两个普通变量，而是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>比较 + 条件更新必须作为一个不可分割的原子动作完成。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h3>3.2 CPU 层的 CAS 到底是什么</h3>
+<p>在 Java 层看到的是：</p>
+<pre><code class="language-java">compareAndSet(expect, update)
+</code></pre>
+<p>但真正落到 CPU 时，会根据平台和 JVM 的实现映射到相应的原子指令序列。</p>
+<h4>3.2.1 x86</h4>
+<p>典型指令为：</p>
+<pre><code class="language-text">lock cmpxchg
+</code></pre>
+<p>这里要特别修正一个常见说法：</p>
+<blockquote class="markdown-blockquote">
+<p>不能简单理解为“<code>lock</code> 一定锁住整个总线”。</p>
+</blockquote>
+<p>现代 x86 通常优先通过缓存一致性协议对相关缓存行实施原子化控制；只有特定情况下才可能退化到更重的总线级机制。</p>
+<p>所以更准确的理解是：</p>
+<blockquote class="markdown-blockquote">
+<p><code>lock</code> 提供强原子性保证，具体实现会利用缓存锁定/缓存一致性机制，而不是简单粗暴地理解为“锁住整条 CPU 总线”。</p>
+</blockquote>
+<h4>3.2.2 ARM</h4>
+<p>不能再简单地写成：</p>
+<blockquote class="markdown-blockquote">
+<p>“ARM 没有 CAS，只能用 <code>LDREX/STREX</code>。”</p>
+</blockquote>
+<p>现代 AArch64 平台已经存在专门的原子 CAS 类指令扩展（例如 LSE）；在不支持相关扩展的环境中，则可以使用 LL/SC 风格的原子序列。</p>
+<p>因此：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>ARM 的底层 CAS 实现与具体架构版本、CPU 特性以及 JVM 后端有关。</strong></p>
+</blockquote>
+<p>本文只需要记住：</p>
+<pre><code class="language-text">Java CAS API
+    ↓
+JVM intrinsic / Unsafe / VarHandle
+    ↓
+目标 CPU 的原子读改写机制
+</code></pre>
+<p>不要把某一代 CPU 的汇编实现当成 Java 规范。</p>
+<hr class="markdown-hr">
+<h3>3.3 CAS 的经典自旋模型</h3>
+<p>CAS 最经典的上层使用方式：</p>
+<pre><code class="language-java">while (true) {
+    int old = getCurrentValue();
+    int next = old + 1;
+
+    if (compareAndSet(old, next)) {
+        return next;
+    }
+
+    // CAS 失败：
+    // 说明当前值已经被其他线程修改
+    // 重新读取，再尝试一次
+}
+</code></pre>
+<p>为什么必须循环？</p>
+<p>因为 CAS 的语义只是：</p>
+<blockquote class="markdown-blockquote">
+<p>“我认为当前值还是 old；如果真是 old，就修改成功。”</p>
+</blockquote>
+<p>竞争下可能发生：</p>
+<pre><code class="language-text">线程A：读取 10
+线程B：把 10 -&gt; 11
+
+线程A：CAS(10, 11)
+结果：失败
+</code></pre>
+<p>失败并不代表程序异常。</p>
+<blockquote class="markdown-blockquote">
+<p><strong>CAS 失败本身就是并发竞争的一部分。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h3>3.4 CAS 与自旋：什么时候划算</h3>
+<p>CAS 的优势：</p>
+<pre><code class="language-text">不需要进入内核阻塞
+没有锁队列
+没有线程上下文切换
+临界区很短时延迟低
+</code></pre>
+<p>但是它也有一个致命问题：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>竞争失败的线程可能一直在 CPU 上运行。</strong></p>
+</blockquote>
+<p>例如 100 个线程争抢一个变量：</p>
+<pre><code class="language-text">线程1 ─┐
+线程2 ─┤
+线程3 ─┤
+...    ├──→ 同一个 CAS 热点
+线程100┘
+</code></pre>
+<p>大量线程会不断：</p>
+<pre><code class="language-text">读 → 算 → CAS失败 → 再读 → 再算 → 再CAS
+</code></pre>
+<p>结果是：</p>
+<pre><code class="language-text">锁没加
+但是 CPU 被吃掉了
+</code></pre>
+<p>所以：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>“无锁”不等于“没有代价”。</strong></p>
+</blockquote>
+<p>这也是为什么 AQS 不是简单地把 CAS 再套一层，而是要进一步解决“抢不到之后怎么办”。</p>
+<hr class="markdown-hr">
+<h3>3.5 CAS 的四类典型问题</h3>
+<p>原文主要覆盖了 ABA、自旋、单变量更新，这里再把它们和实际工程含义连起来。</p>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>问题</th>
+<th>本质</th>
+<th>常见解决方案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ABA</td>
+<td>值看起来没变，但中间已经变化过</td>
+<td>版本戳、标记位、不可变状态对象</td>
+</tr>
+<tr>
+<td>高竞争自旋</td>
+<td>CPU 持续空转</td>
+<td><code>LongAdder</code>、退避、自旋转阻塞</td>
+</tr>
+<tr>
+<td>多变量一致性</td>
+<td>CAS 只能直接原子更新某个共享状态</td>
+<td><code>AtomicReference</code> + 不可变对象、事务式设计、锁</td>
+</tr>
+<tr>
+<td>活锁/重试风暴</td>
+<td>线程都在努力，但整体进展很慢</td>
+<td>限制重试、退避、队列化、锁</td>
+</tr>
+</tbody></table>
+<hr class="markdown-hr">
+<h3>3.6 ABA：值相同，不代表状态没有变化</h3>
+<p>经典过程：</p>
+<pre><code class="language-text">线程A读取：A
+
+线程B：
+A → B
+B → A
+
+线程A：
+CAS(A → C)
+</code></pre>
+<p>线程A 最后看到的仍然是 A，于是认为：</p>
+<blockquote class="markdown-blockquote">
+<p>“没有人动过。”</p>
+</blockquote>
+<p>但实际上中间已经发生过：</p>
+<pre><code class="language-text">A → B → A
+</code></pre>
+<p>如果“中间发生过变化”本身有业务意义，那么 CAS 就可能做出错误判断。</p>
+<h4>3.6.1 典型危险场景</h4>
+<p>链表/栈等无锁数据结构中，节点可能被弹出后又重新进入结构：</p>
+<pre><code class="language-text">栈顶：A
+    ↓
+A 被弹出
+    ↓
+压入 B
+    ↓
+A 又被压回
+</code></pre>
+<p>此时：</p>
+<pre><code class="language-text">值看起来又是 A
+对象生命周期和拓扑关系却已经发生变化
+</code></pre>
+<p>可能导致错误的 CAS 成功、链表断裂甚至数据结构损坏。</p>
+<hr class="markdown-hr">
+<h3>3.7 ABA 的修复：版本戳</h3>
+<p><code>AtomicStampedReference</code> 可以把：</p>
+<pre><code class="language-text">值
++
+版本号
+</code></pre>
+<p>一起比较。</p>
+<p>例如：</p>
+<pre><code class="language-text">初始：
+(value=A, stamp=0)
+
+第一次修改：
+(value=B, stamp=1)
+
+再次修改：
+(value=A, stamp=2)
+</code></pre>
+<p>最后即使值恢复成 A：</p>
+<pre><code class="language-text">A + stamp 2
+</code></pre>
+<p>也不再等于最初：</p>
+<pre><code class="language-text">A + stamp 0
+</code></pre>
+<h4>3.7.1 Demo</h4>
+<pre><code class="language-java">import java.util.concurrent.atomic.AtomicStampedReference;
+
+public class AbaDemo {
+
+    public static void main(String[] args) throws InterruptedException {
+        AtomicStampedReference&lt;Integer&gt; ref =
+                new AtomicStampedReference&lt;&gt;(100, 0);
+
+        // 主线程记录“当时的值”和“当时的版本”
+        Integer expectedValue = ref.getReference();
+        int expectedStamp = ref.getStamp();
+
+        Thread hacker = new Thread(() -&gt; {
+            int stamp1 = ref.getStamp();
+
+            ref.compareAndSet(
+                    ref.getReference(),
+                    200,
+                    stamp1,
+                    stamp1 + 1
+            );
+
+            int stamp2 = ref.getStamp();
+
+            ref.compareAndSet(
+                    ref.getReference(),
+                    100,
+                    stamp2,
+                    stamp2 + 1
+            );
+        }, &quot;hacker&quot;);
+
+        hacker.start();
+        hacker.join();
+
+        // 当前值可能已经重新变成 100，
+        // 但版本已经不是最初的 0
+        boolean success = ref.compareAndSet(
+                expectedValue,
+                300,
+                expectedStamp,
+                expectedStamp + 1
+        );
+
+        System.out.println(&quot;当前值 = &quot; + ref.getReference());
+        System.out.println(&quot;当前版本 = &quot; + ref.getStamp());
+        System.out.println(&quot;CAS 是否成功 = &quot; + success);
+    }
+}
+</code></pre>
+<h4>3.7.2 一个容易踩的坑：引用比较</h4>
+<p><code>AtomicReference</code> / <code>AtomicStampedReference</code> 对引用类型进行 CAS 时，本质上比较的是引用身份，而不是 <code>equals()</code>。</p>
+<p>错误理解：</p>
+<pre><code class="language-java">new String(&quot;A&quot;)
+</code></pre>
+<p>与：</p>
+<pre><code class="language-java">new String(&quot;A&quot;)
+</code></pre>
+<p>虽然 <code>equals()</code> 为 <code>true</code>，但并不代表是同一个对象。</p>
+<p>更稳妥的方式是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>把“期望对象”从原子引用本身读出来，再拿这个引用参与 CAS。</strong></p>
+</blockquote>
+<p>例如：</p>
+<pre><code class="language-java">Integer expected = ref.getReference();
+
+ref.compareAndSet(
+        expected,
+        newValue,
+        oldStamp,
+        newStamp
+);
+</code></pre>
+<p>不要依赖 <code>Integer</code> 缓存范围去“碰运气”。</p>
+<hr class="markdown-hr">
+<h3>3.8 AtomicInteger 的源码模型</h3>
+<p>JDK 8 经典实现可以抽象成：</p>
+<pre><code class="language-java">public final int getAndAddInt(Object o, long offset, int delta) {
+    int v;
+
+    do {
+        v = getIntVolatile(o, offset);
+    } while (!compareAndSwapInt(o, offset, v, v + delta));
+
+    return v;
+}
+</code></pre>
+<p>核心只有四步：</p>
+<pre><code class="language-text">volatile 读取
+    ↓
+计算新值
+    ↓
+CAS 尝试更新
+    ↓
+失败则重试
+</code></pre>
+<p>现代 JDK 的具体实现入口发生了变化，但核心思想没有变：</p>
+<pre><code class="language-text">读取 → 计算 → CAS → 失败重试
+</code></pre>
+<p>JDK 9+ 之后，<code>VarHandle</code> 还进一步提供了 acquire/release/opaque 等更细粒度的内存访问语义。</p>
+<hr class="markdown-hr">
+<h3>3.9 CAS 的 Java 入口</h3>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>层级</th>
+<th>API</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>业务层</td>
+<td><code>AtomicInteger</code> / <code>AtomicLong</code> / <code>AtomicReference</code></td>
+<td>最常用</td>
+</tr>
+<tr>
+<td>JDK 内部</td>
+<td><code>Unsafe</code></td>
+<td>JDK 内部底层能力</td>
+</tr>
+<tr>
+<td>现代 API</td>
+<td><code>VarHandle</code></td>
+<td>JDK 9+，支持更细的内存访问模式</td>
+</tr>
+</tbody></table>
+<p>工程上：</p>
+<blockquote class="markdown-blockquote">
+<p>优先使用 <code>AtomicXXX</code> 或 <code>VarHandle</code>，不要在业务代码中直接依赖内部 <code>Unsafe</code> API。</p>
+</blockquote>
+<hr class="markdown-hr">
+<h3>3.10 高竞争计数：为什么会出现 LongAdder</h3>
+<p>假设：</p>
+<pre><code class="language-text">AtomicLong
+    |
+    +--- 所有线程 CAS 同一个 value
+</code></pre>
+<p>如果线程很多：</p>
+<pre><code class="language-text">T1 ─┐
+T2 ─┤
+T3 ─┤
+T4 ─┤
+... ├──→ value
+T100┘
+</code></pre>
+<p>CAS 热点非常集中。</p>
+<p><code>LongAdder</code> 的思路是：</p>
+<pre><code class="language-text">              base
+               |
+       ┌───────┼───────┐
+       ↓       ↓       ↓
+     Cell1   Cell2   Cell3 ...
+</code></pre>
+<p>低竞争时：</p>
+<pre><code class="language-text">直接更新 base
+</code></pre>
+<p>高竞争时：</p>
+<pre><code class="language-text">线程 → probe/hash → 不同 Cell
+</code></pre>
+<p>于是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>把一个热点拆成多个热点，使用空间换取并发吞吐。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h3>3.11 LongAdder 的关键点</h3>
+<h4>3.11.1 低竞争</h4>
+<pre><code class="language-text">CAS(base)
+</code></pre>
+<h4>3.11.2 高竞争</h4>
+<pre><code class="language-text">base + Cell1 + Cell2 + Cell3 + ...
+</code></pre>
+<h4>3.11.3 读取</h4>
+<pre><code class="language-java">long total = adder.sum();
+</code></pre>
+<p>但是必须记住：</p>
+<blockquote class="markdown-blockquote">
+<p><code>LongAdder.sum()</code> <strong>不是原子快照</strong>。</p>
+</blockquote>
+<p>如果多个线程还在写：</p>
+<pre><code class="language-text">读取 Cell1
+线程A修改 Cell2
+读取 Cell2
+线程B修改 Cell3
+读取 Cell3
+</code></pre>
+<p>最终拿到的值可能没有包含所有并发更新。</p>
+<p>所以：</p>
+<h4>3.11.4 适合</h4>
+<pre><code class="language-text">QPS
+请求数
+成功数
+失败数
+监控统计
+Metrics
+</code></pre>
+<h4>3.11.5 不适合</h4>
+<pre><code class="language-text">账户余额
+精确库存
+精确扣减
+需要“读完后立即基于该值做决定”的同步控制
+</code></pre>
+<p>精确控制场景通常使用：</p>
+<pre><code class="language-text">AtomicLong
+AtomicReference
+锁
+事务
+</code></pre>
+<p>而不是把 <code>LongAdder</code> 当成精确状态机。</p>
+<hr class="markdown-hr">
+<h3>3.12 LongAdder 与伪共享</h3>
+<p>多个 Cell 如果频繁写入相邻缓存行，可能发生：</p>
+<pre><code class="language-text">CPU Core 1 → 写 Cell1
+CPU Core 2 → 写 Cell2
+</code></pre>
+<p>而 Cell1 与 Cell2 恰好处于同一缓存行时，一个核心的写入会导致另一个核心缓存行失效。</p>
+<p>这就是：</p>
+<blockquote class="markdown-blockquote">
+<p>False Sharing，伪共享。</p>
+</blockquote>
+<p>JDK 内部实现会针对 Cell 的布局做缓存行隔离，避免多个高频写变量互相干扰。</p>
+<p>这里要注意：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>64B 是常见缓存行大小，但不要把“64B”当成所有 CPU 的绝对规律。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h3>3.13 CAS Demo：基础计数</h3>
+<pre><code class="language-java">import java.util.concurrent.atomic.AtomicInteger;
+
+public class CasDemo {
+
+    public static void main(String[] args) throws InterruptedException {
+        AtomicInteger counter = new AtomicInteger(0);
+
+        Runnable task = () -&gt; {
+            for (int i = 0; i &lt; 5000; i++) {
+                counter.incrementAndGet();
+            }
+        };
+
+        Thread t1 = new Thread(task, &quot;t1&quot;);
+        Thread t2 = new Thread(task, &quot;t2&quot;);
+
+        t1.start();
+        t2.start();
+
+        // 主线程等待两个工作线程结束
+        t1.join();
+        t2.join();
+
+        System.out.println(&quot;结果：&quot; + counter.get());
+    }
+}
+</code></pre>
+<p>结果：</p>
+<pre><code class="language-text">10000
+</code></pre>
+<p>这里真正值得学习的不是 <code>10000</code>，而是：</p>
+<pre><code class="language-text">incrementAndGet()
+    ↓
+原子更新
+    ↓
+多个线程不会把更新互相覆盖
+</code></pre>
+<p>而 <code>join()</code> 负责解决的是：</p>
+<pre><code class="language-text">主线程什么时候可以安全读取最终结果？
+</code></pre>
+<p>这两个问题不要混为一谈。</p>
+<hr class="markdown-hr">
+<h2>4. 从“自旋”走向“阻塞”：为什么需要 LockSupport</h2>
+<p>CAS 很快，但 CAS 永远有一个问题：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>线程抢不到资源时，总不能永远在 CPU 上空转。</strong></p>
+</blockquote>
+<p>因此需要另一种策略：</p>
+<pre><code class="language-text">短暂竞争
+    ↓
+CAS 自旋可能更划算
+
+竞争时间不可预测 / 竞争激烈
+    ↓
+把线程挂起
+</code></pre>
+<p>这就是 <code>LockSupport</code> 出现的意义。</p>
+<hr class="markdown-hr">
+<h3>4.1 LockSupport 的核心 API</h3>
+<pre><code class="language-java">LockSupport.park();
+LockSupport.unpark(thread);
+</code></pre>
+<p>可以简单理解成：</p>
+<pre><code class="language-text">park   = 当前线程先停下来
+unpark = 给指定线程一个“可以继续”的机会
+</code></pre>
+<p>但真正需要记住的是：</p>
+<blockquote class="markdown-blockquote">
+<p>LockSupport 不是简单的 “block/unblock”；<br>它背后是每个线程关联一个最多为 1 的 permit（许可）。</p>
+</blockquote>
+<hr class="markdown-hr">
+<h3>4.2 permit 机制是理解 LockSupport 的关键</h3>
+<h4>4.2.1 规则 1：许可最多 1 个</h4>
+<p>连续：</p>
+<pre><code class="language-java">unpark(thread);
+unpark(thread);
+</code></pre>
+<p>不会累加成 2 个 permit。</p>
+<hr class="markdown-hr">
+<h4>4.2.2 规则 2：可以先 unpark，再 park</h4>
+<pre><code class="language-java">LockSupport.unpark(t);
+LockSupport.park();
+</code></pre>
+<p>如果许可已经可用：</p>
+<pre><code class="language-text">park()
+    ↓
+消费 permit
+    ↓
+立即返回
+</code></pre>
+<p>这避免了：</p>
+<pre><code class="language-text">notify() → wait()
+</code></pre>
+<p>之间那种经典的“通知丢失”窗口。</p>
+<hr class="markdown-hr">
+<h4>4.2.3 规则 3：park 不要求 synchronized</h4>
+<pre><code class="language-java">LockSupport.park();
+</code></pre>
+<p>不需要：</p>
+<pre><code class="language-java">synchronized
+</code></pre>
+<p>也不要求先持有某个 monitor。</p>
+<p>因此 AQS 可以非常自由地把线程和同步队列组合起来。</p>
+<hr class="markdown-hr">
+<h3>4.3 park 不等于“永远睡眠”</h3>
+<p><code>park()</code> 返回至少有几种可能：</p>
+<pre><code class="language-text">1. 被 unpark
+2. 被 interrupt
+3. 超时（针对 timed park）
+4. 虚假返回
+</code></pre>
+<p>因此：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>park 返回 ≠ 条件已经满足。</strong></p>
+</blockquote>
+<p>必须重新检查条件。</p>
+<p>经典模式：</p>
+<pre><code class="language-java">while (!canProceed()) {
+    LockSupport.park(this);
+}
+</code></pre>
+<p>这也是 AQS 为什么必须使用循环的重要原因。</p>
+<hr class="markdown-hr">
+<h3>4.4 park 的内存可见性也不能靠“感觉”</h3>
+<p><code>park/unpark</code> 的正确使用应与：</p>
+<pre><code class="language-text">volatile / atomic state
+</code></pre>
+<p>等同步状态配合。</p>
+<p>不要写成：</p>
+<pre><code class="language-java">boolean ready = false;
+</code></pre>
+<p>然后完全依赖：</p>
+<pre><code class="language-text">park/unpark
+</code></pre>
+<p>来“碰运气”完成数据可见性。</p>
+<p>更稳妥的同步模型是：</p>
+<pre><code class="language-java">volatile boolean ready;
+
+while (!ready) {
+    LockSupport.park(this);
+}
+</code></pre>
+<p>或者直接使用：</p>
+<pre><code class="language-text">AtomicXXX
+Lock
+Condition
+BlockingQueue
+CountDownLatch
+</code></pre>
+<p>等已有同步原语。</p>
+<hr class="markdown-hr">
+<h3>4.5 blocker：为什么生产代码推荐带 blocker</h3>
+<p>推荐：</p>
+<pre><code class="language-java">LockSupport.park(this);
+</code></pre>
+<p>而不是：</p>
+<pre><code class="language-java">LockSupport.park();
+</code></pre>
+<p>blocker 用来告诉诊断工具：</p>
+<pre><code class="language-text">线程到底在因为什么对象/同步器而等待？
+</code></pre>
+<p>例如：</p>
+<pre><code class="language-text">parking to wait for &lt;某个同步器对象&gt;
+</code></pre>
+<p>对于排查：</p>
+<pre><code class="language-text">大量 WAITING (parking)
+</code></pre>
+<p>非常有价值。</p>
+<hr class="markdown-hr">
+<h3>4.6 LockSupport Demo</h3>
+<pre><code class="language-java">import java.util.concurrent.locks.LockSupport;
+
+public class ParkDemo {
+
+    static final Object BLOCKER = new Object();
+
+    public static void main(String[] args) throws InterruptedException {
+
+        Thread worker = new Thread(() -&gt; {
+
+            System.out.println(&quot;worker：准备 park&quot;);
+
+            LockSupport.park(BLOCKER);
+
+            System.out.println(
+                    &quot;worker：被唤醒，中断标志 = &quot;
+                            + Thread.currentThread().isInterrupted()
+            );
+
+        }, &quot;worker&quot;);
+
+        worker.start();
+
+        Thread.sleep(2000);
+
+        System.out.println(&quot;main：调用 unpark&quot;);
+
+        LockSupport.unpark(worker);
+    }
+}
+</code></pre>
+<hr class="markdown-hr">
+<h3>4.7 先 unpark 后 park Demo</h3>
+<pre><code class="language-java">import java.util.concurrent.locks.LockSupport;
+
+public class ParkPermitDemo {
+
+    public static void main(String[] args) throws InterruptedException {
+
+        Thread t = new Thread(() -&gt; {
+
+            // 先获得一个 permit
+            LockSupport.unpark(Thread.currentThread());
+
+            // 消费 permit，不阻塞
+            LockSupport.park();
+
+            System.out.println(&quot;park 未阻塞，permit 已生效&quot;);
+
+        });
+
+        t.start();
+        t.join();
+    }
+}
+</code></pre>
+<hr class="markdown-hr">
+<h3>4.8 <code>park</code>、<code>wait</code>、<code>sleep</code>、<code>Condition.await</code> 对比</h3>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>维度</th>
+<th><code>Thread.sleep</code></th>
+<th><code>Object.wait</code></th>
+<th><code>LockSupport.park</code></th>
+<th><code>Condition.await</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>释放当前锁</td>
+<td>❌</td>
+<td>✅ 当前 monitor</td>
+<td>不涉及 monitor</td>
+<td>✅ 当前 Lock</td>
+</tr>
+<tr>
+<td>必须先持有锁</td>
+<td>❌</td>
+<td>✅ monitor</td>
+<td>❌</td>
+<td>✅ 对应 Lock</td>
+</tr>
+<tr>
+<td>唤醒方式</td>
+<td>时间到 / 中断</td>
+<td><code>notify/notifyAll</code> / 中断</td>
+<td><code>unpark</code> / 中断 / 虚假返回</td>
+<td><code>signal/signalAll</code> / 中断 / 超时</td>
+</tr>
+<tr>
+<td>先唤醒后等待</td>
+<td>—</td>
+<td>存在丢失通知问题</td>
+<td>✅ permit 可保留</td>
+<td>依赖 Condition 的同步使用模式，不能照搬 <code>unpark</code> 的 permit 语义</td>
+</tr>
+<tr>
+<td>能否精确指定线程</td>
+<td>—</td>
+<td>❌ <code>notify</code> 不保证指定线程</td>
+<td>✅ <code>unpark(thread)</code></td>
+<td>❌ 通过 Condition 的等待队列管理</td>
+</tr>
+<tr>
+<td>中断行为</td>
+<td>抛 <code>InterruptedException</code></td>
+<td>抛 <code>InterruptedException</code></td>
+<td>返回，不自动抛异常</td>
+<td>通常抛 <code>InterruptedException</code></td>
+</tr>
+<tr>
+<td>典型状态</td>
+<td><code>TIMED_WAITING</code></td>
+<td><code>WAITING/TIMED_WAITING</code></td>
+<td><code>WAITING/TIMED_WAITING</code></td>
+<td><code>WAITING/TIMED_WAITING</code></td>
+</tr>
+</tbody></table>
+<hr class="markdown-hr">
+<h2>5. AQS：把 CAS、自旋、队列、阻塞组织起来</h2>
+<p>现在已经知道：</p>
+<pre><code class="language-text">CAS：
+解决原子更新
+
+LockSupport：
+解决阻塞/唤醒
+
+但还有一个问题：
+几十个线程都在抢一个锁时，谁排队？
+谁该被唤醒？
+取消怎么办？
+超时怎么办？
+共享锁怎么办？
+条件变量怎么办？
+</code></pre>
+<p>这就是 AQS。</p>
+<hr class="markdown-hr">
+<h3>5.1 AQS 是什么</h3>
+<p><code>AbstractQueuedSynchronizer</code>：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>Java 并发包中的同步器模板框架，本身不是一个具体锁。</strong></p>
+</blockquote>
+<p>它主要负责：</p>
+<pre><code class="language-text">排队
+阻塞
+唤醒
+取消
+共享/独占模式
+状态管理
+</code></pre>
+<p>子类只需要定义：</p>
+<pre><code class="language-text">什么叫“获取成功”
+什么叫“释放成功”
+</code></pre>
+<p>剩下的机械工作由 AQS 处理。</p>
+<hr class="markdown-hr">
+<h3>5.2 AQS 的三大核心</h3>
+<h4>5.2.1 <code>state</code></h4>
+<p>同步器状态。</p>
+<p>在经典 JDK 8 AQS 中：</p>
+<pre><code class="language-java">private volatile int state;
+</code></pre>
+<p>它的含义由子类定义。</p>
+<p>例如：</p>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>同步器</th>
+<th>state 的典型含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ReentrantLock</code></td>
+<td>0=未持有；正数=重入次数</td>
+</tr>
+<tr>
+<td><code>Semaphore</code></td>
+<td>剩余许可数</td>
+</tr>
+<tr>
+<td><code>CountDownLatch</code></td>
+<td>剩余计数</td>
+</tr>
+<tr>
+<td><code>ReentrantReadWriteLock</code></td>
+<td>高/低位拆分读写持有状态</td>
+</tr>
+</tbody></table>
+<hr class="markdown-hr">
+<h4>5.2.2 同步队列</h4>
+<p>竞争失败的线程不会无限 CAS。</p>
+<p>而是：</p>
+<pre><code class="language-text">线程
+ ↓
+Node
+ ↓
+加入同步队列
+ ↓
+等待前驱/释放者进行信号通知
+</code></pre>
+<hr class="markdown-hr">
+<h4>5.2.3 模板方法</h4>
+<p>独占模式：</p>
+<pre><code class="language-java">tryAcquire(int arg)
+tryRelease(int arg)
+</code></pre>
+<p>共享模式：</p>
+<pre><code class="language-java">tryAcquireShared(int arg)
+tryReleaseShared(int arg)
+</code></pre>
+<p>Condition 相关：</p>
+<pre><code class="language-java">isHeldExclusively()
+</code></pre>
+<hr class="markdown-hr">
+<h3>5.3 为什么 AQS 使用 CLH 变体双向队列</h3>
+<p>AQS 的队列经常被叫做：</p>
+<blockquote class="markdown-blockquote">
+<p>CLH 队列的变体</p>
+</blockquote>
+<p>但不能简单理解为“传统 CLH 自旋锁”。</p>
+<p>AQS 在 CLH 思想之上增加了：</p>
+<pre><code class="language-text">prev
+next
+status / waitStatus
+Thread
+</code></pre>
+<p>从而支持：</p>
+<pre><code class="language-text">阻塞
+唤醒
+取消
+条件队列迁移
+共享传播
+</code></pre>
+<hr class="markdown-hr">
+<h3>5.4 Node：一个节点代表一个等待者</h3>
+<p>经典 JDK 8 结构：</p>
+<pre><code class="language-java">static final class Node {
+
+    volatile int waitStatus;
+
+    volatile Node prev;
+
+    volatile Node next;
+
+    volatile Thread thread;
+
+    Node nextWaiter;
+}
+</code></pre>
+<p>可以理解为：</p>
+<pre><code class="language-text">prev ← Node → next
+         |
+         └── thread
+</code></pre>
+<p>每个 Node 记录：</p>
+<pre><code class="language-text">我是谁
+我排在谁后面
+我后面是谁
+我当前是否需要被唤醒
+</code></pre>
+<hr class="markdown-hr">
+<h3>5.5 waitStatus：必须真正理解</h3>
+<p>JDK 8 经典状态：</p>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>状态</th>
+<th align="right">值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>CANCELLED</code></td>
+<td align="right">1</td>
+<td>当前等待已经取消</td>
+</tr>
+<tr>
+<td><code>SIGNAL</code></td>
+<td align="right">-1</td>
+<td>当前节点释放/取消时需要唤醒后继</td>
+</tr>
+<tr>
+<td><code>CONDITION</code></td>
+<td align="right">-2</td>
+<td>当前节点位于 Condition 条件队列</td>
+</tr>
+<tr>
+<td><code>PROPAGATE</code></td>
+<td align="right">-3</td>
+<td>共享模式下继续向后传播</td>
+</tr>
+<tr>
+<td><code>0</code></td>
+<td align="right">0</td>
+<td>默认/中性状态</td>
+</tr>
+</tbody></table>
+<p>特别强调：</p>
+<h4>5.5.1 <code>SIGNAL</code> 的意思不是“我现在被唤醒”</h4>
+<p>而是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>“我的后继线程可能要去 park，我需要在释放时负责通知它。”</strong></p>
+</blockquote>
+<p>这是很多人看源码时最容易读反的地方。</p>
+<hr class="markdown-hr">
+<h3>5.6 为什么是双向链表</h3>
+<h4>5.6.1 原因 1：取消节点时需要 <code>prev</code></h4>
+<p>如果：</p>
+<pre><code class="language-text">A → B → C → D
+</code></pre>
+<p>B 取消：</p>
+<pre><code class="language-text">A → C → D
+</code></pre>
+<p>需要找到：</p>
+<pre><code class="language-text">A
+</code></pre>
+<p>然后跳过：</p>
+<pre><code class="language-text">B
+</code></pre>
+<hr class="markdown-hr">
+<h4>5.6.2 原因 2：取消导致 <code>next</code> 暂时不可靠</h4>
+<p>并发环境下，后继节点可能：</p>
+<pre><code class="language-text">取消
+尚未完全建立 next
+正在重新连接
+</code></pre>
+<p>释放锁时，需要有机会：</p>
+<pre><code class="language-text">从 tail 反向寻找最近的有效节点
+</code></pre>
+<p>这也是双向链表的重要价值。</p>
+<hr class="markdown-hr">
+<h4>5.6.3 原因 3：等待前驱状态</h4>
+<p>AQS 的等待协议本身就是：</p>
+<pre><code class="language-text">后继关注前驱
+前驱在释放/取消时负责通知后继
+</code></pre>
+<p>所以 <code>prev</code> 是核心关系。</p>
+<hr class="markdown-hr">
+<h3>5.7 AQS 的本质：不是“永远排队”，而是“抢锁 + 排队”</h3>
+<p>AQS 最核心的思想可以概括成：</p>
+<pre><code class="language-text">第一次先尝试获取
+        ↓
+成功 → 直接执行
+
+失败
+        ↓
+进入队列
+        ↓
+短暂重试/检查
+        ↓
+仍然失败
+        ↓
+park
+        ↓
+被唤醒
+        ↓
+重新 tryAcquire
+        ↓
+成功 or 再次 park
+</code></pre>
+<p>因此：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>AQS 不是纯自旋，也不是一失败就马上陷入阻塞。</strong></p>
+</blockquote>
+<p>不同 JDK 版本还会加入一定的短暂自旋和退避策略。</p>
+<hr class="markdown-hr">
+<h2>6. ReentrantLock 获取锁：把整个 AQS 流程串起来</h2>
+<p>最值得掌握的调用链：</p>
+<pre><code class="language-text">lock()
+  ↓
+sync.acquire(1)
+  ↓
+tryAcquire(1)
+  ↓
+成功？
+├─ 是 → 返回
+└─ 否
+     ↓
+addWaiter()
+     ↓
+进入同步队列
+     ↓
+acquireQueued()
+     ↓
+前驱是 head？
+├─ 是 → 再 tryAcquire()
+└─ 否
+     ↓
+shouldParkAfterFailedAcquire()
+     ↓
+LockSupport.park()
+     ↓
+被唤醒
+     ↓
+重新 tryAcquire()
+</code></pre>
+<hr class="markdown-hr">
+<h3>6.1 <code>acquireQueued()</code> 的经典源码</h3>
+<p>以下以 JDK 8 的经典实现作为学习重点：</p>
+<pre><code class="language-java">final boolean acquireQueued(final Node node, int arg) {
+    boolean failed = true;
+
+    try {
+        boolean interrupted = false;
+
+        for (;;) {
+
+            final Node p = node.predecessor();
+
+            // 前驱已经成为 head
+            if (p == head &amp;&amp; tryAcquire(arg)) {
+
+                // 当前节点成为新的 head
+                setHead(node);
+
+                // 旧 head 不再需要 next
+                p.next = null;
+
+                failed = false;
+
+                return interrupted;
+            }
+
+            // 检查是否应该 park
+            if (shouldParkAfterFailedAcquire(p, node)
+                    &amp;&amp; parkAndCheckInterrupt()) {
+
+                // acquire() 不支持可中断获取：
+                // 中断只记录，不立即抛异常
+                interrupted = true;
+            }
+        }
+
+    } finally {
+        if (failed) {
+            cancelAcquire(node);
+        }
+    }
+}
+</code></pre>
+<hr class="markdown-hr">
+<h3>6.2 为什么“前驱是 head”才有资格再次抢</h3>
+<p>假设：</p>
+<pre><code class="language-text">head → A → B → C
+</code></pre>
+<p>当前 C：</p>
+<pre><code class="language-text">C 的前驱 = B
+</code></pre>
+<p>如果 A 还在等待：</p>
+<pre><code class="language-text">C 没必要越过 A/B 直接抢
+</code></pre>
+<p>所以队列中的正常获取路径是：</p>
+<pre><code class="language-text">只有排在队首附近的节点
+才有资格参与下一次获取
+</code></pre>
+<p>但这里必须注意：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>这并不意味着非公平锁严格 FIFO。</strong></p>
+</blockquote>
+<p>因为非公平锁在调用 <code>tryAcquire()</code> 前还允许：</p>
+<pre><code class="language-text">队列外新来的线程
+直接 CAS 抢锁
+</code></pre>
+<p>因此：</p>
+<pre><code class="language-text">AQS 有队列 ≠ ReentrantLock 就是公平锁
+</code></pre>
+<hr class="markdown-hr">
+<h3>6.3 <code>shouldParkAfterFailedAcquire()</code> 的三个分支</h3>
+<p>经典 JDK 8 逻辑可以概括为：</p>
+<pre><code class="language-text">前驱 SIGNAL
+    ↓
+可以 park
+
+前驱 CANCELLED
+    ↓
+向前跳过取消节点
+
+前驱既不是 SIGNAL，也没有取消
+    ↓
+把前驱设为 SIGNAL
+    ↓
+本轮先不 park
+    ↓
+重新尝试
+</code></pre>
+<p>伪代码：</p>
+<pre><code class="language-java">int ws = pred.waitStatus;
+
+if (ws == SIGNAL) {
+    return true;
+}
+
+if (ws &gt; 0) {
+    // 跳过 CANCELLED
+    do {
+        node.prev = pred = pred.prev;
+    } while (pred.waitStatus &gt; 0);
+
+    pred.next = node;
+
+} else {
+    // 把前驱变成 SIGNAL
+    compareAndSetWaitStatus(pred, ws, Node.SIGNAL);
+}
+
+return false;
+</code></pre>
+<p>为什么设成 SIGNAL 后还不能立即 park？</p>
+<p>因为：</p>
+<pre><code class="language-text">设置 SIGNAL
+</code></pre>
+<p>和：</p>
+<pre><code class="language-text">真正再次尝试抢锁
+</code></pre>
+<p>之间必须避免丢失释放信号的竞态。</p>
+<p>AQS 的设计原则可以理解为：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>先建立“有人需要通知”的协议，再真正进入阻塞。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h3>6.4 被 unpark 就一定拿到锁吗？</h3>
+<p><strong>不一定。</strong></p>
+<p>这是理解 AQS 最重要的面试问题之一。</p>
+<p>流程：</p>
+<pre><code class="language-text">锁释放
+ ↓
+unpark(线程A)
+ ↓
+线程A 从 park 返回
+ ↓
+进入 acquireQueued 循环
+ ↓
+tryAcquire()
+</code></pre>
+<p>此时可能：</p>
+<pre><code class="language-text">成功
+</code></pre>
+<p>也可能：</p>
+<pre><code class="language-text">失败
+ ↓
+再次 park
+</code></pre>
+<p>甚至非公平锁情况下：</p>
+<pre><code class="language-text">A 被唤醒
+ ↓
+新线程 B 刚好到达
+ ↓
+B 先 CAS 抢到锁
+ ↓
+A 再次等待
+</code></pre>
+<p>所以：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>unpark 的语义是“允许你继续竞争”，不是“把锁直接交给你”。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h3>6.5 为什么 park 必须放在循环里</h3>
+<p>因为存在：</p>
+<pre><code class="language-text">虚假唤醒
+</code></pre>
+<p>同时：</p>
+<pre><code class="language-text">被唤醒 ≠ 条件成立
+</code></pre>
+<p>所以正确模式一定是：</p>
+<pre><code class="language-java">while (!condition) {
+    LockSupport.park(this);
+}
+</code></pre>
+<p>这与：</p>
+<pre><code class="language-java">while (!condition) {
+    wait();
+}
+</code></pre>
+<p>是同一种同步设计思想。</p>
+<hr class="markdown-hr">
+<h2>7. ReentrantLock 释放锁：从 unlock 到 unpark</h2>
+<p>调用链：</p>
+<pre><code class="language-text">unlock()
+  ↓
+sync.release(1)
+  ↓
+tryRelease(1)
+  ↓
+state 是否归零？
+├─ 否 → 仍然重入，不唤醒后继
+└─ 是
+     ↓
+清空 owner
+     ↓
+unparkSuccessor(head)
+     ↓
+LockSupport.unpark(后继)
+</code></pre>
+<p>经典 JDK 8 代码：</p>
+<pre><code class="language-java">public final boolean release(int arg) {
+
+    if (tryRelease(arg)) {
+
+        Node h = head;
+
+        if (h != null &amp;&amp; h.waitStatus != 0) {
+            unparkSuccessor(h);
+        }
+
+        return true;
+    }
+
+    return false;
+}
+</code></pre>
+<hr class="markdown-hr">
+<h3>7.1 <code>unparkSuccessor()</code> 为什么可能从 tail 向前找</h3>
+<p>经典实现：</p>
+<pre><code class="language-java">private void unparkSuccessor(Node node) {
+
+    int ws = node.waitStatus;
+
+    if (ws &lt; 0) {
+        compareAndSetWaitStatus(node, ws, 0);
+    }
+
+    Node s = node.next;
+
+    if (s == null || s.waitStatus &gt; 0) {
+
+        s = null;
+
+        for (Node t = tail;
+             t != null &amp;&amp; t != node;
+             t = t.prev) {
+
+            if (t.waitStatus &lt;= 0) {
+                s = t;
+            }
+        }
+    }
+
+    if (s != null) {
+        LockSupport.unpark(s.thread);
+    }
+}
+</code></pre>
+<p>这段代码再次体现：</p>
+<pre><code class="language-text">双向链表
+=
+next 用于快速访问
++
+prev 用于在并发取消时恢复可用后继
+</code></pre>
+<hr class="markdown-hr">
+<h3>7.2 重入是怎么实现的</h3>
+<p><code>ReentrantLock</code> 的“可重入”其实非常朴素：</p>
+<pre><code class="language-text">state
++
+owner
+</code></pre>
+<p>第一次获取：</p>
+<pre><code class="language-text">state = 0
+   ↓
+CAS(0, 1)
+   ↓
+owner = currentThread
+</code></pre>
+<p>同一线程再次获取：</p>
+<pre><code class="language-text">发现：
+currentThread == owner
+</code></pre>
+<p>于是：</p>
+<pre><code class="language-text">state++
+</code></pre>
+<p>无需重新 CAS。</p>
+<p>释放：</p>
+<pre><code class="language-text">state--
+</code></pre>
+<p>只有：</p>
+<pre><code class="language-text">state == 0
+</code></pre>
+<p>才代表真正释放。</p>
+<hr class="markdown-hr">
+<h3>7.3 自定义 AQS 可重入锁 Demo</h3>
+<p>下面这个 Demo 支持 重入 + Condition：</p>
+<pre><code class="language-java">import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.AbstractQueuedSynchronizer;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+
+public class MyReentrantAqsLock implements Lock {
+
+    private final Sync sync = new Sync();
+
+    private static class Sync extends AbstractQueuedSynchronizer {
+
+        @Override
+        protected boolean isHeldExclusively() {
+            return getExclusiveOwnerThread()
+                    == Thread.currentThread();
+        }
+
+        @Override
+        protected boolean tryAcquire(int acquires) {
+
+            final Thread current = Thread.currentThread();
+            int c = getState();
+
+            // 第一次获取
+            if (c == 0) {
+
+                // 如果想实现公平锁，
+                // 可以在这里增加 hasQueuedPredecessors() 判断
+                if (compareAndSetState(0, acquires)) {
+
+                    setExclusiveOwnerThread(current);
+
+                    return true;
+                }
+
+            // 当前线程重入
+            } else if (current == getExclusiveOwnerThread()) {
+
+                int nextc = c + acquires;
+
+                if (nextc &lt; 0) {
+                    throw new Error(&quot;Maximum lock count exceeded&quot;);
+                }
+
+                // 已经持锁，无需再 CAS
+                setState(nextc);
+
+                return true;
+            }
+
+            return false;
+        }
+
+        @Override
+        protected boolean tryRelease(int releases) {
+
+            if (Thread.currentThread()
+                    != getExclusiveOwnerThread()) {
+
+                throw new IllegalMonitorStateException();
+            }
+
+            int c = getState() - releases;
+
+            boolean free = false;
+
+            if (c == 0) {
+
+                free = true;
+
+                setExclusiveOwnerThread(null);
+            }
+
+            setState(c);
+
+            return free;
+        }
+
+        int getHoldCount() {
+            return getState();
+        }
+
+        Condition newCondition() {
+            return new ConditionObject();
+        }
+    }
+
+    @Override
+    public void lock() {
+        sync.acquire(1);
+    }
+
+    @Override
+    public void lockInterruptibly()
+            throws InterruptedException {
+        sync.acquireInterruptibly(1);
+    }
+
+    @Override
+    public boolean tryLock() {
+        return sync.tryAcquire(1);
+    }
+
+    @Override
+    public boolean tryLock(long time, TimeUnit unit)
+            throws InterruptedException {
+
+        return sync.tryAcquireNanos(
+                1,
+                unit.toNanos(time)
+        );
+    }
+
+    @Override
+    public void unlock() {
+        sync.release(1);
+    }
+
+    @Override
+    public Condition newCondition() {
+        return sync.newCondition();
+    }
+
+    public int getHoldCount() {
+        return sync.getHoldCount();
+    }
+
+    public static void main(String[] args)
+            throws InterruptedException {
+
+        MyReentrantAqsLock lock =
+                new MyReentrantAqsLock();
+
+        Runnable task = () -&gt; {
+
+            lock.lock();
+
+            try {
+                System.out.println(
+                        Thread.currentThread().getName()
+                                + &quot; 第一次获取，holdCount=&quot;
+                                + lock.getHoldCount()
+                );
+
+                lock.lock();
+
+                try {
+                    System.out.println(
+                            Thread.currentThread().getName()
+                                    + &quot; 重入，holdCount=&quot;
+                                    + lock.getHoldCount()
+                    );
+
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+
+                } finally {
+                    lock.unlock();
+
+                    System.out.println(
+                            Thread.currentThread().getName()
+                                    + &quot; 第一次释放，holdCount=&quot;
+                                    + lock.getHoldCount()
+                    );
+                }
+
+            } finally {
+                lock.unlock();
+
+                System.out.println(
+                        Thread.currentThread().getName()
+                                + &quot; 第二次释放，holdCount=&quot;
+                                + lock.getHoldCount()
+                );
+            }
+        };
+
+        Thread t1 = new Thread(task, &quot;线程1&quot;);
+        Thread t2 = new Thread(task, &quot;线程2&quot;);
+
+        t1.start();
+        t2.start();
+
+        t1.join();
+        t2.join();
+    }
+}
+</code></pre>
+<p>这个 Demo 重点观察：</p>
+<pre><code class="language-text">第一次获取：
+state = 1
+
+重入：
+state = 2
+
+第一次 unlock：
+state = 1
+
+第二次 unlock：
+state = 0
+owner = null
+</code></pre>
+<p>此时才会真正唤醒后继线程。</p>
+<hr class="markdown-hr">
+<h2>8. AQS 的独占模式与共享模式</h2>
+<p>AQS 支持两种基本同步模式。</p>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>模式</th>
+<th>获取方法</th>
+<th>释放方法</th>
+<th>典型实现</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>EXCLUSIVE</td>
+<td><code>tryAcquire()</code></td>
+<td><code>tryRelease()</code></td>
+<td><code>ReentrantLock</code></td>
+</tr>
+<tr>
+<td>SHARED</td>
+<td><code>tryAcquireShared()</code></td>
+<td><code>tryReleaseShared()</code></td>
+<td><code>Semaphore</code>、<code>CountDownLatch</code>、读锁</td>
+</tr>
+</tbody></table>
+<h3>8.1 独占模式</h3>
+<p>核心语义：</p>
+<pre><code class="language-text">一次只有一个线程成功持有
+</code></pre>
+<p>例如：</p>
+<pre><code class="language-text">ReentrantLock
+</code></pre>
+<hr class="markdown-hr">
+<h3>8.2 共享模式</h3>
+<p>可以理解成：</p>
+<pre><code class="language-text">资源允许多个线程同时获取
+</code></pre>
+<p>例如：</p>
+<pre><code class="language-text">Semaphore：多个许可证
+CountDownLatch：计数到 0 后多个线程同时放行
+ReadLock：多个读线程共享
+</code></pre>
+<hr class="markdown-hr">
+<h3>8.3 <code>tryAcquireShared()</code> 的返回值非常重要</h3>
+<p>共享获取通常约定：</p>
+<pre><code class="language-text">&lt; 0  → 获取失败
+= 0  → 获取成功，但不应该继续传播
+&gt; 0  → 获取成功，并可能继续传播
+</code></pre>
+<p>例如 <code>Semaphore</code>：</p>
+<pre><code class="language-java">final int nonfairTryAcquireShared(int acquires) {
+
+    for (;;) {
+
+        int available = getState();
+
+        int remaining =
+                available - acquires;
+
+        if (remaining &lt; 0
+                || compareAndSetState(
+                        available,
+                        remaining)) {
+
+            return remaining;
+        }
+    }
+}
+</code></pre>
+<p>这段代码本质就是：</p>
+<pre><code class="language-text">读取许可数
+ ↓
+计算剩余许可
+ ↓
+不够 → 失败
+够 → CAS 扣减
+</code></pre>
+<hr class="markdown-hr">
+<h3>8.4 CountDownLatch 为什么是共享同步器</h3>
+<p><code>CountDownLatch</code> 的思想：</p>
+<pre><code class="language-text">state = 剩余计数
+</code></pre>
+<p>获取：</p>
+<pre><code class="language-java">protected int tryAcquireShared(int acquires) {
+    return getState() == 0 ? 1 : -1;
+}
+</code></pre>
+<p>含义：</p>
+<pre><code class="language-text">state != 0 → 所有人继续等
+state == 0 → 所有人可以通过
+</code></pre>
+<p>注意：</p>
+<blockquote class="markdown-blockquote">
+<p><code>CountDownLatch</code> 是一次性的，不能像 <code>CyclicBarrier</code> 那样循环复用。</p>
+</blockquote>
+<p>这是工程中非常容易写错的一点。</p>
+<hr class="markdown-hr">
+<h2>9. 共享模式为什么需要传播：PROPAGATE 到底在解决什么</h2>
+<p>独占锁释放时：</p>
+<pre><code class="language-text">唤醒一个后继
+</code></pre>
+<p>而共享同步器可能需要：</p>
+<pre><code class="language-text">释放一次
+ ↓
+第一个共享线程成功
+ ↓
+后面其他线程也有机会继续成功
+</code></pre>
+<p>例如：</p>
+<pre><code class="language-text">Semaphore
+</code></pre>
+<p>假设一次释放了多个许可：</p>
+<pre><code class="language-text">state 增加
+ ↓
+多个等待线程可能陆续成功
+</code></pre>
+<p>因此共享模式的释放必须有：</p>
+<pre><code class="language-text">signal
++
+propagation
+</code></pre>
+<h3>9.1 JDK 8 经典思路</h3>
+<pre><code class="language-java">private void doReleaseShared() {
+
+    for (;;) {
+
+        Node h = head;
+
+        if (h != null &amp;&amp; h != tail) {
+
+            int ws = h.waitStatus;
+
+            if (ws == Node.SIGNAL) {
+
+                if (!compareAndSetWaitStatus(
+                        h,
+                        Node.SIGNAL,
+                        0)) {
+
+                    continue;
+                }
+
+                unparkSuccessor(h);
+
+            } else if (
+                    ws == 0
+                            &amp;&amp; !compareAndSetWaitStatus(
+                            h,
+                            0,
+                            Node.PROPAGATE)) {
+
+                continue;
+            }
+        }
+
+        if (h == head) {
+            break;
+        }
+    }
+}
+</code></pre>
+<h4>9.1.1 最重要的理解</h4>
+<p><code>PROPAGATE</code> 不是为了“保存一个普通状态”。</p>
+<p>它是为了告诉 AQS：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>共享模式的释放不能因为并发时序而中断传播链。</strong></p>
+</blockquote>
+<p>所以这里更准确的说法是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>共享模式通过持续传播，让后续具备获取资格的线程继续获得通知。</strong></p>
+</blockquote>
+<p>不要把它简单说成“递归唤醒”，源码真正表现的是循环传播和状态协作。</p>
+<hr class="markdown-hr">
+<h2>10. AQS 的取消机制：超时/中断后，线程去哪了</h2>
+<p>原文讲了 <code>CANCELLED</code>，但这里需要再补一层。</p>
+<p>线程可能在以下过程中退出等待：</p>
+<pre><code class="language-text">lockInterruptibly()
+tryLock(timeout)
+Condition.await(timeout)
+Condition.await() 被 interrupt
+</code></pre>
+<p>此时不能简单：</p>
+<pre><code class="language-text">线程直接消失
+</code></pre>
+<p>因为队列中还存在：</p>
+<pre><code class="language-text">Node
+</code></pre>
+<p>所以 AQS 需要做：</p>
+<pre><code class="language-text">标记 CANCELLED
+    ↓
+跳过取消前驱
+    ↓
+重新连接有效节点
+    ↓
+必要时补发唤醒信号
+</code></pre>
+<p>这就是：</p>
+<pre><code class="language-java">cancelAcquire(node)
+</code></pre>
+<p>存在的原因。</p>
+<hr class="markdown-hr">
+<h3>10.1 为什么“取消节点”是 AQS 源码最复杂的地方之一</h3>
+<p>因为取消可能与以下动作同时发生：</p>
+<pre><code class="language-text">线程刚入队
+线程正在 park
+线程刚被 unpark
+锁正在释放
+后继节点正在入队
+另一个线程也在取消
+</code></pre>
+<p>因此 AQS 不能依赖：</p>
+<pre><code class="language-text">一个简单的 remove(node)
+</code></pre>
+<p>解决问题。</p>
+<p>它需要 CAS、双向链接、状态检查和补偿唤醒协同工作。</p>
+<hr class="markdown-hr">
+<h2>11. Condition：AQS 里其实有“两条队列”</h2>
+<p>这是理解 AQS Condition 的关键。</p>
+<p>不是只有：</p>
+<pre><code class="language-text">同步队列
+</code></pre>
+<p>而是：</p>
+<pre><code class="language-text">                    AQS
+                     |
+          ┌──────────┴──────────┐
+          ↓                     ↓
+      同步队列               Condition队列
+   Sync Queue             Condition Queue
+          |                     |
+     等待获取锁             等待某个条件
+</code></pre>
+<h3>11.1 同步队列</h3>
+<p>用于：</p>
+<pre><code class="language-text">抢锁
+</code></pre>
+<h3>11.2 Condition 队列</h3>
+<p>用于：</p>
+<pre><code class="language-text">等待业务条件
+</code></pre>
+<hr class="markdown-hr">
+<h3>11.3 <code>await()</code> 的完整流程</h3>
+<p>调用：</p>
+<pre><code class="language-java">condition.await();
+</code></pre>
+<p>大致过程：</p>
+<pre><code class="language-text">1. 当前线程必须持有锁
+2. 创建/加入 Condition 队列
+3. 保存当前锁状态
+4. fullyRelease()：释放当前线程持有的锁
+5. park()
+6. 等待 signal / interrupt / timeout
+7. signal 后，节点迁移回 AQS 同步队列
+8. 再次争抢锁
+9. 重新恢复此前保存的 state
+10. 返回 await()
+</code></pre>
+<p>关键点：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>signal 并不是直接把锁交给等待线程。</strong></p>
+</blockquote>
+<p><code>signal()</code> 只是把节点：</p>
+<pre><code class="language-text">Condition Queue
+        ↓
+Sync Queue
+</code></pre>
+<p>然后等待线程后续重新竞争锁。</p>
+<hr class="markdown-hr">
+<h3>11.4 <code>signal()</code> 做了什么</h3>
+<pre><code class="language-text">Condition Queue
+      ↓
+取出第一个有效等待节点
+      ↓
+转移到 AQS Sync Queue
+      ↓
+等待重新获取锁
+</code></pre>
+<p>所以：</p>
+<pre><code class="language-java">lock.lock();
+
+try {
+    condition.signal();
+} finally {
+    lock.unlock();
+}
+</code></pre>
+<p>是正确使用姿势。</p>
+<hr class="markdown-hr">
+<h3>11.5 为什么 <code>await()</code> 一定要放在 while 中</h3>
+<p>错误：</p>
+<pre><code class="language-java">if (queue.isEmpty()) {
+    condition.await();
+}
+
+return queue.remove();
+</code></pre>
+<p>正确：</p>
+<pre><code class="language-java">while (queue.isEmpty()) {
+    condition.await();
+}
+
+return queue.remove();
+</code></pre>
+<p>因为：</p>
+<pre><code class="language-text">被 signal
+</code></pre>
+<p>只代表：</p>
+<pre><code class="language-text">你可以回来重新竞争
+</code></pre>
+<p>而不代表：</p>
+<pre><code class="language-text">条件一定已经成立
+</code></pre>
+<p>另外还存在：</p>
+<pre><code class="language-text">中断
+超时
+多个线程竞争
+条件在你重新获取锁之前再次发生变化
+</code></pre>
+<p>因此必须：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>等待条件，而不是等待一次通知。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h3>11.6 自定义 AQS 为什么必须重写 <code>isHeldExclusively()</code></h3>
+<p><code>ConditionObject</code> 必须判断：</p>
+<pre><code class="language-text">当前线程是否真的持有这个同步器
+</code></pre>
+<p>如果自定义 AQS 没有正确实现：</p>
+<pre><code class="language-java">protected boolean isHeldExclusively()
+</code></pre>
+<p>那么：</p>
+<pre><code class="language-java">condition.await();
+condition.signal();
+</code></pre>
+<p>可能抛出：</p>
+<pre><code class="language-text">IllegalMonitorStateException
+</code></pre>
+<hr class="markdown-hr">
+<h3>11.7 Condition Demo</h3>
+<pre><code class="language-java">import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+
+public class ConditionDemo {
+
+    private final ReentrantLock lock =
+            new ReentrantLock();
+
+    private final Condition notEmpty =
+            lock.newCondition();
+
+    private int value;
+
+    public int take() throws InterruptedException {
+
+        lock.lock();
+
+        try {
+            while (value == 0) {
+                notEmpty.await();
+            }
+
+            int result = value;
+            value = 0;
+
+            return result;
+
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void put(int value) {
+
+        lock.lock();
+
+        try {
+            this.value = value;
+
+            notEmpty.signal();
+
+        } finally {
+            lock.unlock();
+        }
+    }
+}
+</code></pre>
+<hr class="markdown-hr">
+<h2>12. 公平锁 vs 非公平锁：AQS 队列并不等于公平</h2>
+<h3>12.1 非公平锁</h3>
+<p>默认：</p>
+<pre><code class="language-java">new ReentrantLock();
+</code></pre>
+<p>典型思想：</p>
+<pre><code class="language-text">新线程来了
+ ↓
+先直接 CAS
+ ↓
+成功就插队
+ ↓
+失败再进入 AQS 队列
+</code></pre>
+<hr class="markdown-hr">
+<h3>12.2 公平锁</h3>
+<pre><code class="language-java">new ReentrantLock(true);
+</code></pre>
+<p>典型思想：</p>
+<pre><code class="language-text">先看前面是否已经有人排队
+ ↓
+有人
+ ↓
+不插队
+ ↓
+进入/等待队列
+</code></pre>
+<p>经典公平判断：</p>
+<pre><code class="language-java">if (!hasQueuedPredecessors()
+        &amp;&amp; compareAndSetState(0, acquires)) {
+
+    setExclusiveOwnerThread(current);
+    return true;
+}
+</code></pre>
+<hr class="markdown-hr">
+<h3>12.3 为什么默认非公平</h3>
+<p>不是因为：</p>
+<pre><code class="language-text">非公平 = 更快
+</code></pre>
+<p>这么简单。</p>
+<p>核心原因是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>严格公平会增加排队和线程切换成本，而非公平允许刚到的线程在“被唤醒线程真正运行起来之前”的窗口里直接获取锁。</strong></p>
+</blockquote>
+<p>可以理解成：</p>
+<pre><code class="language-text">线程A释放锁
+    ↓
+unpark(B)
+    ↓
+B 并不会瞬间开始执行
+    ↓
+在 B 真正恢复期间
+新线程 C 可能已经运行
+    ↓
+C 直接 CAS 成功
+</code></pre>
+<p>这可能减少一次额外的排队/调度路径，从而提高整体吞吐。</p>
+<p>因此非公平锁经常：</p>
+<pre><code class="language-text">吞吐更高
+平均延迟更低
+</code></pre>
+<p>但不代表：</p>
+<pre><code class="language-text">任何负载都更快
+</code></pre>
+<p>也不代表：</p>
+<pre><code class="language-text">吞吐必然高一个数量级
+</code></pre>
+<p>实际收益必须通过压测验证。</p>
+<hr class="markdown-hr">
+<h3>12.4 公平锁不是绝对 FIFO</h3>
+<p>更准确的说：</p>
+<blockquote class="markdown-blockquote">
+<p><code>ReentrantLock(true)</code> 在竞争条件下倾向于让等待时间更长的线程优先获得锁，但公平性并不等于操作系统线程调度的绝对公平。</p>
+</blockquote>
+<p>线程仍然可能因为：</p>
+<pre><code class="language-text">CPU 调度
+线程暂停
+GC
+系统负载
+优先级
+</code></pre>
+<p>产生明显差异。</p>
+<hr class="markdown-hr">
+<h3>12.5 <code>tryLock()</code> 为什么会插队</h3>
+<p>这是非常经典的追问。</p>
+<p>对于 <code>ReentrantLock</code>：</p>
+<pre><code class="language-java">fairLock.tryLock()
+</code></pre>
+<p>即使是公平锁，只要锁当下可用：</p>
+<pre><code class="language-text">tryLock()
+</code></pre>
+<p>仍然可能直接成功。</p>
+<p>也就是说：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>无参 <code>tryLock()</code> 不遵守公平排队语义。</strong></p>
+</blockquote>
+<p>如果业务确实希望按照公平策略进行带超时尝试，可以使用：</p>
+<pre><code class="language-java">tryLock(0, TimeUnit.SECONDS)
+</code></pre>
+<p>让其走带超时的获取路径。</p>
+<hr class="markdown-hr">
+<h3>12.6 公平锁与非公平锁对比</h3>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>维度</th>
+<th>非公平锁</th>
+<th>公平锁</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>默认</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>是否允许插队</td>
+<td>✅</td>
+<td>尽量避免</td>
+</tr>
+<tr>
+<td>吞吐</td>
+<td>通常更高</td>
+<td>通常更低</td>
+</tr>
+<tr>
+<td>获取顺序</td>
+<td>不保证</td>
+<td>近似按到达顺序</td>
+</tr>
+<tr>
+<td>饥饿风险</td>
+<td>存在</td>
+<td>明显降低</td>
+</tr>
+<tr>
+<td>调度抖动敏感链路</td>
+<td>通常更合适</td>
+<td>谨慎使用</td>
+</tr>
+<tr>
+<td>强顺序要求</td>
+<td>不适合</td>
+<td>更适合</td>
+</tr>
+</tbody></table>
+<hr class="markdown-hr">
+<h2>13. <code>Thread.join()</code>：为什么 CAS Demo 里总出现它</h2>
+<p><code>join()</code> 和 CAS/AQS 并不是一回事。</p>
+<p>它解决的是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>线程生命周期编排问题。</strong></p>
+</blockquote>
+<p>例如：</p>
+<pre><code class="language-java">t1.start();
+t2.start();
+
+t1.join();
+t2.join();
+
+System.out.println(counter.get());
+</code></pre>
+<p>意思是：</p>
+<pre><code class="language-text">启动子线程
+ ↓
+等待子线程结束
+ ↓
+主线程再读取最终结果
+</code></pre>
+<hr class="markdown-hr">
+<h3>13.1 join 的基本语义</h3>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>API</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>join()</code></td>
+<td>无限等待目标线程结束</td>
+</tr>
+<tr>
+<td><code>join(long millis)</code></td>
+<td>最多等待指定时间</td>
+</tr>
+<tr>
+<td><code>join(long millis, int nanos)</code></td>
+<td>带更细时间参数</td>
+</tr>
+</tbody></table>
+<hr class="markdown-hr">
+<h3>13.2 JDK 8 的 join 经典实现</h3>
+<pre><code class="language-java">public final synchronized void join(long millis)
+        throws InterruptedException {
+
+    long base = System.currentTimeMillis();
+    long now = 0;
+
+    if (millis &lt; 0) {
+        throw new IllegalArgumentException(
+                &quot;timeout value is negative&quot;
+        );
+    }
+
+    if (millis == 0) {
+
+        while (isAlive()) {
+            wait(0);
+        }
+
+    } else {
+
+        while (isAlive()) {
+
+            long delay = millis - now;
+
+            if (delay &lt;= 0) {
+                break;
+            }
+
+            wait(delay);
+
+            now = System.currentTimeMillis() - base;
+        }
+    }
+}
+</code></pre>
+<p>所以经典 JDK 8 可以理解成：</p>
+<pre><code class="language-text">join()
+ ↓
+synchronized(Thread对象)
+ ↓
+while (isAlive())
+ ↓
+wait()
+</code></pre>
+<hr class="markdown-hr">
+<h3>13.3 子线程结束时为什么 join 能返回</h3>
+<p>HotSpot 会在线程退出过程中：</p>
+<pre><code class="language-text">将线程状态设置为 TERMINATED
+ ↓
+在 Thread 对象上通知等待者
+</code></pre>
+<p>这样：</p>
+<pre><code class="language-java">while (isAlive()) {
+    wait();
+}
+</code></pre>
+<p>才能最终退出循环。</p>
+<p>因此：</p>
+<blockquote class="markdown-blockquote">
+<p><code>join()</code> 的实现基础与 <code>wait/notifyAll</code> 有很深关系。</p>
+</blockquote>
+<hr class="markdown-hr">
+<h3>13.4 join 为什么也必须用 while</h3>
+<p>因为：</p>
+<pre><code class="language-text">wait() 可能虚假唤醒
+</code></pre>
+<p>所以不能：</p>
+<pre><code class="language-java">if (isAlive()) {
+    wait();
+}
+</code></pre>
+<p>必须：</p>
+<pre><code class="language-java">while (isAlive()) {
+    wait();
+}
+</code></pre>
+<p>这与：</p>
+<pre><code class="language-text">Condition.await
+LockSupport.park
+AQS acquireQueued
+</code></pre>
+<p>的共同设计思想完全一致：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>线程唤醒后必须重新验证条件，而不是把“被唤醒”当成“条件成立”。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h3>13.5 join 的内存语义</h3>
+<p>从业务角度：</p>
+<pre><code class="language-text">子线程执行完
+ ↓
+主线程 join 返回
+ ↓
+主线程继续
+</code></pre>
+<p>因此 <code>join()</code> 很适合做：</p>
+<pre><code class="language-text">线程生命周期同步
+</code></pre>
+<p>而不是拿来替代：</p>
+<pre><code class="language-text">锁
+条件变量
+线程池任务编排
+</code></pre>
+<p>复杂任务编排通常更适合：</p>
+<pre><code class="language-text">CountDownLatch
+Future
+CompletableFuture
+ExecutorService
+Phaser
+</code></pre>
+<p>等专用组件。</p>
+<h4>13.5.1 JDK 21 的补充：虚拟线程内部实现可能不同</h4>
+<p>如果继续研究到 JDK 21 的虚拟线程，会发现 <code>Thread.join()</code> 的内部路径不再只有经典 platform thread 的 <code>wait</code> 模型。</p>
+<p>JDK 21 的虚拟线程实现提供了专门的终止等待逻辑，因此：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>不要把“JDK 8 的 join 源码实现”当成所有 Thread 类型、所有现代 JDK 实现的固定模板。</strong></p>
+</blockquote>
+<p>这里仍然保留 JDK 8 <code>while (isAlive()) wait(...)</code> 的讲解，是为了理解经典实现和 <code>wait/notify</code> 的关系；研究现代源码时，要再结合具体 JDK 版本和线程类型看实现。</p>
+<hr class="markdown-hr">
+<h2>14. <code>Thread.sleep()</code> 与 <code>Thread.yield()</code></h2>
+<h3>14.1 sleep</h3>
+<pre><code class="language-java">Thread.sleep(1000);
+</code></pre>
+<p>语义是：</p>
+<blockquote class="markdown-blockquote">
+<p>当前线程至少在指定时间范围内不参与正常执行。</p>
+</blockquote>
+<p>它：</p>
+<pre><code class="language-text">不会释放已经持有的锁
+</code></pre>
+<hr class="markdown-hr">
+<h3>14.2 yield</h3>
+<pre><code class="language-java">Thread.yield();
+</code></pre>
+<p>只是向调度器表达：</p>
+<blockquote class="markdown-blockquote">
+<p>我现在可以让出 CPU。</p>
+</blockquote>
+<p>但：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>调度器可以忽略这个提示。</strong></p>
+</blockquote>
+<p>因此不要把 <code>yield()</code> 当成精确的同步机制。</p>
+<hr class="markdown-hr">
+<h3>14.3 <code>Thread.onSpinWait()</code></h3>
+<p>JDK 9+ 提供：</p>
+<pre><code class="language-java">Thread.onSpinWait();
+</code></pre>
+<p>用于告诉 JVM：</p>
+<blockquote class="markdown-blockquote">
+<p>当前线程正在执行自旋等待。</p>
+</blockquote>
+<p>JVM 可能据此生成更适合当前 CPU 的自旋提示指令。</p>
+<p>例如：</p>
+<pre><code class="language-java">while (!ready) {
+    Thread.onSpinWait();
+}
+</code></pre>
+<p>它不能：</p>
+<pre><code class="language-text">把自旋变成阻塞
+</code></pre>
+<p>只是：</p>
+<pre><code class="language-text">让短自旋更合理
+</code></pre>
+<hr class="markdown-hr">
+<h2>15. synchronized 与 AQS：关系不是“谁替代谁”</h2>
+<p>很多文章会把它们写成：</p>
+<pre><code class="language-text">synchronized 老旧
+ReentrantLock 新而快
+</code></pre>
+<p>这是不准确的。</p>
+<p>更好的理解：</p>
+<pre><code class="language-text">synchronized
+    ↓
+JVM 内建 monitor 同步机制
+
+ReentrantLock
+    ↓
+Java 层可编程 Lock
+    ↓
+默认通过 AQS 完成排队/阻塞等同步逻辑
+</code></pre>
+<p>两者解决的问题相同：</p>
+<pre><code class="language-text">互斥同步
+</code></pre>
+<p>但是可编程能力不同。</p>
+<hr class="markdown-hr">
+<h3>15.1 核心能力对比</h3>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>维度</th>
+<th><code>synchronized</code></th>
+<th><code>ReentrantLock</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>自动释放</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>try/finally</code> 防锁泄漏</td>
+<td>JVM 自动兜底</td>
+<td>必须自己写</td>
+</tr>
+<tr>
+<td>可中断获取</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>超时获取</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>tryLock()</code></td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>公平策略</td>
+<td>不提供可配置公平策略</td>
+<td>✅ 可配置</td>
+</tr>
+<tr>
+<td>多个 Condition</td>
+<td>❌ 一个 monitor wait set</td>
+<td>✅ 多个 <code>Condition</code></td>
+</tr>
+<tr>
+<td>查询锁状态</td>
+<td>较弱</td>
+<td>较丰富</td>
+</tr>
+<tr>
+<td>编程复杂度</td>
+<td>低</td>
+<td>更高</td>
+</tr>
+<tr>
+<td>JVM 优化</td>
+<td>很成熟</td>
+<td>AQS 体系</td>
+</tr>
+</tbody></table>
+<hr class="markdown-hr">
+<h3>15.2 synchronized 的锁升级要注意 JDK 版本</h3>
+<h4>15.2.1 先看经典 JDK 8 模型</h4>
+<p>很多并发文章会画：</p>
+<pre><code class="language-text">无锁
+  ↓
+偏向锁
+  ↓
+轻量级锁
+  ↓
+重量级锁
+</code></pre>
+<p>这是历史上非常典型的 HotSpot 学习模型。</p>
+<p>其中：</p>
+<pre><code class="language-text">偏向锁
+轻量级锁
+</code></pre>
+<p>都与 CAS 等低成本原子操作密切相关。</p>
+<p>但必须明确：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>这是 JDK 8 时代学习 HotSpot 锁实现的重要模型，不应该直接当成 JDK 21 的现状。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h3>15.3 偏向锁已经是历史知识</h3>
+<p>JEP 374 在 JDK 15 将偏向锁默认关闭并废弃相关参数。</p>
+<p>因此：</p>
+<pre><code class="language-text">JDK 8：
+无锁 → 偏向 → 轻量级 → 重量级
+</code></pre>
+<p>可以作为历史源码学习路径。</p>
+<p>但是学习 JDK 21：</p>
+<pre><code class="language-text">不要再把“默认偏向锁”当成现实行为。
+</code></pre>
+<p>JDK 18 时与偏向锁相关的旧选项也已经进入 obsolete 处理阶段。</p>
+<p>所以当前文章中的 JVM 调优仅针对JDK8：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>在 JDK 8 学习偏向锁时，必须理解 <code>BiasedLockingStartupDelay</code> 等历史配置；但在现代 JDK 上，不应该把这些参数作为通用调优手段。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h3>15.4 还要注意：HotSpot 的实现会演进</h3>
+<p>不要把：</p>
+<pre><code class="language-text">Mark Word
+ObjectMonitor
+轻量级锁
+重量级锁
+</code></pre>
+<p>中的任何一个具体布局，直接等同于：</p>
+<pre><code class="language-text">Java 规范
+</code></pre>
+<p>Java 层只保证：</p>
+<pre><code class="language-text">synchronized 对 monitor 的同步语义
+</code></pre>
+<p>HotSpot 内部到底：</p>
+<pre><code class="language-text">怎么编码
+怎么膨胀
+怎么竞争
+怎么自旋
+怎么实现监视器
+</code></pre>
+<p>属于 JVM 实现细节，会随 JDK 版本变化。</p>
+<hr class="markdown-hr">
+<h2>16. JDK 8 与 JDK 21：AQS 源码的变化</h2>
+<h3>16.1 JDK 8</h3>
+<p>经典 AQS <code>Node</code> 使用：</p>
+<pre><code class="language-java">volatile int waitStatus;
+Node prev;
+Node next;
+Thread thread;
+Node nextWaiter;
+</code></pre>
+<p>状态常量：</p>
+<pre><code class="language-text">CANCELLED = 1
+SIGNAL = -1
+CONDITION = -2
+PROPAGATE = -3
+</code></pre>
+<p>这也是学习 AQS 最常见的一版源码。</p>
+<hr class="markdown-hr">
+<h3>16.2 JDK 21</h3>
+<p>AQS 内部 Node 结构已经发生明显变化。</p>
+<p>现代实现使用：</p>
+<pre><code class="language-text">status
+waiter
+prev
+next
+</code></pre>
+<p>并使用不同类型的 Node，例如：</p>
+<pre><code class="language-text">ExclusiveNode
+SharedNode
+ConditionNode
+</code></pre>
+<p>状态也由位标志等方式组织。</p>
+<p>因此：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>如果你在 JDK 21 源码中找不到 JDK 8 的 <code>waitStatus == SIGNAL</code> 原样代码，不要以为 AQS 原理变了。</strong></p>
+</blockquote>
+<p>变化的是：</p>
+<pre><code class="language-text">实现细节
+</code></pre>
+<p>没变的是：</p>
+<pre><code class="language-text">同步状态
++
+队列
++
+CAS
++
+阻塞/唤醒
++
+取消
++
+共享传播
+</code></pre>
+<p>另外，JDK 21 的 AQS 实现已经明显减少了对 JDK 8 经典 <code>waitStatus</code> 常量模型的依赖；阅读现代源码时，应该先看 <code>Node.status</code>、Node 类型以及新的入队/唤醒逻辑，再把它映射回本文讲的经典模型。</p>
+<p>这一点非常重要。</p>
+<hr class="markdown-hr">
+<h2>17. AQS 为什么能支持这么多组件</h2>
+<p>因为它把：</p>
+<pre><code class="language-text">“如何定义资源获取成功”
+</code></pre>
+<p>交给子类。</p>
+<p>例如：</p>
+<h3>17.1 ReentrantLock</h3>
+<pre><code class="language-text">state = 锁重入次数
+</code></pre>
+<h3>17.2 Semaphore</h3>
+<pre><code class="language-text">state = 剩余许可证
+</code></pre>
+<h3>17.3 CountDownLatch</h3>
+<pre><code class="language-text">state = 剩余计数
+</code></pre>
+<h3>17.4 ReentrantReadWriteLock</h3>
+<pre><code class="language-text">state = 读 + 写的组合状态
+</code></pre>
+<p>于是：</p>
+<pre><code class="language-text">不同同步器
+    ↓
+共享相同的排队/阻塞框架
+</code></pre>
+<p>AQS 真正解决的是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>同步器公共机械逻辑的复用。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>18. ReentrantReadWriteLock 的 state 为什么能同时保存读锁和写锁</h2>
+<p>经典实现把一个 <code>int</code> 拆成两部分。</p>
+<pre><code class="language-text">31                     16 15                    0
++------------------------+----------------------+
+|       reader count     |   writer hold count  |
++------------------------+----------------------+
+</code></pre>
+<p>经典代码：</p>
+<pre><code class="language-java">static final int SHARED_SHIFT = 16;
+
+static final int SHARED_UNIT =
+        (1 &lt;&lt; SHARED_SHIFT);
+
+static final int EXCLUSIVE_MASK =
+        (1 &lt;&lt; SHARED_SHIFT) - 1;
+
+static int sharedCount(int c) {
+    return c &gt;&gt;&gt; SHARED_SHIFT;
+}
+
+static int exclusiveCount(int c) {
+    return c &amp; EXCLUSIVE_MASK;
+}
+</code></pre>
+<p>因此：</p>
+<pre><code class="language-text">高 16 位 → 读锁计数
+低 16 位 → 写锁重入计数
+</code></pre>
+<p>这就是典型的：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>位运算复用单个原子 state。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h3>18.1 读锁与写锁不能简单理解成“读多写少就一定应该用”</h3>
+<p><code>ReentrantReadWriteLock</code> 适合：</p>
+<pre><code class="language-text">读操作多
+写操作相对少
+读操作本身较长
+共享状态确实适合并发读取
+</code></pre>
+<p>但如果：</p>
+<pre><code class="language-text">读操作极短
+写操作频繁
+竞争不大
+</code></pre>
+<p>引入读写锁可能反而增加开销。</p>
+<p>工程上不要根据名字选组件。</p>
+<p>要根据以下情况来进行判断决定：</p>
+<pre><code class="language-text">竞争程度
+临界区长度
+读写比例
+线程数量
+尾延迟目标
+</code></pre>
+<hr class="markdown-hr">
+<h2>19. CAS 无锁、AQS 锁、synchronized：真正应该怎么选</h2>
+<p>不要从“哪个更高级”开始选。</p>
+<p>可以按照以下情况来判断：</p>
+<pre><code class="language-text">临界区多长？
+竞争多不多？
+是否允许线程阻塞？
+是否需要超时？
+是否需要中断？
+是否需要公平？
+是否需要条件变量？
+是否只是计数？
+是否只是状态更新？
+</code></pre>
+<hr class="markdown-hr">
+<h3>19.1 选型总图</h3>
+<pre><code class="language-mermaid">graph TD
+
+    A[需要线程安全] --&gt; B{只是单变量原子更新?}
+
+    B --&gt;|是| C{竞争程度?}
+    C --&gt;|低/中| D[AtomicXXX]
+    C --&gt;|高并发统计| E[LongAdder]
+
+    B --&gt;|否| F{需要互斥同步?}
+
+    F --&gt;|否| G[其他并发组件&lt;br/&gt;Latch/Barrier/Queue/Future...]
+
+    F --&gt;|是| H{临界区是否很短?}
+
+    H --&gt;|是| I{冲突极低?}
+    I --&gt;|是| D
+    I --&gt;|否| J[ReentrantLock / synchronized]
+
+    H --&gt;|否| J
+
+    J --&gt; K{是否需要超时/中断/Condition/公平?}
+    K --&gt;|是| L[ReentrantLock]
+    K --&gt;|否| M{优先简单和自动释放?}
+    M --&gt;|是| N[synchronized]
+    M --&gt;|否| L
+</code></pre>
+<hr class="markdown-hr">
+<h3>19.2 场景速查</h3>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>简单互斥、临界区短</td>
+<td><code>synchronized</code></td>
+</tr>
+<tr>
+<td>单变量状态更新</td>
+<td><code>AtomicInteger</code> / <code>AtomicLong</code> / <code>AtomicReference</code></td>
+</tr>
+<tr>
+<td>高并发统计</td>
+<td><code>LongAdder</code></td>
+</tr>
+<tr>
+<td>需要超时</td>
+<td><code>ReentrantLock.tryLock(timeout)</code></td>
+</tr>
+<tr>
+<td>需要可中断获取</td>
+<td><code>ReentrantLock.lockInterruptibly()</code></td>
+</tr>
+<tr>
+<td>需要多个条件队列</td>
+<td><code>ReentrantLock + Condition</code></td>
+</tr>
+<tr>
+<td>限流/许可证</td>
+<td><code>Semaphore</code></td>
+</tr>
+<tr>
+<td>一次性等待多个任务结束</td>
+<td><code>CountDownLatch</code></td>
+</tr>
+<tr>
+<td>可重复阶段同步</td>
+<td><code>CyclicBarrier</code> / <code>Phaser</code></td>
+</tr>
+<tr>
+<td>读多写少</td>
+<td><code>ReentrantReadWriteLock</code> / <code>StampedLock</code></td>
+</tr>
+<tr>
+<td>超低延迟、高竞争可控</td>
+<td>CAS / 专门的无锁数据结构</td>
+</tr>
+<tr>
+<td>高竞争且不希望 CPU 空转</td>
+<td>AQS 类阻塞同步器</td>
+</tr>
+</tbody></table>
+<hr class="markdown-hr">
+<h3>19.3 CAS 什么时候应该改成锁</h3>
+<p>看到下面的信号，就要警惕：</p>
+<pre><code class="language-text">CAS 重试次数很高
+CPU 使用率异常
+单个热点变量成为瓶颈
+线程数远大于 CPU 核数
+重试失败后业务处理越来越慢
+</code></pre>
+<p>此时：</p>
+<pre><code class="language-text">CAS
+ ↓
+无限自旋
+ ↓
+CPU 被打满
+</code></pre>
+<p>就应该考虑：</p>
+<pre><code class="language-text">退避
+LongAdder
+分段化
+队列化
+AQS 锁
+</code></pre>
+<hr class="markdown-hr">
+<h3>19.4 AQS 什么时候不划算</h3>
+<p>例如：</p>
+<pre><code class="language-java">for (int i = 0; i &lt; 100; i++) {
+    counter++;
+}
+</code></pre>
+<p>如果：</p>
+<pre><code class="language-text">竞争极低
+临界区极短
+延迟极敏感
+</code></pre>
+<p>为了这几条指令：</p>
+<pre><code class="language-text">入队
+Node
+park
+unpark
+调度
+</code></pre>
+<p>通常可能没有意义。</p>
+<p>此时 CAS 或 JVM 优化后的 <code>synchronized</code> 可能更加合适。</p>
+<hr class="markdown-hr">
+<h2>20. 金融、交易、低延迟场景怎么理解</h2>
+<blockquote class="markdown-blockquote">
+<p><strong>前提：系统有足够 CPU 预算，而且竞争时间足够短、并且尾延迟比 CPU 成本更加重要。</strong></p>
+<p>此时<strong>宁可自旋，也尽量不要 park</strong>。</p>
+</blockquote>
+<p>例如：</p>
+<pre><code class="language-text">内存撮合
+行情分发
+高性能事件流水线
+</code></pre>
+<p>可能更偏向：</p>
+<pre><code class="language-text">CAS
+预分配
+无锁队列
+环形数组
+缓存行隔离
+</code></pre>
+<p>而不是：</p>
+<pre><code class="language-text">高竞争锁 + 大量 park/unpark
+</code></pre>
+<hr class="markdown-hr">
+<h2>21. 工程上最容易踩的坑</h2>
+<h3>21.1 unlock 没写 finally</h3>
+<p>错误：</p>
+<pre><code class="language-java">lock.lock();
+
+doSomething();
+
+lock.unlock();
+</code></pre>
+<p>如果 <code>doSomething()</code> 抛异常：</p>
+<pre><code class="language-text">unlock() 永远执行不到
+</code></pre>
+<p>正确：</p>
+<pre><code class="language-java">lock.lock();
+
+try {
+    doSomething();
+} finally {
+    lock.unlock();
+}
+</code></pre>
+<hr class="markdown-hr">
+<h3>21.2 持锁做 RPC / DB / 回调</h3>
+<p>错误模型：</p>
+<pre><code class="language-text">拿锁
+ ↓
+调用远程服务
+ ↓
+等待 500ms
+ ↓
+释放锁
+</code></pre>
+<p>结果：</p>
+<pre><code class="language-text">一个请求把几十个线程全部堵住
+</code></pre>
+<p>更严重的是：</p>
+<pre><code class="language-text">线程A 持锁 → RPC → 等待 B
+线程B 持锁 → RPC → 等待 A
+</code></pre>
+<p>进一步产生死锁或长尾。</p>
+<p>建议：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>把慢操作移到锁外，把锁内逻辑压缩到最短。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h3>21.3 用 sleep 代替条件等待</h3>
+<p>错误：</p>
+<pre><code class="language-java">while (queue.isEmpty()) {
+    Thread.sleep(100);
+}
+</code></pre>
+<p>问题：</p>
+<pre><code class="language-text">延迟至少有一个 sleep 周期
+</code></pre>
+<p>而且：</p>
+<pre><code class="language-text">没有真正表达“条件变化时立即唤醒”
+</code></pre>
+<p>应优先考虑：</p>
+<pre><code class="language-text">BlockingQueue
+Condition
+CountDownLatch
+Semaphore
+Future
+</code></pre>
+<p>等专用同步机制。</p>
+<hr class="markdown-hr">
+<h3>21.4 吞掉 InterruptedException</h3>
+<p>错误：</p>
+<pre><code class="language-java">try {
+    condition.await();
+} catch (InterruptedException e) {
+    // 什么都不做
+}
+</code></pre>
+<p>这样会丢失中断信号。</p>
+<p>如果当前方法不能直接继续抛出，应至少：</p>
+<pre><code class="language-java">Thread.currentThread().interrupt();
+</code></pre>
+<p>具体是否重新抛出、转成业务异常或结束线程，要由任务的取消语义决定。</p>
+<hr class="markdown-hr">
+<h3>21.5 LongAdder 用作精确余额</h3>
+<p>错误：</p>
+<pre><code class="language-java">LongAdder balance = new LongAdder();
+balance.add(-100);
+</code></pre>
+<p>把这种结构直接当：</p>
+<pre><code class="language-text">精确账户余额
+</code></pre>
+<p>是不合理的。</p>
+<p>原因不是：</p>
+<pre><code class="language-text">LongAdder 不准
+</code></pre>
+<p>而是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>LongAdder 的设计目标就是高并发统计，它的 <code>sum()</code> 不是原子快照，也不适合作为强一致状态控制。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h3>21.6 自定义 AQS 只重写 tryAcquire，不考虑释放语义</h3>
+<p>自定义 AQS 时最危险的思维：</p>
+<pre><code class="language-text">能抢到锁就行
+</code></pre>
+<p>实际上还要保证：</p>
+<pre><code class="language-text">谁可以释放？
+重入怎么处理？
+state 如何恢复？
+失败时是否留下错误 owner？
+Condition 是否可用？
+取消后是否能继续传播？
+</code></pre>
+<p>尤其是：</p>
+<pre><code class="language-text">tryAcquire
+tryRelease
+</code></pre>
+<p>必须成对设计。</p>
+<hr class="markdown-hr">
+<h2>22. 排查线上线程阻塞：从现象反推底层机制</h2>
+<p>出现：</p>
+<pre><code class="language-text">CPU 高
+</code></pre>
+<p>先考虑：</p>
+<pre><code class="language-text">CAS 自旋
+忙等
+死循环
+线程池过载
+</code></pre>
+<p>出现：</p>
+<pre><code class="language-text">WAITING (parking)
+</code></pre>
+<p>重点考虑：</p>
+<pre><code class="language-text">AQS
+LockSupport
+Future
+并发工具
+</code></pre>
+<p>出现：</p>
+<pre><code class="language-text">BLOCKED
+</code></pre>
+<p>重点考虑：</p>
+<pre><code class="language-text">synchronized monitor
+</code></pre>
+<p>出现：</p>
+<pre><code class="language-text">TIMED_WAITING
+</code></pre>
+<p>则可能是：</p>
+<pre><code class="language-text">sleep
+wait(timeout)
+join(timeout)
+parkNanos
+parkUntil
+Condition.await(timeout)
+</code></pre>
+<hr class="markdown-hr">
+<h3>22.1 jstack 的基本思路</h3>
+<p>看到：</p>
+<pre><code class="language-text">&quot;worker-1&quot; WAITING (parking)
+</code></pre>
+<p>进一步看：</p>
+<pre><code class="language-text">at LockSupport.park(...)
+at AbstractQueuedSynchronizer...
+</code></pre>
+<p>就可以把方向快速缩小到：</p>
+<pre><code class="language-text">AQS / Lock
+</code></pre>
+<p>如果 blocker 信息存在，还能进一步判断：</p>
+<pre><code class="language-text">到底在等待哪个同步器对象
+</code></pre>
+<hr class="markdown-hr">
+<h3>22.2 不要看到 WAITING 就认为“死锁”</h3>
+<p>这是非常典型的误判。</p>
+<pre><code class="language-text">WAITING
+</code></pre>
+<p>本身只是：</p>
+<blockquote class="markdown-blockquote">
+<p>线程正在等待某个动作。</p>
+</blockquote>
+<p>可能完全正常：</p>
+<pre><code class="language-text">线程池工作线程
+等待任务
+</code></pre>
+<p>也可能是：</p>
+<pre><code class="language-text">Condition.await
+AQS 等锁
+Future.get
+</code></pre>
+<p>真正需要结合下列情况进行判断：</p>
+<pre><code class="language-text">调用栈
+锁拥有者
+线程之间的依赖关系
+</code></pre>
+<hr class="markdown-hr">
+<h2>23. 性能测试：为什么不要自己用 currentTimeMillis 测 CAS 和锁</h2>
+<p>错误：</p>
+<pre><code class="language-java">long start = System.currentTimeMillis();
+
+for (...) {
+    lock.lock();
+    try {
+        ...
+    } finally {
+        lock.unlock();
+    }
+}
+
+long end = System.currentTimeMillis();
+</code></pre>
+<p>这种方式容易受到：</p>
+<pre><code class="language-text">JIT
+预热
+Dead Code Elimination
+常量折叠
+线程调度
+GC
+系统噪声
+</code></pre>
+<p>等影响。</p>
+<p>更适合使用：</p>
+<pre><code class="language-text">JMH
+</code></pre>
+<p>基准测试至少应该考虑：</p>
+<pre><code class="language-text">warmup
+iterations
+forks
+threads
+不同竞争度
+不同临界区长度
+</code></pre>
+<hr class="markdown-hr">
+<h3>23.1 真正有价值的压测维度</h3>
+<p>不要只比较：</p>
+<pre><code class="language-text">CAS = 10 ns
+Lock = 30 ns
+</code></pre>
+<p>应该测试：</p>
+<pre><code class="language-text">线程数：
+1 / 2 / 4 / 8 / 16 / 32 ...
+
+竞争程度：
+低 / 中 / 高
+
+临界区：
+5 ns / 100 ns / 1 μs / 100 μs / 1 ms
+
+读写比例：
+100:0
+90:10
+50:50
+
+指标：
+吞吐
+平均延迟
+P95
+P99
+P999
+CPU
+GC
+</code></pre>
+<p>因为：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>锁的性能不是一个固定数字，而是一个随负载模型变化的函数。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>24. CAS、AQS、LockSupport 的底层逻辑串联</h2>
+<p>现在可以把整个故事完整串起来：</p>
+<pre><code class="language-text">第一层：CAS
+-------------------------
+“我能不能把 state 从 A 改成 B？”
+        ↓
+成功：继续
+失败：说明有竞争
+
+第二层：自旋
+-------------------------
+“竞争可能马上结束”
+        ↓
+继续 CAS 重试
+        ↓
+成本：消耗 CPU
+
+第三层：LockSupport
+-------------------------
+“竞争持续时间不可预测”
+        ↓
+park()
+        ↓
+停止空转
+
+第四层：AQS
+-------------------------
+“几十个线程都在等”
+        ↓
+Node
+        ↓
+同步队列
+        ↓
+前驱/后继
+        ↓
+SIGNAL
+        ↓
+park/unpark
+        ↓
+取消/超时/中断
+
+第五层：Condition
+-------------------------
+“不是等锁，而是等某个业务条件”
+        ↓
+Condition Queue
+        ↓
+await()
+        ↓
+释放锁
+        ↓
+park
+        ↓
+signal
+        ↓
+迁移回 Sync Queue
+        ↓
+重新获取锁
+</code></pre>
+<p>这就是本文真正应该建立起来的知识体系。</p>
+<hr class="markdown-hr">
+<h2>25. 一套完整的认知模型</h2>
+<p>可以把 Java 并发底层简单理解成：</p>
+<pre><code class="language-text">CPU 原子性
+    ↓
+CAS
+
+JMM / 内存语义
+    ↓
+volatile / CAS / Lock
+
+线程阻塞
+    ↓
+LockSupport
+
+线程排队
+    ↓
+AQS
+
+具体同步器
+    ↓
+ReentrantLock
+Semaphore
+CountDownLatch
+ReentrantReadWriteLock
+Condition
+</code></pre>
+<p>所以：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>AQS 并不是凭空实现“锁”的。</strong></p>
+</blockquote>
+<p>它依赖：</p>
+<pre><code class="language-text">CAS
++
+volatile / 原子内存语义
++
+队列
++
+LockSupport
+</code></pre>
+<p>再把这些机制组合成一个可以复用的同步器框架。</p>
+<hr class="markdown-hr">
+<h2>26. 最后重新理解“无锁 vs 有锁”</h2>
+<h3>26.1 CAS / 无锁</h3>
+<p>特点：</p>
+<pre><code class="language-text">失败 → 重试
+</code></pre>
+<p>优点：</p>
+<pre><code class="language-text">短路径
+低延迟
+不主动阻塞
+</code></pre>
+<p>缺点：</p>
+<pre><code class="language-text">高竞争时 CPU 飙升
+复杂数据结构难写
+ABA
+活锁
+重试风暴
+</code></pre>
+<hr class="markdown-hr">
+<h3>26.2 AQS / 阻塞锁</h3>
+<p>特点：</p>
+<pre><code class="language-text">失败
+ ↓
+排队
+ ↓
+park
+</code></pre>
+<p>优点：</p>
+<pre><code class="language-text">高竞争下 CPU 更可控
+支持超时
+支持中断
+支持 Condition
+支持公平策略
+</code></pre>
+<p>缺点：</p>
+<pre><code class="language-text">队列维护成本
+线程阻塞/唤醒成本
+尾延迟可能受调度影响
+</code></pre>
+<hr class="markdown-hr">
+<h3>26.3 synchronized</h3>
+<p>特点：</p>
+<pre><code class="language-text">JVM 内建
+语法简单
+自动释放
+</code></pre>
+<p>优点：</p>
+<pre><code class="language-text">不容易忘记 unlock
+语义清晰
+现代 JVM 已经高度优化
+</code></pre>
+<p>缺点：</p>
+<pre><code class="language-text">可编程能力比 Lock 弱
+没有 tryLock/lockInterruptibly 等能力
+</code></pre>
+<p>因此：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>不存在绝对高级的同步方式，只有与负载模型匹配的同步方式。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>27. 汇总小结</h2>
+<h3>27.1 什么是 CAS？</h3>
+<blockquote class="markdown-blockquote">
+<p>CAS 是一种原子条件更新原语：只有当前值等于预期值时才写入新值，否则失败，不修改共享状态。</p>
+</blockquote>
+<h3>27.2 CAS 是 Java 语言提供的吗？</h3>
+<blockquote class="markdown-blockquote">
+<p>不是。Java 通过原子类、VarHandle、Unsafe 等入口使用底层原子更新能力，最终由 JVM 映射到目标 CPU 的原子机制。</p>
+</blockquote>
+<h3>27.3 CAS 失败怎么办？</h3>
+<blockquote class="markdown-blockquote">
+<p>最常见是重新读取并重试，也就是自旋；竞争高时应考虑退避、分段化或改为阻塞同步。</p>
+</blockquote>
+<h3>27.4 CAS 有什么问题？</h3>
+<blockquote class="markdown-blockquote">
+<p>ABA、自旋浪费 CPU、单变量更新能力有限、复杂多状态操作难以维护。</p>
+</blockquote>
+<h3>27.5 ABA 怎么解决？</h3>
+<blockquote class="markdown-blockquote">
+<p>用版本戳、标记位或把状态封装到不可变对象中。</p>
+</blockquote>
+<h3>27.6 AtomicLong 和 LongAdder 怎么选？</h3>
+<blockquote class="markdown-blockquote">
+<p>精确原子状态更新用 AtomicLong；高并发统计计数优先 LongAdder。</p>
+</blockquote>
+<h3>27.7 LongAdder 为什么快？</h3>
+<blockquote class="markdown-blockquote">
+<p>高竞争时把一个热点拆成多个 Cell，让线程分散更新，降低同一变量上的 CAS 冲突。</p>
+</blockquote>
+<h3>27.8 LongAdder 的 sum 是精确值吗？</h3>
+<blockquote class="markdown-blockquote">
+<p>在没有并发更新时准确；并发更新期间不是原子快照。</p>
+</blockquote>
+<h3>27.9 AQS 是锁吗？</h3>
+<blockquote class="markdown-blockquote">
+<p>不是。AQS 是同步器模板框架。</p>
+</blockquote>
+<h3>27.10 AQS 核心是什么？</h3>
+<blockquote class="markdown-blockquote">
+<p><code>state + 同步队列 + CAS + park/unpark + 模板方法</code>。</p>
+</blockquote>
+<h3>27.11 AQS 为什么是双向链表？</h3>
+<blockquote class="markdown-blockquote">
+<p>需要前驱关系做等待协议，也需要在节点取消、后继链接异常时利用 <code>prev</code> 从后往前恢复可用节点。</p>
+</blockquote>
+<h3>27.12 为什么 AQS 需要 Node？</h3>
+<blockquote class="markdown-blockquote">
+<p>因为多个等待线程不能只靠一个 <code>state</code> 表达“谁在等待、谁要唤醒、谁取消了”。</p>
+</blockquote>
+<h3>27.13 SIGNAL 是什么？</h3>
+<blockquote class="markdown-blockquote">
+<p>当前节点要在释放/取消时负责唤醒后继。</p>
+</blockquote>
+<h3>27.14 被 unpark 就拿到锁了吗？</h3>
+<blockquote class="markdown-blockquote">
+<p>不是。unpark 只是让线程重新具备继续执行的机会，线程醒来后必须再次 tryAcquire。</p>
+</blockquote>
+<h3>27.15 为什么需要 for(;;)？</h3>
+<blockquote class="markdown-blockquote">
+<p>因为 park/wait 可能虚假唤醒，而且被唤醒也不代表条件成立。</p>
+</blockquote>
+<h3>27.16 AQS 为什么不是纯自旋？</h3>
+<blockquote class="markdown-blockquote">
+<p>因为高竞争下纯自旋会持续消耗 CPU，所以 AQS 会在一定条件下把线程挂起。</p>
+</blockquote>
+<h3>27.17 ReentrantLock 如何实现重入？</h3>
+<blockquote class="markdown-blockquote">
+<p>owner 记录持有线程，state 记录重入次数；同线程再次获取时直接增加 state。</p>
+</blockquote>
+<h3>27.18 为什么释放两次才真正解锁？</h3>
+<blockquote class="markdown-blockquote">
+<p>因为第一次 unlock 只是在减少重入计数，state 归零才是真正释放。</p>
+</blockquote>
+<h3>27.19 公平锁与非公平锁谁快？</h3>
+<blockquote class="markdown-blockquote">
+<p>非公平锁通常吞吐更高，但不是任何负载都快一个数量级；具体差距需要压测。</p>
+</blockquote>
+<h3>27.20 公平锁是绝对 FIFO 吗？</h3>
+<blockquote class="markdown-blockquote">
+<p>不是。它主要控制锁获取顺序，不能代替操作系统线程调度公平。</p>
+</blockquote>
+<h3>27.21 公平锁的 tryLock() 会遵守公平吗？</h3>
+<blockquote class="markdown-blockquote">
+<p>无参 <code>tryLock()</code> 可以插队；带超时的获取路径可以遵守公平策略。</p>
+</blockquote>
+<h3>27.22 Condition 和 wait 的区别？</h3>
+<blockquote class="markdown-blockquote">
+<p><code>Condition</code> 与 <code>Lock</code> 绑定，可以拥有多个条件队列；<code>wait</code> 与对象 monitor 绑定。</p>
+</blockquote>
+<h3>27.23 Condition.signal() 会直接把锁交给等待线程吗？</h3>
+<blockquote class="markdown-blockquote">
+<p>不会。它主要把节点从条件队列迁移到同步队列，之后线程还要重新获取锁。</p>
+</blockquote>
+<h3>27.24 CountDownLatch 可以重复使用吗？</h3>
+<blockquote class="markdown-blockquote">
+<p>不能。它是一次性的同步器。</p>
+</blockquote>
+<h3>27.25 synchronized 和 ReentrantLock 怎么选？</h3>
+<blockquote class="markdown-blockquote">
+<p>简单互斥优先 synchronized；需要超时、中断、多个 Condition、公平策略等能力时优先 ReentrantLock。</p>
+</blockquote>
+<h3>27.26 JDK 8 的偏向锁现在还能直接照搬吗？</h3>
+<blockquote class="markdown-blockquote">
+<p>不能。偏向锁从 JDK 15 起默认关闭并废弃相关参数，现代 JDK 学习应把它视为历史实现知识。</p>
+</blockquote>
+<h3>27.27 JDK 21 的 AQS 为什么找不到 waitStatus？</h3>
+<blockquote class="markdown-blockquote">
+<p>因为 AQS 的内部 Node 实现已经演进，现代源码使用 <code>status</code>、不同 Node 类型等结构；同步思想仍然是 state + 队列 + CAS + park/unpark。</p>
+</blockquote>
+<h3>27.28 join() 和 CAS 有关系吗？</h3>
+<blockquote class="markdown-blockquote">
+<p>没有直接关系。CAS Demo 里使用 join 是为了等待工作线程完成。</p>
+</blockquote>
+<h3>27.29 为什么 join 内部用 while？</h3>
+<blockquote class="markdown-blockquote">
+<p>因为底层 wait 可能虚假唤醒，必须重复检查 <code>isAlive()</code>。</p>
+</blockquote>
+<h3>27.30 CAS 什么时候应该换成锁？</h3>
+<blockquote class="markdown-blockquote">
+<p>当竞争激烈、CAS 重试次数高、CPU 被空转占满，或者临界区较长/包含阻塞等待时，应优先考虑阻塞同步器。</p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>28. 速查表</h2>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>关键词</th>
+<th>一句话记忆</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CAS</td>
+<td>原子条件更新</td>
+</tr>
+<tr>
+<td>ABA</td>
+<td>值没变，不代表状态没变</td>
+</tr>
+<tr>
+<td>自旋</td>
+<td>用 CPU 换等待延迟</td>
+</tr>
+<tr>
+<td>LongAdder</td>
+<td>分散高竞争统计热点</td>
+</tr>
+<tr>
+<td>AQS</td>
+<td>同步器模板框架</td>
+</tr>
+<tr>
+<td>state</td>
+<td>同步器核心状态</td>
+</tr>
+<tr>
+<td>Node</td>
+<td>等待线程的队列节点</td>
+</tr>
+<tr>
+<td>SIGNAL</td>
+<td>后继需要被通知</td>
+</tr>
+<tr>
+<td>CANCELLED</td>
+<td>当前等待已经退出</td>
+</tr>
+<tr>
+<td>PROPAGATE</td>
+<td>共享模式继续传播</td>
+</tr>
+<tr>
+<td>LockSupport</td>
+<td>park/unpark 线程阻塞原语</td>
+</tr>
+<tr>
+<td>permit</td>
+<td>每个线程最多一个</td>
+</tr>
+<tr>
+<td>Condition</td>
+<td>等业务条件的独立队列</td>
+</tr>
+<tr>
+<td>唤醒</td>
+<td>≠ 条件成立</td>
+</tr>
+<tr>
+<td>unpark</td>
+<td>≠ 直接获得锁</td>
+</tr>
+<tr>
+<td>公平锁</td>
+<td>近似控制获取顺序</td>
+</tr>
+<tr>
+<td>非公平锁</td>
+<td>允许插队，通常吞吐更高</td>
+</tr>
+<tr>
+<td>synchronized</td>
+<td>JVM 内建 monitor</td>
+</tr>
+<tr>
+<td>join</td>
+<td>等待目标线程终止</td>
+</tr>
+<tr>
+<td><code>onSpinWait()</code></td>
+<td>告诉 JVM 当前正在自旋</td>
+</tr>
+</tbody></table>
+<hr class="markdown-hr">
+<h2>29. 常见错误清单</h2>
+<table class="markdown-table">
+<thead>
+<tr>
+<th align="right">#</th>
+<th>错误</th>
+<th>后果</th>
+<th>正确做法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="right">1</td>
+<td><code>unlock()</code> 不放 finally</td>
+<td>异常导致锁无法释放</td>
+<td><code>try/finally</code></td>
+</tr>
+<tr>
+<td align="right">2</td>
+<td>自定义 AQS 不处理 owner</td>
+<td>Condition/释放语义错误</td>
+<td>正确维护 owner + state</td>
+</tr>
+<tr>
+<td align="right">3</td>
+<td>CAS 引用类型用 <code>equals</code> 思维理解</td>
+<td>CAS 结果与预期不一致</td>
+<td>牢记引用 CAS 比较的是对象身份</td>
+</tr>
+<tr>
+<td align="right">4</td>
+<td>用 LongAdder 做余额</td>
+<td>非原子快照</td>
+<td>AtomicLong/AtomicReference/锁/事务</td>
+</tr>
+<tr>
+<td align="right">5</td>
+<td>吞掉 InterruptedException</td>
+<td>取消信号丢失</td>
+<td>恢复中断或继续抛出</td>
+</tr>
+<tr>
+<td align="right">6</td>
+<td>持锁做 RPC/DB</td>
+<td>长尾、死锁风险</td>
+<td>缩短锁内临界区</td>
+</tr>
+<tr>
+<td align="right">7</td>
+<td>sleep 轮询条件</td>
+<td>延迟和 CPU 浪费</td>
+<td>Condition/BlockingQueue 等</td>
+</tr>
+<tr>
+<td align="right">8</td>
+<td>高竞争无脑 AtomicLong</td>
+<td>CAS 热点严重</td>
+<td>LongAdder/分段/锁</td>
+</tr>
+<tr>
+<td align="right">9</td>
+<td>自旋无限持续</td>
+<td>CPU 打满</td>
+<td><code>onSpinWait()</code>、退避、转阻塞</td>
+</tr>
+<tr>
+<td align="right">10</td>
+<td>认为公平锁绝对 FIFO</td>
+<td>错误判断调度行为</td>
+<td>理解“锁公平”和“线程调度公平”的区别</td>
+</tr>
+<tr>
+<td align="right">11</td>
+<td>把 unpark 当成“直接给锁”</td>
+<td>误读 AQS</td>
+<td>醒来后重新竞争</td>
+</tr>
+<tr>
+<td align="right">12</td>
+<td>把 JDK 8 AQS 源码硬套 JDK 21</td>
+<td>源码对不上</td>
+<td>先确认 JDK 版本</td>
+</tr>
+<tr>
+<td align="right">13</td>
+<td>把偏向锁当成现代 JDK 默认机制</td>
+<td>JVM 调优判断错误</td>
+<td>现代 JDK 按实际版本理解</td>
+</tr>
+<tr>
+<td align="right">14</td>
+<td>看到 WAITING 就认为死锁</td>
+<td>错误定位</td>
+<td>结合调用栈和锁依赖分析</td>
+</tr>
+<tr>
+<td align="right">15</td>
+<td>手写 <code>currentTimeMillis()</code> 比锁快慢</td>
+<td>基准结果失真</td>
+<td>JMH + 多竞争模型</td>
+</tr>
+</tbody></table>
+<hr class="markdown-hr">
+<h2>30. 最终结论</h2>
+<p>把全文压缩成四句话：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>CAS：解决“一个共享状态如何原子修改”。</strong></p>
+</blockquote>
+<blockquote class="markdown-blockquote">
+<p><strong>LockSupport：解决“线程竞争失败后如何低成本等待”。</strong></p>
+</blockquote>
+<blockquote class="markdown-blockquote">
+<p><strong>AQS：解决“多个线程如何排队、阻塞、唤醒、取消，并把这些能力复用成锁/信号量/同步器”。</strong></p>
+</blockquote>
+<blockquote class="markdown-blockquote">
+<p><strong>工程选型：不是“CAS 高级、锁低级”，而是根据竞争程度、临界区长度、CPU 预算、尾延迟、超时/中断/条件等需求进行选择。</strong></p>
+</blockquote>
+<p>最后把最重要的逻辑再画一次：</p>
+<pre><code class="language-text">                    ┌─────────────────┐
+                    │   共享状态竞争    │
+                    └────────┬────────┘
+                             ↓
+                     ┌─────────────┐
+                     │     CAS     │
+                     └──────┬──────┘
+                            ↓
+                     CAS 成功/失败
+                            ↓
+                 ┌──────────┴──────────┐
+                 ↓                     ↓
+               成功                   失败
+                 ↓                     ↓
+              继续执行             是否值得自旋？
+                                       ↓
+                              ┌────────┴────────┐
+                              ↓                 ↓
+                             是                 否
+                              ↓                 ↓
+                            CAS重试         AQS排队
+                                                ↓
+                                         LockSupport.park
+                                                ↓
+                                           unlock/unpark
+                                                ↓
+                                            重新竞争
+                                                ↓
+                                  成功 ←────→ 继续等待
+</code></pre>
+<p>这条链真正说明了：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>AQS 并不是 CAS 的竞争对手，而是 CAS 在“竞争继续存在”之后的一种工程化扩展：先用 CAS 做轻量尝试，再用队列和 park/unpark 解决长时间竞争。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>31. 官方资料与源码参考</h2>
+<p>本文涉及版本差异时，优先以以下官方资料为准：</p>
+<ol class="markdown-ordered-list">
+<li><p>Java SE 21 <code>LockSupport</code> API<br><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/locks/LockSupport.html">https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/locks/LockSupport.html</a></p>
+</li>
+<li><p>Java SE 21 <code>AtomicInteger</code> API<br><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/atomic/AtomicInteger.html">https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/atomic/AtomicInteger.html</a></p>
+</li>
+<li><p>Java SE 21 <code>LongAdder</code> API<br><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/atomic/LongAdder.html">https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/atomic/LongAdder.html</a></p>
+</li>
+<li><p>Java SE 21 <code>Lock</code> API<br><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/locks/Lock.html">https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/locks/Lock.html</a></p>
+</li>
+<li><p>Java SE 21 <code>ReentrantReadWriteLock</code> API<br><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/locks/ReentrantReadWriteLock.html">https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/locks/ReentrantReadWriteLock.html</a></p>
+</li>
+<li><p>OpenJDK 8 AQS 源码<br><a href="https://github.com/openjdk/jdk8u/blob/master/jdk/src/share/classes/java/util/concurrent/locks/AbstractQueuedSynchronizer.java">https://github.com/openjdk/jdk8u/blob/master/jdk/src/share/classes/java/util/concurrent/locks/AbstractQueuedSynchronizer.java</a></p>
+</li>
+<li><p>OpenJDK 21 AQS 源码<br><a href="https://github.com/openjdk/jdk21/blob/master/src/java.base/share/classes/java/util/concurrent/locks/AbstractQueuedSynchronizer.java">https://github.com/openjdk/jdk21/blob/master/src/java.base/share/classes/java/util/concurrent/locks/AbstractQueuedSynchronizer.java</a></p>
+</li>
+<li><p>OpenJDK 21 Thread 源码<br><a href="https://github.com/openjdk/jdk21/blob/master/src/java.base/share/classes/java/lang/Thread.java">https://github.com/openjdk/jdk21/blob/master/src/java.base/share/classes/java/lang/Thread.java</a></p>
+</li>
+<li><p>OpenJDK JEP 374：Disable and Deprecate Biased Locking<br><a href="https://openjdk.org/jeps/374">https://openjdk.org/jeps/374</a></p>
+</li>
+<li><p>Oracle JDK 18 Migration Guide：相关历史锁参数进入 obsolete 阶段<br><a href="https://docs.oracle.com/en/java/javase/18/docs/specs/man/java.html">https://docs.oracle.com/en/java/javase/18/docs/specs/man/java.html</a></p>
+</li>
+</ol>
+
+      </div>
+    </article>
+    
+    <div id="comments" style="max-width: 800px; margin: 3rem auto; padding: 0 1rem;">
+      <div style="width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin-bottom: 2rem;"></div>
+      <h3 style="margin-bottom: 1.5rem; color: var(--primary);">💬 评论区</h3>
+      <script src="https://giscus.app/client.js" 
+           data-repo="jonny-dr/jonny-dr.github.io" 
+           data-repo-id="R_kgDORKkzfg" 
+           data-category="Announcements" 
+           data-category-id="DIC_kwDORKkzfs4C2Wdq" 
+           data-mapping="pathname" 
+           data-strict="0" 
+           data-reactions-enabled="1" 
+           data-emit-metadata="0" 
+           data-input-position="bottom" 
+           data-theme="preferred_color_scheme" 
+           data-lang="zh-CN" 
+           crossorigin="anonymous" 
+           async> 
+     </script>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 北辰 · 保持好奇，持续成长</p>
+    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
+      源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
+    </p>
+  </footer>
+
+  <button class="back-to-top" id="backToTop" aria-label="回到顶部">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="m18 15-6-6-6 6"/>
+    </svg>
+  </button>
+
+  <script src="../../../js/theme.js"></script>
+</body>
+</html>
+  

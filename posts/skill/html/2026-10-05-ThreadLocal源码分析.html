@@ -1,0 +1,2333 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ThreadLocal 源码分析与常见问题 | 北辰</title>
+  <link rel="stylesheet" href="../../../css/common.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <style>
+    .post-content {
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+    .post-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    .post-meta {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .post-tag {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .post-tag.category {
+      background: rgba(72, 187, 120, 0.1);
+      color: #48bb78;
+    }
+    .post-tag.language {
+      background: rgba(237, 137, 54, 0.1);
+      color: #ed8936;
+    }
+    .post-body {
+      margin-bottom: 2rem;
+    }
+    .post-body h2 {
+      font-size: 1.8rem;
+      margin: 2rem 0 1rem;
+      color: var(--primary);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-body h3 {
+      font-size: 1.4rem;
+      margin: 1.5rem 0 0.8rem;
+      color: var(--primary);
+    }
+    .post-body h4 {
+      font-size: 1.2rem;
+      margin: 1.2rem 0 0.6rem;
+      color: var(--primary);
+    }
+    .post-body h5 {
+      font-size: 1.1rem;
+      margin: 1rem 0 0.5rem;
+      color: var(--text);
+    }
+    .post-body p {
+      margin-bottom: 1.2rem;
+    }
+    .post-body a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-body a:hover {
+      text-decoration: underline;
+    }
+    .post-body ul,
+    .post-body ol {
+      margin: 1rem 0 1.5rem 1.5rem;
+    }
+    .post-body li {
+      margin-bottom: 0.5rem;
+    }
+    .post-body pre {
+      background: #f8f9fa;
+      color: #333333;
+      padding: 1.5rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border);
+    }
+    .post-body code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.9rem;
+    }
+    .post-body pre code {
+      background: none;
+      padding: 0;
+    }
+    [data-theme="dark"] .post-body pre {
+      background: #1e1e1e;
+      color: #e6e6e6;
+    }
+    [data-theme="dark"] .post-body code {
+      color: #e6e6e6;
+    }
+    .post-body img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .post-original-link {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+      color: #6c757d;
+    }
+    .post-original-link a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-original-link a:hover {
+      text-decoration: underline;
+    }
+    .post-body table.markdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .post-body table.markdown-table thead {
+      background: linear-gradient(135deg, var(--primary), #3a0ca3);
+      color: white;
+    }
+    .post-body table.markdown-table th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      border: none;
+    }
+    .post-body table.markdown-table td {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .post-body table.markdown-table td:last-child {
+      border-right: none;
+    }
+    .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(67, 97, 238, 0.03);
+    }
+    .post-body table.markdown-table tbody tr:hover {
+      background: rgba(67, 97, 238, 0.08);
+    }
+    [data-theme="dark"] .post-body table.markdown-table {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .post-body blockquote.markdown-blockquote {
+      border-left: 4px solid var(--primary);
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      background: rgba(67, 97, 238, 0.05);
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #666;
+    }
+    [data-theme="dark"] .post-body blockquote.markdown-blockquote {
+      background: rgba(255, 255, 255, 0.05);
+      color: #aaa;
+    }
+    .post-body hr.markdown-hr {
+      border: none;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      margin: 2rem 0;
+    }
+    .post-body li.task-list-item {
+      list-style: none;
+      margin-left: -1.5rem;
+    }
+    .post-body li.task-list-item input[type="checkbox"] {
+      margin-right: 0.5rem;
+      cursor: default;
+    }
+    .post-body .image-placeholder {
+      transition: var(--transition);
+    }
+    .post-body .image-placeholder:hover {
+      border-color: var(--primary) !important;
+      background: rgba(67, 97, 238, 0.05) !important;
+    }
+    @media (max-width: 768px) {
+      .post-content {
+        padding: 0 1rem;
+      }
+      .post-header h1 {
+        font-size: 1.8rem;
+      }
+      .post-tags {
+        gap: 0.5rem;
+      }
+      .post-tag {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      .post-body pre {
+        padding: 1rem;
+      }
+      .post-body table.markdown-table {
+        font-size: 0.85rem;
+      }
+      .post-body table.markdown-table th,
+      .post-body table.markdown-table td {
+        padding: 0.6rem 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <button class="music-toggle" id="musicToggle" aria-label="控制音乐">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+  </button>
+
+  <header>
+    <h1>🌱 北辰的博客</h1>
+    <p class="subtitle">记录思考，分享成长 | 一个热爱技术的探索者</p>
+    <nav>
+  <a href="../../../index.html">首页</a>
+  <a href="../../../html/project/project.html">项目</a>
+  <a href="../../../html/skill/skill.html">技术</a>
+  <a href="../../../html/ai/ai.html">AI</a>
+  <a href="../../../html/daily/daily.html">日常</a>
+  <a href="../../../about.html">关于</a>
+  <a href="../../../archives.html">归档</a>
+  <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+</nav>
+  </header>
+
+  <main class="post-content">
+    <article>
+      <div class="post-header">
+        <h1>ThreadLocal 源码分析与常见问题</h1>
+        <div class="post-meta">发布日期：2026-10-05</div>
+        
+        <div class="post-tags">
+          <span class="post-tag category">Java 与 JVM</span>
+          <span class="post-tag">ThreadLocal</span> <span class="post-tag">内存泄漏</span> <span class="post-tag">线程池</span> <span class="post-tag">源码分析</span>
+          <span class="post-tag language">Java</span>
+        </div>
+        
+      </div>
+      <div class="post-body">
+        <h1>ThreadLocal 的问题以及解决方案</h1>
+<blockquote class="markdown-blockquote">
+<p>本文围绕 Java <code>ThreadLocal</code> 的设计、底层实现、内存泄漏风险、线程池场景以及替代方案展开。每个主题都包含：<strong>原理说明 → OpenJDK 源码关键点 → Demo → 测试 Demo → 实战建议</strong>。全文共 8 个主题。</p>
+<p>示例默认以 <strong>JDK 17+、JUnit 5</strong> 为基础；涉及 <code>ScopedValue</code> 的部分以 <strong>JDK 25</strong> 为准。</p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>1、什么是 ThreadLocal？为什么要设计 ThreadLocal？</h2>
+<h3>1.1 ThreadLocal 是什么</h3>
+<p><code>ThreadLocal&lt;T&gt;</code> 用于保存“<strong>线程本地变量</strong>”。</p>
+<p>它最大的特点不是“变量只有一个”，而是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>同一个 ThreadLocal 对象，被不同线程访问时，每个线程拥有独立的 value。</strong></p>
+</blockquote>
+<p>例如：</p>
+<pre><code class="language-java">private static final ThreadLocal&lt;String&gt; USER_CONTEXT = new ThreadLocal&lt;&gt;();
+
+public static void main(String[] args) throws InterruptedException {
+    USER_CONTEXT.set(&quot;main-user&quot;);
+
+    Thread t = new Thread(() -&gt; {
+        System.out.println(&quot;子线程第一次 get: &quot; + USER_CONTEXT.get());
+        USER_CONTEXT.set(&quot;child-user&quot;);
+        System.out.println(&quot;子线程第二次 get: &quot; + USER_CONTEXT.get());
+    });
+
+    t.start();
+    t.join();
+
+    System.out.println(&quot;主线程 get: &quot; + USER_CONTEXT.get());
+
+    USER_CONTEXT.remove();
+}
+</code></pre>
+<p>输出效果：</p>
+<pre><code class="language-text">子线程第一次 get: null
+子线程第二次 get: child-user
+主线程 get: main-user
+</code></pre>
+<p>这里可以看到：</p>
+<pre><code class="language-text">Thread-1 -&gt; USER_CONTEXT = child-user
+main    -&gt; USER_CONTEXT = main-user
+</code></pre>
+<p>两条线程访问的是<strong>同一个 ThreadLocal 对象</strong>，但拿到的是<strong>不同线程自己的 value</strong>。</p>
+<h3>1.2 为什么需要 ThreadLocal</h3>
+<p>假设一个 Web 请求需要贯穿 Controller → Service → DAO 传递 <code>traceId</code>：</p>
+<pre><code class="language-java">controller(traceId)
+    -&gt; service(traceId)
+        -&gt; dao(traceId)
+</code></pre>
+<p>如果调用链非常深，每一层都增加一个参数，会产生明显的“参数污染”：</p>
+<pre><code class="language-java">service(String traceId, User user, ...)
+dao(String traceId, User user, ...)
+repository(String traceId, ...)
+</code></pre>
+<p><code>ThreadLocal</code> 提供了一种隐式上下文：</p>
+<pre><code class="language-java">TRACE_ID.set(traceId);
+
+service();
+
+String traceId = TRACE_ID.get();
+</code></pre>
+<p>因此它适合保存：</p>
+<ul class="markdown-list">
+<li>当前线程的请求上下文</li>
+<li>当前用户标识</li>
+<li>TraceId / RequestId</li>
+<li>数据库连接或会话上下文（使用时必须严格管理生命周期）</li>
+<li>格式化器等线程隔离状态</li>
+<li>一些不希望通过方法参数层层传递的数据</li>
+</ul>
+<h3>1.3 ThreadLocal 的核心 API</h3>
+<pre><code class="language-java">ThreadLocal&lt;String&gt; local = new ThreadLocal&lt;&gt;();
+
+local.set(&quot;hello&quot;);
+String value = local.get();
+local.remove();
+</code></pre>
+<p>也可以通过 <code>withInitial</code> 指定初始值：</p>
+<pre><code class="language-java">ThreadLocal&lt;List&lt;String&gt;&gt; local =
+        ThreadLocal.withInitial(ArrayList::new);
+</code></pre>
+<p>注意：<code>remove()</code> 后再次 <code>get()</code>，会重新触发 <code>initialValue()</code> / <code>Supplier</code>。</p>
+<h3>1.4 OpenJDK 源码关键点</h3>
+<p>OpenJDK 的 <code>ThreadLocal#get()</code> 并不是直接从一个全局 Map 读取，而是先获得当前线程的 <code>ThreadLocalMap</code>：</p>
+<pre><code class="language-java">Thread t = Thread.currentThread();
+ThreadLocalMap map = getMap(t);
+</code></pre>
+<p>随后：</p>
+<pre><code class="language-java">Entry e = map.getEntry(this);
+</code></pre>
+<p>如果当前线程还没有对应的 value，则初始化：</p>
+<pre><code class="language-java">T value = initialValue();
+map.set(this, value);
+return value;
+</code></pre>
+<p>核心逻辑可以理解为：</p>
+<pre><code class="language-text">ThreadLocal.get()
+      ↓
+Thread.currentThread()
+      ↓
+currentThread.threadLocals
+      ↓
+ThreadLocalMap
+      ↓
+找到当前 ThreadLocal 对应 Entry
+      ↓
+Entry.value
+</code></pre>
+<p>源码位置：</p>
+<ul class="markdown-list">
+<li>OpenJDK <code>ThreadLocal.java</code></li>
+<li><code>ThreadLocal#get</code></li>
+<li><code>ThreadLocal#set</code></li>
+<li><code>ThreadLocal#remove</code></li>
+</ul>
+<p>参考：</p>
+<ul class="markdown-list">
+<li>Oracle Java 25 ThreadLocal API: <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/ThreadLocal.html">https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/ThreadLocal.html</a></li>
+<li>OpenJDK ThreadLocal 源码: <a href="https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/java/lang/ThreadLocal.java">https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/java/lang/ThreadLocal.java</a></li>
+</ul>
+<h3>1.5 Demo：不同线程拥有不同副本</h3>
+<pre><code class="language-java">import java.util.concurrent.CountDownLatch;
+
+public class ThreadLocalDemo {
+
+    private static final ThreadLocal&lt;Integer&gt; LOCAL =
+            ThreadLocal.withInitial(() -&gt; 0);
+
+    public static void main(String[] args) throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(2);
+
+        Runnable task = () -&gt; {
+            try {
+                System.out.println(Thread.currentThread().getName()
+                        + &quot; before = &quot; + LOCAL.get());
+
+                LOCAL.set(100);
+
+                System.out.println(Thread.currentThread().getName()
+                        + &quot; after = &quot; + LOCAL.get());
+            } finally {
+                LOCAL.remove();
+                latch.countDown();
+            }
+        };
+
+        new Thread(task, &quot;thread-A&quot;).start();
+        new Thread(task, &quot;thread-B&quot;).start();
+
+        latch.await();
+    }
+}
+</code></pre>
+<p>两个线程最终都得到 <code>100</code>，但它们的 <code>100</code> 并不是共享数据，而是两个线程各自保存的一份值。</p>
+<h3>1.6 JUnit 5 测试 Demo</h3>
+<pre><code class="language-java">import org.junit.jupiter.api.Test;
+
+import java.util.concurrent.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class ThreadLocalDemoTest {
+
+    private final ThreadLocal&lt;String&gt; local = new ThreadLocal&lt;&gt;();
+
+    @Test
+    void eachThreadShouldHaveIndependentValue() throws Exception {
+        local.set(&quot;main&quot;);
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        try {
+            Future&lt;String&gt; future = executor.submit(() -&gt; {
+                assertNull(local.get());
+                local.set(&quot;worker&quot;);
+                return local.get();
+            });
+
+            assertEquals(&quot;worker&quot;, future.get(3, TimeUnit.SECONDS));
+            assertEquals(&quot;main&quot;, local.get());
+        } finally {
+            local.remove();
+            executor.shutdown();
+        }
+    }
+}
+</code></pre>
+<hr class="markdown-hr">
+<h2>2、ThreadLocal、Thread、ThreadLocalMap 三者是什么关系？</h2>
+<p>这是理解 ThreadLocal 的核心。</p>
+<h3>2.1 最重要的一张关系图</h3>
+<pre><code class="language-text">                     ThreadLocal 实例
+                           │
+                           │ 作为 key
+                           ▼
+Thread ──────────────&gt; ThreadLocalMap
+  │                         │
+  │                         ├── Entry(ThreadLocal -&gt; value)
+  │                         ├── Entry(ThreadLocal -&gt; value)
+  │                         └── Entry(ThreadLocal -&gt; value)
+  │
+  └── 每一个 Thread 自己维护自己的 ThreadLocalMap
+</code></pre>
+<p>可以进一步理解成：</p>
+<pre><code class="language-text">Thread A
+ └── ThreadLocalMap
+      ├── ThreadLocal#1 -&gt; A-value-1
+      ├── ThreadLocal#2 -&gt; A-value-2
+      └── ThreadLocal#3 -&gt; A-value-3
+
+Thread B
+ └── ThreadLocalMap
+      ├── ThreadLocal#1 -&gt; B-value-1
+      ├── ThreadLocal#2 -&gt; B-value-2
+      └── ThreadLocal#3 -&gt; B-value-3
+</code></pre>
+<p>也就是说：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>ThreadLocal 本身并不直接保存每个线程的 value；真正保存 value 的地方是 Thread 对象内部的 ThreadLocalMap。</strong></p>
+</blockquote>
+<h3>2.2 Thread 类中的 ThreadLocalMap</h3>
+<p>OpenJDK 的 <code>Thread</code> 中存在与 ThreadLocal 相关的字段，核心结构可以概括为：</p>
+<pre><code class="language-java">ThreadLocal.ThreadLocalMap threadLocals = null;
+</code></pre>
+<p>所以：</p>
+<pre><code class="language-java">ThreadLocal
+</code></pre>
+<p>更像一个“访问入口 / key”。</p>
+<p>真正的关系是：</p>
+<pre><code class="language-text">ThreadLocal
+   ↓
+当前 Thread
+   ↓
+ThreadLocalMap
+   ↓
+Entry
+   ↓
+value
+</code></pre>
+<h3>2.3 ThreadLocalMap 为什么是 Thread 的成员</h3>
+<p>因为这样才能实现：</p>
+<pre><code class="language-java">threadLocal.set(value);
+</code></pre>
+<p>底层实际类似：</p>
+<pre><code class="language-java">Thread current = Thread.currentThread();
+ThreadLocalMap map = current.threadLocals;
+map.set(threadLocal, value);
+</code></pre>
+<p>于是不同线程天然隔离：</p>
+<pre><code class="language-text">Thread A -&gt; Map A
+Thread B -&gt; Map B
+Thread C -&gt; Map C
+</code></pre>
+<p>完全没有必要让 <code>ThreadLocal</code> 自己维护一个：</p>
+<pre><code class="language-java">Map&lt;Thread, T&gt;
+</code></pre>
+<p>这种设计反而会造成线程生命周期与 Map 生命周期绑定、并带来额外并发和清理问题。</p>
+<h3>2.4 为什么 ThreadLocalMap 不是普通 HashMap</h3>
+<p><code>ThreadLocalMap</code> 是 <code>ThreadLocal</code> 的内部实现类，专门服务于线程本地变量。</p>
+<p>OpenJDK 源码注释明确说明，它是一个专门维护线程本地变量的定制 Map，而不是通用的 <code>HashMap</code>。</p>
+<p>它内部使用数组：</p>
+<pre><code class="language-java">private Entry[] table;
+</code></pre>
+<p>而 Entry 是：</p>
+<pre><code class="language-java">static class Entry extends WeakReference&lt;ThreadLocal&lt;?&gt;&gt; {
+    Object value;
+}
+</code></pre>
+<p>这个设计直接引出了后面最关键的“弱引用问题”。</p>
+<h3>2.5 ThreadLocalMap 是怎么定位 Entry 的</h3>
+<p>每个 <code>ThreadLocal</code> 内部有自己的 hash 值，核心定位思想是：</p>
+<pre><code class="language-java">int i = key.threadLocalHashCode &amp; (table.length - 1);
+</code></pre>
+<p>发生冲突时继续向后探测。</p>
+<p>因此 ThreadLocalMap 属于一种<strong>定制的开放地址法哈希表</strong>。</p>
+<h3>2.6 Demo：证明 ThreadLocal 真正的数据存储在线程侧</h3>
+<p>下面这个 Demo 用反射查看当前线程内部的 <code>ThreadLocalMap</code>。</p>
+<blockquote class="markdown-blockquote">
+<p>说明：这是 JVM 实现细节演示，不建议在业务代码中这样访问 JDK 私有字段。</p>
+</blockquote>
+<pre><code class="language-java">import java.lang.reflect.Field;
+
+public class ThreadLocalMapInspectDemo {
+
+    private static final ThreadLocal&lt;String&gt; LOCAL = new ThreadLocal&lt;&gt;();
+
+    public static void main(String[] args) throws Exception {
+        LOCAL.set(&quot;hello-thread-local&quot;);
+
+        Thread current = Thread.currentThread();
+
+        Field threadLocalsField = Thread.class.getDeclaredField(&quot;threadLocals&quot;);
+        threadLocalsField.setAccessible(true);
+
+        Object map = threadLocalsField.get(current);
+
+        System.out.println(&quot;current thread = &quot; + current.getName());
+        System.out.println(&quot;threadLocalMap = &quot; + map);
+
+        LOCAL.remove();
+    }
+}
+</code></pre>
+<p>JDK 9+ 运行时如果遇到模块访问限制，可使用：</p>
+<pre><code class="language-bash">--add-opens java.base/java.lang=ALL-UNNAMED
+</code></pre>
+<hr class="markdown-hr">
+<h2>3、ThreadLocal 为什么使用弱引用设计？</h2>
+<p>这是 ThreadLocal 最重要、也最容易被误解的一点。</p>
+<h3>3.1 Entry 为什么要继承 WeakReference</h3>
+<p>OpenJDK 当前实现中，核心结构是：</p>
+<pre><code class="language-java">static class Entry extends WeakReference&lt;ThreadLocal&lt;?&gt;&gt; {
+    Object value;
+}
+</code></pre>
+<p>意思是：</p>
+<pre><code class="language-text">key   = 弱引用 ThreadLocal
+value = 强引用真正的数据
+</code></pre>
+<p>可以画成：</p>
+<pre><code class="language-text">Thread
+  │
+  ▼
+ThreadLocalMap
+  │
+  ▼
+Entry
+ ├── key   ──weak──&gt; ThreadLocal
+ └── value ──strong─&gt; UserContext
+</code></pre>
+<h3>3.2 为什么 key 使用弱引用</h3>
+<p>假设：</p>
+<pre><code class="language-java">ThreadLocal&lt;Object&gt; local = new ThreadLocal&lt;&gt;();
+local.set(new Object());
+</code></pre>
+<p>当业务代码后面不再持有 <code>local</code>：</p>
+<pre><code class="language-java">local = null;
+</code></pre>
+<p>如果 <code>Entry.key</code> 是强引用：</p>
+<pre><code class="language-text">ThreadLocalMap
+  ↓
+Entry
+  ↓
+ThreadLocal
+</code></pre>
+<p>那么只要线程一直存活，ThreadLocal 对象就一直不能被 GC。</p>
+<p>尤其在线程池中，工作线程往往长期存在，这个问题会被无限放大。</p>
+<p>使用弱引用后：</p>
+<pre><code class="language-text">ThreadLocalMap
+  ↓
+Entry
+  ↓ weak
+ThreadLocal  X   (可被 GC)
+</code></pre>
+<p>ThreadLocal 对象可以被 GC。</p>
+<h3>3.3 但是弱引用并不意味着“不会内存泄漏”</h3>
+<p>这是最关键的认知。</p>
+<p>很多文章会说：</p>
+<blockquote class="markdown-blockquote">
+<p>ThreadLocal 使用弱引用，所以不会内存泄漏。</p>
+</blockquote>
+<p>这句话是不完整的。</p>
+<p>实际情况是：</p>
+<pre><code class="language-text">ThreadLocal 被 GC
+        ↓
+Entry.key 变成 null
+        ↓
+Entry 变成 stale entry
+        ↓
+但是 Entry.value 仍然是强引用
+        ↓
+value 继续被 ThreadLocalMap 持有
+        ↓
+线程长期存活
+        ↓
+value 可能长期无法回收
+</code></pre>
+<p>所以真正危险的是：</p>
+<pre><code class="language-text">弱 key + 强 value + 长生命周期 Thread
+</code></pre>
+<h3>3.4 为什么 JDK 不直接用强引用 + 自动回收</h3>
+<p>ThreadLocal 很难知道“什么时候这个业务变量生命周期已经结束”。</p>
+<p>JVM 可以判断：</p>
+<pre><code class="language-text">ThreadLocal 对象是否还有外部引用？
+</code></pre>
+<p>但 JVM 并不知道：</p>
+<pre><code class="language-text">ThreadLocal 对应的 value 是否已经不再被业务需要？
+</code></pre>
+<p>因此 JDK 采用了折中策略：</p>
+<pre><code class="language-text">key 使用弱引用
+</code></pre>
+<p>让 ThreadLocal 对象本身在失去外部引用时有机会被回收。</p>
+<p>然后在 ThreadLocalMap 的访问过程中顺便清理 stale entry。</p>
+<h3>3.5 OpenJDK 源码如何处理 stale entry</h3>
+<p>当前 OpenJDK 的关键判断类似：</p>
+<pre><code class="language-java">if (e.refersTo(null)) {
+    expungeStaleEntry(i);
+}
+</code></pre>
+<p>清理过程会：</p>
+<ol class="markdown-ordered-list">
+<li>将 stale entry 的 value 置空</li>
+<li>删除该数组槽位</li>
+<li>对后续可能受哈希冲突影响的 entry 进行重新定位</li>
+<li>继续清理其他 stale entry</li>
+</ol>
+<p>这说明一个非常重要的事实：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>ThreadLocalMap 的 stale entry 不是由 GC 直接从 Map 中删除的，而是 GC 清掉弱引用后，由后续 ThreadLocalMap 操作触发清理。</strong></p>
+</blockquote>
+<h3>3.6 Demo：观察弱引用</h3>
+<pre><code class="language-java">import java.lang.ref.WeakReference;
+
+public class WeakReferenceDemo {
+
+    public static void main(String[] args) throws Exception {
+        ThreadLocal&lt;String&gt; local = new ThreadLocal&lt;&gt;();
+
+        WeakReference&lt;ThreadLocal&lt;String&gt;&gt; ref =
+                new WeakReference&lt;&gt;(local);
+
+        local.set(&quot;hello&quot;);
+
+        local = null;
+
+        // 仅用于演示，不保证一次 System.gc() 就立即回收。
+        for (int i = 0; i &lt; 20 &amp;&amp; ref.get() != null; i++) {
+            System.gc();
+            Thread.sleep(50);
+        }
+
+        System.out.println(&quot;ThreadLocal ref = &quot; + ref.get());
+    }
+}
+</code></pre>
+<p>注意：GC 由 JVM 决定，<code>System.gc()</code> 只是建议，因此这个 Demo 不应该写成“必须回收”的稳定单元测试。</p>
+<h3>3.7 实战结论</h3>
+<p>弱引用解决的是：</p>
+<pre><code class="language-text">ThreadLocal 对象本身的生命周期问题
+</code></pre>
+<p>弱引用没有完全解决：</p>
+<pre><code class="language-text">ThreadLocal value 的生命周期问题
+</code></pre>
+<p>因此最终仍然需要：</p>
+<pre><code class="language-java">try {
+    LOCAL.set(value);
+    // business logic
+} finally {
+    LOCAL.remove();
+}
+</code></pre>
+<hr class="markdown-hr">
+<h2>4、null key 的情况如何解决？为什么一定要调用 remove()？</h2>
+<p>这里必须先纠正一个非常常见的说法：</p>
+<blockquote class="markdown-blockquote">
+<p><code>null key</code> 并不是指 <code>ThreadLocal.set(null)</code>。</p>
+</blockquote>
+<p>这是两个完全不同的概念。</p>
+<h3>4.1 <code>set(null)</code> 不会让 key 变成 null</h3>
+<pre><code class="language-java">ThreadLocal&lt;String&gt; local = new ThreadLocal&lt;&gt;();
+local.set(null);
+</code></pre>
+<p>这里：</p>
+<pre><code class="language-text">key   = local 对象
+value = null
+</code></pre>
+<p>key 并没有变成 null。</p>
+<h3>4.2 真正的 null key 是 stale entry</h3>
+<p>例如：</p>
+<pre><code class="language-java">ThreadLocal&lt;String&gt; local = new ThreadLocal&lt;&gt;();
+local.set(&quot;hello&quot;);
+
+local = null;
+</code></pre>
+<p>GC 之后可能发生：</p>
+<pre><code class="language-text">Entry
+ ├── key   = null   ← WeakReference 被清理
+ └── value = &quot;hello&quot;
+</code></pre>
+<p>这类 Entry 才是所谓的：</p>
+<pre><code class="language-text">stale entry
+</code></pre>
+<h3>4.3 ThreadLocalMap 如何解决 stale entry</h3>
+<p>OpenJDK 在多个操作中都会尝试清理：</p>
+<pre><code class="language-text">get()
+set()
+remove()
+rehash()
+</code></pre>
+<p>典型逻辑：</p>
+<pre><code class="language-java">if (e.refersTo(null)) {
+    expungeStaleEntry(i);
+}
+</code></pre>
+<p>清理函数的核心思想可以理解为：</p>
+<pre><code class="language-java">private int expungeStaleEntry(int staleSlot) {
+    tab[staleSlot].value = null;
+    tab[staleSlot] = null;
+    size--;
+
+    // 后续槽位可能因为 hash 冲突而依赖前面的槽位
+    // 所以需要继续扫描并重新整理
+
+    return nextNullSlot;
+}
+</code></pre>
+<h3>4.4 为什么不让 GC 自动把整个 Entry 一起删除</h3>
+<p>因为 GC 管的是 Java 对象可达性，而 ThreadLocalMap 数组本身仍然强引用着 Entry：</p>
+<pre><code class="language-text">Thread
+  ↓
+ThreadLocalMap
+  ↓
+Entry[]
+  ↓
+Entry
+  ├── key   --weak--&gt; ThreadLocal
+  └── value --strong-&gt; Value
+</code></pre>
+<p>GC 可以清掉：</p>
+<pre><code class="language-text">WeakReference 指向的 ThreadLocal
+</code></pre>
+<p>但不能因为 key 失效，就任意操作 <code>ThreadLocalMap</code> 的数组结构。</p>
+<p>因为数组本身仍然是普通 Java 对象，删除 Entry、调整冲突链、维护 size 等属于应用级数据结构操作，所以这些工作由 ThreadLocalMap 自己完成。</p>
+<h3>4.5 为什么一定建议调用 remove()</h3>
+<p>因为 <code>remove()</code> 是最确定、最及时的清理方式。</p>
+<p>调用：</p>
+<pre><code class="language-java">LOCAL.remove();
+</code></pre>
+<p>会直接把当前线程对应的 Entry 清理掉，而不是等待：</p>
+<pre><code class="language-text">GC
+ ↓
+stale entry
+ ↓
+下一次 get/set/remove/rehash
+ ↓
+触发清理
+</code></pre>
+<p>这就是为什么工程实践中经常看到：</p>
+<pre><code class="language-java">try {
+    LOCAL.set(context);
+    // 业务逻辑
+} finally {
+    LOCAL.remove();
+}
+</code></pre>
+<h3>4.6 最推荐的使用模板</h3>
+<pre><code class="language-java">public void execute(RequestContext context) {
+    try {
+        REQUEST_CONTEXT.set(context);
+        doBusiness();
+    } finally {
+        REQUEST_CONTEXT.remove();
+    }
+}
+</code></pre>
+<p>而不是：</p>
+<pre><code class="language-java">public void execute(RequestContext context) {
+    REQUEST_CONTEXT.set(context);
+    doBusiness();
+    REQUEST_CONTEXT.remove(); // 不安全
+}
+</code></pre>
+<p>因为 <code>doBusiness()</code> 一旦抛异常：</p>
+<pre><code class="language-text">set
+ ↓
+doBusiness
+ ↓
+Exception
+ ↓
+remove 根本执行不到
+</code></pre>
+<h3>4.7 Demo：异常也必须 remove</h3>
+<pre><code class="language-java">public class ThreadLocalRemoveDemo {
+
+    private static final ThreadLocal&lt;String&gt; USER = new ThreadLocal&lt;&gt;();
+
+    public static void main(String[] args) {
+        try {
+            USER.set(&quot;jack&quot;);
+            System.out.println(USER.get());
+            throw new RuntimeException(&quot;business error&quot;);
+        } catch (RuntimeException e) {
+            System.out.println(&quot;catch: &quot; + e.getMessage());
+        } finally {
+            USER.remove();
+        }
+
+        System.out.println(&quot;after remove = &quot; + USER.get());
+    }
+}
+</code></pre>
+<p>注意：最后一次 <code>get()</code> 会重新进入初始化逻辑；普通 <code>ThreadLocal</code> 的默认 <code>initialValue()</code> 是 <code>null</code>。</p>
+<h3>4.8 JUnit 5：验证 remove 会让数据重新初始化</h3>
+<pre><code class="language-java">import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class ThreadLocalRemoveTest {
+
+    @Test
+    void removeShouldClearCurrentThreadValue() {
+        ThreadLocal&lt;String&gt; local =
+                ThreadLocal.withInitial(() -&gt; &quot;initial&quot;);
+
+        assertEquals(&quot;initial&quot;, local.get());
+
+        local.set(&quot;changed&quot;);
+        assertEquals(&quot;changed&quot;, local.get());
+
+        local.remove();
+        assertEquals(&quot;initial&quot;, local.get());
+
+        local.remove();
+    }
+}
+</code></pre>
+<hr class="markdown-hr">
+<h2>5、ThreadLocal 适用的场景</h2>
+<p>ThreadLocal 不是“所有线程共享数据问题”的解决方案，它更适合：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>数据与当前线程天然绑定，并且调用链中多个方法需要读取这个数据。</strong></p>
+</blockquote>
+<h3>5.1 场景一：请求上下文</h3>
+<pre><code class="language-java">public record RequestContext(String traceId, String userId) {
+}
+</code></pre>
+<pre><code class="language-java">public final class RequestContextHolder {
+
+    private RequestContextHolder() {
+    }
+
+    private static final ThreadLocal&lt;RequestContext&gt; HOLDER =
+            new ThreadLocal&lt;&gt;();
+
+    public static void set(RequestContext context) {
+        HOLDER.set(context);
+    }
+
+    public static RequestContext get() {
+        return HOLDER.get();
+    }
+
+    public static void clear() {
+        HOLDER.remove();
+    }
+}
+</code></pre>
+<p>业务：</p>
+<pre><code class="language-java">try {
+    RequestContextHolder.set(
+            new RequestContext(&quot;trace-001&quot;, &quot;user-1001&quot;)
+    );
+
+    service();
+} finally {
+    RequestContextHolder.clear();
+}
+</code></pre>
+<p>Service 内部：</p>
+<pre><code class="language-java">public void service() {
+    RequestContext context = RequestContextHolder.get();
+    System.out.println(&quot;traceId = &quot; + context.traceId());
+}
+</code></pre>
+<p>适合的关键条件是：</p>
+<pre><code class="language-text">一个线程内处理一个明确的执行上下文
+</code></pre>
+<h3>5.2 场景二：日志 TraceId / MDC 类场景</h3>
+<p>业务代码可能不希望每一层都显式传 <code>traceId</code>：</p>
+<pre><code class="language-java">controller()
+service()
+repository()
+</code></pre>
+<p>可以在入口设置：</p>
+<pre><code class="language-java">TRACE_ID.set(traceId);
+</code></pre>
+<p>日志组件在当前线程中读取：</p>
+<pre><code class="language-java">TRACE_ID.get();
+</code></pre>
+<p>但进入线程池时一定要结合 <code>finally/remove</code>。</p>
+<h3>5.3 场景三：线程隔离的可复用对象</h3>
+<p>某些对象是：</p>
+<ul class="markdown-list">
+<li>非线程安全</li>
+<li>创建成本较高</li>
+<li>可以安全地“一线程一份”</li>
+</ul>
+<p>例如一些格式化器、解析器或者中间状态对象。</p>
+<p>现代 JDK 中很多 API 已经不需要通过 ThreadLocal 实现这一点，因此应先考虑更简单、无共享状态的方案。</p>
+<h3>5.4 场景四：避免显式参数层层传递</h3>
+<p>例如：</p>
+<pre><code class="language-java">public void a(Context context) {
+    b(context);
+}
+
+public void b(Context context) {
+    c(context);
+}
+
+public void c(Context context) {
+    d(context);
+}
+</code></pre>
+<p>当 <code>Context</code> 并不是每层业务逻辑真正关心的信息时，ThreadLocal 有一定价值：</p>
+<pre><code class="language-java">ContextHolder.get()
+</code></pre>
+<p>但应注意：</p>
+<blockquote class="markdown-blockquote">
+<p>ThreadLocal 是一种隐式依赖，过度使用会让代码的依赖关系变得不透明。</p>
+</blockquote>
+<h3>5.5 不适合的场景</h3>
+<p>不适合把 ThreadLocal 当成“全局变量”：</p>
+<pre><code class="language-java">ThreadLocal&lt;List&lt;Object&gt;&gt; GLOBAL = ...;
+</code></pre>
+<p>更不适合把真正需要跨线程共享的数据放到 ThreadLocal。</p>
+<p>例如：</p>
+<pre><code class="language-text">缓存
+业务数据
+全局配置
+共享计数器
+线程间消息
+</code></pre>
+<p>这些通常有更明确的并发数据结构或上下文传递方式。</p>
+<h3>5.6 测试 Demo</h3>
+<pre><code class="language-java">import org.junit.jupiter.api.Test;
+
+import java.util.concurrent.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class RequestContextHolderTest {
+
+    private static final ThreadLocal&lt;String&gt; CONTEXT =
+            new ThreadLocal&lt;&gt;();
+
+    @Test
+    void contextShouldNotLeakAcrossIndependentThreads() throws Exception {
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+
+        try {
+            Future&lt;String&gt; f1 = executor.submit(() -&gt; {
+                try {
+                    CONTEXT.set(&quot;request-A&quot;);
+                    return CONTEXT.get();
+                } finally {
+                    CONTEXT.remove();
+                }
+            });
+
+            Future&lt;String&gt; f2 = executor.submit(() -&gt; {
+                try {
+                    CONTEXT.set(&quot;request-B&quot;);
+                    return CONTEXT.get();
+                } finally {
+                    CONTEXT.remove();
+                }
+            });
+
+            assertEquals(&quot;request-A&quot;, f1.get());
+            assertEquals(&quot;request-B&quot;, f2.get());
+        } finally {
+            executor.shutdown();
+        }
+    }
+}
+</code></pre>
+<hr class="markdown-hr">
+<h2>6、为什么尽量不要在线程池中使用 ThreadLocal？如果一定要使用，要注意什么？还有哪些替代方案？</h2>
+<p>这一节是实际生产环境最重要的一部分。</p>
+<h3>6.1 普通线程与线程池的最大区别</h3>
+<p>普通线程：</p>
+<pre><code class="language-text">创建线程
+   ↓
+执行任务
+   ↓
+线程结束
+   ↓
+ThreadLocalMap 随 Thread 一起失去生命周期
+</code></pre>
+<p>线程池：</p>
+<pre><code class="language-text">创建 Worker Thread
+   ↓
+执行 Task A
+   ↓
+继续存活
+   ↓
+执行 Task B
+   ↓
+继续存活
+   ↓
+执行 Task C
+</code></pre>
+<p>因此：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>线程池中的 Thread 是复用的，但 ThreadLocal 绑定的是 Thread，不是 Task。</strong></p>
+</blockquote>
+<p>这就是 ThreadLocal 在线程池中最容易出问题的根源。</p>
+<h3>6.2 问题一：数据串请求 / 串任务</h3>
+<p>例如：</p>
+<pre><code class="language-java">static final ThreadLocal&lt;String&gt; USER = new ThreadLocal&lt;&gt;();
+</code></pre>
+<p>第一个任务：</p>
+<pre><code class="language-java">executor.submit(() -&gt; {
+    USER.set(&quot;Alice&quot;);
+    // 忘记 remove()
+});
+</code></pre>
+<p>线程执行完任务后不会销毁。</p>
+<p>第二个任务可能复用相同 Worker：</p>
+<pre><code class="language-java">executor.submit(() -&gt; {
+    System.out.println(USER.get());
+});
+</code></pre>
+<p>可能得到：</p>
+<pre><code class="language-text">Alice
+</code></pre>
+<p>但是当前任务实际上属于 Bob。</p>
+<p>这是典型的：</p>
+<pre><code class="language-text">ThreadLocal 数据污染 / 上下文串线
+</code></pre>
+<h3>6.3 Demo：线程池中的脏数据</h3>
+<pre><code class="language-java">import java.util.concurrent.*;
+
+public class ThreadPoolThreadLocalLeakDemo {
+
+    private static final ThreadLocal&lt;String&gt; USER = new ThreadLocal&lt;&gt;();
+
+    public static void main(String[] args) throws Exception {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        try {
+            executor.submit(() -&gt; {
+                USER.set(&quot;Alice&quot;);
+                System.out.println(&quot;Task A = &quot; + USER.get());
+                // 故意不 remove
+            }).get();
+
+            executor.submit(() -&gt; {
+                System.out.println(&quot;Task B = &quot; + USER.get());
+                // 可能输出 Alice
+            }).get();
+        } finally {
+            executor.shutdown();
+        }
+    }
+}
+</code></pre>
+<p>这个 Demo 非常重要，它说明：</p>
+<pre><code class="language-text">ThreadLocal 的隔离单位 = Thread
+线程池任务的隔离单位 = Task
+</code></pre>
+<p>两者不是一个维度。</p>
+<h3>6.4 问题二：value 长期占用内存</h3>
+<p>假如：</p>
+<pre><code class="language-java">ThreadLocal&lt;byte[]&gt; local = new ThreadLocal&lt;&gt;();
+local.set(new byte[50 * 1024 * 1024]);
+</code></pre>
+<p>在线程池中：</p>
+<pre><code class="language-text">Worker Thread 长期存活
+       ↓
+ThreadLocalMap 长期存活
+       ↓
+value 仍然可能被持有
+</code></pre>
+<p>特别是下面这种模式风险很大：</p>
+<pre><code class="language-java">private static void execute() {
+    ThreadLocal&lt;byte[]&gt; local = new ThreadLocal&lt;&gt;();
+    local.set(new byte[50 * 1024 * 1024]);
+}
+</code></pre>
+<p>方法执行结束后，<code>local</code> 变量没了，但在线程池 Worker 中，stale entry 的 <code>value</code> 可能仍然存在一段时间。</p>
+<h3>6.5 问题三：上下文传播问题</h3>
+<p>ThreadLocal 只绑定当前线程。</p>
+<pre><code class="language-java">USER.set(&quot;Alice&quot;);
+</code></pre>
+<p>之后：</p>
+<pre><code class="language-java">executor.submit(() -&gt; {
+    System.out.println(USER.get());
+});
+</code></pre>
+<p>默认情况下不能认为能自动获得父线程中的值。</p>
+<p>因此：</p>
+<pre><code class="language-text">主线程
+  USER = Alice
+      ↓
+线程池 Worker
+  USER = ?
+</code></pre>
+<p>二者没有天然的普通 ThreadLocal 继承关系。</p>
+<h3>6.6 为什么不推荐把 InheritableThreadLocal 当成线程池解决方案</h3>
+<p><code>InheritableThreadLocal</code> 是另一套机制：创建子线程时可以把父线程中的值传给子线程。</p>
+<p>但是线程池 Worker 往往在真正业务任务提交之前就已经创建好了，因此：</p>
+<pre><code class="language-text">提交任务时设置 Alice
+        ↓
+Worker 早就创建
+        ↓
+并不会因为这个任务提交自动复制 Alice
+</code></pre>
+<p>所以 <code>InheritableThreadLocal</code> 并不能自然解决线程池中的上下文传播问题。</p>
+<p>此外，对于复杂异步模型，隐式继承还会让生命周期和覆盖关系更加难以管理。</p>
+<h3>6.7 如果一定要在线程池中使用 ThreadLocal</h3>
+<p>最重要的原则只有一句：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>在线程池任务边界设置，在任务边界 finally 中清理。</strong></p>
+</blockquote>
+<p>标准模板：</p>
+<pre><code class="language-java">executor.submit(() -&gt; {
+    try {
+        USER.set(&quot;Alice&quot;);
+
+        doBusiness();
+    } finally {
+        USER.remove();
+    }
+});
+</code></pre>
+<h3>6.8 更推荐：封装任务边界</h3>
+<p>可以统一封装：</p>
+<pre><code class="language-java">public static Runnable wrap(String userId, Runnable task) {
+    return () -&gt; {
+        try {
+            USER.set(userId);
+            task.run();
+        } finally {
+            USER.remove();
+        }
+    };
+}
+</code></pre>
+<p>使用：</p>
+<pre><code class="language-java">executor.submit(
+        wrap(&quot;Alice&quot;, () -&gt; {
+            System.out.println(USER.get());
+        })
+);
+</code></pre>
+<p>这种方式可以明显降低“忘记 remove”的概率。</p>
+<h3>6.9 JUnit 5：验证线程池任务之间不能残留上下文</h3>
+<pre><code class="language-java">import org.junit.jupiter.api.Test;
+
+import java.util.concurrent.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class ThreadPoolThreadLocalTest {
+
+    private static final ThreadLocal&lt;String&gt; USER = new ThreadLocal&lt;&gt;();
+
+    @Test
+    void threadLocalShouldBeCleanedAtTaskBoundary() throws Exception {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        try {
+            executor.submit(() -&gt; {
+                try {
+                    USER.set(&quot;Alice&quot;);
+                    assertEquals(&quot;Alice&quot;, USER.get());
+                } finally {
+                    USER.remove();
+                }
+            }).get();
+
+            Future&lt;String&gt; secondTask = executor.submit(USER::get);
+
+            assertNull(secondTask.get());
+        } finally {
+            executor.shutdown();
+        }
+    }
+}
+</code></pre>
+<h3>6.10 方案一：显式参数传递</h3>
+<p>最简单、最透明：</p>
+<pre><code class="language-java">public void service(RequestContext context) {
+    dao(context);
+}
+</code></pre>
+<p>优点：</p>
+<pre><code class="language-text">依赖清晰
+容易测试
+容易理解
+不依赖线程
+</code></pre>
+<p>缺点：</p>
+<pre><code class="language-text">调用链深时参数可能变多
+</code></pre>
+<p>如果 Context 本身就是明确的业务输入，这通常是非常值得优先考虑的方案。</p>
+<h3>6.11 方案二：任务上下文包装</h3>
+<p>异步执行时，把上下文作为任务的一部分：</p>
+<pre><code class="language-java">public record TaskContext(String traceId, String userId) {
+}
+
+public record ContextTask(TaskContext context, Runnable task)
+        implements Runnable {
+
+    @Override
+    public void run() {
+        task.run();
+    }
+}
+</code></pre>
+<p>这种设计比“让线程自己携带业务状态”更符合任务模型。</p>
+<h3>6.12 方案三：使用成熟的上下文传播机制</h3>
+<p>在实际项目中，如果项目已经使用日志 TraceId、异步上下文或框架级请求上下文，应优先使用框架提供的上下文传播能力，而不是多个团队各自手写 ThreadLocal。</p>
+<p>核心原则：</p>
+<pre><code class="language-text">上下文在哪里创建
+        ↓
+如何跨线程传播
+        ↓
+在哪里恢复
+        ↓
+在哪里清理
+</code></pre>
+<p>这四件事必须明确。</p>
+<h3>6.13 方案四：JDK 25 的 ScopedValue</h3>
+<p>在 <strong>JDK 25</strong> 中，<code>ScopedValue</code> 已成为标准 API。Oracle 文档明确将其定位为一种无需方法参数即可向较深调用链传递值的机制，并指出在“单向传递数据、拥有明确作用域”的场景下可以优先考虑它。</p>
+<p>示例：</p>
+<pre><code class="language-java">public class ScopedValueDemo {
+
+    private static final ScopedValue&lt;String&gt; TRACE_ID =
+            ScopedValue.newInstance();
+
+    public static void main(String[] args) {
+        ScopedValue.where(TRACE_ID, &quot;trace-001&quot;)
+                .run(() -&gt; {
+                    service();
+                });
+    }
+
+    private static void service() {
+        System.out.println(TRACE_ID.get());
+    }
+}
+</code></pre>
+<p>和 ThreadLocal 的生命周期区别非常直观：</p>
+<pre><code class="language-text">ThreadLocal
+    set
+      ↓
+长期存在
+      ↓
+必须 remove
+
+ScopedValue
+    where(...).run(...)
+      ↓
+进入作用域
+      ↓
+退出作用域
+      ↓
+自动恢复之前的绑定
+</code></pre>
+<p>JDK 25 API 文档还指出，<code>ScopedValue</code> 的设计尤其适合需要把数据沿调用链向下传递、但不希望调用方法显式增加参数的情况；在结构化并发环境下还支持受限的跨线程继承。</p>
+<p>官方文档：</p>
+<ul class="markdown-list">
+<li>ScopedValue API: <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/ScopedValue.html">https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/ScopedValue.html</a></li>
+<li>JDK 25 重大变化: <a href="https://docs.oracle.com/en/java/javase/25/migrate/significant-changes-jdk-25.html">https://docs.oracle.com/en/java/javase/25/migrate/significant-changes-jdk-25.html</a></li>
+</ul>
+<h3>6.14 ThreadLocal、显式参数、ScopedValue 对比</h3>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>方案</th>
+<th>生命周期</th>
+<th align="right">跨线程</th>
+<th align="right">是否需要显式清理</th>
+<th align="right">依赖是否透明</th>
+<th>典型场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ThreadLocal</td>
+<td>线程生命周期附近</td>
+<td align="right">默认不传播</td>
+<td align="right">是</td>
+<td align="right">一般</td>
+<td>线程绑定状态</td>
+</tr>
+<tr>
+<td>显式参数</td>
+<td>方法/业务调用链</td>
+<td align="right">可以显式传</td>
+<td align="right">否</td>
+<td align="right">最透明</td>
+<td>普通业务 Context</td>
+</tr>
+<tr>
+<td>任务包装</td>
+<td>Task 生命周期</td>
+<td align="right">可以设计传播</td>
+<td align="right">由包装器负责</td>
+<td align="right">较透明</td>
+<td>线程池异步任务</td>
+</tr>
+<tr>
+<td>ScopedValue</td>
+<td>动态作用域</td>
+<td align="right">支持受限结构化继承</td>
+<td align="right">不需要手工 remove</td>
+<td align="right">较透明</td>
+<td>单向上下文传递、结构化并发</td>
+</tr>
+</tbody></table>
+<h3>6.15 关于虚拟线程</h3>
+<p>虚拟线程同样支持 ThreadLocal，但它与传统线程池 Worker 的生命周期模型不同：虚拟线程通常对应单个任务而不是被多个任务复用。JDK 官方仍建议谨慎使用 ThreadLocal，尤其不要利用 ThreadLocal 把昂贵资源“池化”到多个任务之间。</p>
+<p>参考：</p>
+<ul class="markdown-list">
+<li>JEP 444 Virtual Threads: <a href="https://openjdk.org/jeps/444">https://openjdk.org/jeps/444</a></li>
+</ul>
+<hr class="markdown-hr">
+<h2>7、Java 强引用、软引用、弱引用、虚引用详解</h2>
+<h3>7.1 为什么 ThreadLocal 会涉及“引用类型”问题</h3>
+<p>前面讲过，<code>ThreadLocalMap.Entry</code> 的 key 并不是一个普通的强引用，而是：</p>
+<pre><code class="language-java">static class Entry extends WeakReference&lt;ThreadLocal&lt;?&gt;&gt; {
+    Object value;
+
+    Entry(ThreadLocal&lt;?&gt; k, Object v) {
+        super(k);
+        value = v;
+    }
+}
+</code></pre>
+<p>这段设计直接把 <code>ThreadLocal</code> 和 Java 的四类引用联系起来：</p>
+<pre><code class="language-text">强引用 Strong Reference
+        ↓
+软引用 Soft Reference
+        ↓
+弱引用 Weak Reference
+        ↓
+虚引用 Phantom Reference
+</code></pre>
+<p>它们的核心区别不是“引用变量的写法不同”，而是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>当垃圾回收器发现一个对象没有普通强引用继续存活时，不同类型的引用会影响这个对象还能存活多久，以及应用程序能否重新取得它。</strong></p>
+</blockquote>
+<p>在 Java SE 中，<code>SoftReference</code>、<code>WeakReference</code>、<code>PhantomReference</code> 都是 <code>Reference&lt;T&gt;</code> 的子类；它们对应不同的可达性等级。官方 GC 文档把可达性从强到弱定义为：Strongly Reachable → Softly Reachable → Weakly Reachable → Phantom Reachable → Unreachable。</p>
+<h3>7.2 四种引用的核心对比</h3>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>对比维度</th>
+<th>强引用 Strong</th>
+<th>软引用 SoftReference</th>
+<th>弱引用 WeakReference</th>
+<th>虚引用 PhantomReference</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Java 中典型写法</td>
+<td><code>Object obj = new Object()</code></td>
+<td><code>new SoftReference&lt;&gt;(obj)</code></td>
+<td><code>new WeakReference&lt;&gt;(obj)</code></td>
+<td><code>new PhantomReference&lt;&gt;(obj, queue)</code></td>
+</tr>
+<tr>
+<td>对 GC 的约束</td>
+<td>最强，只要强可达就不能回收</td>
+<td>内存紧张时可被清理</td>
+<td>GC 发现仅弱可达后即可清理</td>
+<td>对象已接近最终回收阶段，不能通过引用取回对象</td>
+</tr>
+<tr>
+<td><code>get()</code> 是否能拿到对象</td>
+<td>可以</td>
+<td>可以，直到被清理</td>
+<td>可以，直到被清理</td>
+<td><strong>永远返回 <code>null</code></strong></td>
+</tr>
+<tr>
+<td>什么时候可能被清理</td>
+<td>仍然强可达时通常不会</td>
+<td>由 GC 根据内存需求决定</td>
+<td>GC 发现仅弱可达时处理</td>
+<td>GC 判断对象已经 phantom reachable 后处理</td>
+</tr>
+<tr>
+<td>典型用途</td>
+<td>普通业务对象、核心状态</td>
+<td>对内存敏感的缓存</td>
+<td>规范化映射、缓存辅助结构、避免强绑定</td>
+<td>生命周期结束后的清理通知、<code>Cleaner</code> 底层机制相关场景</td>
+</tr>
+<tr>
+<td>是否应该依赖它做业务正确性</td>
+<td>可以作为业务对象正常持有</td>
+<td><strong>不应依赖其一定存在</strong></td>
+<td><strong>不应依赖其一定存在</strong></td>
+<td><strong>不能把它当作对象访问手段</strong></td>
+</tr>
+<tr>
+<td>是否经常与 <code>ReferenceQueue</code> 配合</td>
+<td>一般不涉及</td>
+<td>可以</td>
+<td>很常见</td>
+<td><strong>通常需要</strong></td>
+</tr>
+<tr>
+<td>是否适合 ThreadLocal key</td>
+<td>否</td>
+<td>通常否</td>
+<td><strong>是，ThreadLocalMap 就采用这种思路</strong></td>
+<td>否</td>
+</tr>
+</tbody></table>
+<p>官方文档指出：软引用主要用于内存敏感型缓存；弱引用不会阻止 referent 被回收；虚引用的 referent 不可通过 <code>get()</code> 获取，并通常配合 <code>ReferenceQueue</code> 用于对象回收后的处理。</p>
+<h3>7.3 强引用：最普通，也最容易理解</h3>
+<p>强引用就是我们平时最常写的引用：</p>
+<pre><code class="language-java">Object value = new Object();
+</code></pre>
+<p>只要 <code>value</code> 仍然可达：</p>
+<pre><code class="language-text">GC Root
+  ↓
+value
+  ↓
+Object
+</code></pre>
+<p>GC 就不能仅仅因为“内存紧张”把这个对象回收掉。</p>
+<p>这也是为什么 ThreadLocal 的 <code>value</code> 必须高度重视生命周期：如果一个长期存活的线程持有一个很大的 value，那么这个 value 会因为 <code>ThreadLocalMap.Entry.value</code> 的<strong>强引用</strong>关系继续存活。</p>
+<h3>7.4 强引用源码解释</h3>
+<p>普通 Java 字段本质上就是强引用关系：</p>
+<pre><code class="language-java">class Holder {
+    private Object value;
+
+    void set(Object value) {
+        this.value = value;
+    }
+}
+</code></pre>
+<p><code>this.value = value</code> 建立的是普通对象引用，并没有经过 <code>java.lang.ref.Reference</code> 层。</p>
+<p>从 ThreadLocal 的角度看，OpenJDK 中：</p>
+<pre><code class="language-java">static class Entry extends WeakReference&lt;ThreadLocal&lt;?&gt;&gt; {
+    Object value;
+}
+</code></pre>
+<p>这里恰好形成一个非常重要的组合：</p>
+<pre><code class="language-text">Entry
+├── key   -&gt; 弱引用
+└── value -&gt; 强引用
+</code></pre>
+<p>因此：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>弱引用保护的是 ThreadLocal 对象本身，不是 ThreadLocal 保存的 value。</strong></p>
+</blockquote>
+<h3>7.5 强引用 Demo</h3>
+<pre><code class="language-java">public class StrongReferenceDemo {
+
+    public static void main(String[] args) {
+        Object obj = new Object();
+
+        System.out.println(obj != null); // true
+
+        // 只要 obj 仍然指向对象，对象仍然有强引用。
+        System.gc();
+
+        System.out.println(obj != null); // 仍然是 true
+    }
+}
+</code></pre>
+<p>这里的关键并不是“<code>System.gc()</code> 不工作”，而是：</p>
+<pre><code class="language-text">对象仍然被 obj 强引用
+        ↓
+对象仍然是强可达
+        ↓
+GC 不应该因为普通回收而把它清掉
+</code></pre>
+<p><code>System.gc()</code> 本身也不是“立即执行一次完整 GC”的强制命令，因此 Demo 不能把它理解为同步 GC API。</p>
+<h3>7.6 强引用测试 Demo</h3>
+<pre><code class="language-java">import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+class StrongReferenceDemoTest {
+
+    @Test
+    void strongReferenceKeepsObjectReachable() {
+        Object obj = new Object();
+
+        // 普通强引用：只要 obj 仍然存在，测试期间对象就在当前执行路径上保持可达。
+        assertNotNull(obj);
+    }
+}
+</code></pre>
+<p>这个测试验证的是“强引用的程序语义”，而不是验证 GC 实现细节。</p>
+<h3>7.7 软引用：内存敏感型缓存</h3>
+<p>软引用的定位非常明确：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>对象没有强引用后，GC 可以根据内存压力决定何时清理它。</strong></p>
+</blockquote>
+<p>官方 Java API 明确指出，SoftReference 最常见的用途是 memory-sensitive caches（对内存敏感的缓存）。软引用什么时候被清理、不同对象之间的清理顺序，并没有保证一个可以让业务代码依赖的精确时点。</p>
+<p>因此不应该写成：</p>
+<pre><code class="language-java">// 错误的心理预期：
+// “SoftReference 一定能帮我缓存一段时间，所以对象一定在。”
+</code></pre>
+<p>正确理解应该是：</p>
+<pre><code class="language-text">有强引用
+   ↓
+一定不能仅凭“软引用策略”把对象回收
+
+没有强引用
+   ↓
+对象变成软可达
+   ↓
+GC 根据内存需求决定是否清理
+</code></pre>
+<h3>7.8 软引用源码解释</h3>
+<p>API 层面的核心关系：</p>
+<pre><code class="language-java">SoftReference&lt;T&gt; ref = new SoftReference&lt;&gt;(value);
+T current = ref.get();
+</code></pre>
+<p>当 referent 还没有被清理时：</p>
+<pre><code class="language-java">ref.get() != null
+</code></pre>
+<p>被清理后：</p>
+<pre><code class="language-java">ref.get() == null
+</code></pre>
+<p>官方文档明确说明，软引用会在 GC 需要响应内存需求时由 GC 决定清除。（参考：<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/ref/SoftReference.html">SoftReference API</a>）</p>
+<h3>7.9 软引用 Demo</h3>
+<pre><code class="language-java">import java.lang.ref.SoftReference;
+
+public class SoftReferenceDemo {
+
+    public static void main(String[] args) {
+        byte[] data = new byte[1024 * 1024];
+
+        SoftReference&lt;byte[]&gt; ref = new SoftReference&lt;&gt;(data);
+
+        // 仍然存在强引用 data，所以软引用不会成为唯一引用。
+        System.out.println(ref.get() != null); // true
+
+        data = null;
+
+        // 这时对象只剩软引用可达。
+        // 是否马上被清理，由 GC 根据内存需求决定。
+        System.out.println(ref.get() != null);
+    }
+}
+</code></pre>
+<h3>7.10 软引用测试 Demo</h3>
+<p>软引用最不适合写“必须经过 GC 后就一定变成 null”的单元测试，因为清理时机由 GC 决定。</p>
+<p>因此测试时，建议验证确定性 API 语义，例如 <code>clear()</code>：</p>
+<pre><code class="language-java">import org.junit.jupiter.api.Test;
+
+import java.lang.ref.SoftReference;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class SoftReferenceDemoTest {
+
+    @Test
+    void clearShouldMakeSoftReferenceReturnNull() {
+        Object value = new Object();
+        SoftReference&lt;Object&gt; ref = new SoftReference&lt;&gt;(value);
+
+        assertSame(value, ref.get());
+
+        ref.clear();
+
+        assertNull(ref.get());
+    }
+}
+</code></pre>
+<p>这类测试稳定、可重复，并且不会把 JVM 的 GC 调度当成测试条件。</p>
+<h3>7.11 弱引用：对象一旦只剩弱可达，GC 就可以处理它</h3>
+<p>弱引用比软引用更弱。</p>
+<p>官方文档定义：当对象既不是强可达，也不是软可达，而是仅通过弱引用到达时，它属于 weakly reachable；GC 可以在这一阶段原子性清除相关弱引用，并把注册到 <code>ReferenceQueue</code> 的引用加入队列。</p>
+<p>可以把它简化理解成：</p>
+<pre><code class="language-text">强引用还存在
+    ↓
+不会因为 WeakReference 本身而被提前回收
+
+强引用消失
+    ↓
+对象只剩 WeakReference
+    ↓
+对象进入 weakly reachable
+    ↓
+GC 可以清除弱引用
+    ↓
+WeakReference.get() == null
+</code></pre>
+<p>注意：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>弱引用不是“GC 后 100% 立即变 null”的同步工具；它描述的是 GC 可处理该对象的可达性语义。</strong></p>
+</blockquote>
+<h3>7.12 弱引用源码解释</h3>
+<p>典型代码：</p>
+<pre><code class="language-java">WeakReference&lt;Object&gt; ref = new WeakReference&lt;&gt;(value);
+</code></pre>
+<p>它不会像普通字段那样建立一条“必须让 referent 活着”的强引用关系。</p>
+<p>更重要的是，<code>Reference.get()</code> 在 referent 被清理后会返回 <code>null</code>；官方 API 也明确说明这一点。</p>
+<p>这正是 ThreadLocalMap 选择弱引用 key 的基础。</p>
+<h3>7.13 弱引用 Demo：结合 ReferenceQueue 观察清理</h3>
+<pre><code class="language-java">import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
+
+public class WeakReferenceDemo {
+
+    public static void main(String[] args) throws InterruptedException {
+        ReferenceQueue&lt;Object&gt; queue = new ReferenceQueue&lt;&gt;();
+
+        Object value = new Object();
+        WeakReference&lt;Object&gt; ref = new WeakReference&lt;&gt;(value, queue);
+
+        System.out.println(&quot;初始 get = &quot; + (ref.get() != null));
+
+        value = null;
+
+        // GC 触发与处理时机由 JVM 决定，因此这里仅作为观察型 Demo。
+        System.gc();
+
+        for (int i = 0; i &lt; 100 &amp;&amp; ref.get() != null; i++) {
+            Thread.sleep(10);
+            System.gc();
+        }
+
+        System.out.println(&quot;清理后 get = &quot; + (ref.get() != null));
+        System.out.println(&quot;queue.poll = &quot; + queue.poll());
+    }
+}
+</code></pre>
+<p>这个 Demo 不应该被当作“GC 一定会在第 N 次循环完成”的严格测试。它的价值在于观察：</p>
+<pre><code class="language-text">WeakReference.get()
+ReferenceQueue.poll()
+</code></pre>
+<p>之间的关系。</p>
+<h3>7.14 弱引用测试 Demo：使用 clear 保证确定性</h3>
+<p>单元测试不要依赖真实 GC，可以这样：</p>
+<pre><code class="language-java">import org.junit.jupiter.api.Test;
+
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class WeakReferenceDemoTest {
+
+    @Test
+    void clearShouldClearWeakReference() {
+        ReferenceQueue&lt;Object&gt; queue = new ReferenceQueue&lt;&gt;();
+        Object value = new Object();
+
+        WeakReference&lt;Object&gt; ref = new WeakReference&lt;&gt;(value, queue);
+
+        assertSame(value, ref.get());
+
+        ref.clear();
+
+        assertNull(ref.get());
+    }
+
+    @Test
+    void manuallyEnqueueShouldBeObservableFromQueue() {
+        ReferenceQueue&lt;Object&gt; queue = new ReferenceQueue&lt;&gt;();
+        Object value = new Object();
+
+        WeakReference&lt;Object&gt; ref = new WeakReference&lt;&gt;(value, queue);
+
+        assertTrue(ref.enqueue());
+        assertSame(ref, queue.poll());
+        assertNull(ref.get());
+    }
+}
+</code></pre>
+<h3>7.15 虚引用：不是为了“拿对象”，而是为了感知对象接近回收后的阶段</h3>
+<p>虚引用是四类引用中最容易被误解的一种。</p>
+<p>核心特点：</p>
+<pre><code class="language-java">PhantomReference&lt;T&gt;.get() == null
+</code></pre>
+<p>无论 referent 是否已经被清理，应用程序都不能通过 <code>get()</code> 把对象重新拿出来。Java SE API 明确规定虚引用的 <code>get()</code> 永远返回 <code>null</code>。（参考：<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/ref/PhantomReference.html">PhantomReference API</a>）</p>
+<p>它通常需要一个 <code>ReferenceQueue</code>：</p>
+<pre><code class="language-text">对象
+ ↓
+phantom reachable
+ ↓
+GC 处理
+ ↓
+PhantomReference 入队
+ ↓
+后台线程从 ReferenceQueue 取出
+ ↓
+执行相应的清理/登记逻辑
+</code></pre>
+<h3>7.16 虚引用源码解释</h3>
+<p>OpenJDK 当前实现中，<code>PhantomReference#get()</code> 的实现就是：</p>
+<pre><code class="language-java">public T get() {
+    return null;
+}
+</code></pre>
+<p>这并不是“实现偷懒”，而是虚引用的设计契约：不允许应用程序从 phantom reference 中重新取得 referent。OpenJDK 源码和 Java SE API 都明确体现了这一点。</p>
+<h3>7.17 虚引用 Demo</h3>
+<pre><code class="language-java">import java.lang.ref.PhantomReference;
+import java.lang.ref.ReferenceQueue;
+
+public class PhantomReferenceDemo {
+
+    public static void main(String[] args) {
+        ReferenceQueue&lt;Object&gt; queue = new ReferenceQueue&lt;&gt;();
+        Object value = new Object();
+
+        PhantomReference&lt;Object&gt; ref =
+                new PhantomReference&lt;&gt;(value, queue);
+
+        // 虚引用不能通过 get() 取得 referent。
+        System.out.println(ref.get()); // null
+
+        // 为了演示队列机制，这里手动入队。
+        ref.enqueue();
+
+        System.out.println(queue.poll() == ref); // true
+        System.out.println(ref.get());            // null
+    }
+}
+</code></pre>
+<p>真实 GC 场景下的入队时机由 JVM/GC 决定；手动 <code>enqueue()</code> 只是为了写一个稳定、可重复的 API Demo。</p>
+<h3>7.18 虚引用测试 Demo</h3>
+<pre><code class="language-java">import org.junit.jupiter.api.Test;
+
+import java.lang.ref.PhantomReference;
+import java.lang.ref.ReferenceQueue;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class PhantomReferenceDemoTest {
+
+    @Test
+    void getShouldAlwaysReturnNull() {
+        ReferenceQueue&lt;Object&gt; queue = new ReferenceQueue&lt;&gt;();
+        Object value = new Object();
+
+        PhantomReference&lt;Object&gt; ref =
+                new PhantomReference&lt;&gt;(value, queue);
+
+        assertNull(ref.get());
+    }
+
+    @Test
+    void enqueueCanBeObservedFromReferenceQueue() {
+        ReferenceQueue&lt;Object&gt; queue = new ReferenceQueue&lt;&gt;();
+        Object value = new Object();
+
+        PhantomReference&lt;Object&gt; ref =
+                new PhantomReference&lt;&gt;(value, queue);
+
+        assertTrue(ref.enqueue());
+        assertSame(ref, queue.poll());
+        assertNull(ref.get());
+    }
+}
+</code></pre>
+<h3>7.19 ReferenceQueue 到底解决什么问题？</h3>
+<p><code>ReferenceQueue</code> 本身不是另一种引用，它更像一个“通知队列”。</p>
+<p>当 GC 根据对应引用类型处理 referent 后，如果这个 reference 注册了 <code>ReferenceQueue</code>，GC 可以把 reference 对象放入队列，应用程序随后通过：</p>
+<pre><code class="language-java">Reference&lt;?&gt; ref = queue.poll();
+</code></pre>
+<p>获取已处理的 reference。</p>
+<p>Java SE 25 的 <code>ReferenceQueue</code> 文档明确说明：GC 检测到适当的可达性变化后，会把已经注册的 reference object 放入队列；<code>poll()</code> 可以取出这些 reference。</p>
+<p>可以把关系画成：</p>
+<pre><code class="language-text">Referent Object
+      │
+      │ 被 Soft/Weak/Phantom Reference 观察
+      ▼
+    GC/引用处理
+      │
+      ▼
+ReferenceQueue
+      │
+      ▼
+Application cleanup / bookkeeping
+</code></pre>
+<h3>7.20 四种引用和 ThreadLocal 的真正关系</h3>
+<p>理解到这里，就可以重新看 ThreadLocalMap：</p>
+<pre><code class="language-java">static class Entry extends WeakReference&lt;ThreadLocal&lt;?&gt;&gt; {
+    Object value;
+
+    Entry(ThreadLocal&lt;?&gt; k, Object v) {
+        super(k);
+        value = v;
+    }
+}
+</code></pre>
+<p>于是内存关系变成：</p>
+<pre><code class="language-text">Thread
+  │
+  ▼
+ThreadLocalMap
+  │
+  ▼
+Entry
+├───────────────┐
+│               │
+│ key           │ value
+│ WeakReference │ Strong Reference
+│      │        │      │
+│      ▼        │      ▼
+│ ThreadLocal   │ 业务对象 / Context
+</code></pre>
+<p>这是理解 ThreadLocal 内存风险最重要的图。</p>
+<h3>7.21 为什么 ThreadLocal key 适合弱引用，而 value 不是弱引用？</h3>
+<p>设计目标不同：</p>
+<pre><code class="language-text">key = ThreadLocal
+→ 更像“注册这个线程局部槽位的句柄”
+→ ThreadLocal 本身不应该仅仅因为 ThreadLocalMap 长期存在而永久存活
+
+value = 业务数据
+→ 在 ThreadLocal 生命周期内必须可以正常 get()
+→ 因此 value 必须是普通强引用
+</code></pre>
+<p>如果 value 也采用弱引用，那么：</p>
+<pre><code class="language-text">ThreadLocal.set(context)
+       ↓
+没有其他强引用
+       ↓
+GC 可能直接清理 context
+       ↓
+下一次 get() 得到 null
+</code></pre>
+<p>这就破坏了 ThreadLocal“线程内保存状态”的核心语义。</p>
+<p>因此 ThreadLocalMap 的设计实际上是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>弱化 key 的生命周期依赖，保留 value 在 Entry 中的强持有能力，再通过 remove 和惰性清理机制解决 stale value 问题。</strong></p>
+</blockquote>
+<h3>7.22 一个非常容易记错的结论</h3>
+<p>不要把下面四句话混为一谈：</p>
+<pre><code class="language-text">① WeakReference 是弱引用
+② ThreadLocalMap 的 key 是弱引用
+③ ThreadLocalMap 的 value 是强引用
+④ ThreadLocal 使用弱引用 ≠ ThreadLocal 不会内存泄漏
+</code></pre>
+<p>真正完整的链路是：</p>
+<pre><code class="language-text">ThreadLocal key
+     │
+     ▼
+WeakReference&lt;ThreadLocal&lt;?&gt;&gt;
+     │
+     └── ThreadLocal 被 GC 后 → key 变成 null/stale
+                                  │
+                                  ▼
+                         Entry 仍然存在
+                                  │
+                                  ▼
+                           value 仍然强引用
+                                  │
+                                  ▼
+                         value 可能继续存活
+</code></pre>
+<p>所以：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>弱引用降低了 ThreadLocal key 导致的长期存活风险，但没有替你清理 value。</strong></p>
+</blockquote>
+<p>这也是下一章 ThreadLocal <code>remove()</code> 原因的理论基础。</p>
+<h3>7.23 四种引用的记忆口诀</h3>
+<p>可以用一个非常实用的方式记忆：</p>
+<pre><code class="language-text">强：我自己还握着，你别回收
+
+软：我没有强留着，内存紧张了可以丢
+
+弱：我没有强、软留着，GC 处理时可以丢
+
+虚：我连对象都不给你拿，主要通过队列感知回收阶段
+</code></pre>
+<p>再对应典型用途：</p>
+<pre><code class="language-text">StrongReference
+    → 正常业务对象
+
+SoftReference
+    → 内存敏感缓存（是否使用还要结合现代缓存实现评估）
+
+WeakReference
+    → ThreadLocal key、弱键映射等
+
+PhantomReference
+    → 回收阶段通知 / 清理协调
+</code></pre>
+<h3>7.24 一组统一的测试示例</h3>
+<p>下面的测试把四种引用的“确定性 API 行为”放在一起，便于做实验：</p>
+<pre><code class="language-java">import org.junit.jupiter.api.Test;
+
+import java.lang.ref.PhantomReference;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class ReferenceTypesDemoTest {
+
+    @Test
+    void strongReferenceCanReadObjectDirectly() {
+        Object value = new Object();
+        assertNotNull(value);
+    }
+
+    @Test
+    void softReferenceCanReadObjectUntilCleared() {
+        Object value = new Object();
+        SoftReference&lt;Object&gt; ref = new SoftReference&lt;&gt;(value);
+
+        assertSame(value, ref.get());
+
+        ref.clear();
+        assertNull(ref.get());
+    }
+
+    @Test
+    void weakReferenceCanBeCleared() {
+        Object value = new Object();
+        WeakReference&lt;Object&gt; ref = new WeakReference&lt;&gt;(value);
+
+        assertSame(value, ref.get());
+
+        ref.clear();
+        assertNull(ref.get());
+    }
+
+    @Test
+    void phantomReferenceNeverExposesReferent() {
+        ReferenceQueue&lt;Object&gt; queue = new ReferenceQueue&lt;&gt;();
+        Object value = new Object();
+        PhantomReference&lt;Object&gt; ref =
+                new PhantomReference&lt;&gt;(value, queue);
+
+        assertNull(ref.get());
+
+        assertTrue(ref.enqueue());
+        assertSame(ref, queue.poll());
+    }
+}
+</code></pre>
+<h3>7.25 生产代码中的引用类型选择建议</h3>
+<p>可以按这个决策模型理解：</p>
+<pre><code class="language-text">你需要正常持有业务对象吗？
+        │
+        └── 是 → 强引用
+
+你是在做“内存敏感型缓存”吗？
+        │
+        └── 是 → 才考虑 SoftReference，并先确认业务是否真的需要引用语义
+
+你希望某个辅助结构不要强行延长 key/object 生命周期吗？
+        │
+        └── 是 → 考虑 WeakReference
+
+你关注的是“对象已经接近回收之后”的通知/清理协调吗？
+        │
+        └── 是 → 考虑 PhantomReference + ReferenceQueue / Cleaner
+</code></pre>
+<p>不要为了“看起来高级”而主动把业务对象改成软/弱/虚引用。引用类型应该服务于生命周期语义，而不是作为普通内存优化开关。</p>
+<h3>7.26 本章和 ThreadLocal 的最终连接</h3>
+<p>前面 ThreadLocal 的弱引用问题，现在可以完整串起来：</p>
+<pre><code class="language-text">ThreadLocalMap.Entry
+        │
+        ├── key = WeakReference&lt;ThreadLocal&lt;?&gt;&gt;
+        │              │
+        │              └── ThreadLocal 不再被强引用后，可进入 GC 处理流程
+        │
+        └── value = Object 强引用
+                       │
+                       └── 如果 Entry 尚未被清理，value 仍可能继续存活
+
+                    ↓
+
+             remove() 的价值
+                    ↓
+          直接把 Entry / value 清掉
+                    ↓
+             生命周期彻底结束
+</code></pre>
+<p>所以理解四种引用，不是为了单独背 Java API，而是为了回答 ThreadLocal 最关键的问题：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>为什么 key 用弱引用仍然需要 <code>remove()</code>？</strong></p>
+</blockquote>
+<p>答案就是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>因为弱引用解决的是 key 的生命周期问题，而 <code>remove()</code> 解决的是 Entry/value 的生命周期问题。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>8、总结</h2>
+<h3>8.1 一句话理解 ThreadLocal</h3>
+<blockquote class="markdown-blockquote">
+<p><strong>ThreadLocal 是一个“访问入口”，真正的数据存储在当前 Thread 的 ThreadLocalMap 中，因此同一个 ThreadLocal 在不同线程中对应不同 value。</strong></p>
+</blockquote>
+<h3>8.2 一定要记住的底层关系</h3>
+<pre><code class="language-text">ThreadLocal
+   ↓
+Thread
+   ↓
+ThreadLocalMap
+   ↓
+Entry
+   ├── WeakReference&lt;ThreadLocal&lt;?&gt;&gt; key
+   └── Object value
+</code></pre>
+<h3>8.3 一定要理解弱引用的真正目的</h3>
+<p>不是：</p>
+<pre><code class="language-text">“用了弱引用，所以不会泄漏”
+</code></pre>
+<p>而是：</p>
+<pre><code class="language-text">“弱引用让 ThreadLocal key 在失去外部引用后具备被 GC 的可能，
+然后 ThreadLocalMap 在后续操作中清理 stale entry。”
+</code></pre>
+<h3>8.4 null key 的真正含义</h3>
+<p>这里的 <code>null key</code> 通常指：</p>
+<pre><code class="language-text">ThreadLocal 被 GC
+       ↓
+Entry.get()/refersTo() == null
+       ↓
+stale entry
+</code></pre>
+<p>不是：</p>
+<pre><code class="language-java">threadLocal.set(null);
+</code></pre>
+<h3>8.5 为什么必须 remove</h3>
+<p>因为：</p>
+<pre><code class="language-text">ThreadLocalMap 的 value 是强引用
+</code></pre>
+<p>线程池中的线程又长期存活，所以：</p>
+<pre><code class="language-text">不 remove
+   ↓
+value 可能长期挂在线程上
+   ↓
+造成内存占用
+   ↓
+甚至造成数据串任务
+</code></pre>
+<p>因此最可靠的模板就是：</p>
+<pre><code class="language-java">try {
+    THREAD_LOCAL.set(value);
+    // do business
+} finally {
+    THREAD_LOCAL.remove();
+}
+</code></pre>
+<h3>8.6 ThreadLocal 最适合什么</h3>
+<p>可以用下面的判断快速判断：</p>
+<pre><code class="language-text">这个数据是不是“线程本地状态”？
+        │
+        ├── 是
+        │    ↓
+        │  ThreadLocal 可以考虑
+        │
+        └── 不是
+             ↓
+           不要为了省参数强行使用 ThreadLocal
+</code></pre>
+<p>再进一步问：</p>
+<pre><code class="language-text">是不是为了“隐式向下传递上下文”？
+        │
+        ├── JDK 25+
+        │    → 可以研究 ScopedValue
+        │
+        ├── 普通业务调用链
+        │    → 优先考虑显式参数
+        │
+        └── 线程池异步
+             → 优先考虑 Task Context / Context Propagation
+</code></pre>
+<h3>8.7 线程池里的黄金法则</h3>
+<blockquote class="markdown-blockquote">
+<p><strong>ThreadLocal 的生命周期必须绑定 Task，而不是绑定 Worker Thread。</strong></p>
+</blockquote>
+<p>也就是：</p>
+<pre><code class="language-java">executor.submit(() -&gt; {
+    try {
+        CONTEXT.set(context);
+        business();
+    } finally {
+        CONTEXT.remove();
+    }
+});
+</code></pre>
+<h3>8.8 最终建议</h3>
+<p>生产代码中使用 ThreadLocal，可以遵循以下原则：</p>
+<pre><code class="language-text">1. 优先确认是否真的需要 ThreadLocal
+2. ThreadLocal 尽量设计成 private static final
+3. 明确 value 的生命周期
+4. set 与 remove 尽量成对出现
+5. remove 放在 finally
+6. 不要把 ThreadLocal 当全局变量
+7. 在线程池中尤其要防止上下文串任务
+8. 不要认为弱引用可以自动解决所有内存泄漏
+9. 不要把 InheritableThreadLocal 当成线程池上下文传播方案
+10. JDK 25+ 可评估 ScopedValue
+11. 能显式传参数时，显式传递通常更透明、更容易测试
+</code></pre>
+<hr class="markdown-hr">
+<h1>附录 A：推荐 Demo 工程结构</h1>
+<pre><code class="language-text">threadlocal-demo/
+├── pom.xml
+├── src/
+│   ├── main/
+│   │   └── java/
+│   │       ├── ThreadLocalDemo.java
+│   │       ├── ThreadLocalMapInspectDemo.java
+│   │       ├── WeakReferenceDemo.java
+│   │       ├── ThreadLocalRemoveDemo.java
+│   │       ├── ThreadPoolThreadLocalLeakDemo.java
+│   │       └── ScopedValueDemo.java
+│   └── test/
+│       └── java/
+│           ├── ThreadLocalDemoTest.java
+│           ├── ThreadLocalRemoveTest.java
+│           ├── RequestContextHolderTest.java
+│           └── ThreadPoolThreadLocalTest.java
+</code></pre>
+<hr class="markdown-hr">
+<h1>附录 B：Maven JUnit 5 配置</h1>
+<pre><code class="language-xml">&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot;
+         xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+         xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;
+
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+
+    &lt;groupId&gt;demo&lt;/groupId&gt;
+    &lt;artifactId&gt;threadlocal-demo&lt;/artifactId&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+
+    &lt;properties&gt;
+        &lt;maven.compiler.source&gt;17&lt;/maven.compiler.source&gt;
+        &lt;maven.compiler.target&gt;17&lt;/maven.compiler.target&gt;
+        &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+        &lt;junit.version&gt;5.11.3&lt;/junit.version&gt;
+    &lt;/properties&gt;
+
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.junit.jupiter&lt;/groupId&gt;
+            &lt;artifactId&gt;junit-jupiter&lt;/artifactId&gt;
+            &lt;version&gt;${junit.version}&lt;/version&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+
+    &lt;build&gt;
+        &lt;plugins&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+                &lt;artifactId&gt;maven-surefire-plugin&lt;/artifactId&gt;
+                &lt;version&gt;3.5.2&lt;/version&gt;
+            &lt;/plugin&gt;
+        &lt;/plugins&gt;
+    &lt;/build&gt;
+&lt;/project&gt;
+</code></pre>
+<blockquote class="markdown-blockquote">
+<p><code>ScopedValue</code> Demo 需要将编译和运行环境切换到 JDK 25，并将 Maven 编译版本调整为 25。</p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>附录 C：源码阅读重点清单</h1>
+<p>阅读 OpenJDK <code>ThreadLocal.java</code> 时，建议重点看这些方法：</p>
+<pre><code class="language-text">ThreadLocal.get()
+    ↓
+getMap(Thread)
+    ↓
+ThreadLocalMap.getEntry()
+
+ThreadLocal.set()
+    ↓
+ThreadLocalMap.set()
+
+ThreadLocal.remove()
+    ↓
+ThreadLocalMap.remove()
+    ↓
+expungeStaleEntry()
+    ↓
+cleanSomeSlots()
+    ↓
+rehash()
+</code></pre>
+<p>尤其关注：</p>
+<pre><code class="language-text">Entry extends WeakReference&lt;ThreadLocal&lt;?&gt;&gt;
+Entry.value
+getEntryAfterMiss()
+replaceStaleEntry()
+expungeStaleEntry()
+cleanSomeSlots()
+rehash()
+remove()
+</code></pre>
+<p>这些源码基本串起了 ThreadLocal 的：</p>
+<pre><code class="language-text">设计原因
+↓
+弱引用
+↓
+stale entry
+↓
+惰性清理
+↓
+remove
+↓
+线程池风险
+</code></pre>
+<hr class="markdown-hr">
+<h1>参考资料</h1>
+<ol class="markdown-ordered-list">
+<li><p>Oracle Java SE 25 <code>ThreadLocal</code> API<br><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/ThreadLocal.html">https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/ThreadLocal.html</a></p>
+</li>
+<li><p>OpenJDK <code>ThreadLocal.java</code> 源码<br><a href="https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/java/lang/ThreadLocal.java">https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/java/lang/ThreadLocal.java</a></p>
+</li>
+<li><p>Oracle Java SE 25 <code>Thread</code> API<br><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Thread.html">https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Thread.html</a></p>
+</li>
+<li><p>Oracle Java SE 25 <code>ScopedValue</code> API<br><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/ScopedValue.html">https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/ScopedValue.html</a></p>
+</li>
+<li><p>Oracle JDK 25 Significant Changes<br><a href="https://docs.oracle.com/en/java/javase/25/migrate/significant-changes-jdk-25.html">https://docs.oracle.com/en/java/javase/25/migrate/significant-changes-jdk-25.html</a></p>
+</li>
+<li><p>OpenJDK JEP 444：Virtual Threads<br><a href="https://openjdk.org/jeps/444">https://openjdk.org/jeps/444</a></p>
+</li>
+</ol>
+
+      </div>
+    </article>
+    
+    <div id="comments" style="max-width: 800px; margin: 3rem auto; padding: 0 1rem;">
+      <div style="width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin-bottom: 2rem;"></div>
+      <h3 style="margin-bottom: 1.5rem; color: var(--primary);">💬 评论区</h3>
+      <script src="https://giscus.app/client.js" 
+           data-repo="jonny-dr/jonny-dr.github.io" 
+           data-repo-id="R_kgDORKkzfg" 
+           data-category="Announcements" 
+           data-category-id="DIC_kwDORKkzfs4C2Wdq" 
+           data-mapping="pathname" 
+           data-strict="0" 
+           data-reactions-enabled="1" 
+           data-emit-metadata="0" 
+           data-input-position="bottom" 
+           data-theme="preferred_color_scheme" 
+           data-lang="zh-CN" 
+           crossorigin="anonymous" 
+           async> 
+     </script>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 北辰 · 保持好奇，持续成长</p>
+    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
+      源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
+    </p>
+  </footer>
+
+  <button class="back-to-top" id="backToTop" aria-label="回到顶部">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="m18 15-6-6-6 6"/>
+    </svg>
+  </button>
+
+  <script src="../../../js/theme.js"></script>
+</body>
+</html>
+  
