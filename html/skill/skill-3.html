@@ -4,160 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🍀 技术 | 北辰</title>
-  <link rel="stylesheet" href="../../css/common.css">
-  <style>
-    /* 技术页面特有样式 */
-    .skill-container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    .skill-card {
-      background: var(--card-bg);
-      padding: 2rem;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-      transition: var(--transition);
-      margin-bottom: 2rem;
-    }
-    .skill-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-    }
-    .skill-header {
-      margin-bottom: 1.5rem;
-    }
-    .skill-title {
-      font-size: 1.8rem;
-      margin-bottom: 1rem;
-      color: var(--primary);
-      font-weight: 700;
-    }
-    .skill-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-      color: #6c757d;
-      font-size: 0.95rem;
-    }
-    .skill-meta-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .skill-meta-item .label {
-      font-weight: 600;
-      color: var(--text);
-    }
-    .skill-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.8rem;
-      margin-bottom: 1.5rem;
-    }
-    .skill-tag {
-      background: rgba(67, 97, 238, 0.1);
-      color: var(--primary);
-      padding: 0.5rem 1rem;
-      border-radius: 15px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      transition: var(--transition);
-    }
-    .skill-tag:hover {
-      background: var(--primary);
-      color: white;
-      transform: translateY(-2px);
-    }
-    .skill-excerpt {
-      line-height: 1.7;
-      color: var(--text);
-      margin-bottom: 1.5rem;
-    }
-    .skill-read-more {
-      display: inline-block;
-      padding: 0.8rem 1.5rem;
-      background: var(--primary);
-      color: white;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 600;
-      transition: var(--transition);
-    }
-    .skill-read-more:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow);
-    }
-    .skill-category {
-      margin: 3rem 0 2rem;
-      padding-bottom: 1rem;
-      border-bottom: 2px solid var(--primary);
-    }
-    .skill-category-title {
-      font-size: 2rem;
-      color: var(--primary);
-      font-weight: 700;
-    }
-    .skill-category-nav {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.6rem;
-      margin: 0 0 2rem;
-    }
-    .skill-category-nav a {
-      color: var(--primary);
-      background: rgba(67, 97, 238, 0.1);
-      border-radius: 8px;
-      padding: 0.8rem 1.5rem;
-      text-decoration: none;
-      font-weight: 600;
-      transition: var(--transition);
-    }
-    .skill-category-nav a:hover,
-    .skill-category-nav a.active {
-      background: var(--primary);
-      color: white;
-      transform: translateY(-3px);
-      box-shadow: var(--shadow);
-    }
-    @media (max-width: 768px) {
-      .skill-container {
-        padding: 0 1rem;
-      }
-      .skill-card {
-        padding: 1.5rem;
-      }
-      .skill-title {
-        font-size: 1.5rem;
-      }
-      .skill-meta {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-      }
-      .skill-category-title {
-        font-size: 1.6rem;
-      }
-    }
-    @media (max-width: 480px) {
-      .skill-title {
-        font-size: 1.3rem;
-      }
-      .skill-meta-item {
-        font-size: 0.85rem;
-      }
-      .skill-tag {
-        font-size: 0.8rem;
-        padding: 0.4rem 0.8rem;
-      }
-      .skill-category-nav a {
-        padding: 0.65rem 1rem;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="../../css/common.css?v=d0f3480a54">
 </head>
-<body>
+<body class="listing-page">
   <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
@@ -192,91 +41,104 @@
 
   <main class="skill-container">
     <nav class="skill-category-nav" aria-label="技术文章分类">
-      <a href="skill.html" class="active">全部</a>
-      <a href="category-java-jvm.html" class="">Java 与 JVM</a><a href="category-database.html" class="">数据库</a><a href="category-middleware.html" class="">缓存与中间件</a><a href="category-distributed.html" class="">分布式与微服务</a><a href="category-architecture.html" class="">架构与工程</a><a href="category-ai-engineering.html" class="">AI 工程</a>
+      <a href="skill.html" class="active" aria-current="page">全部 <span class="category-count">29</span></a>
+      <a href="category-java-jvm.html">Java 与 JVM <span class="category-count">9</span></a><a href="category-database.html">数据库 <span class="category-count">3</span></a><a href="category-middleware.html">缓存与中间件 <span class="category-count">6</span></a><a href="category-distributed.html">分布式与微服务 <span class="category-count">3</span></a><a href="category-architecture.html">架构与工程 <span class="category-count">4</span></a><a href="category-ai-engineering.html">AI 工程 <span class="category-count">4</span></a>
     </nav>
-    
-      <article class="skill-card">
+
+
+      <article class="article-card skill-card">
         <div class="skill-header">
-          <h2 class="skill-title"><a href="../../posts/skill/html/2026-07-18-WebSocket集群_双活高可用部署运维方案.html" style="color: var(--primary); text-decoration: none;">Websocket高可用解决方案</a></h2>
-          <div class="skill-meta">
-            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-07-18</span></div>
-            <div class="skill-meta-item"><span class="label">类别：</span><span>分布式与微服务</span></div>
-            <div class="skill-meta-item"><span class="label">语言：</span><span>Java · WebSocket · 微服务</span></div>
-          </div>
-          <div class="skill-tags"><span class="skill-tag">WebSocket</span> <span class="skill-tag">集群</span> <span class="skill-tag">双活</span> <span class="skill-tag">RocketMQ</span></div>
+          <h2 class="skill-title"><a href="../../posts/skill/html/2026-07-18-WebSocket集群_双活高可用部署运维方案.html">Websocket高可用解决方案</a></h2>
         </div>
         <div class="skill-excerpt">针对Java WebSocket单机本地SessionMap集群/双活失效问题!彻底解决两大核心痛点!</div>
-        <a href="../../posts/skill/html/2026-07-18-WebSocket集群_双活高可用部署运维方案.html" class="skill-read-more">阅读更多 →</a>
+        <div class="skill-meta">
+            <div class="skill-meta-item"><time datetime="2026-07-18">2026-07-18</time></div>
+            <div class="skill-meta-item"><span class="label">类别：</span><span>分布式与微服务</span></div>
+            <div class="skill-meta-item"><span class="label">语言：</span><span>Java · WebSocket · 微服务</span></div>
+        </div>
+        <div class="skill-card-footer">
+          <div class="skill-tags"><span class="skill-tag">WebSocket</span> <span class="skill-tag">集群</span> <span class="skill-tag">双活</span> <span class="skill-tag">RocketMQ</span></div>
+          <a href="../../posts/skill/html/2026-07-18-WebSocket集群_双活高可用部署运维方案.html" class="skill-read-more" aria-label="阅读全文：Websocket高可用解决方案">阅读全文 →</a>
+        </div>
       </article>
-      <article class="skill-card">
+      <article class="article-card skill-card">
         <div class="skill-header">
-          <h2 class="skill-title"><a href="../../posts/skill/html/2026-07-11-ShardingSphere_混合分片双主高可用_完整配置方案.html" style="color: var(--primary); text-decoration: none;">ShardingSphere</a></h2>
-          <div class="skill-meta">
-            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-07-11</span></div>
-            <div class="skill-meta-item"><span class="label">类别：</span><span>数据库</span></div>
-            <div class="skill-meta-item"><span class="label">语言：</span><span>Java · ShardingSphere</span></div>
-          </div>
-          <div class="skill-tags"><span class="skill-tag">ShardingSphere</span> <span class="skill-tag">分库分表</span> <span class="skill-tag">MySQL</span> <span class="skill-tag">高可用</span></div>
+          <h2 class="skill-title"><a href="../../posts/skill/html/2026-07-11-ShardingSphere_混合分片双主高可用_完整配置方案.html">ShardingSphere</a></h2>
         </div>
         <div class="skill-excerpt">深入分析ShardingSphere分片流程。以及单表分库的实现</div>
-        <a href="../../posts/skill/html/2026-07-11-ShardingSphere_混合分片双主高可用_完整配置方案.html" class="skill-read-more">阅读更多 →</a>
+        <div class="skill-meta">
+            <div class="skill-meta-item"><time datetime="2026-07-11">2026-07-11</time></div>
+            <div class="skill-meta-item"><span class="label">类别：</span><span>数据库</span></div>
+            <div class="skill-meta-item"><span class="label">语言：</span><span>Java · ShardingSphere</span></div>
+        </div>
+        <div class="skill-card-footer">
+          <div class="skill-tags"><span class="skill-tag">ShardingSphere</span> <span class="skill-tag">分库分表</span> <span class="skill-tag">MySQL</span> <span class="skill-tag">高可用</span></div>
+          <a href="../../posts/skill/html/2026-07-11-ShardingSphere_混合分片双主高可用_完整配置方案.html" class="skill-read-more" aria-label="阅读全文：ShardingSphere">阅读全文 →</a>
+        </div>
       </article>
-      <article class="skill-card">
+      <article class="article-card skill-card">
         <div class="skill-header">
-          <h2 class="skill-title"><a href="../../posts/skill/html/2026-07-04-Redis整理.html" style="color: var(--primary); text-decoration: none;">Redis 相关问题以及部分解决方案</a></h2>
-          <div class="skill-meta">
-            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-07-04</span></div>
-            <div class="skill-meta-item"><span class="label">类别：</span><span>缓存与中间件</span></div>
-            <div class="skill-meta-item"><span class="label">语言：</span><span>Java · Redis</span></div>
-          </div>
-          <div class="skill-tags"><span class="skill-tag">Redis</span> <span class="skill-tag">缓存</span> <span class="skill-tag">分布式锁</span></div>
+          <h2 class="skill-title"><a href="../../posts/skill/html/2026-07-04-Redis整理.html">Redis 相关问题以及部分解决方案</a></h2>
         </div>
         <div class="skill-excerpt">从Redis经典的三个问题开始（穿透/击穿/雪崩）以及引申的相关问题，并提供完整的解决方案和代码实现。</div>
-        <a href="../../posts/skill/html/2026-07-04-Redis整理.html" class="skill-read-more">阅读更多 →</a>
+        <div class="skill-meta">
+            <div class="skill-meta-item"><time datetime="2026-07-04">2026-07-04</time></div>
+            <div class="skill-meta-item"><span class="label">类别：</span><span>缓存与中间件</span></div>
+            <div class="skill-meta-item"><span class="label">语言：</span><span>Java · Redis</span></div>
+        </div>
+        <div class="skill-card-footer">
+          <div class="skill-tags"><span class="skill-tag">Redis</span> <span class="skill-tag">缓存</span> <span class="skill-tag">分布式锁</span></div>
+          <a href="../../posts/skill/html/2026-07-04-Redis整理.html" class="skill-read-more" aria-label="阅读全文：Redis 相关问题以及部分解决方案">阅读全文 →</a>
+        </div>
       </article>
-      <article class="skill-card">
+      <article class="article-card skill-card">
         <div class="skill-header">
-          <h2 class="skill-title"><a href="../../posts/skill/html/2026-06-13-三方服务对接方案.html" style="color: var(--primary); text-decoration: none;">调用多个三方服务的统一封装解决方案</a></h2>
-          <div class="skill-meta">
-            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-06-13</span></div>
-            <div class="skill-meta-item"><span class="label">类别：</span><span>架构与工程</span></div>
-            <div class="skill-meta-item"><span class="label">语言：</span><span>Java · 微服务</span></div>
-          </div>
-          <div class="skill-tags"><span class="skill-tag">服务集成</span> <span class="skill-tag">设计模式</span> <span class="skill-tag">微服务</span></div>
+          <h2 class="skill-title"><a href="../../posts/skill/html/2026-06-13-三方服务对接方案.html">调用多个三方服务的统一封装解决方案</a></h2>
         </div>
         <div class="skill-excerpt">主要解决调用多个不同的三方服务，重复造轮子，且规范不统一，不方便管理的问题，提供完整的解决方案和代码实现。</div>
-        <a href="../../posts/skill/html/2026-06-13-三方服务对接方案.html" class="skill-read-more">阅读更多 →</a>
+        <div class="skill-meta">
+            <div class="skill-meta-item"><time datetime="2026-06-13">2026-06-13</time></div>
+            <div class="skill-meta-item"><span class="label">类别：</span><span>架构与工程</span></div>
+            <div class="skill-meta-item"><span class="label">语言：</span><span>Java · 微服务</span></div>
+        </div>
+        <div class="skill-card-footer">
+          <div class="skill-tags"><span class="skill-tag">服务集成</span> <span class="skill-tag">设计模式</span> <span class="skill-tag">微服务</span></div>
+          <a href="../../posts/skill/html/2026-06-13-三方服务对接方案.html" class="skill-read-more" aria-label="阅读全文：调用多个三方服务的统一封装解决方案">阅读全文 →</a>
+        </div>
       </article>
-      <article class="skill-card">
+      <article class="article-card skill-card">
         <div class="skill-header">
-          <h2 class="skill-title"><a href="../../posts/skill/html/2026-03-15-AI智能体工具调用.html" style="color: var(--primary); text-decoration: none;">AI 智能体工具调用</a></h2>
-          <div class="skill-meta">
-            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-03-15</span></div>
-            <div class="skill-meta-item"><span class="label">类别：</span><span>AI 工程</span></div>
-            <div class="skill-meta-item"><span class="label">语言：</span><span>Java</span></div>
-          </div>
-          <div class="skill-tags"><span class="skill-tag">智能体</span> <span class="skill-tag">工具调用</span> <span class="skill-tag">Spring AI</span></div>
+          <h2 class="skill-title"><a href="../../posts/skill/html/2026-03-15-AI智能体工具调用.html">AI 智能体工具调用</a></h2>
         </div>
         <div class="skill-excerpt">以智能客服为例，说明 AI 智能体的工具调用设计和实现。</div>
-        <a href="../../posts/skill/html/2026-03-15-AI智能体工具调用.html" class="skill-read-more">阅读更多 →</a>
-      </article>
-      <article class="skill-card">
-        <div class="skill-header">
-          <h2 class="skill-title"><a href="../../posts/skill/html/2026-03-15-Java的AI框架对比.html" style="color: var(--primary); text-decoration: none;">AI框架</a></h2>
-          <div class="skill-meta">
-            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-03-15</span></div>
+        <div class="skill-meta">
+            <div class="skill-meta-item"><time datetime="2026-03-15">2026-03-15</time></div>
             <div class="skill-meta-item"><span class="label">类别：</span><span>AI 工程</span></div>
-            <div class="skill-meta-item"><span class="label">语言：</span><span>Java · AI</span></div>
-          </div>
-          <div class="skill-tags"><span class="skill-tag">Java</span> <span class="skill-tag">AI 框架</span> <span class="skill-tag">Spring AI</span></div>
+            <div class="skill-meta-item"><span class="label">语言：</span><span>Java</span></div>
+        </div>
+        <div class="skill-card-footer">
+          <div class="skill-tags"><span class="skill-tag">智能体</span> <span class="skill-tag">工具调用</span> <span class="skill-tag">Spring AI</span></div>
+          <a href="../../posts/skill/html/2026-03-15-AI智能体工具调用.html" class="skill-read-more" aria-label="阅读全文：AI 智能体工具调用">阅读全文 →</a>
+        </div>
+      </article>
+      <article class="article-card skill-card">
+        <div class="skill-header">
+          <h2 class="skill-title"><a href="../../posts/skill/html/2026-03-15-Java的AI框架对比.html">AI框架</a></h2>
         </div>
         <div class="skill-excerpt">基于Java语言的AI框架分析。</div>
-        <a href="../../posts/skill/html/2026-03-15-Java的AI框架对比.html" class="skill-read-more">阅读更多 →</a>
+        <div class="skill-meta">
+            <div class="skill-meta-item"><time datetime="2026-03-15">2026-03-15</time></div>
+            <div class="skill-meta-item"><span class="label">类别：</span><span>AI 工程</span></div>
+            <div class="skill-meta-item"><span class="label">语言：</span><span>Java · AI</span></div>
+        </div>
+        <div class="skill-card-footer">
+          <div class="skill-tags"><span class="skill-tag">Java</span> <span class="skill-tag">AI 框架</span> <span class="skill-tag">Spring AI</span></div>
+          <a href="../../posts/skill/html/2026-03-15-Java的AI框架对比.html" class="skill-read-more" aria-label="阅读全文：AI框架">阅读全文 →</a>
+        </div>
       </article>
-    
+
   <div class="pagination">
-    <a href="skill.html" class="page-link ">1</a><a href="skill-2.html" class="page-link ">2</a><a href="skill-3.html" class="page-link active">3</a><a href="skill-4.html" class="page-link ">4</a><a href="skill-5.html" class="page-link ">5</a>
+    <a href="skill.html" class="page-link " aria-label="第 1 页">1</a><a href="skill-2.html" class="page-link " aria-label="第 2 页">2</a><a href="skill-3.html" class="page-link active" aria-label="第 3 页" aria-current="page">3</a><a href="skill-4.html" class="page-link " aria-label="第 4 页">4</a><a href="skill-5.html" class="page-link " aria-label="第 5 页">5</a>
   </div>
 
   </main>
@@ -295,11 +157,11 @@
     </svg>
   </button>
 
-  
+
   <script>
     window.musicFiles = ["/./../images/music/M500000UVmc64Qhwgk.mp3","/./../images/music/background.mp3"];
   </script>
-  <audio id="backgroundMusic" src="/./../images/music/M500000UVmc64Qhwgk.mp3" autoplay muted loop>
-  <script src="../../js/theme.js"></script>
+  <audio id="backgroundMusic" src="/./../images/music/M500000UVmc64Qhwgk.mp3" autoplay muted loop></audio>
+  <script src="../../js/theme.js?v=f0cf82dafc"></script>
 </body>
 </html>

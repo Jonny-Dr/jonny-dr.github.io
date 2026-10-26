@@ -5,77 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{title}}</title>
   <link rel="stylesheet" href="{{basePath}}css/common.css">
-  <style>
-    /* 日常页面特有样式 */
-    .daily-container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    .daily-item {
-      background: var(--card-bg);
-      padding: 2rem;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-      transition: var(--transition);
-      margin-bottom: 2rem;
-    }
-    .daily-item:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-    }
-    .daily-title {
-      font-size: 1.8rem;
-      margin-bottom: 1rem;
-      color: var(--primary);
-      font-weight: 700;
-    }
-    .daily-date {
-      color: #6c757d;
-      font-size: 0.95rem;
-      margin-bottom: 1.5rem;
-    }
-    .daily-content {
-      line-height: 1.7;
-      color: var(--text);
-      margin-bottom: 1.5rem;
-    }
-    .daily-read-more {
-      display: inline-block;
-      padding: 0.8rem 1.5rem;
-      background: var(--primary);
-      color: white;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 600;
-      transition: var(--transition);
-    }
-    .daily-read-more:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow);
-    }
-    @media (max-width: 768px) {
-      .daily-container {
-        padding: 0 1rem;
-      }
-      .daily-item {
-        padding: 1.5rem;
-      }
-      .daily-title {
-        font-size: 1.5rem;
-      }
-    }
-    @media (max-width: 480px) {
-      .daily-title {
-        font-size: 1.3rem;
-      }
-      .daily-date {
-        font-size: 0.85rem;
-      }
-    }
-  </style>
 </head>
-<body>
+<body class="listing-page">
   <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
@@ -99,7 +30,9 @@
     {{nav}}
   </header>
 
-  <main class="daily-container">
+  <main class="{{contentClass}}">
+    {{categoryNavigation}}
+    {{listSummary}}
     {{content}}
     {{pagination}}
   </main>

@@ -4,74 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>☕️ 文章归档 | 北辰</title>
-  <link rel="stylesheet" href="./css/common.css">
-  <style>
-    /* 归档页面特有样式 */
-    .archive-container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    .archive-year {
-      font-size: 1.8rem;
-      margin: 2.5rem 0 1.5rem;
-      color: var(--primary);
-      border-left: 6px solid var(--primary);
-      padding-left: 12px;
-      line-height: 1.3;
-    }
-    .archive-month {
-      font-size: 1.3rem;
-      margin: 1.5rem 0 0.8rem;
-      display: flex;
-      justify-content: space-between;
-      color: var(--primary);
-    }
-    .archive-month .count {
-      background: rgba(67, 97, 238, 0.15);
-      color: var(--primary);
-      padding: 0.3rem 0.8rem;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      transition: var(--transition);
-      box-shadow: 0 1px 3px rgba(67, 97, 238, 0.1);
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .archive-month .count:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 2px 6px rgba(67, 97, 238, 0.2);
-      background: rgba(67, 97, 238, 0.25);
-    }
-    .archive-list {
-      list-style: none;
-    }
-    .archive-item {
-      padding: 1rem 0;
-      border-bottom: 1px dashed var(--border);
-      transition: var(--transition);
-    }
-    .archive-item:hover {
-      background-color: rgba(67, 97, 238, 0.05);
-      padding-left: 5px;
-    }
-    .archive-title {
-      font-weight: 600;
-      color: var(--primary);
-      margin-bottom: 0.5rem;
-      font-size: 1.1rem;
-    }
-    .archive-date {
-      color: #888;
-      font-size: 0.95rem;
-    }
-    @media (max-width: 768px) {
-      .archive-container { padding: 0 1rem; }
-    }
-  </style>
+  <link rel="stylesheet" href="./css/common.css?v=d0f3480a54">
 </head>
-<body>
+<body class="listing-page">
   <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
@@ -91,7 +26,7 @@
       <span class="header-icon">☕️</span>
       <span class="header-title">文章归档</span>
     </h1>
-    <p class="subtitle">所有文章的历史记录</p>
+    <p class="subtitle">按时间整理的历史文章与学习笔记</p>
     <nav>
   <a href="./index.html">首页</a>
   <a href="./html/project/project.html">项目</a>
@@ -104,31 +39,53 @@
 </nav>
   </header>
 
-  <main class="archive-container">
-    
-    <div class="archive-year-container">
-      <div class="archive-year-decoration"></div>
-      <div class="archive-year">2026年</div>
-    </div>
-    <div class="archive-month">
-      9月 <span class="count">1</span>
-    </div>
-    <ul class="archive-list">
-      <li class="archive-item">
-        <div class="archive-title"><a href="./posts/archives/html/2026-09-12-CAS与AQS深度解析.html" style="color: var(--primary); text-decoration: none;">CAS / AQS 深度解析与实战</a></div>
-        <div class="archive-date">2026-09-12</div>
-      </li>
-    </ul>
-    <div class="archive-month">
-      3月 <span class="count">1</span>
-    </div>
-    <ul class="archive-list">
-      <li class="archive-item">
-        <div class="archive-title"><a href="./posts/archives/html/2026-03-20-SpringAI流程_整理版.html" style="color: var(--primary); text-decoration: none;">SpringAI 完整流程指南</a></div>
-        <div class="archive-date">2026-03-20</div>
-      </li>
-    </ul>
-    
+  <main class="archives-container">
+
+    <div class="listing-summary"><p>归档文章 <span>2 篇</span></p><span>最新发布在前</span></div>
+
+    <section class="archive-year-group" aria-labelledby="archive-2026">
+      <h2 class="archive-year" id="archive-2026">2026 年</h2>
+
+      <section class="archive-month-group" aria-labelledby="archive-2026-09">
+        <h3 class="archive-month" id="archive-2026-09">9 月 <span>1 篇</span></h3>
+
+      <article class="article-card skill-card">
+        <div class="skill-header">
+          <h4 class="skill-title"><a href="./posts/archives/html/2026-09-12-CAS与AQS深度解析.html">CAS / AQS 深度解析与实战</a></h4>
+        </div>
+        <div class="skill-excerpt">CAS / AQS 深度解析（包括底层原理的一些细节）与实战…</div>
+        <div class="skill-meta">
+            <div class="skill-meta-item"><time datetime="2026-09-12">2026-09-12</time></div>
+            <div class="skill-meta-item"><span class="label">类别：</span><span>Java 与 JVM</span></div>
+            <div class="skill-meta-item"><span class="label">语言：</span><span>Java · JUC</span></div>
+        </div>
+        <div class="skill-card-footer">
+          <div class="skill-tags"><span class="skill-tag">CAS</span> <span class="skill-tag">AQS</span> <span class="skill-tag">JUC</span> <span class="skill-tag">并发编程</span></div>
+          <a href="./posts/archives/html/2026-09-12-CAS与AQS深度解析.html" class="skill-read-more" aria-label="阅读全文：CAS / AQS 深度解析与实战">阅读全文 →</a>
+        </div>
+      </article>
+      </section>
+      <section class="archive-month-group" aria-labelledby="archive-2026-03">
+        <h3 class="archive-month" id="archive-2026-03">3 月 <span>1 篇</span></h3>
+
+      <article class="article-card skill-card">
+        <div class="skill-header">
+          <h4 class="skill-title"><a href="./posts/archives/html/2026-03-20-SpringAI流程_整理版.html">SpringAI 完整流程指南</a></h4>
+        </div>
+        <div class="skill-excerpt">大模型的部署方式主要分为以下两种： 企业级建议：本地部署（优点是数据安全） 本次讲解使用大模型云平台的API接口方式。如果本地有ollama下载部署的本地模型，也可以使用。 以阿里云百炼平台为例： 注…</div>
+        <div class="skill-meta">
+            <div class="skill-meta-item"><time datetime="2026-03-20">2026-03-20</time></div>
+
+
+        </div>
+        <div class="skill-card-footer">
+
+          <a href="./posts/archives/html/2026-03-20-SpringAI流程_整理版.html" class="skill-read-more" aria-label="阅读全文：SpringAI 完整流程指南">阅读全文 →</a>
+        </div>
+      </article>
+      </section>
+    </section>
+
   </main>
 
   <footer>
@@ -145,11 +102,11 @@
     </svg>
   </button>
 
-  
+
   <script>
     window.musicFiles = ["/images/music/M500000UVmc64Qhwgk.mp3","/images/music/background.mp3"];
   </script>
-  <audio id="backgroundMusic" src="/images/music/M500000UVmc64Qhwgk.mp3" autoplay muted loop>
-  <script src="./js/theme.js"></script>
+  <audio id="backgroundMusic" src="/images/music/M500000UVmc64Qhwgk.mp3" autoplay muted loop></audio>
+  <script src="./js/theme.js?v=f0cf82dafc"></script>
 </body>
 </html>

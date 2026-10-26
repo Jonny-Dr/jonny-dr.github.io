@@ -4,126 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🍁 关于我 | 北辰</title>
-  <link rel="stylesheet" href="./css/common.css">
-  <style>
-    .about-content {
-      line-height: 1.8;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    .about-section {
-      margin-bottom: 2.5rem;
-    }
-    .section-title {
-      font-size: 1.8rem;
-      margin-bottom: 1.2rem;
-      color: var(--primary);
-      padding-bottom: 0.5rem;
-      border-bottom: 2px solid var(--primary);
-    }
-    .profile-img {
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid var(--primary);
-      margin: 1.5rem auto;
-      display: block;
-      box-shadow: var(--shadow);
-    }
-    .social-links {
-      display: flex;
-      justify-content: center;
-      gap: 1.5rem;
-      margin-top: 1.5rem;
-    }
-    .social-icon {
-      width: 36px;
-      height: 36px;
-      fill: currentColor;
-      opacity: 0.7;
-      transition: var(--transition);
-    }
-    .social-icon:hover { opacity: 1; transform: translateY(-2px); }
-    .skill-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-top: 1.5rem;
-    }
-    .skill-item {
-      background: var(--primary);
-      color: white;
-      padding: 0.4rem 1rem;
-      border-radius: 20px;
-      font-size: 0.9rem;
-    }
-    
-    /* 技术类别样式 */
-    .skills-categories {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-      margin-top: 2rem;
-    }
-    
-    .skill-category {
-      background: var(--card-bg);
-      padding: 2rem;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-      transition: var(--transition);
-    }
-    
-    .skill-category:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-    }
-    
-    .skill-category-title {
-      font-size: 1.3rem;
-      margin-bottom: 1.5rem;
-      color: var(--primary);
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-    }
-    
-    .skill-items {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-    
-    .skill-tag {
-      background: rgba(67, 97, 238, 0.1);
-      color: var(--primary);
-      padding: 0.8rem 1.5rem;
-      border-radius: 25px;
-      font-weight: 600;
-      transition: var(--transition);
-    }
-    
-    .skill-tag:hover {
-      background: var(--primary);
-      color: white;
-      transform: translateY(-2px);
-    }
-    
-    @media (max-width: 768px) {
-      .about-content { padding: 0 1rem; }
-      .profile-img { width: 120px; height: 120px; }
-      .skills-categories {
-        grid-template-columns: 1fr;
-      }
-      .skill-category {
-        padding: 1.5rem;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="./css/common.css?v=d0f3480a54">
 </head>
-<body>
+<body class="listing-page about-page">
   <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
@@ -135,8 +18,9 @@
   </button>
 
   <header>
-    <h1>🍁 关于我</h1>
+    <h1><span class="header-icon">🍁</span><span class="header-title">关于我</span></h1>
     <p class="subtitle">用文字记录思考，用代码丈量世界 · 一个热爱技术的探索者</p>
+    <!-- NAV_START -->
     <nav>
   <a href="./index.html">首页</a>
   <a href="./html/project/project.html">项目</a>
@@ -147,24 +31,28 @@
   <a href="./archives.html">归档</a>
   <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
 </nav>
+    <!-- NAV_END -->
   </header>
 
   <main class="about-content">
-    <section class="about-section">
-      <h2 class="section-title">关于我</h2>
-      <p>
-        我是 <strong>北辰</strong>，一名专注于 <strong>后端开发</strong> 和 <strong>技术写作</strong> 的开发者。
-        毕业于 <em>中国传媒大学</em> 数字媒体艺术专业，拥有 6 年 全栈 开发经验。
-      </p>
-      <p>
-        我相信 <strong>技术应该让生活更简单</strong>，因此致力于分享实用的技术方案和成长经验。
-        业余时间喜欢研究 <em>开源项目</em>、<em>设计模式</em> 和 <em>性能优化</em>。
-      </p>
-      <img src="https://jonny-dr.github.io/images/head/tom.jpg" alt="个人头像" class="profile-img">
+    <section class="surface-card profile-card" aria-labelledby="profile-title">
+      <img src="./images/head/tom.jpg" alt="北辰的个人头像" class="profile-img" width="96" height="96">
+      <div class="profile-copy">
+        <h2 id="profile-title">你好，我是北辰</h2>
+        <p>一名专注于<strong>后端开发</strong>和<strong>技术写作</strong>的开发者。毕业于中国传媒大学数字媒体艺术专业，拥有 6 年全栈开发经验。</p>
+        <p>我相信技术应该让生活更简单，致力于分享实用的技术方案和成长经验。业余时间喜欢研究开源项目、设计模式和性能优化。</p>
+        <div class="action-row">
+          <a href="./html/skill/skill.html" class="site-button">阅读技术文章 →</a>
+          <a href="./html/project/project.html" class="site-button">查看项目 →</a>
+        </div>
+      </div>
     </section>
 
-    <section class="about-section">
-      <h2 class="section-title">技术栈</h2>
+    <section class="content-section" aria-labelledby="about-skills-title">
+      <div class="section-heading">
+        <h2 id="about-skills-title">技术栈</h2>
+        <span>学习与实践</span>
+      </div>
       <div class="skills-categories">
         <!-- SKILLS_START -->
         <!-- 项目管理 -->
@@ -248,22 +136,12 @@
       </div>
     </section>
 
-    <section class="about-section">
-      <h2 class="section-title">联系方式</h2>
-      <p>
-        期待与你交流技术、合作项目或探讨未来方向。
-        你可以通过以下方式联系我：
-      </p>
-      <div class="social-links">
-        <a href="https://github.com/" target="_blank" rel="noopener" aria-label="GitHub">
-          <svg class="social-icon" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-        </a>
-        <a href="mailto:15535526550@163.com" aria-label="邮箱">
-          <svg class="social-icon" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-        </a>
-        <a href="https://linkedin.com/in/你的用户名" target="_blank" rel="noopener" aria-label="LinkedIn">
-          <svg class="social-icon" viewBox="0 0 24 24"><path d="M19 0H5a2 2 0 00-2 2v16a2 2 0 002 2h14a2 2 0 002-2V2a2 2 0 00-2-2zm-6.75 13.25h-1.5v-3.75h-1.5v-1.5h3v3.75h1.5v1.5h-3z"/></svg>
-        </a>
+    <section class="surface-card contact-card" aria-labelledby="contact-title">
+      <h2 id="contact-title">交流与联系</h2>
+      <p>期待与你交流技术、合作项目或探讨未来方向。</p>
+      <div class="action-row">
+        <a href="https://github.com/jonny-dr" target="_blank" rel="noopener" class="site-button">GitHub ↗</a>
+        <a href="mailto:15535526550@163.com" class="site-button">联系邮箱 →</a>
       </div>
     </section>
   </main>
@@ -282,6 +160,6 @@
     </svg>
   </button>
 
-  <script src="./js/theme.js"></script>
+  <script src="./js/theme.js?v=f0cf82dafc"></script>
 </body>
 </html>

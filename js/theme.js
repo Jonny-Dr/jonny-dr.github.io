@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', function() {
   function applyTheme(theme) {
     htmlEl.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
+    const themeToggle = document.getElementById('themeToggle');
+    if (!themeToggle) return;
     
     if (theme === 'dark') {
       themeToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>`;
@@ -34,21 +36,6 @@ document.addEventListener('DOMContentLoaded', function() {
     applyTheme(newTheme);
   });
 
-  document.addEventListener('copy', function(e) {
-    e.preventDefault();
-    alert('复制功能已禁用');
-  });
-
-  document.addEventListener('cut', function(e) {
-    e.preventDefault();
-    alert('剪切功能已禁用');
-  });
-
-  document.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
-    alert('右键菜单已禁用');
-  });
-
   const musicToggle = document.getElementById('musicToggle');
   const audio = document.getElementById('backgroundMusic');
   
@@ -62,6 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let musicFiles = window.musicFiles || ['./images/music/background.mp3'];
   
   function updateMusicIcon(isPlaying) {
+    const musicToggle = document.getElementById('musicToggle');
     if (!musicToggle) return;
     
     if (isPlaying) {
@@ -297,18 +285,25 @@ document.addEventListener('DOMContentLoaded', function() {
     allLinks.forEach(link => {
       link.addEventListener('click', function(e) {
         const href = this.getAttribute('href');
+        if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || this.hasAttribute('download') || this.target === '_blank') return;
         
-        if (href && !href.startsWith('http') && !href.startsWith('#')) {
-          e.preventDefault();
-          loadPage(href);
-        }
+        if (!href) return;
+        const destination = new URL(href, window.location.href);
+        if (!['http:', 'https:'].includes(destination.protocol) || destination.origin !== window.location.origin) return;
+        if (destination.pathname === window.location.pathname && destination.search === window.location.search && destination.hash) return;
+        e.preventDefault();
+        loadPage(destination.href);
       });
     });
   }
 
-  function loadPage(url) {
-    fetch(url)
-      .then(response => response.text())
+  function loadPage(url, pushHistory = true) {
+    const destination = new URL(url, window.location.href);
+    fetch(destination.href, { cache: 'no-cache' })
+      .then(response => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.text();
+      })
       .then(html => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
@@ -324,23 +319,39 @@ document.addEventListener('DOMContentLoaded', function() {
             document.title = newTitle.textContent;
           }
           
-          const newStyles = newHead.querySelectorAll('style');
-          if (newStyles.length > 0) {
-            const existingStyles = document.querySelectorAll('style');
-            existingStyles.forEach(style => {
-              style.remove();
-            });
-            
-            newStyles.forEach(style => {
-              document.head.appendChild(style.cloneNode(true));
-            });
-          }
+          // 每次切换都替换页面独有样式，目标页面没有 style 时也清理旧样式。
+          document.head.querySelectorAll('style').forEach(style => style.remove());
+          newHead.querySelectorAll('style').forEach(style => document.head.appendChild(style.cloneNode(true)));
+
+          // 相对样式路径以目标页面为准，并清除上一页专用的外部样式。
+          const stylesheets = [...newHead.querySelectorAll('link[rel="stylesheet"]')].map(link => {
+            const copy = link.cloneNode(true);
+            copy.href = new URL(link.getAttribute('href'), destination.href).href;
+            return copy;
+          });
+          const stylesheetURLs = new Set(stylesheets.map(link => link.href));
+          document.head.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+            if (!stylesheetURLs.has(link.href)) link.remove();
+            // 固定为绝对路径，避免 history 更新后相对引用指向错误目录。
+            else link.setAttribute('href', link.href);
+          });
+          stylesheets.forEach(link => {
+            if (![...document.head.querySelectorAll('link[rel="stylesheet"]')].some(existing => existing.href === link.href)) document.head.appendChild(link);
+          });
           
           document.body.innerHTML = newBody.innerHTML;
+          document.body.className = newBody.className;
+          if (audio) {
+            document.getElementById('backgroundMusic')?.remove();
+            document.body.appendChild(audio);
+          }
           
-          history.pushState({}, '', url);
+          if (pushHistory) history.pushState({}, '', url);
           
           initializePage();
+          const anchor = destination.hash && document.getElementById(decodeURIComponent(destination.hash.slice(1)));
+          if (anchor) anchor.scrollIntoView();
+          else window.scrollTo(0, 0);
         }
       })
       .catch(error => {
@@ -407,12 +418,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     setupSPAApp();
+    initializeNavigation();
     setupBackToTop();
     initializeHighlightJs();
     initializeGiscus();
   }
   
   function initializeHighlightJs() {
+    if (!document.querySelector('.post-body pre code')) return;
     if (typeof hljs !== 'undefined') {
       hljs.highlightAll();
     } else {
@@ -455,20 +468,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const currentUrl = window.location.href;
     const path = currentUrl.replace(window.location.origin, '');
     
-    loadPage(path || '/');
+    loadPage(path || '/', false);
   });
+
+  function updateBackToTop() {
+    document.getElementById('backToTop')?.classList.toggle('visible', window.pageYOffset > 300);
+  }
 
   function setupBackToTop() {
     const backToTopBtn = document.getElementById('backToTop');
     
     if (backToTopBtn) {
-      window.addEventListener('scroll', function() {
-        if (window.pageYOffset > 300) {
-          backToTopBtn.classList.add('visible');
-        } else {
-          backToTopBtn.classList.remove('visible');
-        }
-      });
+      window.removeEventListener('scroll', updateBackToTop);
+      window.addEventListener('scroll', updateBackToTop, { passive: true });
+      updateBackToTop();
       
       backToTopBtn.addEventListener('click', function() {
         window.scrollTo({
@@ -479,6 +492,27 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
+  function initializeNavigation() {
+    const moduleMatch = window.location.pathname.match(/\/(?:html|posts)\/(skill|ai|project|daily)\//);
+    const currentPath = moduleMatch
+      ? `/html/${moduleMatch[1]}/${moduleMatch[1]}.html`
+      : /^\/archives(?:-\d+)?\.html$/.test(window.location.pathname) ? '/archives.html'
+      : window.location.pathname === '/' ? '/index.html' : window.location.pathname;
+    document.querySelectorAll('header nav a').forEach(link => {
+      if (new URL(link.href).pathname === currentPath && new URL(link.href).origin === window.location.origin) {
+        link.setAttribute('aria-current', 'page');
+      } else {
+        link.removeAttribute('aria-current');
+      }
+    });
+    const categories = document.querySelector('.skill-category-nav');
+    const active = categories && categories.querySelector('[aria-current="page"]');
+    if (active && categories.scrollWidth > categories.clientWidth) {
+      categories.scrollLeft += active.getBoundingClientRect().left - categories.getBoundingClientRect().left - (categories.clientWidth - active.offsetWidth) / 2;
+    }
+  }
+
+  initializeNavigation();
   setupSPAApp();
   setupBackToTop();
 });

@@ -4,160 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🍀 Java 与 JVM | 北辰</title>
-  <link rel="stylesheet" href="../../css/common.css">
-  <style>
-    /* 技术页面特有样式 */
-    .skill-container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    .skill-card {
-      background: var(--card-bg);
-      padding: 2rem;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-      transition: var(--transition);
-      margin-bottom: 2rem;
-    }
-    .skill-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-    }
-    .skill-header {
-      margin-bottom: 1.5rem;
-    }
-    .skill-title {
-      font-size: 1.8rem;
-      margin-bottom: 1rem;
-      color: var(--primary);
-      font-weight: 700;
-    }
-    .skill-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-      color: #6c757d;
-      font-size: 0.95rem;
-    }
-    .skill-meta-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .skill-meta-item .label {
-      font-weight: 600;
-      color: var(--text);
-    }
-    .skill-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.8rem;
-      margin-bottom: 1.5rem;
-    }
-    .skill-tag {
-      background: rgba(67, 97, 238, 0.1);
-      color: var(--primary);
-      padding: 0.5rem 1rem;
-      border-radius: 15px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      transition: var(--transition);
-    }
-    .skill-tag:hover {
-      background: var(--primary);
-      color: white;
-      transform: translateY(-2px);
-    }
-    .skill-excerpt {
-      line-height: 1.7;
-      color: var(--text);
-      margin-bottom: 1.5rem;
-    }
-    .skill-read-more {
-      display: inline-block;
-      padding: 0.8rem 1.5rem;
-      background: var(--primary);
-      color: white;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 600;
-      transition: var(--transition);
-    }
-    .skill-read-more:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow);
-    }
-    .skill-category {
-      margin: 3rem 0 2rem;
-      padding-bottom: 1rem;
-      border-bottom: 2px solid var(--primary);
-    }
-    .skill-category-title {
-      font-size: 2rem;
-      color: var(--primary);
-      font-weight: 700;
-    }
-    .skill-category-nav {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.6rem;
-      margin: 0 0 2rem;
-    }
-    .skill-category-nav a {
-      color: var(--primary);
-      background: rgba(67, 97, 238, 0.1);
-      border-radius: 8px;
-      padding: 0.8rem 1.5rem;
-      text-decoration: none;
-      font-weight: 600;
-      transition: var(--transition);
-    }
-    .skill-category-nav a:hover,
-    .skill-category-nav a.active {
-      background: var(--primary);
-      color: white;
-      transform: translateY(-3px);
-      box-shadow: var(--shadow);
-    }
-    @media (max-width: 768px) {
-      .skill-container {
-        padding: 0 1rem;
-      }
-      .skill-card {
-        padding: 1.5rem;
-      }
-      .skill-title {
-        font-size: 1.5rem;
-      }
-      .skill-meta {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-      }
-      .skill-category-title {
-        font-size: 1.6rem;
-      }
-    }
-    @media (max-width: 480px) {
-      .skill-title {
-        font-size: 1.3rem;
-      }
-      .skill-meta-item {
-        font-size: 0.85rem;
-      }
-      .skill-tag {
-        font-size: 0.8rem;
-        padding: 0.4rem 0.8rem;
-      }
-      .skill-category-nav a {
-        padding: 0.65rem 1rem;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="../../css/common.css?v=d0f3480a54">
 </head>
-<body>
+<body class="listing-page">
   <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
@@ -192,128 +41,147 @@
 
   <main class="skill-container">
     <nav class="skill-category-nav" aria-label="技术文章分类">
-      <a href="skill.html" class="">全部</a>
-      <a href="category-java-jvm.html" class="active">Java 与 JVM</a><a href="category-database.html" class="">数据库</a><a href="category-middleware.html" class="">缓存与中间件</a><a href="category-distributed.html" class="">分布式与微服务</a><a href="category-architecture.html" class="">架构与工程</a><a href="category-ai-engineering.html" class="">AI 工程</a>
+      <a href="skill.html">全部 <span class="category-count">29</span></a>
+      <a href="category-java-jvm.html" class="active" aria-current="page">Java 与 JVM <span class="category-count">9</span></a><a href="category-database.html">数据库 <span class="category-count">3</span></a><a href="category-middleware.html">缓存与中间件 <span class="category-count">6</span></a><a href="category-distributed.html">分布式与微服务 <span class="category-count">3</span></a><a href="category-architecture.html">架构与工程 <span class="category-count">4</span></a><a href="category-ai-engineering.html">AI 工程 <span class="category-count">4</span></a>
     </nav>
-    
-      <article class="skill-card">
+
+
+      <article class="article-card skill-card">
         <div class="skill-header">
-          <h2 class="skill-title"><a href="../../posts/skill/html/2026-10-05-CAS与AQS深度解析增强版.html" style="color: var(--primary); text-decoration: none;">CAS / AQS 深度解析与实战（增强版）</a></h2>
-          <div class="skill-meta">
-            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-10-05</span></div>
-            <div class="skill-meta-item"><span class="label">类别：</span><span>Java 与 JVM</span></div>
-            <div class="skill-meta-item"><span class="label">语言：</span><span>Java · JUC</span></div>
-          </div>
-          <div class="skill-tags"><span class="skill-tag">CAS</span> <span class="skill-tag">AQS</span> <span class="skill-tag">JUC</span> <span class="skill-tag">LockSupport</span> <span class="skill-tag">并发编程</span></div>
+          <h2 class="skill-title"><a href="../../posts/skill/html/2026-10-05-CAS与AQS深度解析增强版.html">CAS / AQS 深度解析与实战（增强版）</a></h2>
         </div>
         <div class="skill-excerpt">从 CAS 的硬件原子语义出发，串起 JMM、Atomic、LongAdder、LockSupport、AQS、ReentrantLock、Condition、公平锁与非公平锁，并给出源码级流程、Demo、JDK 版本差异与工程选型。</div>
-        <a href="../../posts/skill/html/2026-10-05-CAS与AQS深度解析增强版.html" class="skill-read-more">阅读更多 →</a>
-      </article>
-      <article class="skill-card">
-        <div class="skill-header">
-          <h2 class="skill-title"><a href="../../posts/skill/html/2026-10-05-CompletableFuture深度串讲.html" style="color: var(--primary); text-decoration: none;">CompletableFuture 深度串讲</a></h2>
-          <div class="skill-meta">
-            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-10-05</span></div>
+        <div class="skill-meta">
+            <div class="skill-meta-item"><time datetime="2026-10-05">2026-10-05</time></div>
             <div class="skill-meta-item"><span class="label">类别：</span><span>Java 与 JVM</span></div>
-            <div class="skill-meta-item"><span class="label">语言：</span><span>Java</span></div>
-          </div>
-          <div class="skill-tags"><span class="skill-tag">CompletableFuture</span> <span class="skill-tag">异步编程</span> <span class="skill-tag">线程池</span> <span class="skill-tag">并发编程</span></div>
+            <div class="skill-meta-item"><span class="label">语言：</span><span>Java · JUC</span></div>
+        </div>
+        <div class="skill-card-footer">
+          <div class="skill-tags"><span class="skill-tag">CAS</span> <span class="skill-tag">AQS</span> <span class="skill-tag">JUC</span> <span class="skill-tag">LockSupport</span> <span class="skill-tag">并发编程</span></div>
+          <a href="../../posts/skill/html/2026-10-05-CAS与AQS深度解析增强版.html" class="skill-read-more" aria-label="阅读全文：CAS / AQS 深度解析与实战（增强版）">阅读全文 →</a>
+        </div>
+      </article>
+      <article class="article-card skill-card">
+        <div class="skill-header">
+          <h2 class="skill-title"><a href="../../posts/skill/html/2026-10-05-CompletableFuture深度串讲.html">CompletableFuture 深度串讲</a></h2>
         </div>
         <div class="skill-excerpt">从并发基础到任务编排、线程池隔离、异常处理和底层 Completion 机制，系统理解 CompletableFuture。</div>
-        <a href="../../posts/skill/html/2026-10-05-CompletableFuture深度串讲.html" class="skill-read-more">阅读更多 →</a>
-      </article>
-      <article class="skill-card">
-        <div class="skill-header">
-          <h2 class="skill-title"><a href="../../posts/skill/html/2026-10-05-JUC串讲.html" style="color: var(--primary); text-decoration: none;">Java 并发包 JUC 串讲</a></h2>
-          <div class="skill-meta">
-            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-10-05</span></div>
+        <div class="skill-meta">
+            <div class="skill-meta-item"><time datetime="2026-10-05">2026-10-05</time></div>
             <div class="skill-meta-item"><span class="label">类别：</span><span>Java 与 JVM</span></div>
             <div class="skill-meta-item"><span class="label">语言：</span><span>Java</span></div>
-          </div>
-          <div class="skill-tags"><span class="skill-tag">JUC</span> <span class="skill-tag">synchronized</span> <span class="skill-tag">volatile</span> <span class="skill-tag">CAS</span> <span class="skill-tag">AQS</span></div>
+        </div>
+        <div class="skill-card-footer">
+          <div class="skill-tags"><span class="skill-tag">CompletableFuture</span> <span class="skill-tag">异步编程</span> <span class="skill-tag">线程池</span> <span class="skill-tag">并发编程</span></div>
+          <a href="../../posts/skill/html/2026-10-05-CompletableFuture深度串讲.html" class="skill-read-more" aria-label="阅读全文：CompletableFuture 深度串讲">阅读全文 →</a>
+        </div>
+      </article>
+      <article class="article-card skill-card">
+        <div class="skill-header">
+          <h2 class="skill-title"><a href="../../posts/skill/html/2026-10-05-JUC串讲.html">Java 并发包 JUC 串讲</a></h2>
         </div>
         <div class="skill-excerpt">从 synchronized、volatile 到 AQS 和各类并发工具，建立完整的 Java 并发知识体系。</div>
-        <a href="../../posts/skill/html/2026-10-05-JUC串讲.html" class="skill-read-more">阅读更多 →</a>
-      </article>
-      <article class="skill-card">
-        <div class="skill-header">
-          <h2 class="skill-title"><a href="../../posts/skill/html/2026-10-05-LongAdder核心原理.html" style="color: var(--primary); text-decoration: none;">LongAdder 核心原理</a></h2>
-          <div class="skill-meta">
-            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-10-05</span></div>
+        <div class="skill-meta">
+            <div class="skill-meta-item"><time datetime="2026-10-05">2026-10-05</time></div>
             <div class="skill-meta-item"><span class="label">类别：</span><span>Java 与 JVM</span></div>
             <div class="skill-meta-item"><span class="label">语言：</span><span>Java</span></div>
-          </div>
-          <div class="skill-tags"><span class="skill-tag">LongAdder</span> <span class="skill-tag">Striped64</span> <span class="skill-tag">CAS</span> <span class="skill-tag">高并发</span></div>
+        </div>
+        <div class="skill-card-footer">
+          <div class="skill-tags"><span class="skill-tag">JUC</span> <span class="skill-tag">synchronized</span> <span class="skill-tag">volatile</span> <span class="skill-tag">CAS</span> <span class="skill-tag">AQS</span></div>
+          <a href="../../posts/skill/html/2026-10-05-JUC串讲.html" class="skill-read-more" aria-label="阅读全文：Java 并发包 JUC 串讲">阅读全文 →</a>
+        </div>
+      </article>
+      <article class="article-card skill-card">
+        <div class="skill-header">
+          <h2 class="skill-title"><a href="../../posts/skill/html/2026-10-05-LongAdder核心原理.html">LongAdder 核心原理</a></h2>
         </div>
         <div class="skill-excerpt">解析 LongAdder 和 Striped64 的分段累加思想，以及它在高并发计数场景中的取舍。</div>
-        <a href="../../posts/skill/html/2026-10-05-LongAdder核心原理.html" class="skill-read-more">阅读更多 →</a>
-      </article>
-      <article class="skill-card">
-        <div class="skill-header">
-          <h2 class="skill-title"><a href="../../posts/skill/html/2026-10-05-Synchronized锁升级原理.html" style="color: var(--primary); text-decoration: none;">Synchronized 锁升级原理与实战</a></h2>
-          <div class="skill-meta">
-            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-10-05</span></div>
+        <div class="skill-meta">
+            <div class="skill-meta-item"><time datetime="2026-10-05">2026-10-05</time></div>
             <div class="skill-meta-item"><span class="label">类别：</span><span>Java 与 JVM</span></div>
             <div class="skill-meta-item"><span class="label">语言：</span><span>Java</span></div>
-          </div>
-          <div class="skill-tags"><span class="skill-tag">synchronized</span> <span class="skill-tag">锁升级</span> <span class="skill-tag">Monitor</span> <span class="skill-tag">JDK 8</span></div>
+        </div>
+        <div class="skill-card-footer">
+          <div class="skill-tags"><span class="skill-tag">LongAdder</span> <span class="skill-tag">Striped64</span> <span class="skill-tag">CAS</span> <span class="skill-tag">高并发</span></div>
+          <a href="../../posts/skill/html/2026-10-05-LongAdder核心原理.html" class="skill-read-more" aria-label="阅读全文：LongAdder 核心原理">阅读全文 →</a>
+        </div>
+      </article>
+      <article class="article-card skill-card">
+        <div class="skill-header">
+          <h2 class="skill-title"><a href="../../posts/skill/html/2026-10-05-Synchronized锁升级原理.html">Synchronized 锁升级原理与实战</a></h2>
         </div>
         <div class="skill-excerpt">结合 JDK 8 HotSpot 实现，理解 synchronized 的锁升级、锁膨胀和现代 JDK 的差异。</div>
-        <a href="../../posts/skill/html/2026-10-05-Synchronized锁升级原理.html" class="skill-read-more">阅读更多 →</a>
-      </article>
-      <article class="skill-card">
-        <div class="skill-header">
-          <h2 class="skill-title"><a href="../../posts/skill/html/2026-10-05-ThreadLocal源码分析.html" style="color: var(--primary); text-decoration: none;">ThreadLocal 源码分析与常见问题</a></h2>
-          <div class="skill-meta">
-            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-10-05</span></div>
+        <div class="skill-meta">
+            <div class="skill-meta-item"><time datetime="2026-10-05">2026-10-05</time></div>
             <div class="skill-meta-item"><span class="label">类别：</span><span>Java 与 JVM</span></div>
             <div class="skill-meta-item"><span class="label">语言：</span><span>Java</span></div>
-          </div>
-          <div class="skill-tags"><span class="skill-tag">ThreadLocal</span> <span class="skill-tag">内存泄漏</span> <span class="skill-tag">线程池</span> <span class="skill-tag">源码分析</span></div>
+        </div>
+        <div class="skill-card-footer">
+          <div class="skill-tags"><span class="skill-tag">synchronized</span> <span class="skill-tag">锁升级</span> <span class="skill-tag">Monitor</span> <span class="skill-tag">JDK 8</span></div>
+          <a href="../../posts/skill/html/2026-10-05-Synchronized锁升级原理.html" class="skill-read-more" aria-label="阅读全文：Synchronized 锁升级原理与实战">阅读全文 →</a>
+        </div>
+      </article>
+      <article class="article-card skill-card">
+        <div class="skill-header">
+          <h2 class="skill-title"><a href="../../posts/skill/html/2026-10-05-ThreadLocal源码分析.html">ThreadLocal 源码分析与常见问题</a></h2>
         </div>
         <div class="skill-excerpt">分析 ThreadLocal 的底层实现、内存泄漏风险、线程池使用场景和替代方案。</div>
-        <a href="../../posts/skill/html/2026-10-05-ThreadLocal源码分析.html" class="skill-read-more">阅读更多 →</a>
-      </article>
-      <article class="skill-card">
-        <div class="skill-header">
-          <h2 class="skill-title"><a href="../../posts/skill/html/2026-09-12-JVM低延迟与IO深度解析.html" style="color: var(--primary); text-decoration: none;">JVM 低延迟与 IO 深度解析</a></h2>
-          <div class="skill-meta">
-            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-09-12</span></div>
-            <div class="skill-meta-item"><span class="label">类别：</span><span>Java 与 JVM</span></div>
-            <div class="skill-meta-item"><span class="label">语言：</span><span>Java · JVM · JMM</span></div>
-          </div>
-          <div class="skill-tags"><span class="skill-tag">JVM</span> <span class="skill-tag">GC</span> <span class="skill-tag">IO</span> <span class="skill-tag">低延迟</span></div>
-        </div>
-        <div class="skill-excerpt">从JVM-GC到STW停滞底层细节解读…</div>
-        <a href="../../posts/skill/html/2026-09-12-JVM低延迟与IO深度解析.html" class="skill-read-more">阅读更多 →</a>
-      </article>
-      <article class="skill-card">
-        <div class="skill-header">
-          <h2 class="skill-title"><a href="../../posts/skill/html/2026-09-12-Java内存模型JMM解读.html" style="color: var(--primary); text-decoration: none;">Java 内存模型（JMM）完全解读</a></h2>
-          <div class="skill-meta">
-            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-09-12</span></div>
-            <div class="skill-meta-item"><span class="label">类别：</span><span>Java 与 JVM</span></div>
-            <div class="skill-meta-item"><span class="label">语言：</span><span>Java · JVM · JMM</span></div>
-          </div>
-          <div class="skill-tags"><span class="skill-tag">JMM</span> <span class="skill-tag">JVM</span> <span class="skill-tag">volatile</span> <span class="skill-tag">并发编程</span></div>
-        </div>
-        <div class="skill-excerpt">JVM-JMM底层细节解读…</div>
-        <a href="../../posts/skill/html/2026-09-12-Java内存模型JMM解读.html" class="skill-read-more">阅读更多 →</a>
-      </article>
-      <article class="skill-card">
-        <div class="skill-header">
-          <h2 class="skill-title"><a href="../../posts/skill/html/2026-02-15-Spring Boot 常用注解手册.html" style="color: var(--primary); text-decoration: none;">Spring Boot 常用注解手册</a></h2>
-          <div class="skill-meta">
-            <div class="skill-meta-item"><span class="label">日期：</span><span>2026-02-15</span></div>
+        <div class="skill-meta">
+            <div class="skill-meta-item"><time datetime="2026-10-05">2026-10-05</time></div>
             <div class="skill-meta-item"><span class="label">类别：</span><span>Java 与 JVM</span></div>
             <div class="skill-meta-item"><span class="label">语言：</span><span>Java</span></div>
-          </div>
-          <div class="skill-tags"><span class="skill-tag">Spring Boot</span> <span class="skill-tag">注解</span> <span class="skill-tag">Spring MVC</span></div>
+        </div>
+        <div class="skill-card-footer">
+          <div class="skill-tags"><span class="skill-tag">ThreadLocal</span> <span class="skill-tag">内存泄漏</span> <span class="skill-tag">线程池</span> <span class="skill-tag">源码分析</span></div>
+          <a href="../../posts/skill/html/2026-10-05-ThreadLocal源码分析.html" class="skill-read-more" aria-label="阅读全文：ThreadLocal 源码分析与常见问题">阅读全文 →</a>
+        </div>
+      </article>
+      <article class="article-card skill-card">
+        <div class="skill-header">
+          <h2 class="skill-title"><a href="../../posts/skill/html/2026-09-12-JVM低延迟与IO深度解析.html">JVM 低延迟与 IO 深度解析</a></h2>
+        </div>
+        <div class="skill-excerpt">从JVM-GC到STW停滞底层细节解读…</div>
+        <div class="skill-meta">
+            <div class="skill-meta-item"><time datetime="2026-09-12">2026-09-12</time></div>
+            <div class="skill-meta-item"><span class="label">类别：</span><span>Java 与 JVM</span></div>
+            <div class="skill-meta-item"><span class="label">语言：</span><span>Java · JVM · JMM</span></div>
+        </div>
+        <div class="skill-card-footer">
+          <div class="skill-tags"><span class="skill-tag">JVM</span> <span class="skill-tag">GC</span> <span class="skill-tag">IO</span> <span class="skill-tag">低延迟</span></div>
+          <a href="../../posts/skill/html/2026-09-12-JVM低延迟与IO深度解析.html" class="skill-read-more" aria-label="阅读全文：JVM 低延迟与 IO 深度解析">阅读全文 →</a>
+        </div>
+      </article>
+      <article class="article-card skill-card">
+        <div class="skill-header">
+          <h2 class="skill-title"><a href="../../posts/skill/html/2026-09-12-Java内存模型JMM解读.html">Java 内存模型（JMM）完全解读</a></h2>
+        </div>
+        <div class="skill-excerpt">JVM-JMM底层细节解读…</div>
+        <div class="skill-meta">
+            <div class="skill-meta-item"><time datetime="2026-09-12">2026-09-12</time></div>
+            <div class="skill-meta-item"><span class="label">类别：</span><span>Java 与 JVM</span></div>
+            <div class="skill-meta-item"><span class="label">语言：</span><span>Java · JVM · JMM</span></div>
+        </div>
+        <div class="skill-card-footer">
+          <div class="skill-tags"><span class="skill-tag">JMM</span> <span class="skill-tag">JVM</span> <span class="skill-tag">volatile</span> <span class="skill-tag">并发编程</span></div>
+          <a href="../../posts/skill/html/2026-09-12-Java内存模型JMM解读.html" class="skill-read-more" aria-label="阅读全文：Java 内存模型（JMM）完全解读">阅读全文 →</a>
+        </div>
+      </article>
+      <article class="article-card skill-card">
+        <div class="skill-header">
+          <h2 class="skill-title"><a href="../../posts/skill/html/2026-02-15-Spring Boot 常用注解手册.html">Spring Boot 常用注解手册</a></h2>
         </div>
         <div class="skill-excerpt">汇总 Spring Boot 常用注解的用途、关键属性和示例。</div>
-        <a href="../../posts/skill/html/2026-02-15-Spring Boot 常用注解手册.html" class="skill-read-more">阅读更多 →</a>
+        <div class="skill-meta">
+            <div class="skill-meta-item"><time datetime="2026-02-15">2026-02-15</time></div>
+            <div class="skill-meta-item"><span class="label">类别：</span><span>Java 与 JVM</span></div>
+            <div class="skill-meta-item"><span class="label">语言：</span><span>Java</span></div>
+        </div>
+        <div class="skill-card-footer">
+          <div class="skill-tags"><span class="skill-tag">Spring Boot</span> <span class="skill-tag">注解</span> <span class="skill-tag">Spring MVC</span></div>
+          <a href="../../posts/skill/html/2026-02-15-Spring Boot 常用注解手册.html" class="skill-read-more" aria-label="阅读全文：Spring Boot 常用注解手册">阅读全文 →</a>
+        </div>
       </article>
-    
+
   </main>
 
   <footer>
@@ -330,11 +198,11 @@
     </svg>
   </button>
 
-  
+
   <script>
     window.musicFiles = ["/./../images/music/M500000UVmc64Qhwgk.mp3","/./../images/music/background.mp3"];
   </script>
-  <audio id="backgroundMusic" src="/./../images/music/M500000UVmc64Qhwgk.mp3" autoplay muted loop>
-  <script src="../../js/theme.js"></script>
+  <audio id="backgroundMusic" src="/./../images/music/M500000UVmc64Qhwgk.mp3" autoplay muted loop></audio>
+  <script src="../../js/theme.js?v=f0cf82dafc"></script>
 </body>
 </html>

@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { createHash } = require('crypto');
 const { marked } = require('marked');
 
 marked.setOptions({
@@ -84,15 +85,14 @@ class MarkdownParser {
 
         let excerpt = frontMatter.excerpt || '';
         if (!excerpt) {
-            const yamlContentMatch = content.match(/^---[\s\S]*?---[\s\S]*?(?=^##|$)/m);
-            if (yamlContentMatch) {
-                excerpt = yamlContentMatch[0].replace(/^---[\s\S]*?---/m, '').trim();
-            }
-
-            if (!excerpt) {
-                const plainText = this.stripMarkdown(cleanContent).substring(0, 100);
-                excerpt = plainText + (plainText.length > 100 ? '...' : '');
-            }
+            // 没有摘要的旧文章从正文取纯文本，跳过标题、代码、表格和分隔线。
+            const prose = cleanContent
+                .replace(/```[\s\S]*?```/g, '')
+                .replace(/^#{1,6}\s+.*$/gm, '')
+                .replace(/^\s*\|.*\|\s*$/gm, '')
+                .replace(/^ {0,3}(?:[-*_]\s*){3,}$/gm, '');
+            const plainText = this.stripMarkdown(prose).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+            excerpt = plainText.slice(0, 100) + (plainText.length > 100 ? '…' : '');
         }
 
         return {
@@ -197,6 +197,15 @@ class MarkdownParser {
         return html;
     }
 
+    static versionAssets(html) {
+        const root = path.join(__dirname, '..');
+        const versions = new Map(['css/common.css', 'js/theme.js'].map(asset => [
+            asset, createHash('sha256').update(fs.readFileSync(path.join(root, asset))).digest('hex').slice(0, 10)
+        ]));
+        return html.replace(/((?:href|src)="[^"?]*?(css\/common\.css|js\/theme\.js))(?:\?v=[^"\s]*)?"/g,
+            (_, prefix, asset) => `${prefix}?v=${versions.get(asset)}"`);
+    }
+
     static escapeHtml(text) {
         if (typeof text !== 'string') text = String(text);
         return text
@@ -209,10 +218,11 @@ class MarkdownParser {
 
     static stripMarkdown(markdown) {
         let text = markdown.replace(/```[\s\S]*?```/g, '');
-        text = text.replace(/`[^`]+`/g, '');
+        text = text.replace(/`([^`]+)`/g, '$1');
         text = text.replace(/!\[[^\]]*\]\([^)]+\)/g, '');
-        text = text.replace(/\[[^\]]*\]\([^)]+\)/g, '$1');
-        text = text.replace(/^#\s+/gm, '');
+        text = text.replace(/\[([^\]]*)\]\([^)]+\)/g, '$1');
+        text = text.replace(/^#{1,6}\s+/gm, '');
+        text = text.replace(/^\s*>\s?/gm, '');
         text = text.replace(/\*\*|\*/g, '');
         text = text.replace(/^-\s+|^\d+\.\s+/gm, '');
         text = text.replace(/\n{2,}/g, '\n');
@@ -267,9 +277,9 @@ class MarkdownParser {
   <script>hljs.highlightAll();</script>
   <style>
     .post-content {
-      max-width: 800px;
+      max-width: 760px;
       margin: 0 auto;
-      line-height: 1.8;
+      line-height: 1.9;
     }
     .post-header {
       margin-bottom: 2rem;
@@ -277,28 +287,31 @@ class MarkdownParser {
       border-bottom: 1px solid var(--border);
     }
     .post-header h1 {
-      font-size: 2.2rem;
-      margin-bottom: 1rem;
-      color: var(--primary);
+      display: block;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      line-height: 1.45;
+      margin-bottom: 0.8rem;
+      color: var(--text);
+      overflow-wrap: anywhere;
     }
     .post-meta {
-      color: #888;
-      font-size: 0.95rem;
+      color: var(--muted);
+      font-size: 0.85rem;
       margin-bottom: 1rem;
     }
     .post-tags {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.8rem;
+      gap: 0.4rem;
       margin-bottom: 1rem;
     }
     .post-tag {
-      background: rgba(67, 97, 238, 0.1);
-      color: var(--primary);
-      padding: 0.5rem 1rem;
-      border-radius: 15px;
-      font-size: 0.9rem;
-      font-weight: 600;
+      background: var(--accent-soft);
+      color: var(--muted);
+      padding: 0.2rem 0.6rem;
+      border-radius: 5px;
+      font-size: 0.8rem;
+      font-weight: 400;
     }
     .post-tag.category {
       background: rgba(72, 187, 120, 0.1);
@@ -310,18 +323,32 @@ class MarkdownParser {
     }
     .post-body {
       margin-bottom: 2rem;
+      font-size: 1.0625rem;
+      overflow-wrap: anywhere;
     }
-    .post-body h2 {
+    .post-body h1,
+    .post-body h2,
+    .post-body h3,
+    .post-body h4 {
+      display: block;
+      line-height: 1.5;
+      scroll-margin-top: 1.5rem;
+    }
+    .post-body h1 {
       font-size: 1.8rem;
       margin: 2rem 0 1rem;
-      color: var(--primary);
+    }
+    .post-body h2 {
+      font-size: 1.5rem;
+      margin: 2rem 0 1rem;
+      color: var(--text);
       padding-bottom: 0.5rem;
       border-bottom: 1px solid var(--border);
     }
     .post-body h3 {
-      font-size: 1.4rem;
+      font-size: 1.25rem;
       margin: 1.5rem 0 0.8rem;
-      color: var(--primary);
+      color: var(--text);
     }
     .post-body h4 {
       font-size: 1.2rem;
@@ -472,23 +499,26 @@ class MarkdownParser {
     }
     @media (max-width: 768px) {
       .post-content {
-        padding: 0 1rem;
+        padding: 0;
       }
       .post-header h1 {
-        font-size: 1.8rem;
+        font-size: 1.65rem;
       }
+      .post-body h1 { font-size: 1.5rem; }
       .post-tags {
         gap: 0.5rem;
       }
       .post-tag {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.8rem;
+        padding: 0.2rem 0.6rem;
+        font-size: 0.75rem;
       }
       .post-body pre {
         padding: 1rem;
       }
       .post-body table.markdown-table {
         font-size: 0.85rem;
+        display: block;
+        overflow-x: auto;
       }
       .post-body table.markdown-table th,
       .post-body table.markdown-table td {
@@ -497,7 +527,7 @@ class MarkdownParser {
     }
   </style>
 </head>
-<body>
+<body class="article-page">
   <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
@@ -571,7 +601,7 @@ class MarkdownParser {
             fs.mkdirSync(htmlDir, { recursive: true });
         }
 
-        fs.writeFileSync(htmlPath, htmlTemplate);
+        fs.writeFileSync(htmlPath, this.versionAssets(htmlTemplate));
         console.log(`Generated HTML file: ${htmlPath}`);
     }
 

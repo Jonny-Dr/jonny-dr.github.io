@@ -4,16 +4,19 @@ const MarkdownParser = require('./markdown-parser');
 
 // 项目根目录（本脚本位于 js/ 下，根目录是其上一级）
 const ROOT_DIR = path.join(__dirname, '..');
+const generatedArticles = new Set();
 
 // 为Markdown文件生成HTML文件的函数
 function generateHtmlFromMarkdown(markdownPath, htmlPath) {
-    // 文章详情页通常在 posts/xxx/html/ 下，相对根目录需要向上两级
+    if (generatedArticles.has(htmlPath)) return;
+    // 根据详情页位置计算到项目根目录的相对路径。
     const htmlDir = path.dirname(htmlPath);
     const basePath = path.relative(htmlDir, ROOT_DIR).replace(/\\/g, '/') || '.';
     // 使用新的MarkdownParser模块生成HTML
     MarkdownParser.generateHtmlFromMarkdown(markdownPath, htmlPath, {
         navTemplate: readNavTemplate(basePath + '/')
     });
+    generatedArticles.add(htmlPath);
 }
 
 // 页面配置
@@ -104,7 +107,7 @@ const pageConfigs = [
         title: '☕️ 文章归档 | 北辰',
         icon: '☕️',
         headerTitle: '文章归档',
-        headerSubtitle: '所有文章的历史记录',
+        headerSubtitle: '按时间整理的历史文章与学习笔记',
         contentClass: 'archives-container',
         itemClass: 'archives-item',
         itemTitleClass: 'archives-title',
@@ -171,33 +174,62 @@ function getSortedPosts(moduleName) {
         .sort((a, b) => (b.parsed.date || '1970-01-01').localeCompare(a.parsed.date || '1970-01-01'));
 }
 
-function renderSkillCards(posts, basePath) {
+function renderArticleCards(posts, basePath, headingLevel = 2) {
     return posts.map(item => {
         const { title, date, primaryCategory, categories, tags, languages, excerpt } = item.parsed || MarkdownParser.parseMarkdown(path.join(ROOT_DIR, item.path, 'md', item.file));
         const cleanTitle = title || item.file.replace('.md', '').replace(/-/g, ' ');
         const displayCategory = primaryCategory || categories[0] || '';
         return `
-      <article class="skill-card">
+      <article class="article-card skill-card">
         <div class="skill-header">
-          <h2 class="skill-title"><a href="${basePath}${item.path}/html/${item.file.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h2>
-          <div class="skill-meta">
-            ${date ? `<div class="skill-meta-item"><span class="label">日期：</span><span>${date}</span></div>` : ''}
-            ${displayCategory ? `<div class="skill-meta-item"><span class="label">类别：</span><span>${displayCategory}</span></div>` : ''}
-            ${languages.length ? `<div class="skill-meta-item"><span class="label">语言：</span><span>${languages.join(' · ')}</span></div>` : ''}
-          </div>
-          ${tags.length ? `<div class="skill-tags">${tags.map(tag => `<span class="skill-tag">${tag}</span>`).join(' ')}</div>` : ''}
+          <h${headingLevel} class="skill-title"><a href="${basePath}${item.path}/html/${item.file.replace('.md', '.html')}">${MarkdownParser.escapeHtml(cleanTitle)}</a></h${headingLevel}>
         </div>
-        <div class="skill-excerpt">${excerpt || '这里是文章摘要...'}</div>
-        <a href="${basePath}${item.path}/html/${item.file.replace('.md', '.html')}" class="skill-read-more">阅读更多 →</a>
+        <div class="skill-excerpt">${MarkdownParser.escapeHtml(excerpt || '暂无摘要，阅读全文了解详情。')}</div>
+        <div class="skill-meta">
+            ${date ? `<div class="skill-meta-item"><time datetime="${date}">${date}</time></div>` : ''}
+            ${displayCategory ? `<div class="skill-meta-item"><span class="label">类别：</span><span>${MarkdownParser.escapeHtml(displayCategory)}</span></div>` : ''}
+            ${languages.length ? `<div class="skill-meta-item"><span class="label">语言：</span><span>${MarkdownParser.escapeHtml(languages.join(' · '))}</span></div>` : ''}
+        </div>
+        <div class="skill-card-footer">
+          ${tags.length ? `<div class="skill-tags">${tags.map(tag => `<span class="skill-tag">${MarkdownParser.escapeHtml(tag)}</span>`).join(' ')}</div>` : ''}
+          <a href="${basePath}${item.path}/html/${item.file.replace('.md', '.html')}" class="skill-read-more" aria-label="阅读全文：${MarkdownParser.escapeHtml(cleanTitle)}">阅读全文 →</a>
+        </div>
       </article>`;
     }).join('');
 }
 
+function renderArchiveGroups(posts, basePath) {
+    const years = new Map();
+    for (const item of posts) {
+        const year = item.parsed.date.slice(0, 4);
+        const month = item.parsed.date.slice(5, 7);
+        if (!years.has(year)) years.set(year, new Map());
+        const months = years.get(year);
+        if (!months.has(month)) months.set(month, []);
+        months.get(month).push(item);
+    }
+    return [...years].map(([year, months]) => `
+    <section class="archive-year-group" aria-labelledby="archive-${year}">
+      <h2 class="archive-year" id="archive-${year}">${year} 年</h2>
+      ${[...months].map(([month, monthPosts]) => `
+      <section class="archive-month-group" aria-labelledby="archive-${year}-${month}">
+        <h3 class="archive-month" id="archive-${year}-${month}">${Number(month)} 月 <span>${monthPosts.length} 篇</span></h3>
+        ${renderArticleCards(monthPosts, basePath, 4)}
+      </section>`).join('')}
+    </section>`).join('');
+}
+
 function renderCategoryNavigation(moduleName, activeCategory = '') {
     const categories = Object.entries(moduleName === 'ai' ? aiCategorySlugs : skillCategorySlugs);
+    const posts = getSortedPosts(moduleName);
+    const counts = posts.reduce((result, item) => {
+        const category = item.parsed.primaryCategory || item.parsed.categories[0];
+        result[category] = (result[category] || 0) + 1;
+        return result;
+    }, {});
     return `<nav class="skill-category-nav" aria-label="${moduleName === 'ai' ? 'AI' : '技术'}文章分类">
-      <a href="${moduleName}.html" class="${activeCategory ? '' : 'active'}">全部</a>
-      ${categories.map(([name, slug]) => `<a href="category-${slug}.html" class="${activeCategory === name ? 'active' : ''}">${name}</a>`).join('')}
+      <a href="${moduleName}.html"${activeCategory ? '' : ' class="active" aria-current="page"'}>全部 <span class="category-count">${posts.length}</span></a>
+      ${categories.map(([name, slug]) => `<a href="category-${slug}.html"${activeCategory === name ? ' class="active" aria-current="page"' : ''}>${name} <span class="category-count">${counts[name] || 0}</span></a>`).join('')}
     </nav>`;
 }
 
@@ -216,8 +248,9 @@ function generateCategoryPages(moduleName) {
             headerTitle: category,
             headerSubtitle: `${moduleName === 'ai' ? 'AI' : '技术'}文章 · ${categoryPosts.length} 篇`,
             categoryNavigation: renderCategoryNavigation(moduleName, category),
-            contentClass: 'skill-container',
-            content: categoryPosts.length ? renderSkillCards(categoryPosts, basePath) : '<p>暂无文章</p>',
+            listSummary: '',
+            contentClass: `${moduleName}-container`,
+            content: categoryPosts.length ? renderArticleCards(categoryPosts, basePath) : '<p>暂无文章</p>',
             pagination: ''
         }, basePath);
         fs.writeFileSync(path.join(ROOT_DIR, 'html', moduleName, `category-${slug}.html`), html);
@@ -229,10 +262,9 @@ function generateCategoryPages(moduleName) {
 
 // 生成页面函数
 function generatePage(pageConfig) {
-    const { name, title, icon, headerTitle, headerSubtitle, contentClass, itemClass, itemTitleClass, itemDateClass, itemExcerptClass, postsPerPage, directory, outputDir, basePath } = pageConfig;
+    const { name, title, icon, headerTitle, headerSubtitle, contentClass, postsPerPage, directory, outputDir, basePath } = pageConfig;
 
     // 读取目录下的所有文章
-    let postsDir = path.join(ROOT_DIR, directory);
     let allMarkdownFiles = [];
 
     if (name === 'index') {
@@ -273,6 +305,7 @@ function generatePage(pageConfig) {
     allMarkdownFiles.forEach(item => {
         const markdownPath = path.join(ROOT_DIR, item.path, 'md', item.file);
         const parsed = MarkdownParser.parseMarkdown(markdownPath);
+        item.parsed = parsed;
         item.parsedDate = parsed.date;
     });
     
@@ -297,6 +330,10 @@ function generatePage(pageConfig) {
     allMarkdownFiles.forEach(file => {
         console.log(`  - ${file.file}`);
     });
+
+    const listSummary = ['project', 'daily', 'archives'].includes(name)
+        ? `<div class="listing-summary"><p>${name === 'archives' ? '归档文章' : '全部文章'} <span>${allMarkdownFiles.length} 篇</span></p><span>最新发布在前</span></div>`
+        : '';
 
     // 如果没有Markdown文件，生成对应模板的页面（空状态）
     if (allMarkdownFiles.length === 0) {
@@ -323,6 +360,8 @@ function generatePage(pageConfig) {
                 headerTitle: headerTitle,
                 headerSubtitle: headerSubtitle,
                 categoryNavigation: ['skill', 'ai'].includes(name) ? renderCategoryNavigation(name) : '',
+                listSummary,
+                articleCount: allMarkdownFiles.length,
                 content: emptyContent,
                 contentClass: contentClass,
                 pagination: ''
@@ -347,210 +386,13 @@ function generatePage(pageConfig) {
         let contentHtml = '';
         switch (name) {
             case 'index':
-                // 首页的特殊处理
-                if (currentPosts.length > 0) {
-                    // 最多显示6条内容
-                    const maxPosts = 6;
-                    const displayPosts = currentPosts.slice(0, maxPosts);
-                    const hasMorePosts = currentPosts.length > maxPosts;
-
-                    // 生成文章卡片
-                    const postCards = displayPosts.map((item, index) => {
-                        // 检查是否是第六条且有更多文章
-                        if (hasMorePosts && index === maxPosts - 1) {
-                            // 第六条显示更多内容
-                            return `
-      <div class="post-card" style="cursor: pointer;" onclick="alert('详情请看具体栏目');">
-        <h3 class="post-title" style="color: var(--primary);">查看更多文章 →</h3>
-        <div class="post-date">共 ${currentPosts.length} 篇文章</div>
-        <p class="post-excerpt">还有 ${currentPosts.length - maxPosts + 1} 篇文章未显示，详情请查看具体栏目。</p>
-        <div class="post-link" style="color: var(--primary); font-weight: 600;">点击查看 →</div>
-      </div>
-      `;
-                        } else {
-                            // 正常显示文章
-                            const markdownPath = path.join(ROOT_DIR, item.path, 'md', item.file);
-                            const { title: postTitle, date: postDate, excerpt } = MarkdownParser.parseMarkdown(markdownPath);
-                            const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
-                            // 使用解析后的日期，如果没有则使用当前日期
-                            const displayDate = postDate || item.parsedDate;
-
-                            return `
-      <div class="post-card">
-        <h3 class="post-title"><a href="${basePath}${item.path}/html/${item.file.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h3>
-        <div class="post-date">${displayDate}</div>
-        <p class="post-excerpt">${excerpt || '这里是文章摘要...'}</p>
-        <a href="${basePath}${item.path}/html/${item.file.replace('.md', '.html')}" class="post-link">阅读更多 →</a>
-      </div>
-      `;
-                        }
-                    }).join('');
-
-                    contentHtml = `
-    <div class="posts-grid">
-      ${postCards}
-    </div>`;
-                } else {
-                    contentHtml = `
-    <div class="empty-container" style="text-align: center; padding: 4rem 1rem;">
-      <div style="font-size: 4rem; margin-bottom: 1.5rem; color: var(--primary); opacity: 0.7;">📝</div>
-      <h2 style="font-size: 1.8rem; margin-bottom: 1rem; color: var(--text);">暂无文章</h2>
-      <p style="font-size: 1.1rem; margin-bottom: 2rem; color: #888;">博客刚起步，正在准备精彩内容，敬请期待！</p>
-      <a href="${basePath}index.html" style="display: inline-block; padding: 0.8rem 1.8rem; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 500; transition: var(--transition);">返回首页</a>
-    </div>`;
-                }
+                contentHtml = renderArticleCards(currentPosts.slice(0, postsPerPage), basePath, 3);
                 break;
             case 'archives':
-                // 归档栏目的特殊处理：按年份和月份分组
-                const groupedPosts = {};
-
-                // 按年份和月份分组文章
-                currentPosts.forEach(item => {
-                    const markdownPath = path.join(ROOT_DIR, item.path, 'md', item.file);
-                    const { title: postTitle, date: postDate } = MarkdownParser.parseMarkdown(markdownPath);
-                    const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
-
-                    // 使用解析后的日期
-                    const postDateStr = postDate || item.parsedDate;
-                    const year = postDateStr.substring(0, 4);
-                    const month = postDateStr.substring(5, 7);
-
-                    if (!groupedPosts[year]) {
-                        groupedPosts[year] = {};
-                    }
-                    if (!groupedPosts[year][month]) {
-                        groupedPosts[year][month] = [];
-                    }
-
-                    groupedPosts[year][month].push({
-                        post: item.file,
-                        title: cleanTitle,
-                        date: postDateStr,
-                        path: `${item.path}/${item.file.replace('.md', '.html')}`
-                    });
-                });
-
-                // 生成按年份和月份分组的 HTML
-                contentHtml = '';
-                Object.keys(groupedPosts).sort((a, b) => b.localeCompare(a)).forEach(year => {
-                    contentHtml += `
-    <div class="archive-year-container">
-      <div class="archive-year-decoration"></div>
-      <div class="archive-year">${year}年</div>
-    </div>`;
-
-                    Object.keys(groupedPosts[year]).sort((a, b) => b.localeCompare(a)).forEach(month => {
-                        const monthPosts = groupedPosts[year][month];
-                        contentHtml += `
-    <div class="archive-month">
-      ${parseInt(month)}月 <span class="count">${monthPosts.length}</span>
-    </div>
-    <ul class="archive-list">`;
-
-                        monthPosts.forEach(postItem => {
-                            // 确保路径指向html目录
-                            const htmlPath = basePath + postItem.path.replace(/\.md$/, '.html').replace(/^(posts\/[^\/]+)\//, '$1/html/');
-                            contentHtml += `
-      <li class="archive-item">
-        <div class="archive-title"><a href="${htmlPath}" style="color: var(--primary); text-decoration: none;">${postItem.title}</a></div>
-        <div class="archive-date">${postItem.date}</div>
-      </li>`;
-                        });
-
-                        contentHtml += `
-    </ul>`;
-                    });
-                });
-                break;
-            case 'skill':
-                contentHtml = renderSkillCards(currentPosts, basePath);
-                break;
-            case 'ai':
-                // AI 栏目沿用技术文章卡片的展示样式。
-                contentHtml = currentPosts.map(item => {
-                    const markdownPath = path.join(ROOT_DIR, item.path, 'md', item.file);
-                    const { title: postTitle, date: postDate, primaryCategory, categories, tags, languages, excerpt } = MarkdownParser.parseMarkdown(markdownPath);
-                    const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
-                    const displayCategory = primaryCategory || categories[0] || '';
-
-                    let itemHtml = `
-      <article class="${itemClass}">
-        <div class="skill-header">
-          <h2 class="${itemTitleClass}"><a href="${basePath}${item.path}/html/${item.file.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h2>
-          <div class="skill-meta">`;
-
-                    if (itemDateClass && postDate) {
-                        itemHtml += `
-            <div class="skill-meta-item">
-              <span class="label">日期：</span>
-              <span>${postDate || item.parsedDate}</span>
-            </div>`;
-                    }
-
-                    if (displayCategory) {
-                        itemHtml += `
-            <div class="skill-meta-item">
-              <span class="label">类别：</span>
-              <span>${displayCategory}</span>
-            </div>`;
-                    }
-
-                    if (languages.length > 0) {
-                        itemHtml += `
-            <div class="skill-meta-item">
-              <span class="label">语言：</span>
-              <span>${languages.join(' · ')}</span>
-            </div>`;
-                    }
-
-                    itemHtml += `
-          </div>`;
-
-                    if (tags.length > 0) {
-                        itemHtml += `
-          <div class="skill-tags">
-            ${tags.map(tag => `<span class="skill-tag">${tag}</span>`).join(' ')}
-          </div>`;
-                    }
-
-                    itemHtml += `
-        </div>
-        <div class="${itemExcerptClass}">
-          ${excerpt || '这里是文章摘要...'}
-        </div>
-        <a href="${basePath}${item.path}/html/${item.file.replace('.md', '.html')}" class="skill-read-more">阅读更多 →</a>
-      </article>
-      `;
-
-                    return itemHtml;
-                }).join('');
+                contentHtml = renderArchiveGroups(currentPosts, basePath);
                 break;
             default:
-                // 其他栏目的默认处理
-                contentHtml = currentPosts.map(item => {
-                    const markdownPath = path.join(ROOT_DIR, item.path, 'md', item.file);
-                    const { title: postTitle, date: postDate, excerpt } = MarkdownParser.parseMarkdown(markdownPath);
-                    const cleanTitle = postTitle || item.file.replace('.md', '').replace(/-/g, ' ');
-
-                    let itemHtml = `
-      <article class="${itemClass}">
-        <h2 class="${itemTitleClass}"><a href="${basePath}${item.path}/html/${item.file.replace('.md', '.html')}" style="color: var(--primary); text-decoration: none;">${cleanTitle}</a></h2>`;
-
-                    if (itemDateClass) {
-                        itemHtml += `
-        <div class="${itemDateClass}">${postDate || item.parsedDate}</div>`;
-                    }
-
-                    itemHtml += `
-        <div class="${itemExcerptClass}">
-          ${excerpt || '这里是文章摘要...'}
-        </div>
-        <a href="${basePath}${item.path}/html/${item.file.replace('.md', '.html')}" class="${name}-read-more">阅读更多 →</a>
-      </article>
-      `;
-
-                    return itemHtml;
-                }).join('');
+                contentHtml = renderArticleCards(currentPosts, basePath);
                 break;
         }
 
@@ -561,7 +403,7 @@ function generatePage(pageConfig) {
   <div class="pagination">
     ${Array.from({ length: totalPages }, (_, i) => {
         const pageNumber = i + 1;
-        return `<a href="${name}${pageNumber === 1 ? '' : '-' + pageNumber}.html" class="page-link ${pageNumber === page ? 'active' : ''}">${pageNumber}</a>`;
+        return `<a href="${name}${pageNumber === 1 ? '' : '-' + pageNumber}.html" class="page-link ${pageNumber === page ? 'active' : ''}" aria-label="第 ${pageNumber} 页"${pageNumber === page ? ' aria-current="page"' : ''}>${pageNumber}</a>`;
     }).join('')}
   </div>
 `;
@@ -581,6 +423,8 @@ function generatePage(pageConfig) {
                 headerTitle: headerTitle,
                 headerSubtitle: headerSubtitle,
                 categoryNavigation: ['skill', 'ai'].includes(name) ? renderCategoryNavigation(name) : '',
+                listSummary,
+                articleCount: allMarkdownFiles.length,
                 content: contentHtml,
                 contentClass: contentClass,
                 pagination: paginationHtml
@@ -648,7 +492,7 @@ function renderTemplate(template, data, basePath) {
     // 添加其他数据
     Object.keys(data).forEach(key => {
         const regex = new RegExp(`\\{\\{${key}\\}\}`, 'g');
-        rendered = rendered.replace(regex, data[key]);
+        rendered = rendered.replace(regex, () => data[key]);
     });
 
     // 处理条件语法 {{content ? 'none' : 'block'}}
@@ -674,7 +518,7 @@ function renderTemplate(template, data, basePath) {
   <script>
     window.musicFiles = ${JSON.stringify(absoluteMusicFiles)};
   </script>
-  <audio id="backgroundMusic" src="${absoluteMusicFiles[0] || '/images/music/background.mp3'}" autoplay muted loop>
+  <audio id="backgroundMusic" src="${absoluteMusicFiles[0] || '/images/music/background.mp3'}" autoplay muted loop></audio>
 `;
     // 注入音乐配置：在 theme.js 引用前添加音乐标签
     const themeJsTag = `<script src="${basePath}js/theme.js"></script>`;
@@ -682,7 +526,7 @@ function renderTemplate(template, data, basePath) {
         rendered = rendered.replace(themeJsTag, `${musicConfig}  ${themeJsTag}`);
     }
 
-    return rendered;
+    return MarkdownParser.versionAssets(rendered.replace(/^[ \t]+$/gm, ''));
 }
 
 // 为每个页面生成分页
@@ -701,6 +545,10 @@ console.log('\nProcessing about.html...');
 const aboutPath = path.join(ROOT_DIR, 'about.html');
 if (fs.existsSync(aboutPath)) {
     let aboutHtml = fs.readFileSync(aboutPath, 'utf8');
+    aboutHtml = aboutHtml.replace(
+        /<!-- NAV_START -->[\\s\\S]*?<!-- NAV_END -->/,
+        () => `<!-- NAV_START -->\n    ${readNavTemplate('./')}\n    <!-- NAV_END -->`
+    );
     const skillsTemplate = readTemplate('skills');
     if (skillsTemplate) {
         // 使用标记注释来定位替换位置
@@ -710,7 +558,7 @@ if (fs.existsSync(aboutPath)) {
         );
     }
     
-    fs.writeFileSync(aboutPath, aboutHtml);
+    fs.writeFileSync(aboutPath, MarkdownParser.versionAssets(aboutHtml));
     console.log('Updated about.html with shared skills');
 } else {
     console.log('about.html not found, skipping');

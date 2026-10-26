@@ -169,14 +169,19 @@ chmod +x deploy.sh
 
 # 自定义提交信息
 ./deploy.sh "添加新文章：Redis 分布式锁详解"
+
+# 本地生成与检查（不提交、不推送）
+./deploy.sh --check
 ```
 
 **工作流程**：
-1. 检查依赖是否安装
+1. 自动定位项目目录，检查必要工具；缺少依赖时使用 `npm ci` 按锁文件安装
 2. 迁移 Markdown 中引用的本地图片到项目目录
 3. 运行 `npm run build:site` 校验文章、生成页面并检查本地引用
-4. 自动添加、提交并推送到 GitHub
-5. 提示部署完成
+4. 自动添加、提交并推送到 GitHub；没有文件变更时，仍会推送已有提交
+5. 提示推送结果和 Actions 地址，线上发布结果以 Actions 为准
+
+`--check` 会预览图片迁移、更新生成 HTML 并执行检查，适合发布前检查页面。项目、日常、技术和 AI 复用相同文章卡片；归档保留年月分组，组内使用相同卡片。展示调整应修改模板、公共样式或生成脚本，避免仅修改生成 HTML。
 
 ### transfer-images.js - 图片迁移工具
 
@@ -324,7 +329,7 @@ excerpt: 文章摘要（可选）
 
 自动部署工作流：
 - 触发条件: 推送到 main/master 分支，且修改了 posts/ 或相关脚本
-- 流程: Checkout → Setup Node.js → `npm ci` → `npm run build:site` → 提交生成文件 → 部署 GitHub Pages
+- 流程: Checkout → Setup Node.js → `npm ci` → `npm run build:site` → 提交生成文件 → 上传本次构建产物 → 部署该产物到 GitHub Pages
 
 ---
 

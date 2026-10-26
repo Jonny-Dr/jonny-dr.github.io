@@ -13,6 +13,7 @@ const markdownFiles = [];
 function walk(dir) {
     if (!fs.existsSync(dir)) return [];
     return fs.readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
+        if (entry.isDirectory() && ['.git', 'node_modules'].includes(entry.name)) return [];
         const fullPath = path.join(dir, entry.name);
         return entry.isDirectory() ? walk(fullPath) : [fullPath];
     });
@@ -78,11 +79,15 @@ if (generatedCheck) {
         }
     }
 
-    const pageSizes = { ai: 6, daily: 4, project: 6, skill: 6 };
+    const pageSizes = { ai: 6, daily: 4, project: 6, skill: 6, archives: 10 };
     for (const [category, pageSize] of Object.entries(pageSizes)) {
         const count = markdownFiles.filter(file => file.includes(`${path.sep}${category}${path.sep}md${path.sep}`)).length;
         const expectedPages = Math.max(1, Math.ceil(count / pageSize));
-        const pageDir = path.join(ROOT, 'html', category);
+        const pageDir = category === 'archives' ? ROOT : path.join(ROOT, 'html', category);
+        for (let page = 1; page <= expectedPages; page++) {
+            const expectedFile = path.join(pageDir, `${category}${page === 1 ? '' : '-' + page}.html`);
+            if (!fs.existsSync(expectedFile)) errors.push(`${path.relative(ROOT, expectedFile)}: 缺少应生成的栏目分页`);
+        }
         for (const file of walk(pageDir).filter(file => path.basename(file).match(new RegExp(`^${category}(?:-\\d+)?\\.html$`)))) {
             const match = path.basename(file).match(new RegExp(`^${category}(?:-(\\d+))?\\.html$`));
             const pageNumber = match[1] ? Number(match[1]) : 1;

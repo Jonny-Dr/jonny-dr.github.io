@@ -5,159 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{title}}</title>
   <link rel="stylesheet" href="{{basePath}}css/common.css">
-  <style>
-    /* AI 栏目页面样式（基于 skill-template，容器改为 ai-container，其他样式复用以兼容渲染逻辑） */
-    .ai-container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    .skill-card {
-      background: var(--card-bg);
-      padding: 2rem;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-      transition: var(--transition);
-      margin-bottom: 2rem;
-    }
-    .skill-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-    }
-    .skill-header {
-      margin-bottom: 1.5rem;
-    }
-    .skill-title {
-      font-size: 1.8rem;
-      margin-bottom: 1rem;
-      color: var(--primary);
-      font-weight: 700;
-    }
-    .skill-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-      color: #6c757d;
-      font-size: 0.95rem;
-    }
-    .skill-meta-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .skill-meta-item .label {
-      font-weight: 600;
-      color: var(--text);
-    }
-    .skill-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.8rem;
-      margin-bottom: 1.5rem;
-    }
-    .skill-tag {
-      background: rgba(67, 97, 238, 0.1);
-      color: var(--primary);
-      padding: 0.5rem 1rem;
-      border-radius: 15px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      transition: var(--transition);
-    }
-    .skill-tag:hover {
-      background: var(--primary);
-      color: white;
-      transform: translateY(-2px);
-    }
-    .skill-excerpt {
-      line-height: 1.7;
-      color: var(--text);
-      margin-bottom: 1.5rem;
-    }
-    .skill-read-more {
-      display: inline-block;
-      padding: 0.8rem 1.5rem;
-      background: var(--primary);
-      color: white;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 600;
-      transition: var(--transition);
-    }
-    .skill-read-more:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow);
-    }
-    .skill-category {
-      margin: 3rem 0 2rem;
-      padding-bottom: 1rem;
-      border-bottom: 2px solid var(--primary);
-    }
-    .skill-category-title {
-      font-size: 2rem;
-      color: var(--primary);
-      font-weight: 700;
-    }
-    .skill-category-nav {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.6rem;
-      margin: 0 0 2rem;
-    }
-    .skill-category-nav a {
-      color: var(--primary);
-      background: rgba(67, 97, 238, 0.1);
-      border-radius: 8px;
-      padding: 0.8rem 1.5rem;
-      text-decoration: none;
-      font-weight: 600;
-      transition: var(--transition);
-    }
-    .skill-category-nav a:hover,
-    .skill-category-nav a.active {
-      background: var(--primary);
-      color: white;
-      transform: translateY(-3px);
-      box-shadow: var(--shadow);
-    }
-    @media (max-width: 768px) {
-      .ai-container {
-        padding: 0 1rem;
-      }
-      .skill-card {
-        padding: 1.5rem;
-      }
-      .skill-title {
-        font-size: 1.5rem;
-      }
-      .skill-meta {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-      }
-      .skill-category-title {
-        font-size: 1.6rem;
-      }
-    }
-    @media (max-width: 480px) {
-      .skill-title {
-        font-size: 1.3rem;
-      }
-      .skill-meta-item {
-        font-size: 0.85rem;
-      }
-      .skill-tag {
-        font-size: 0.8rem;
-        padding: 0.4rem 0.8rem;
-      }
-      .skill-category-nav a {
-        padding: 0.65rem 1rem;
-      }
-    }
-  </style>
 </head>
-<body>
+<body class="listing-page">
   <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
@@ -181,8 +30,9 @@
     {{nav}}
   </header>
 
-  <main class="ai-container">
+  <main class="{{contentClass}}">
     {{categoryNavigation}}
+    {{listSummary}}
     {{content}}
     {{pagination}}
   </main>
