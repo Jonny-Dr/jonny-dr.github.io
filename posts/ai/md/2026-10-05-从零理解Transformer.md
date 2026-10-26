@@ -1,7 +1,7 @@
 ---
 title: 从零理解 Transformer：TinyTransformer 学习笔记
 date: 2026-10-05
-category: AI 工程
+category: Transformer 与模型架构
 categories: [深度学习, Transformer]
 tags: [Transformer, Attention, 大语言模型, TinyTransformer]
 languages: [Python]

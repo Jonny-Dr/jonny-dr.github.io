@@ -1,7 +1,7 @@
 ---
 title: Transformer 原理与大模型微调实践
 date: 2026-10-18
-category: AI 工程
+category: 提示学习与模型微调
 tags: [Transformer, Attention, LoRA, QLoRA, 模型微调]
 languages: [Python]
 excerpt: 从 Transformer 的数据流、注意力和归一化机制，逐步理解现代大模型设计及垂直领域 LoRA 与 QLoRA 微调部署。

@@ -1,7 +1,7 @@
 ---
 title: Transformer 架构图详解
 date: 2026-10-18
-category: AI 工程
+category: Transformer 与模型架构
 tags: [Transformer, Attention, 位置编码, Encoder-Decoder]
 languages: [Python]
 excerpt: 结合架构流程图，用通俗说明串联 Transformer 的嵌入、位置编码、编码器、解码器与输出过程。

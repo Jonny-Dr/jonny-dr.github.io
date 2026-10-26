@@ -152,13 +152,21 @@ const skillCategorySlugs = {
     'AI 工程': 'ai-engineering'
 };
 
-function getSortedSkillPosts() {
-    const mdDir = path.join(ROOT_DIR, 'posts', 'skill', 'md');
+const aiCategorySlugs = {
+    '深度学习基础': 'deep-learning',
+    'Transformer 与模型架构': 'model-architecture',
+    '提示学习与模型微调': 'fine-tuning',
+    '推理与部署': 'inference',
+    'RAG 与智能体': 'rag-agents'
+};
+
+function getSortedPosts(moduleName) {
+    const mdDir = path.join(ROOT_DIR, 'posts', moduleName, 'md');
     return fs.readdirSync(mdDir)
         .filter(file => file.endsWith('.md'))
         .map(file => {
             const markdownPath = path.join(mdDir, file);
-            return { file, path: 'posts/skill', parsed: MarkdownParser.parseMarkdown(markdownPath) };
+            return { file, path: `posts/${moduleName}`, parsed: MarkdownParser.parseMarkdown(markdownPath) };
         })
         .sort((a, b) => (b.parsed.date || '1970-01-01').localeCompare(a.parsed.date || '1970-01-01'));
 }
@@ -185,34 +193,35 @@ function renderSkillCards(posts, basePath) {
     }).join('');
 }
 
-function renderSkillCategoryNavigation(activeCategory = '') {
-    const categories = Object.entries(skillCategorySlugs);
-    return `<nav class="skill-category-nav" aria-label="技术文章分类">
-      <a href="skill.html" class="${activeCategory ? '' : 'active'}">全部</a>
+function renderCategoryNavigation(moduleName, activeCategory = '') {
+    const categories = Object.entries(moduleName === 'ai' ? aiCategorySlugs : skillCategorySlugs);
+    return `<nav class="skill-category-nav" aria-label="${moduleName === 'ai' ? 'AI' : '技术'}文章分类">
+      <a href="${moduleName}.html" class="${activeCategory ? '' : 'active'}">全部</a>
       ${categories.map(([name, slug]) => `<a href="category-${slug}.html" class="${activeCategory === name ? 'active' : ''}">${name}</a>`).join('')}
     </nav>`;
 }
 
-function generateSkillCategoryPages() {
+function generateCategoryPages(moduleName) {
     const basePath = '../../';
-    const template = readTemplate('skill');
-    const posts = getSortedSkillPosts();
+    const template = readTemplate(moduleName);
+    const posts = getSortedPosts(moduleName);
+    const categorySlugs = moduleName === 'ai' ? aiCategorySlugs : skillCategorySlugs;
+    const icon = moduleName === 'ai' ? '🧠' : '🍀';
     let count = 0;
-    for (const [category, slug] of Object.entries(skillCategorySlugs)) {
+    for (const [category, slug] of Object.entries(categorySlugs)) {
         const categoryPosts = posts.filter(item => (item.parsed.primaryCategory || item.parsed.categories[0]) === category);
-        if (!categoryPosts.length) continue;
         const html = renderTemplate(template, {
-            title: `🍀 ${category} | 北辰`,
-            icon: '🍀',
+            title: `${icon} ${category} | 北辰`,
+            icon,
             headerTitle: category,
-            headerSubtitle: `技术文章 · ${categoryPosts.length} 篇`,
-            categoryNavigation: renderSkillCategoryNavigation(category),
+            headerSubtitle: `${moduleName === 'ai' ? 'AI' : '技术'}文章 · ${categoryPosts.length} 篇`,
+            categoryNavigation: renderCategoryNavigation(moduleName, category),
             contentClass: 'skill-container',
-            content: renderSkillCards(categoryPosts, basePath),
+            content: categoryPosts.length ? renderSkillCards(categoryPosts, basePath) : '<p>暂无文章</p>',
             pagination: ''
         }, basePath);
-        fs.writeFileSync(path.join(ROOT_DIR, 'html', 'skill', `category-${slug}.html`), html);
-        console.log(`Generated skill/category-${slug}.html`);
+        fs.writeFileSync(path.join(ROOT_DIR, 'html', moduleName, `category-${slug}.html`), html);
+        console.log(`Generated ${moduleName}/category-${slug}.html`);
         count++;
     }
     return count;
@@ -313,6 +322,7 @@ function generatePage(pageConfig) {
                 icon: icon,
                 headerTitle: headerTitle,
                 headerSubtitle: headerSubtitle,
+                categoryNavigation: ['skill', 'ai'].includes(name) ? renderCategoryNavigation(name) : '',
                 content: emptyContent,
                 contentClass: contentClass,
                 pagination: ''
@@ -570,7 +580,7 @@ function generatePage(pageConfig) {
                 icon: icon,
                 headerTitle: headerTitle,
                 headerSubtitle: headerSubtitle,
-                categoryNavigation: name === 'skill' ? renderSkillCategoryNavigation() : '',
+                categoryNavigation: ['skill', 'ai'].includes(name) ? renderCategoryNavigation(name) : '',
                 content: contentHtml,
                 contentClass: contentClass,
                 pagination: paginationHtml
@@ -681,7 +691,8 @@ pageConfigs.forEach(config => {
     const pages = generatePage(config);
     totalGenerated += pages;
 });
-totalGenerated += generateSkillCategoryPages();
+totalGenerated += generateCategoryPages('skill');
+totalGenerated += generateCategoryPages('ai');
 
 console.log(`\nGenerated ${totalGenerated} pagination pages in total.`);
 

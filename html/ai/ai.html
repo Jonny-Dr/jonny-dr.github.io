@@ -99,6 +99,28 @@
       color: var(--primary);
       font-weight: 700;
     }
+    .skill-category-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin: 0 0 2rem;
+    }
+    .skill-category-nav a {
+      color: var(--primary);
+      background: rgba(67, 97, 238, 0.1);
+      border-radius: 8px;
+      padding: 0.8rem 1.5rem;
+      text-decoration: none;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+    .skill-category-nav a:hover,
+    .skill-category-nav a.active {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-3px);
+      box-shadow: var(--shadow);
+    }
     @media (max-width: 768px) {
       .ai-container {
         padding: 0 1rem;
@@ -128,6 +150,9 @@
       .skill-tag {
         font-size: 0.8rem;
         padding: 0.4rem 0.8rem;
+      }
+      .skill-category-nav a {
+        padding: 0.65rem 1rem;
       }
     }
   </style>
@@ -166,6 +191,10 @@
   </header>
 
   <main class="ai-container">
+    <nav class="skill-category-nav" aria-label="AI文章分类">
+      <a href="ai.html" class="active">全部</a>
+      <a href="category-deep-learning.html" class="">深度学习基础</a><a href="category-model-architecture.html" class="">Transformer 与模型架构</a><a href="category-fine-tuning.html" class="">提示学习与模型微调</a><a href="category-inference.html" class="">推理与部署</a><a href="category-rag-agents.html" class="">RAG 与智能体</a>
+    </nav>
     
       <article class="skill-card">
         <div class="skill-header">
@@ -177,7 +206,7 @@
             </div>
             <div class="skill-meta-item">
               <span class="label">类别：</span>
-              <span>AI 工程</span>
+              <span>推理与部署</span>
             </div>
             <div class="skill-meta-item">
               <span class="label">语言：</span>
@@ -204,7 +233,7 @@
             </div>
             <div class="skill-meta-item">
               <span class="label">类别：</span>
-              <span>AI 工程</span>
+              <span>提示学习与模型微调</span>
             </div>
             <div class="skill-meta-item">
               <span class="label">语言：</span>
@@ -231,7 +260,7 @@
             </div>
             <div class="skill-meta-item">
               <span class="label">类别：</span>
-              <span>AI 工程</span>
+              <span>提示学习与模型微调</span>
             </div>
             <div class="skill-meta-item">
               <span class="label">语言：</span>
@@ -258,7 +287,7 @@
             </div>
             <div class="skill-meta-item">
               <span class="label">类别：</span>
-              <span>AI 工程</span>
+              <span>Transformer 与模型架构</span>
             </div>
             <div class="skill-meta-item">
               <span class="label">语言：</span>
@@ -285,7 +314,7 @@
             </div>
             <div class="skill-meta-item">
               <span class="label">类别：</span>
-              <span>AI 工程</span>
+              <span>提示学习与模型微调</span>
             </div>
             <div class="skill-meta-item">
               <span class="label">语言：</span>
@@ -312,7 +341,7 @@
             </div>
             <div class="skill-meta-item">
               <span class="label">类别：</span>
-              <span>AI 工程</span>
+              <span>Transformer 与模型架构</span>
             </div>
             <div class="skill-meta-item">
               <span class="label">语言：</span>

@@ -1,7 +1,7 @@
 ---
 title: 大模型 Prompt-Tuning 与 PEFT 参数高效微调
 date: 2026-10-18
-category: AI 工程
+category: 提示学习与模型微调
 tags: [Prompt-Tuning, PEFT, Prefix-Tuning, LoRA, 模型微调]
 languages: [Python]
 excerpt: 整理大模型提示学习方法与 PEFT 参数高效微调分类，解析 Prefix-Tuning、LoRA 等方案的核心思想。

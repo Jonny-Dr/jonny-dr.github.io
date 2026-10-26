@@ -99,6 +99,28 @@
       color: var(--primary);
       font-weight: 700;
     }
+    .skill-category-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin: 0 0 2rem;
+    }
+    .skill-category-nav a {
+      color: var(--primary);
+      background: rgba(67, 97, 238, 0.1);
+      border-radius: 8px;
+      padding: 0.8rem 1.5rem;
+      text-decoration: none;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+    .skill-category-nav a:hover,
+    .skill-category-nav a.active {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-3px);
+      box-shadow: var(--shadow);
+    }
     @media (max-width: 768px) {
       .ai-container {
         padding: 0 1rem;
@@ -129,6 +151,9 @@
         font-size: 0.8rem;
         padding: 0.4rem 0.8rem;
       }
+      .skill-category-nav a {
+        padding: 0.65rem 1rem;
+      }
     }
   </style>
 </head>
@@ -157,6 +182,7 @@
   </header>
 
   <main class="ai-container">
+    {{categoryNavigation}}
     {{content}}
     {{pagination}}
   </main>

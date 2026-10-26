@@ -1,7 +1,7 @@
 ---
 title: NLP 范式演进与 Prompt-Tuning
 date: 2026-10-18
-category: AI 工程
+category: 提示学习与模型微调
 tags: [NLP, Prompt-Tuning, PET, P-Tuning, 预训练模型]
 languages: [Python]
 excerpt: 梳理 NLP 从传统机器学习到提示学习的演进，并解析 GPT-3、PET、面向提示的微调与 P-Tuning V1。

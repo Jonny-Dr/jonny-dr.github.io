@@ -5,6 +5,7 @@ const MarkdownParser = require('./markdown-parser');
 const ROOT = path.join(__dirname, '..');
 const categories = ['ai', 'archives', 'daily', 'project', 'skill'];
 const skillCategories = new Set(['Java 与 JVM', '数据库', '缓存与中间件', '分布式与微服务', '架构与工程', 'AI 工程']);
+const aiCategories = new Set(['深度学习基础', 'Transformer 与模型架构', '提示学习与模型微调', '推理与部署', 'RAG 与智能体']);
 const errors = [];
 const warnings = [];
 const markdownFiles = [];
@@ -30,7 +31,10 @@ for (const category of categories) {
         const relative = path.relative(ROOT, file);
         const content = fs.readFileSync(file, 'utf8');
         const startsWithFrontMatter = /^---\r?\n/.test(content);
-        if (!startsWithFrontMatter) continue; // Legacy posts without metadata remain supported.
+        if (!startsWithFrontMatter) {
+            if (category === 'ai') errors.push(`${relative}: AI 文章必须提供 Front Matter、category 主分类和 tags 标签`);
+            continue; // Other legacy posts without metadata remain supported.
+        }
         if (!/^---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$)/.test(content)) {
             errors.push(`${relative}: Front Matter 开始标记没有对应的结束标记`);
             continue;
@@ -55,6 +59,10 @@ for (const category of categories) {
             if (!meta.category) errors.push(`${relative}: 技术文章必须提供 category 主分类`);
             else if (!skillCategories.has(meta.category)) errors.push(`${relative}: category 必须是以下之一：${[...skillCategories].join('、')}`);
             if (!Array.isArray(meta.tags) || meta.tags.length === 0) errors.push(`${relative}: 技术文章必须提供至少一个 tags 标签`);
+        }
+        if (category === 'ai') {
+            if (!aiCategories.has(meta.category)) errors.push(`${relative}: category 必须是以下之一：${[...aiCategories].join('、')}`);
+            if (!Array.isArray(meta.tags) || meta.tags.length === 0) errors.push(`${relative}: AI 文章必须提供至少一个 tags 标签`);
         }
     }
 }
