@@ -1,0 +1,785 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transformer 原理与大模型微调实践 | 北辰</title>
+  <link rel="stylesheet" href="../../../css/common.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <style>
+    .post-content {
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+    .post-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    .post-meta {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .post-tag {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .post-tag.category {
+      background: rgba(72, 187, 120, 0.1);
+      color: #48bb78;
+    }
+    .post-tag.language {
+      background: rgba(237, 137, 54, 0.1);
+      color: #ed8936;
+    }
+    .post-body {
+      margin-bottom: 2rem;
+    }
+    .post-body h2 {
+      font-size: 1.8rem;
+      margin: 2rem 0 1rem;
+      color: var(--primary);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-body h3 {
+      font-size: 1.4rem;
+      margin: 1.5rem 0 0.8rem;
+      color: var(--primary);
+    }
+    .post-body h4 {
+      font-size: 1.2rem;
+      margin: 1.2rem 0 0.6rem;
+      color: var(--primary);
+    }
+    .post-body h5 {
+      font-size: 1.1rem;
+      margin: 1rem 0 0.5rem;
+      color: var(--text);
+    }
+    .post-body p {
+      margin-bottom: 1.2rem;
+    }
+    .post-body a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-body a:hover {
+      text-decoration: underline;
+    }
+    .post-body ul,
+    .post-body ol {
+      margin: 1rem 0 1.5rem 1.5rem;
+    }
+    .post-body li {
+      margin-bottom: 0.5rem;
+    }
+    .post-body pre {
+      background: #f8f9fa;
+      color: #333333;
+      padding: 1.5rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border);
+    }
+    .post-body code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.9rem;
+    }
+    .post-body pre code {
+      background: none;
+      padding: 0;
+    }
+    [data-theme="dark"] .post-body pre {
+      background: #1e1e1e;
+      color: #e6e6e6;
+    }
+    [data-theme="dark"] .post-body code {
+      color: #e6e6e6;
+    }
+    .post-body img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .post-original-link {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+      color: #6c757d;
+    }
+    .post-original-link a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-original-link a:hover {
+      text-decoration: underline;
+    }
+    .post-body table.markdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .post-body table.markdown-table thead {
+      background: linear-gradient(135deg, var(--primary), #3a0ca3);
+      color: white;
+    }
+    .post-body table.markdown-table th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      border: none;
+    }
+    .post-body table.markdown-table td {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .post-body table.markdown-table td:last-child {
+      border-right: none;
+    }
+    .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(67, 97, 238, 0.03);
+    }
+    .post-body table.markdown-table tbody tr:hover {
+      background: rgba(67, 97, 238, 0.08);
+    }
+    [data-theme="dark"] .post-body table.markdown-table {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .post-body blockquote.markdown-blockquote {
+      border-left: 4px solid var(--primary);
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      background: rgba(67, 97, 238, 0.05);
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #666;
+    }
+    [data-theme="dark"] .post-body blockquote.markdown-blockquote {
+      background: rgba(255, 255, 255, 0.05);
+      color: #aaa;
+    }
+    .post-body hr.markdown-hr {
+      border: none;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      margin: 2rem 0;
+    }
+    .post-body li.task-list-item {
+      list-style: none;
+      margin-left: -1.5rem;
+    }
+    .post-body li.task-list-item input[type="checkbox"] {
+      margin-right: 0.5rem;
+      cursor: default;
+    }
+    .post-body .image-placeholder {
+      transition: var(--transition);
+    }
+    .post-body .image-placeholder:hover {
+      border-color: var(--primary) !important;
+      background: rgba(67, 97, 238, 0.05) !important;
+    }
+    @media (max-width: 768px) {
+      .post-content {
+        padding: 0 1rem;
+      }
+      .post-header h1 {
+        font-size: 1.8rem;
+      }
+      .post-tags {
+        gap: 0.5rem;
+      }
+      .post-tag {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      .post-body pre {
+        padding: 1rem;
+      }
+      .post-body table.markdown-table {
+        font-size: 0.85rem;
+      }
+      .post-body table.markdown-table th,
+      .post-body table.markdown-table td {
+        padding: 0.6rem 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <button class="music-toggle" id="musicToggle" aria-label="控制音乐">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+  </button>
+
+  <header>
+    <h1>🌱 北辰的博客</h1>
+    <p class="subtitle">记录思考，分享成长 | 一个热爱技术的探索者</p>
+    <nav>
+  <a href="../../../index.html">首页</a>
+  <a href="../../../html/project/project.html">项目</a>
+  <a href="../../../html/skill/skill.html">技术</a>
+  <a href="../../../html/ai/ai.html">AI</a>
+  <a href="../../../html/daily/daily.html">日常</a>
+  <a href="../../../about.html">关于</a>
+  <a href="../../../archives.html">归档</a>
+  <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+</nav>
+  </header>
+
+  <main class="post-content">
+    <article>
+      <div class="post-header">
+        <h1>Transformer 原理与大模型微调实践</h1>
+        <div class="post-meta">发布日期：2026-10-18</div>
+        
+        <div class="post-tags">
+          <span class="post-tag category">AI 工程</span>
+          <span class="post-tag">Transformer</span> <span class="post-tag">Attention</span> <span class="post-tag">LoRA</span> <span class="post-tag">QLoRA</span> <span class="post-tag">模型微调</span>
+          <span class="post-tag language">Python</span>
+        </div>
+        
+      </div>
+      <div class="post-body">
+        <h1>Transformer 原理与大模型微调实践</h1>
+<blockquote class="markdown-blockquote">
+<p><strong>学习目标</strong>：从传统 Transformer<br>的基本数据流开始，逐步理解位置编码、Attention、FFN、门控激活、残差与归一化，再过渡到现代大模型常见设计，最后掌握垂直领域<br>LoRA/QLoRA 微调与部署时的实际选择。</p>
+<p><strong>核心原则</strong>：如果目标是使用现成大模型完成微调和部署，重点是选模型、准备数据、配置训练、评估效果与部署优化；通常不需要从零编写神经网络或重新设计基础模型的层数、注意力结构和激活函数。</p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>1. 先建立整体认识：一个 Transformer 大模型如何工作？</h2>
+<p>以常见的自回归语言模型（例如 Decoder-only<br>LLM）为例，可以把数据流简化为：</p>
+<pre><code class="language-mermaid">flowchart TD
+    A[输入文本] --&gt; B[Tokenizer：切分为 Token]
+    B --&gt; C[Token ID / Embedding]
+    C --&gt; D[位置编码：例如 RoPE]
+    D --&gt; E[重复堆叠的 Transformer Blocks]
+    E --&gt; F[输出投影与词表概率]
+    F --&gt; G[预测下一个 Token]
+    G --&gt; H{是否结束生成？}
+    H -- 否 --&gt; E
+    H -- 是 --&gt; I[输出文本]
+</code></pre>
+<p>每个 Transformer Block 可以粗略理解为两个主要子层：</p>
+<pre><code class="language-mermaid">flowchart TD
+    X[输入隐藏状态] --&gt; A[Attention：Token 之间交换上下文]
+    A --&gt; R1[残差连接与归一化]
+    R1 --&gt; F[FFN：逐 Token 加工特征]
+    F --&gt; R2[残差连接与归一化]
+    R2 --&gt; Y[输出隐藏状态]
+</code></pre>
+<p>上图是概念图。实际采用 Pre-LN 还是<br>Post-LN，会改变归一化相对于子层和残差连接的位置，后文会专门说明。</p>
+<h3>两个核心模块的分工</h3>
+<ul class="markdown-list">
+<li><strong>Attention（注意力）</strong>：让一个 Token 根据当前任务需要，从其他可见<br>Token<br>中获取信息。例如，处理&quot;它&quot;时，模型可以关注前文中与&quot;它&quot;对应的人或事物。</li>
+<li><strong>FFN（前馈网络）</strong>：对每个 Token<br>的隐藏特征分别进行非线性变换与加工。它不负责直接在 Token<br>之间传递信息，而是处理 Attention 汇总后的特征。</li>
+<li><strong>残差连接（Residual<br>Connection）</strong>：让子层输入可以沿着一条相对直接的路径传到后面，有助于深层网络训练。</li>
+<li><strong>归一化（Normalization）</strong>：调整隐藏特征的尺度，帮助训练更稳定。</li>
+</ul>
+<p>一个大模型通常堆叠许多 Transformer Block。模型层数、隐藏维度、Attention<br>结构等通常由基础模型设计者决定。</p>
+<hr class="markdown-hr">
+<h2>2. Token、Embedding 与位置编码</h2>
+<h3>2.1 Token 与 Embedding</h3>
+<p>Tokenizer 将文本转换成 Token ID。Token<br>不一定对应一个完整汉字或单词，也可能是词的一部分、标点或其他子词单元。</p>
+<p>Embedding 再将每个 Token ID<br>映射成一个向量。模型后续处理的是这些向量，而不是直接处理原始字符串。</p>
+<h3>2.2 为什么需要位置信息？</h3>
+<p>Attention 本身需要额外机制来理解序列中 Token<br>的位置与顺序。位置编码就是为模型提供位置信息的一类方法。</p>
+<h3>2.3 RoPE：旋转位置编码</h3>
+<p>RoPE（Rotary Position Embedding）是许多现代 LLM 使用的位置编码方法。</p>
+<p>可以先记住以下要点：</p>
+<ul class="markdown-list">
+<li>RoPE 将位置信息融入 Attention 中的 Query（Q）和 Key（K）。</li>
+<li>它通过对 Q、K 的特征进行与位置有关的旋转，使 Q 与 K<br>的点积能够体现相对位置关系。</li>
+<li>通常不对 Value（V）做同样的 RoPE 旋转。</li>
+<li>RoPE<br><strong>不意味着距离越远，注意力权重必然越低</strong>。注意力还取决于内容相关性、模型参数、掩码等因素。</li>
+<li>不同模型可能对 RoPE 的频率、缩放方式和长上下文扩展方法作不同处理。</li>
+</ul>
+<p>在使用预训练模型微调时，一般不需要自己实现<br>RoPE；只需要理解它的作用，并在选模型时考虑上下文长度及其长上下文能力。</p>
+<hr class="markdown-hr">
+<h2>3. Attention：理解结构，而不是微调时重新设计它</h2>
+<p>Attention 的核心思路是：根据 Query 与 Key<br>的匹配程度计算注意力权重，再使用这些权重汇总 Value 中的信息。</p>
+<h3>常见 Attention 结构</h3>
+<ul class="markdown-list">
+<li><strong>MHA（Multi-Head<br>Attention，多头注意力）</strong>：使用多个注意力头学习不同的信息关联。</li>
+<li><strong>MQA（Multi-Query Attention）</strong>：多个 Query 头共享 Key 和<br>Value，通常能减少 KV Cache 开销。</li>
+<li><strong>GQA（Grouped-Query Attention）</strong>：多个 Query 头分组共享<br>Key/Value，常用于平衡效果与推理效率。</li>
+</ul>
+<p>这些结构会影响模型架构和推理资源需求，尤其是 KV Cache 的存储与访问成本。</p>
+<h3>Attention 结构与计算后端不是一回事</h3>
+<p>例如 SDPA、FlashAttention<br>等，主要是对注意力计算进行高效实现。它们不一定意味着模型的 Attention<br>数学结构发生改变。</p>
+<p>在常规微调中：</p>
+<ul class="markdown-list">
+<li>通常沿用基础模型原有的 MHA、GQA 或 MQA 结构。</li>
+<li>可以根据硬件、软件版本和模型兼容性，选择合适的计算后端。</li>
+<li>如果希望更低的推理成本，通常优先在选模型时考虑<br>GQA、上下文长度、模型规模等因素，而不是随意把已训练好的模型结构改掉。</li>
+</ul>
+<hr class="markdown-hr">
+<h2>4. FFN：从传统前馈网络到门控式 FFN</h2>
+<h3>4.1 传统 FFN</h3>
+<p>传统 Transformer 的 FFN 通常包含：</p>
+<ol class="markdown-ordered-list">
+<li>线性变换，将隐藏特征映射到更宽的中间维度；</li>
+<li>使用非线性激活函数，例如 ReLU 或 GELU；</li>
+<li>再通过线性变换，映射回模型隐藏维度。</li>
+</ol>
+<p>简化结构：</p>
+<pre><code class="language-mermaid">flowchart LR
+    A[输入特征] --&gt; B[线性变换]
+    B --&gt; C[激活函数：ReLU / GELU]
+    C --&gt; D[输出线性变换]
+    D --&gt; E[输出特征]
+</code></pre>
+<p>FFN 的主要职责是逐 Token 加工特征。它与 Attention 分工不同：Attention<br>负责跨 Token 交换上下文，FFN 负责在特征维度上做进一步变换。</p>
+<h3>4.2 GELU 与 ReLU</h3>
+<ul class="markdown-list">
+<li><strong>ReLU</strong>：负值变为 0，正值直接通过。结构简单，但在零点不平滑。</li>
+<li><strong>GELU</strong>：根据输入值平滑调整信号的保留程度；负值通常受到抑制，较大的正值通常接近直接通过。</li>
+<li>GELU 是传统 Transformer 与许多神经网络中常见的激活函数，但现代 LLM<br>也大量使用门控式 FFN。</li>
+</ul>
+<h3>4.3 GeGLU：不是简单替换一个激活函数</h3>
+<p>GeGLU 是一种门控式 FFN 结构。它不只是把传统 FFN 中的 ReLU 换成<br>GELU，而是增加了两条线性变换分支：</p>
+<pre><code class="language-mermaid">flowchart TD
+    X[输入特征] --&gt; A[特征分支：线性变换]
+    X --&gt; B[门控分支：线性变换]
+    B --&gt; C[GELU 激活]
+    A --&gt; D[逐元素相乘]
+    C --&gt; D
+    D --&gt; E[输出线性变换]
+    E --&gt; Y[输出特征]
+</code></pre>
+<p>可以这样理解：</p>
+<ul class="markdown-list">
+<li>一条分支产生待加工的特征；</li>
+<li>另一条分支产生门控信号，并经过激活函数；</li>
+<li>两条分支逐元素相乘，控制不同特征被增强、保留或抑制的程度；</li>
+<li>最后通过输出线性层得到结果。</li>
+</ul>
+<p><strong>门控真正发生的位置，是两个分支的逐元素乘法。</strong> GELU<br>负责生成门控分支的非线性信号，但它本身并不等于完整的门控机制。</p>
+<h3>4.4 GeGLU 与 SwiGLU 对比</h3>
+<hr class="markdown-hr">
+<p>  项目                    GeGLU                            SwiGLU</p>
+<hr class="markdown-hr">
+<p>  门控分支激活函数        GELU                             SiLU / Swish</p>
+<p>  是否采用两条线性分支    是                               是</p>
+<p>  是否逐元素相乘          是                               是</p>
+<p>  主要作用                根据输入特征调节另一分支的信息   根据输入特征调节另一分支的信息</p>
+<h2>常见场景                门控式 FFN 的一种设计            许多现代 LLM 使用的门控式 FFN</h2>
+<h3>4.5 GELU 与 SiLU 的门控机制，用一句话理解</h3>
+<ul class="markdown-list">
+<li><strong>GELU</strong>：平滑地调整门控信号的保留程度，通常抑制负值、让较大的正值较充分地通过。</li>
+<li><strong>SiLU</strong>：将输入与随输入平滑变化的系数相乘，形成连续、平滑的非线性门控信号。</li>
+</ul>
+<p>两者都不是严格的 0 到 1 二值开关，门控分支输出也可能是负值。</p>
+<p>SwiGLU 常见于现代 LLM，但不能简单断言它在所有任务上都一定优于<br>GeGLU；实际效果与模型、训练数据和训练配置有关。</p>
+<hr class="markdown-hr">
+<h2>5. Residual：残差连接是什么？</h2>
+<p>Residual<br>Connection（残差连接，也叫跳跃连接）不是一种独立的激活函数，也不是一定要单独定义的网络层，而是一种连接方式。</p>
+<p>它的基本思想是：让输入绕过一个子层，再与该子层的输出相加。</p>
+<pre><code class="language-mermaid">flowchart LR
+    X[输入 X] --&gt; F[子层 F]
+    X --&gt; ADD[逐元素相加]
+    F --&gt; ADD
+    ADD --&gt; Y[输出]
+</code></pre>
+<p>概念上可以写作&quot;输入 + 子层输出&quot;，但真实 Transformer<br>的子层中可能包含归一化、Attention、FFN、Dropout 等步骤。</p>
+<p>注意：</p>
+<ul class="markdown-list">
+<li>残差相加的不是一定刚经过激活函数的那一刻的输出，而是子层按架构定义完成后的输出。</li>
+<li>残差连接为信息和梯度提供较直接的路径，有助于训练深层网络。</li>
+<li>残差相加要求两条路径的张量形状兼容；模型设计通常会保证这一点。</li>
+</ul>
+<hr class="markdown-hr">
+<h2>6. Post-LN 与 Pre-LN：归一化放在哪里？</h2>
+<p>Pre-LN 和 Post-LN 描述的是归一化层相对于子层及残差连接的放置位置。</p>
+<h3>6.1 Post-LN</h3>
+<p>经典 Transformer 采用的典型形式是 Post-LN：子层先计算，再与原始输入相加，之后进行归一化。</p>
+<p>概念结构：</p>
+<pre><code class="language-mermaid">flowchart LR
+    X[输入 X] --&gt; F[子层]
+    X --&gt; ADD[残差相加]
+    F --&gt; ADD
+    ADD --&gt; LN[LayerNorm]
+    LN --&gt; Y[输出]
+</code></pre>
+<p><strong>特点：</strong></p>
+<ul class="markdown-list">
+<li>归一化位于子层输出与残差输入相加之后。</li>
+<li>是经典 Transformer 的代表性设计。</li>
+<li>在较深的网络中，训练稳定性可能更依赖初始化、学习率等设置。</li>
+</ul>
+<h3>6.2 Pre-LN</h3>
+<p>Pre-LN 将归一化放在子层计算之前，子层输出再与原始输入相加。</p>
+<p>概念结构：</p>
+<pre><code class="language-mermaid">flowchart LR
+    X[输入 X] --&gt; ADD[残差相加]
+    X --&gt; NORM[归一化]
+    NORM --&gt; F[子层]
+    F --&gt; ADD
+    ADD --&gt; Y[输出]
+</code></pre>
+<p><strong>特点：</strong></p>
+<ul class="markdown-list">
+<li>残差路径更加直接。</li>
+<li>通常更容易训练较深的 Transformer。</li>
+<li>常见于许多现代 Transformer 和 LLM，但具体实现可能包含额外的最终归一化或其他细节。</li>
+</ul>
+<h3>6.3 两者如何选择？</h3>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>维度</th>
+<th>Post-LN</th>
+<th>Pre-LN</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>归一化位置</td>
+<td>残差相加之后</td>
+<td>子层计算之前</td>
+</tr>
+<tr>
+<td>典型代表</td>
+<td>经典原始 Transformer 结构</td>
+<td>许多现代深层 Transformer / LLM</td>
+</tr>
+<tr>
+<td>深层训练</td>
+<td>通常需要更谨慎地处理训练稳定性</td>
+<td>通常更容易训练深层模型</td>
+</tr>
+<tr>
+<td>新项目怎么选</td>
+<td>复现特定 Post-LN 架构时按原设计</td>
+<td>从零研究深层模型时常作为起点之一</td>
+</tr>
+<tr>
+<td>微调已有模型</td>
+<td>沿用基础模型结构</td>
+<td>沿用基础模型结构</td>
+</tr>
+</tbody></table>
+<p><strong>关键建议：</strong> 对预训练模型做 LoRA/QLoRA 微调时，不要因为听说 Pre-LN 更容易训练，就把原本的 Post-LN 模型直接改成 Pre-LN。模型权重是基于原始架构训练出来的，改变归一化位置会改变计算行为。</p>
+<p>Pre-LN 并不保证训练一定稳定。初始化、学习率、残差缩放、数据和训练策略仍然重要。DeepNorm 等方案就是针对深层 Transformer 训练稳定性提出的相关设计之一。</p>
+<hr class="markdown-hr">
+<h2>7. LayerNorm、RMSNorm 与 DeepNorm</h2>
+<h3>7.1 LayerNorm</h3>
+<p>LayerNorm（层归一化）通常针对单个 Token<br>的隐藏特征维度进行归一化。它会根据特征的均值和方差调整数据尺度，再通过可学习参数进行缩放和平移。</p>
+<p>作用是帮助隐藏状态保持较合适的数值分布，从而使训练更稳定。</p>
+<h3>7.2 RMSNorm</h3>
+<p>RMSNorm（均方根归一化）与 LayerNorm 的主要区别是：</p>
+<ul class="markdown-list">
+<li>LayerNorm 通常先减去均值，再按标准差归一化。</li>
+<li>RMSNorm 不做减均值操作，而是按特征的均方根尺度进行归一化。</li>
+<li>RMSNorm 通常采用可学习缩放参数，通常不使用 LayerNorm<br>式的可学习平移参数。</li>
+<li>RMSNorm 计算相对简洁，被许多现代 LLM 使用。</li>
+</ul>
+<h3>7.3 LayerNorm 与 RMSNorm 怎么选？</h3>
+<p>  维度                 LayerNorm              RMSNorm</p>
+<hr class="markdown-hr">
+<p>  是否减去均值         是                     否<br>  是否使用尺度归一化   是                     是，使用均方根尺度<br>  常见参数             缩放与平移             通常有缩放参数<br>  计算特点             操作相对多一些         通常更简洁<br>  选择原则             按模型架构和实验结果   按模型架构和实验结果</p>
+<p>微调已有模型时通常不需要替换归一化算法。如果某个基础模型使用<br>RMSNorm，继续使用它；如果使用 LayerNorm，也应沿用其设计。</p>
+<h3>7.4 DeepNorm 是什么？</h3>
+<p>DeepNorm 不是 LayerNorm 的简单升级版，也不是另一种常规归一化算法。<br>它是一套针对深层 Transformer 的设计方案，涉及残差路径的缩放以及与之配套的初始化/参数缩放策略，目标是改善深层网络的训练稳定性。</p>
+<p>不要将现代 LLM 简化成固定组合&quot;RoPE + SwiGLU + DeepNorm&quot;。不同模型会使用不同的组合；<br>许多现代 LLM 的常见组合更接近：</p>
+<ul class="markdown-list">
+<li>RoPE；</li>
+<li>SwiGLU；</li>
+<li>RMSNorm；</li>
+<li>Post-LN 或与 Pre-LN 类似的归一化布局；</li>
+<li>与模型目标匹配的 Attention 结构。</li>
+</ul>
+<p>这只是常见趋势，不是所有模型的统一标准。</p>
+<h3>7.5 不要混淆的两个维度</h3>
+<ul class="markdown-list">
+<li><strong>Pre-LN / Post-LN</strong>：决定归一化放在子层计算的前面还是残差相加的后面。</li>
+<li><strong>LayerNorm / RMSNorm</strong>：决定归一化本身使用什么算法。</li>
+</ul>
+<p>它们是不同维度，不能当作互斥的同一组选项。</p>
+<hr class="markdown-hr">
+<h2>8. 从架构学习过渡到模型微调：最重要的认识</h2>
+<p>如果目标是掌握现成模型的微调和部署，需要区分两类工作。</p>
+<h3>8.1 模型架构设计</h3>
+<p>通常由基础模型的研发者决定：</p>
+<ul class="markdown-list">
+<li>Transformer 有多少层；</li>
+<li>隐藏维度、注意力头数等模型尺寸；</li>
+<li>使用 MHA、GQA 还是 MQA；</li>
+<li>FFN 使用 GELU、GeGLU、SwiGLU 等哪种设计；</li>
+<li>使用 LayerNorm、RMSNorm，以及 Pre-LN / Post-LN 等布局；</li>
+<li>使用何种位置编码。</li>
+</ul>
+<p>这些设计通常已经写入模型结构定义和配置中，并且与预训练权重相匹配。</p>
+<h3>8.2 模型微调</h3>
+<p>使用现成预训练模型时，实际需要重点决定的内容包括：</p>
+<ul class="markdown-list">
+<li>选择哪个基础模型；</li>
+<li>是否真的需要微调，还是 RAG 已足够；</li>
+<li>训练目标与数据格式；</li>
+<li>LoRA / QLoRA 方案；</li>
+<li>LoRA 的 rank、target modules、dropout 等参数；</li>
+<li>学习率、批次大小、训练轮数、序列长度；</li>
+<li>验证方法、过拟合控制；</li>
+<li>量化、适配器合并、推理框架和服务部署方式。</li>
+</ul>
+<p>因此，<strong>微调不是从零重新编写神经网络，而是在已有架构上训练一部分参数，或在特定方案下更新更多参数。</strong></p>
+<hr class="markdown-hr">
+<h2>9. 垂直领域微调前，先判断是否真的需要微调</h2>
+<p>并不是所有领域需求都应该通过 LoRA/QLoRA 解决。</p>
+<hr class="markdown-hr">
+<p>  业务需求                               优先考虑的方案                             原因</p>
+<hr class="markdown-hr">
+<p>  查询不断变化的企业文档、制度、知识库   RAG                                        知识可以更新，不必每次重新训练模型</p>
+<p>  希望模型遵循特定回答格式或指令习惯     SFT，可结合 LoRA                           训练样本可以教会模型目标行为</p>
+<p>  让模型熟悉行业语言、术语和文本分布     领域继续预训练或 SFT，视数据类型决定       需要先明确是语言适应还是任务行为适应</p>
+<p>  需要查询数据库、调用 API、执行流程     工具调用 / 工作流 / Agent，必要时配合微调  仅微调不等于模型自动获得外部工具能力</p>
+<h2>需要模型具备强推理或编码能力           优先选能力合适的基础模型，再评估训练方案   微调不一定能弥补基础模型能力差距</h2>
+<p>RAG 和微调并不互斥。企业应用可能同时使用 RAG<br>来获取最新事实，使用微调来改善输出格式、术语和任务行为。</p>
+<hr class="markdown-hr">
+<h2>10. LoRA 与 QLoRA：基本原理和选择</h2>
+<h3>10.1 LoRA</h3>
+<p>LoRA（Low-Rank Adaptation，低秩适配）冻结基础模型的大部分或全部原始权重，在选定的线性层旁添加可训练的低秩适配参数。</p>
+<p>它的目标是用相对少的可训练参数适应下游任务，而不是把整个模型从头训练一遍。</p>
+<h3>10.2 QLoRA</h3>
+<p>QLoRA 在 LoRA 的基础上，通常将冻结的基础模型权重量化到 4 bit 等较低精度，再训练 LoRA 适配器，以降低显存占用。</p>
+<p>需要注意：</p>
+<ul class="markdown-list">
+<li>QLoRA 通常能降低基础模型权重的显存成本，但训练仍需要存储激活值、梯度和其他状态。</li>
+<li>量化可能影响数值表现，实际效果依赖模型、数据、量化方法和训练配置。</li>
+<li>LoRA 与 QLoRA 都不意味着重新设计 Attention 或 FFN 架构。</li>
+</ul>
+<h3>10.3 LoRA 和 QLoRA 怎么选？</h3>
+<hr class="markdown-hr">
+<p>  维度                    LoRA                             QLoRA</p>
+<hr class="markdown-hr">
+<p>  基础模型加载精度        常见 FP16 / BF16 等              常见 4 bit 量化</p>
+<p>  基础模型权重是否更新    通常冻结                         通常冻结</p>
+<p>  是否训练适配器          是                               是</p>
+<p>  显存占用                通常较高                         通常较低</p>
+<p>  适合场景                显存充足，希望减少量化因素       显存有限，希望微调更大的模型</p>
+<h2>注意事项                仍需考虑激活值、批次和序列长度   需关注量化兼容性与潜在效果变化</h2>
+<p><strong>实操建议：</strong> 如果显存充足，可先用 LoRA 建立基线；显存不足时，再评估<br>QLoRA。选择应基于真实显存、吞吐量和效果，而不是认为 QLoRA<br>在所有情况下都更好。</p>
+<hr class="markdown-hr">
+<h2>11. LoRA 实际参数怎么选？</h2>
+<h3>11.1 <code>target_modules</code>：把 LoRA 加到哪些线性层？</h3>
+<p>以常见的 Llama / Qwen 类 Decoder-only Transformer 为例，模块名称可能包括：</p>
+<p><strong>Attention 部分</strong></p>
+<ul class="markdown-list">
+<li><code>q_proj</code>：生成 Query；</li>
+<li><code>k_proj</code>：生成 Key；</li>
+<li><code>v_proj</code>：生成 Value；</li>
+<li><code>o_proj</code>：将注意力结果映射回隐藏维度。</li>
+</ul>
+<p><strong>FFN 部分</strong></p>
+<ul class="markdown-list">
+<li><code>gate_proj</code>：生成门控分支；</li>
+<li><code>up_proj</code>：生成另一条特征分支；</li>
+<li><code>down_proj</code>：将扩展后的特征映射回隐藏维度。</li>
+</ul>
+<p>具体命名取决于模型架构，并非所有模型都使用这些名称。</p>
+<hr class="markdown-hr">
+<p>  选择方式                特点                    适合的实验顺序</p>
+<hr class="markdown-hr">
+<p>  只对 <code>q_proj</code>、<code>v_proj</code> 可训练参数较少          作为轻量基线之一<br>  等部分 Attention 层注入                         </p>
+<p>  覆盖更多 Attention      可调整范围更广          在基线不足时对比<br>  投影层                                          </p>
+<h2>覆盖 Attention 和 FFN   可训练参数通常更多      需要更强适应能力且资源允许时试验<br>  的线性层</h2>
+<p>LoRA 并不只能用于 Attention。某些模型和 PEFT 配置支持对所有线性层进行适配，例如使用 <code>all-linear</code>这类目标配置；实际可用性要依据框架版本和模型结构确认。</p>
+<p>推荐实验顺序：</p>
+<ol class="markdown-ordered-list">
+<li>先使用基础模型或模型教程推荐的目标模块配置。</li>
+<li>如果效果不足，比较扩大 Attention 投影层范围是否有收益。</li>
+<li>再尝试覆盖 FFN 等更多线性层。</li>
+<li>同时记录效果、可训练参数量、显存和训练时间。</li>
+</ol>
+<p>每轮尽量只改变一个主要因素，才能判断提升来自哪里。</p>
+<h3>11.2 <code>r</code>：LoRA 的 rank</h3>
+<p><code>r</code> 是 LoRA 的秩，可以理解为适配器的可训练调整空间大小。</p>
+<ul class="markdown-list">
+<li>较小的 <code>r</code>：可训练参数少，资源开销较低，但表达能力可能受限。</li>
+<li>较大的 <code>r</code>：调整空间更大，参数和资源开销通常也会增加，但不保证效果更好。</li>
+</ul>
+<p>可以从 <code>r=8</code> 或 <code>r=16</code> 开始，并比较 <code>r=8、16、32</code> 等候选配置。这些是实验起点，不是适用于所有模型和任务的固定标准。</p>
+<p><code>r</code> 不是 Transformer 层数，也不是 Attention 头数。</p>
+<h3>11.3 其他训练参数</h3>
+<hr class="markdown-hr">
+<p>  参数                    控制什么                 需要关注的现象</p>
+<hr class="markdown-hr">
+<p>  学习率                  参数每次更新的幅度       过大可能不稳定，过小可能学习不足</p>
+<p>  Epoch                   完整遍历训练集的次数     过多可能过拟合</p>
+<p>  Batch size              每次更新使用的样本量     受显存限制，也影响梯度噪声</p>
+<p>  Gradient accumulation   累积几次梯度后更新       显存有限时可模拟更大的有效批次</p>
+<p>  Warmup                  训练初期逐渐增加学习率   有时能帮助训练更平稳地启动</p>
+<p>  LoRA dropout            对适配器分支施加 dropout 数据较少或过拟合时可尝试</p>
+<h2>Sequence length         单个样本的最大序列长度   越长通常越占显存与计算资源</h2>
+<p>先使用框架或模型教程提供的可靠基线配置，再根据验证集做小规模对照实验。不要一开始就同时大幅修改所有参数。</p>
+<hr class="markdown-hr">
+<h2>12. 一套可执行的垂直领域微调流程</h2>
+<p>假设目标是将一个开源中文模型适配为企业内部技术问答助手，可以按以下步骤推进。</p>
+<pre><code class="language-mermaid">flowchart TD
+    A[明确业务目标与验收指标] --&gt; B{是否必须微调？}
+    B -- 否：主要是查知识 --&gt; C[优先评估 RAG]
+    B -- 是：需要学习行为/格式 --&gt; D[选择基础模型]
+    C --&gt; E[构建评测集并验证方案]
+    D --&gt; F[准备和清洗训练数据]
+    F --&gt; G[划分训练集、验证集、测试集]
+    G --&gt; H[选择 LoRA 或 QLoRA]
+    H --&gt; I[配置 target_modules、rank 和训练参数]
+    I --&gt; J[小规模试训]
+    J --&gt; K[评估效果、显存、时延与过拟合]
+    K --&gt; L{达到业务标准？}
+    L -- 否 --&gt; M[定位问题并一次调整一个主要因素]
+    M --&gt; J
+    L -- 是 --&gt; N[保存适配器或按需合并权重]
+    N --&gt; O[部署与真实业务测试]
+    O --&gt; P[监控、回归评测和迭代]
+</code></pre>
+<h3>第一步：明确目标</h3>
+<p>不要只写&quot;提升专业能力&quot;。应该具体定义：</p>
+<ul class="markdown-list">
+<li>哪些问题要答对；</li>
+<li>输出必须遵循什么格式；</li>
+<li>哪些情况应该拒答或要求补充信息；</li>
+<li>如何评价准确性、完整性、格式正确率、延迟与成本。</li>
+</ul>
+<h3>第二步：选择基础模型</h3>
+<p>重点评估：</p>
+<ul class="markdown-list">
+<li>中文、代码、推理和指令遵循能力；</li>
+<li>模型规模和推理成本；</li>
+<li>上下文长度；</li>
+<li>许可证与商用条件；</li>
+<li>显存和部署框架兼容性。</li>
+</ul>
+<p>如果基础模型能力不足，应优先比较其他基础模型，而不是先修改层数或激活函数。</p>
+<h3>第三步：准备数据</h3>
+<p>SFT数据通常由输入与期望输出组成。需要检查答案正确性、重复样本、格式一致性和数据覆盖范围。</p>
+<p>训练集、验证集和测试集应相互独立。尤其要避免近似重复样本同时出现在训练集与测试集中，否则测试结果可能过于乐观。</p>
+<h3>第四步：建立基线</h3>
+<ul class="markdown-list">
+<li>使用模型推荐的 LoRA 配置；</li>
+<li>选择合适的 rank；</li>
+<li>先用小规模数据验证训练流程；</li>
+<li>记录基础模型与微调后的评测结果；</li>
+<li>保存配置、数据版本和模型版本，确保实验可复现。</li>
+</ul>
+<h3>第五步：定位问题，而不是盲目调参</h3>
+<p>  观察到的问题             优先排查</p>
+<hr class="markdown-hr">
+<p>  训练损失不下降           数据格式、学习率、训练流程、梯度与目标设置<br>  训练效果好但验证效果差   过拟合、样本重复、训练与验证分布差异<br>  输出格式经常错误         训练样本格式、模板、目标答案一致性<br>  显存不足                 量化、批次大小、梯度累积、序列长度、检查点等<br>  模型仍然缺少最新事实     是否需要 RAG，而不是继续训练记忆知识<br>  效果提升不明显           基础模型能力、数据质量、训练目标、rank 和目标模块</p>
+<h3>第六步：部署前验证</h3>
+<p>部署前除了离线测试，还应验证：</p>
+<ul class="markdown-list">
+<li>真实业务输入下的输出质量；</li>
+<li>首 Token 延迟、整体响应时间和并发吞吐量；</li>
+<li>显存占用与 KV Cache；</li>
+<li>适配器加载、合并与回滚流程；</li>
+<li>量化后质量是否仍满足业务标准；</li>
+<li>监控、日志、版本管理和数据安全要求。</li>
+</ul>
+<p>LoRA<br>适配器可以与基础模型分开管理，也可以在需要时按工具链支持的方式合并。是否合并取决于部署框架、服务方式、切换适配器的需求和量化流程。</p>
+<hr class="markdown-hr">
+<h2>13. 小结</h2>
+<h3>Transformer 基础</h3>
+<ul class="markdown-list">
+<li>Attention 负责 Token 之间交换上下文；FFN 负责逐 Token 加工特征。</li>
+<li>RoPE 将位置信息融入 Q/K 的计算，不代表距离越远注意力必然越小。</li>
+<li>GeGLU 和 SwiGLU 都是门控式 FFN，不只是简单替换传统 FFN 的激活函数。</li>
+<li>GeGLU 的门控分支使用 GELU；SwiGLU 的门控分支使用 SiLU/Swish。</li>
+<li>Residual 是跳跃连接；Post-LN / Pre-LN 代表归一化相对于子层和残差的放置位置。</li>
+<li>LayerNorm 与 RMSNorm 是不同的归一化算法；DeepNorm 则是一套针对深层 Transformer 的残差缩放与初始化相关方案。</li>
+</ul>
+<h3>微调与部署</h3>
+<ul class="markdown-list">
+<li>常规 LoRA/QLoRA 微调通常不需要重写 Transformer，也不需要手动替换层数、Attention 或激活函数。</li>
+<li>基础模型的架构通常与预训练权重相匹配，微调时优先保持不变。</li>
+<li>真正需要重点掌握的是基础模型选择、训练数据、LoRA 的 rank 和目标模块、学习率、训练轮数、评估与部署。</li>
+<li><code>target_modules</code> 决定 LoRA 注入哪些线性层；<code>r</code> 决定适配器的秩，不是模型层数。</li>
+<li>LoRA 显存开销通常更高；QLoRA 通过低比特量化基础模型权重来降低显存需求，但效果需要实际验证。</li>
+<li>企业知识问答不一定必须微调；动态知识往往适合 RAG，行为与格式适配则可以考虑 SFT，二者也能组合。</li>
+<li>通过独立验证集和真实业务指标来决定是否继续调整，而不是只看训练损失。</li>
+</ul>
+<blockquote class="markdown-blockquote">
+<p><strong>一句话总结：</strong> 学习 Transformer 架构，是为了理解模型与做出正确选型；做垂直领域微调时，优先沿用预训练模型的架构，把精力放在数据、LoRA/QLoRA 配置、评估和部署上。</p>
+</blockquote>
+
+      </div>
+    </article>
+    
+    <div id="comments" style="max-width: 800px; margin: 3rem auto; padding: 0 1rem;">
+      <div style="width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin-bottom: 2rem;"></div>
+      <h3 style="margin-bottom: 1.5rem; color: var(--primary);">💬 评论区</h3>
+      <script src="https://giscus.app/client.js" 
+           data-repo="jonny-dr/jonny-dr.github.io" 
+           data-repo-id="R_kgDORKkzfg" 
+           data-category="Announcements" 
+           data-category-id="DIC_kwDORKkzfs4C2Wdq" 
+           data-mapping="pathname" 
+           data-strict="0" 
+           data-reactions-enabled="1" 
+           data-emit-metadata="0" 
+           data-input-position="bottom" 
+           data-theme="preferred_color_scheme" 
+           data-lang="zh-CN" 
+           crossorigin="anonymous" 
+           async> 
+     </script>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 北辰 · 保持好奇，持续成长</p>
+    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
+      源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
+    </p>
+  </footer>
+
+  <button class="back-to-top" id="backToTop" aria-label="回到顶部">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="m18 15-6-6-6 6"/>
+    </svg>
+  </button>
+
+  <script src="../../../js/theme.js"></script>
+</body>
+</html>
+  

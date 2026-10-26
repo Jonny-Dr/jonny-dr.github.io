@@ -1,0 +1,709 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>主流 AI 模型架构分类总结 | 北辰</title>
+  <link rel="stylesheet" href="../../../css/common.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <style>
+    .post-content {
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+    .post-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    .post-meta {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .post-tag {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .post-tag.category {
+      background: rgba(72, 187, 120, 0.1);
+      color: #48bb78;
+    }
+    .post-tag.language {
+      background: rgba(237, 137, 54, 0.1);
+      color: #ed8936;
+    }
+    .post-body {
+      margin-bottom: 2rem;
+    }
+    .post-body h2 {
+      font-size: 1.8rem;
+      margin: 2rem 0 1rem;
+      color: var(--primary);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-body h3 {
+      font-size: 1.4rem;
+      margin: 1.5rem 0 0.8rem;
+      color: var(--primary);
+    }
+    .post-body h4 {
+      font-size: 1.2rem;
+      margin: 1.2rem 0 0.6rem;
+      color: var(--primary);
+    }
+    .post-body h5 {
+      font-size: 1.1rem;
+      margin: 1rem 0 0.5rem;
+      color: var(--text);
+    }
+    .post-body p {
+      margin-bottom: 1.2rem;
+    }
+    .post-body a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-body a:hover {
+      text-decoration: underline;
+    }
+    .post-body ul,
+    .post-body ol {
+      margin: 1rem 0 1.5rem 1.5rem;
+    }
+    .post-body li {
+      margin-bottom: 0.5rem;
+    }
+    .post-body pre {
+      background: #f8f9fa;
+      color: #333333;
+      padding: 1.5rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border);
+    }
+    .post-body code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.9rem;
+    }
+    .post-body pre code {
+      background: none;
+      padding: 0;
+    }
+    [data-theme="dark"] .post-body pre {
+      background: #1e1e1e;
+      color: #e6e6e6;
+    }
+    [data-theme="dark"] .post-body code {
+      color: #e6e6e6;
+    }
+    .post-body img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .post-original-link {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+      color: #6c757d;
+    }
+    .post-original-link a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-original-link a:hover {
+      text-decoration: underline;
+    }
+    .post-body table.markdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .post-body table.markdown-table thead {
+      background: linear-gradient(135deg, var(--primary), #3a0ca3);
+      color: white;
+    }
+    .post-body table.markdown-table th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      border: none;
+    }
+    .post-body table.markdown-table td {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .post-body table.markdown-table td:last-child {
+      border-right: none;
+    }
+    .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(67, 97, 238, 0.03);
+    }
+    .post-body table.markdown-table tbody tr:hover {
+      background: rgba(67, 97, 238, 0.08);
+    }
+    [data-theme="dark"] .post-body table.markdown-table {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .post-body blockquote.markdown-blockquote {
+      border-left: 4px solid var(--primary);
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      background: rgba(67, 97, 238, 0.05);
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #666;
+    }
+    [data-theme="dark"] .post-body blockquote.markdown-blockquote {
+      background: rgba(255, 255, 255, 0.05);
+      color: #aaa;
+    }
+    .post-body hr.markdown-hr {
+      border: none;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      margin: 2rem 0;
+    }
+    .post-body li.task-list-item {
+      list-style: none;
+      margin-left: -1.5rem;
+    }
+    .post-body li.task-list-item input[type="checkbox"] {
+      margin-right: 0.5rem;
+      cursor: default;
+    }
+    .post-body .image-placeholder {
+      transition: var(--transition);
+    }
+    .post-body .image-placeholder:hover {
+      border-color: var(--primary) !important;
+      background: rgba(67, 97, 238, 0.05) !important;
+    }
+    @media (max-width: 768px) {
+      .post-content {
+        padding: 0 1rem;
+      }
+      .post-header h1 {
+        font-size: 1.8rem;
+      }
+      .post-tags {
+        gap: 0.5rem;
+      }
+      .post-tag {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      .post-body pre {
+        padding: 1rem;
+      }
+      .post-body table.markdown-table {
+        font-size: 0.85rem;
+      }
+      .post-body table.markdown-table th,
+      .post-body table.markdown-table td {
+        padding: 0.6rem 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <button class="music-toggle" id="musicToggle" aria-label="控制音乐">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+  </button>
+
+  <header>
+    <h1>🌱 北辰的博客</h1>
+    <p class="subtitle">记录思考，分享成长 | 一个热爱技术的探索者</p>
+    <nav>
+  <a href="../../../index.html">首页</a>
+  <a href="../../../html/project/project.html">项目</a>
+  <a href="../../../html/skill/skill.html">技术</a>
+  <a href="../../../html/ai/ai.html">AI</a>
+  <a href="../../../html/daily/daily.html">日常</a>
+  <a href="../../../about.html">关于</a>
+  <a href="../../../archives.html">归档</a>
+  <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+</nav>
+  </header>
+
+  <main class="post-content">
+    <article>
+      <div class="post-header">
+        <h1>主流 AI 模型架构分类总结</h1>
+        <div class="post-meta">发布日期：2026-10-18</div>
+        
+        <div class="post-tags">
+          <span class="post-tag category">AI 工程</span>
+          <span class="post-tag">模型架构</span> <span class="post-tag">Transformer</span> <span class="post-tag">MoE</span> <span class="post-tag">多模态</span> <span class="post-tag">SSM</span>
+          <span class="post-tag language">Python</span>
+        </div>
+        
+      </div>
+      <div class="post-body">
+        <h1>当前主流 AI 模型架构分类总结</h1>
+<h1>一、模型架构主要分类</h1>
+<p>当前主流 AI 模型架构主要包括：</p>
+<hr class="markdown-hr">
+<table class="markdown-table">
+<thead>
+<tr>
+<th>架构</th>
+<th>英文</th>
+<th>代表模型</th>
+<th>核心特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Encoder-only</td>
+<td>编码器模型</td>
+<td>BERT、RoBERTa</td>
+<td>擅长理解文本</td>
+</tr>
+<tr>
+<td>Decoder-only</td>
+<td>解码器模型</td>
+<td>GPT、LLaMA、Qwen</td>
+<td>擅长生成文本</td>
+</tr>
+<tr>
+<td>Encoder-Decoder</td>
+<td>编码器-解码器</td>
+<td>T5、BART、Whisper</td>
+<td>擅长输入输出转换</td>
+</tr>
+<tr>
+<td>Seq2Seq</td>
+<td>Sequence-to-Sequence</td>
+<td>T5、Transformer</td>
+<td>完成序列到序列任务</td>
+</tr>
+<tr>
+<td>AutoEncoder</td>
+<td>自动编码模型</td>
+<td>AE、VAE、BERT思想</td>
+<td>学习数据表示</td>
+</tr>
+<tr>
+<td>Multimodal</td>
+<td>多模态模型</td>
+<td>GPT-4o、Gemini</td>
+<td>融合文本、图片、音频等</td>
+</tr>
+<tr>
+<td>MoE</td>
+<td>Mixture of Experts</td>
+<td>Mixtral、DeepSeek-MoE</td>
+<td>大参数低计算</td>
+</tr>
+<tr>
+<td>SSM</td>
+<td>State Space Model</td>
+<td>Mamba</td>
+<td>高效处理长序列</td>
+</tr>
+</tbody></table>
+<hr class="markdown-hr">
+<h1>二、核心架构说明</h1>
+<h2>1. Encoder-only（编码器模型）</h2>
+<p>特点：</p>
+<ul class="markdown-list">
+<li>只使用 Transformer Encoder。</li>
+<li>重点是理解输入内容。</li>
+<li>常采用 Masked Language Model（MLM）训练。</li>
+</ul>
+<p>例如：</p>
+<p>输入：</p>
+<pre><code class="language-plaintext">我喜欢吃[MASK]
+</code></pre>
+<p>预测：</p>
+<pre><code class="language-plaintext">苹果
+</code></pre>
+<p>优势：</p>
+<ul class="markdown-list">
+<li>文本理解强</li>
+<li>分类、搜索、信息抽取效果好</li>
+</ul>
+<p>代表：</p>
+<ul class="markdown-list">
+<li>BERT</li>
+<li>RoBERTa</li>
+</ul>
+<p>适合：</p>
+<ul class="markdown-list">
+<li>文本分类</li>
+<li>情感分析</li>
+<li>信息抽取</li>
+<li>搜索排序</li>
+</ul>
+<hr class="markdown-hr">
+<h2>2. Decoder-only（解码器模型）</h2>
+<p>目前大语言模型最主流架构。</p>
+<p>特点：</p>
+<ul class="markdown-list">
+<li>使用 Transformer Decoder。</li>
+<li>采用自回归（Autoregressive）生成方式。</li>
+</ul>
+<p>核心思想：</p>
+<p>根据已有 token 预测下一个 token。</p>
+<p>例如：</p>
+<pre><code class="language-plaintext">中国的首都是
+</code></pre>
+<p>预测：</p>
+<pre><code class="language-plaintext">北京
+</code></pre>
+<p>代表：</p>
+<ul class="markdown-list">
+<li>GPT</li>
+<li>LLaMA</li>
+<li>Qwen</li>
+<li>Claude</li>
+</ul>
+<p>优势：</p>
+<ul class="markdown-list">
+<li>文本生成能力强</li>
+<li>代码能力强</li>
+<li>推理能力强</li>
+</ul>
+<hr class="markdown-hr">
+<h2>3. Encoder-Decoder / Seq2Seq</h2>
+<p>特点：</p>
+<p>由 Encoder 和 Decoder 两部分组成。</p>
+<p>流程：</p>
+<pre><code class="language-plaintext">输入
+ ↓
+Encoder理解
+ ↓
+Decoder生成
+ ↓
+输出
+</code></pre>
+<p>代表：</p>
+<ul class="markdown-list">
+<li>T5</li>
+<li>BART</li>
+<li>Transformer</li>
+</ul>
+<p>适合：</p>
+<ul class="markdown-list">
+<li>翻译</li>
+<li>摘要生成</li>
+<li>文本改写</li>
+<li>语音识别</li>
+</ul>
+<hr class="markdown-hr">
+<h2>4. 自监督学习（Self-supervised Learning）</h2>
+<p>注意：</p>
+<p>自监督不是一种架构，而是一种训练方式。</p>
+<p>特点：</p>
+<p>模型自己生成训练标签。</p>
+<p>例如：</p>
+<p>输入：</p>
+<pre><code class="language-plaintext">今天北京天气
+</code></pre>
+<p>预测：</p>
+<pre><code class="language-plaintext">很好
+</code></pre>
+<p>目前主流大模型基本都采用：</p>
+<pre><code class="language-plaintext">自监督预训练
++
+任务微调
+</code></pre>
+<hr class="markdown-hr">
+<h2>5. 自回归模型（Autoregressive）</h2>
+<p>特点：</p>
+<p>按照顺序逐步生成内容。</p>
+<p>公式：</p>
+<pre><code class="language-plaintext">P(X)=P(x1)P(x2|x1)P(x3|x1,x2)
+</code></pre>
+<p>代表：</p>
+<ul class="markdown-list">
+<li>GPT系列</li>
+</ul>
+<p>优势：</p>
+<ul class="markdown-list">
+<li>生成自然</li>
+<li>适合聊天和代码生成</li>
+</ul>
+<hr class="markdown-hr">
+<h2>6. 多模态模型（Multimodal）</h2>
+<p>特点：</p>
+<p>同时理解：</p>
+<ul class="markdown-list">
+<li>文本</li>
+<li>图片</li>
+<li>音频</li>
+<li>视频</li>
+</ul>
+<p>例如：</p>
+<p>上传图片：</p>
+<pre><code class="language-plaintext">请解释这张图片
+</code></pre>
+<p>模型可以：</p>
+<ul class="markdown-list">
+<li>识别图片</li>
+<li>理解内容</li>
+<li>生成文字回答</li>
+</ul>
+<p>代表：</p>
+<ul class="markdown-list">
+<li>GPT-4o</li>
+<li>Gemini</li>
+</ul>
+<hr class="markdown-hr">
+<h2>7. MoE（混合专家模型）</h2>
+<p>核心思想：</p>
+<p>不是所有参数同时工作。</p>
+<p>例如：</p>
+<p>传统模型：</p>
+<pre><code class="language-plaintext">100B参数全部激活
+</code></pre>
+<p>MoE：</p>
+<pre><code class="language-plaintext">100B参数
+选择部分专家计算
+</code></pre>
+<p>优势：</p>
+<ul class="markdown-list">
+<li>参数规模大</li>
+<li>推理成本低</li>
+</ul>
+<p>代表：</p>
+<ul class="markdown-list">
+<li>Mixtral</li>
+<li>DeepSeek-MoE</li>
+</ul>
+<hr class="markdown-hr">
+<h2>8. SSM / Mamba</h2>
+<p>特点：</p>
+<p>使用状态空间模型替代部分 Transformer Attention。</p>
+<p>优势：</p>
+<ul class="markdown-list">
+<li>长文本处理效率高</li>
+<li>计算复杂度低</li>
+</ul>
+<p>代表：</p>
+<ul class="markdown-list">
+<li>Mamba</li>
+</ul>
+<hr class="markdown-hr">
+<h1>三、架构对比表</h1>
+<hr class="markdown-hr">
+<table class="markdown-table">
+<thead>
+<tr>
+<th>架构</th>
+<th>核心能力</th>
+<th>训练方式</th>
+<th>优点</th>
+<th>缺点</th>
+<th>典型应用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Encoder-only</td>
+<td>理解</td>
+<td>MLM自监督</td>
+<td>理解能力强</td>
+<td>生成弱</td>
+<td>分类、搜索</td>
+</tr>
+<tr>
+<td>Decoder-only</td>
+<td>生成</td>
+<td>自回归</td>
+<td>生成和推理强</td>
+<td>计算成本高</td>
+<td>ChatGPT、代码生成</td>
+</tr>
+<tr>
+<td>Encoder-Decoder</td>
+<td>转换</td>
+<td>Seq2Seq</td>
+<td>输入输出能力强</td>
+<td>结构复杂</td>
+<td>翻译、摘要</td>
+</tr>
+<tr>
+<td>AutoEncoder</td>
+<td>表示学习</td>
+<td>重构学习</td>
+<td>特征提取强</td>
+<td>生成能力有限</td>
+<td>降维、表示学习</td>
+</tr>
+<tr>
+<td>Multimodal</td>
+<td>多模态理解</td>
+<td>多任务自监督</td>
+<td>信息融合能力强</td>
+<td>训练复杂</td>
+<td>图文视频AI</td>
+</tr>
+<tr>
+<td>MoE</td>
+<td>高效扩展</td>
+<td>自监督+专家路由</td>
+<td>参数大效率高</td>
+<td>训练难</td>
+<td>超大模型</td>
+</tr>
+<tr>
+<td>SSM</td>
+<td>长序列建模</td>
+<td>序列学习</td>
+<td>长文本效率高</td>
+<td>生态较弱</td>
+<td>长上下文任务</td>
+</tr>
+</tbody></table>
+<hr class="markdown-hr">
+<h1>四、总结</h1>
+<p>理解大模型架构可以记住：</p>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>类型</th>
+<th>关键词</th>
+<th>类比</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Encoder-only</td>
+<td>理解</td>
+<td>阅读专家</td>
+</tr>
+<tr>
+<td>Decoder-only</td>
+<td>生成</td>
+<td>写作专家</td>
+</tr>
+<tr>
+<td>Encoder-Decoder</td>
+<td>转换</td>
+<td>翻译专家</td>
+</tr>
+<tr>
+<td>自监督</td>
+<td>学习方式</td>
+<td>自己产生答案</td>
+</tr>
+<tr>
+<td>自回归</td>
+<td>生成方式</td>
+<td>一个字一个字生成</td>
+</tr>
+<tr>
+<td>MoE</td>
+<td>扩展方式</td>
+<td>多专家协作</td>
+</tr>
+<tr>
+<td>Multimodal</td>
+<td>输入能力</td>
+<td>理解多种信息</td>
+</tr>
+</tbody></table>
+<p>当前主流大语言模型路线：</p>
+<pre><code class="language-plaintext">Transformer
+    |
+    |
+Decoder-only
+    |
+    |
+自监督预训练
+    |
+    |
+指令微调
+    |
+    |
+RLHF/对齐
+    |
+    |
+MoE + 多模态 + Agent
+</code></pre>
+<p>目前 GPT、LLaMA、Qwen、DeepSeek 等主流大模型基本采用：</p>
+<p><strong>Decoder-only Transformer + 自监督预训练 + 指令微调 + 对齐优化 +（部分）MoE结构</strong></p>
+<p>这是当前大语言模型发展的主流方向。</p>
+
+      </div>
+    </article>
+    
+    <div id="comments" style="max-width: 800px; margin: 3rem auto; padding: 0 1rem;">
+      <div style="width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin-bottom: 2rem;"></div>
+      <h3 style="margin-bottom: 1.5rem; color: var(--primary);">💬 评论区</h3>
+      <script src="https://giscus.app/client.js" 
+           data-repo="jonny-dr/jonny-dr.github.io" 
+           data-repo-id="R_kgDORKkzfg" 
+           data-category="Announcements" 
+           data-category-id="DIC_kwDORKkzfs4C2Wdq" 
+           data-mapping="pathname" 
+           data-strict="0" 
+           data-reactions-enabled="1" 
+           data-emit-metadata="0" 
+           data-input-position="bottom" 
+           data-theme="preferred_color_scheme" 
+           data-lang="zh-CN" 
+           crossorigin="anonymous" 
+           async> 
+     </script>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 北辰 · 保持好奇，持续成长</p>
+    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
+      源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
+    </p>
+  </footer>
+
+  <button class="back-to-top" id="backToTop" aria-label="回到顶部">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="m18 15-6-6-6 6"/>
+    </svg>
+  </button>
+
+  <script src="../../../js/theme.js"></script>
+</body>
+</html>
+  

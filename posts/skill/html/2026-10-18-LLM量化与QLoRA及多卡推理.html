@@ -1,0 +1,1415 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM 模型、量化、QLoRA 与多卡推理 | 北辰</title>
+  <link rel="stylesheet" href="../../../css/common.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <style>
+    .post-content {
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+    .post-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    .post-meta {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .post-tag {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .post-tag.category {
+      background: rgba(72, 187, 120, 0.1);
+      color: #48bb78;
+    }
+    .post-tag.language {
+      background: rgba(237, 137, 54, 0.1);
+      color: #ed8936;
+    }
+    .post-body {
+      margin-bottom: 2rem;
+    }
+    .post-body h2 {
+      font-size: 1.8rem;
+      margin: 2rem 0 1rem;
+      color: var(--primary);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-body h3 {
+      font-size: 1.4rem;
+      margin: 1.5rem 0 0.8rem;
+      color: var(--primary);
+    }
+    .post-body h4 {
+      font-size: 1.2rem;
+      margin: 1.2rem 0 0.6rem;
+      color: var(--primary);
+    }
+    .post-body h5 {
+      font-size: 1.1rem;
+      margin: 1rem 0 0.5rem;
+      color: var(--text);
+    }
+    .post-body p {
+      margin-bottom: 1.2rem;
+    }
+    .post-body a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-body a:hover {
+      text-decoration: underline;
+    }
+    .post-body ul,
+    .post-body ol {
+      margin: 1rem 0 1.5rem 1.5rem;
+    }
+    .post-body li {
+      margin-bottom: 0.5rem;
+    }
+    .post-body pre {
+      background: #f8f9fa;
+      color: #333333;
+      padding: 1.5rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border);
+    }
+    .post-body code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.9rem;
+    }
+    .post-body pre code {
+      background: none;
+      padding: 0;
+    }
+    [data-theme="dark"] .post-body pre {
+      background: #1e1e1e;
+      color: #e6e6e6;
+    }
+    [data-theme="dark"] .post-body code {
+      color: #e6e6e6;
+    }
+    .post-body img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .post-original-link {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+      color: #6c757d;
+    }
+    .post-original-link a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-original-link a:hover {
+      text-decoration: underline;
+    }
+    .post-body table.markdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .post-body table.markdown-table thead {
+      background: linear-gradient(135deg, var(--primary), #3a0ca3);
+      color: white;
+    }
+    .post-body table.markdown-table th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      border: none;
+    }
+    .post-body table.markdown-table td {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .post-body table.markdown-table td:last-child {
+      border-right: none;
+    }
+    .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(67, 97, 238, 0.03);
+    }
+    .post-body table.markdown-table tbody tr:hover {
+      background: rgba(67, 97, 238, 0.08);
+    }
+    [data-theme="dark"] .post-body table.markdown-table {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .post-body blockquote.markdown-blockquote {
+      border-left: 4px solid var(--primary);
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      background: rgba(67, 97, 238, 0.05);
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #666;
+    }
+    [data-theme="dark"] .post-body blockquote.markdown-blockquote {
+      background: rgba(255, 255, 255, 0.05);
+      color: #aaa;
+    }
+    .post-body hr.markdown-hr {
+      border: none;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      margin: 2rem 0;
+    }
+    .post-body li.task-list-item {
+      list-style: none;
+      margin-left: -1.5rem;
+    }
+    .post-body li.task-list-item input[type="checkbox"] {
+      margin-right: 0.5rem;
+      cursor: default;
+    }
+    .post-body .image-placeholder {
+      transition: var(--transition);
+    }
+    .post-body .image-placeholder:hover {
+      border-color: var(--primary) !important;
+      background: rgba(67, 97, 238, 0.05) !important;
+    }
+    @media (max-width: 768px) {
+      .post-content {
+        padding: 0 1rem;
+      }
+      .post-header h1 {
+        font-size: 1.8rem;
+      }
+      .post-tags {
+        gap: 0.5rem;
+      }
+      .post-tag {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      .post-body pre {
+        padding: 1rem;
+      }
+      .post-body table.markdown-table {
+        font-size: 0.85rem;
+      }
+      .post-body table.markdown-table th,
+      .post-body table.markdown-table td {
+        padding: 0.6rem 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <button class="music-toggle" id="musicToggle" aria-label="控制音乐">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+  </button>
+
+  <header>
+    <h1>🌱 北辰的博客</h1>
+    <p class="subtitle">记录思考，分享成长 | 一个热爱技术的探索者</p>
+    <nav>
+  <a href="../../../index.html">首页</a>
+  <a href="../../../html/project/project.html">项目</a>
+  <a href="../../../html/skill/skill.html">技术</a>
+  <a href="../../../html/ai/ai.html">AI</a>
+  <a href="../../../html/daily/daily.html">日常</a>
+  <a href="../../../about.html">关于</a>
+  <a href="../../../archives.html">归档</a>
+  <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+</nav>
+  </header>
+
+  <main class="post-content">
+    <article>
+      <div class="post-header">
+        <h1>LLM 模型、量化、QLoRA 与多卡推理</h1>
+        <div class="post-meta">发布日期：2026-10-18</div>
+        
+        <div class="post-tags">
+          <span class="post-tag category">AI 工程</span>
+          <span class="post-tag">大语言模型</span> <span class="post-tag">量化</span> <span class="post-tag">QLoRA</span> <span class="post-tag">多卡推理</span> <span class="post-tag">vLLM</span>
+          <span class="post-tag language">Python</span>
+        </div>
+        
+      </div>
+      <div class="post-body">
+        <h1>LLM 模型、量化、QLoRA 与多卡推理：核心知识整理</h1>
+<blockquote class="markdown-blockquote">
+<p>本文将前后几轮关于 <strong>Dense / MoE、INT4 量化、QLoRA、70B 模型显存、多卡推理、Tensor Parallelism、Pipeline Parallelism、NCCL、KV Cache、vLLM</strong> 的内容统一整理。</p>
+<p>目标不是堆概念，而是建立一条清晰的知识链：</p>
+<p><strong>模型结构 → 参数量 → 量化 → 显存 → 多卡 → TP → NCCL → KV Cache → LLM 服务部署</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>1. Dense 模型与 MoE 模型</h2>
+<h3>1.1 Dense：每次都用全部参数</h3>
+<p><strong>Dense Model（稠密模型）</strong> 可以简单理解成：</p>
+<blockquote class="markdown-blockquote">
+<p>每次处理一个 Token 时，模型中的主要参数都会参与计算。</p>
+</blockquote>
+<p>例如一个 70B Dense 模型：</p>
+<pre><code class="language-text">70B Parameters
+       ↓
+每次推理
+       ↓
+大部分参数都参与计算
+</code></pre>
+<p>因此：</p>
+<ul class="markdown-list">
+<li>参数量大，模型容量大；</li>
+<li>每次计算量通常也比较大；</li>
+<li>模型结构比较直接；</li>
+<li>部署和推理逻辑相对容易理解。</li>
+</ul>
+<h3>1.2 MoE：参数很多，但每次只激活一部分</h3>
+<p><strong>MoE（Mixture of Experts，混合专家）</strong> 会把部分网络拆成多个 <strong>Expert（专家）</strong>。</p>
+<p>例如：</p>
+<pre><code class="language-text">                 Router
+                   │
+          ┌────────┼────────┐
+          ↓        ↓        ↓
+       Expert 1 Expert 2 ... Expert 8
+          │        │
+          └────┬───┘
+               ↓
+         选择少数 Expert
+               ↓
+             输出
+</code></pre>
+<p>一个 MoE 模型可能有：</p>
+<pre><code class="language-text">总参数：200B
+每个 Token 实际激活：20B
+</code></pre>
+<p>所以需要区分：</p>
+<ul class="markdown-list">
+<li><strong>Total Parameters（总参数量）</strong>：模型一共有多少参数；</li>
+<li><strong>Active Parameters（激活参数量）</strong>：一次 Token 计算真正参与计算的参数。</li>
+</ul>
+<h3>1.3 Dense vs MoE</h3>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>对比项</th>
+<th>Dense</th>
+<th>MoE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>参数使用</td>
+<td>大部分参数都参与</td>
+<td>每次只激活部分 Expert</td>
+</tr>
+<tr>
+<td>总参数</td>
+<td>通常等于主要计算规模</td>
+<td>可以非常大</td>
+</tr>
+<tr>
+<td>单 Token 计算量</td>
+<td>与总参数高度相关</td>
+<td>更接近激活参数量</td>
+</tr>
+<tr>
+<td>模型容量</td>
+<td>参数规模决定</td>
+<td>可以用大量 Expert 扩大容量</td>
+</tr>
+<tr>
+<td>核心机制</td>
+<td>直接计算</td>
+<td>Router 负责 Expert 路由</td>
+</tr>
+<tr>
+<td>工程复杂度</td>
+<td>相对简单</td>
+<td>更复杂</td>
+</tr>
+<tr>
+<td>多卡要求</td>
+<td>较高</td>
+<td>通常更高</td>
+</tr>
+<tr>
+<td>典型特点</td>
+<td>稳定、直接</td>
+<td>参数多但计算可控</td>
+</tr>
+</tbody></table>
+<p><strong>最重要的一句话：</strong></p>
+<blockquote class="markdown-blockquote">
+<p>Dense 是“有多少参数，基本就用多少参数算”；MoE 是“模型参数可以很多，但每次只挑一部分 Expert 来算”。</p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>2. INT4 量化是什么？</h1>
+<h2>2.1 为什么需要量化？</h2>
+<p>假设模型参数使用 <strong>FP16</strong>：</p>
+<pre><code class="language-text">1 Parameter = 16 bit = 2 Byte
+</code></pre>
+<p>70B 模型：</p>
+<pre><code class="language-text">70B × 2 Byte
+≈ 140GB
+</code></pre>
+<p>所以一个 70B FP16 模型，仅模型权重就大约需要 140GB，实际运行还需要额外显存。</p>
+<p>如果使用 <strong>INT4</strong>：</p>
+<pre><code class="language-text">1 Parameter ≈ 4 bit = 0.5 Byte
+</code></pre>
+<p>那么：</p>
+<pre><code class="language-text">70B × 0.5 Byte
+≈ 35GB
+</code></pre>
+<p>所以可以粗略理解：</p>
+<pre><code class="language-text">70B FP16
+≈ 140GB
+
+70B INT8
+≈ 70GB
+
+70B INT4
+≈ 35GB
+</code></pre>
+<blockquote class="markdown-blockquote">
+<p>注意：这是理想化的权重大小计算。真实量化模型还会有 <strong>scale、zero point / quantization metadata、对齐、运行时 buffer</strong> 等额外开销，因此实际显存不会刚好等于 35GB。</p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>2.2 INT4 到底做了什么？</h2>
+<p>原来的 FP16：</p>
+<pre><code class="language-text">0.137
+-0.821
+1.294
+...
+</code></pre>
+<p>每个参数占 16 bit。</p>
+<p>量化后，不再直接保存完整的 FP16 数值，而是：</p>
+<pre><code class="language-text">4-bit Integer
++
+Scale 等量化信息
+</code></pre>
+<p>可以粗略理解为：</p>
+<pre><code class="language-text">原始浮点数
+   ↓
+找到一组数值范围
+   ↓
+映射到 0~15
+   ↓
+保存 4-bit 数值
+   ↓
+配合 Scale 恢复近似浮点值
+</code></pre>
+<p>因此：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>量化不是简单“删除参数”，而是用更少的 bit 表示原来的数值。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>3. INT4 是否意味着 40G 显卡能直接跑 70B？</h1>
+<p>这是前面最容易产生误解的地方。</p>
+<p>理论上：</p>
+<pre><code class="language-text">70B × 4bit ≈ 35GB
+</code></pre>
+<p>所以：</p>
+<pre><code class="language-text">40GB GPU
+</code></pre>
+<p>从“模型权重大小”来看，<strong>可能能够加载 70B INT4</strong>。</p>
+<p>但是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>模型权重显存 ≠ 实际运行显存。</strong></p>
+</blockquote>
+<p>实际显存还包括：</p>
+<pre><code class="language-text">模型权重
++
+KV Cache
++
+Activation
++
+CUDA / Framework Runtime
++
+Temporary Buffer
++
+通信 Buffer
++
+其他开销
+</code></pre>
+<p>因此：</p>
+<pre><code class="language-text">70B INT4 ≈ 35GB
+</code></pre>
+<p>并不代表：</p>
+<pre><code class="language-text">40GB GPU 一定可以稳定运行任何 70B INT4 场景。
+</code></pre>
+<p>尤其当：</p>
+<pre><code class="language-text">Context Length ↑
+Batch Size ↑
+并发 ↑
+</code></pre>
+<p><strong>KV Cache</strong> 会明显增加。</p>
+<hr class="markdown-hr">
+<h1>4. QLoRA 是什么？</h1>
+<p><strong>QLoRA（Quantized Low-Rank Adaptation）</strong> 可以简单理解成：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>“把大模型以低比特量化的方式放着，同时只训练很小的 LoRA Adapter。”</strong></p>
+</blockquote>
+<p>它不是重新训练整个 70B 模型。</p>
+<p>基本思路：</p>
+<pre><code class="language-text">70B Base Model
+      │
+      ↓
+4-bit Quantization
+      │
+      ↓
+冻结 Base Model
+      │
+      ├──────────────┐
+      │              │
+      ↓              ↓
+  不训练          LoRA Adapter
+                     │
+                  训练参数
+                     │
+                     ↓
+                 最终适配
+</code></pre>
+<p>核心优势：</p>
+<ul class="markdown-list">
+<li>Base Model 占用显存显著下降；</li>
+<li>Base Model 参数冻结；</li>
+<li>只训练 LoRA 参数；</li>
+<li>可以在有限 GPU 资源上微调较大的模型。</li>
+</ul>
+<hr class="markdown-hr">
+<h1>5. QLoRA 的量化需要开发者自己定义吗？</h1>
+<p>一般 <strong>不需要自己发明量化算法</strong>。</p>
+<p>实际工程中通常直接使用成熟组件，例如：</p>
+<ul class="markdown-list">
+<li><strong>bitsandbytes</strong></li>
+<li><strong>Transformers</strong></li>
+<li><strong>PEFT</strong></li>
+</ul>
+<p>开发者主要做的是：</p>
+<ol class="markdown-ordered-list">
+<li>指定模型；</li>
+<li>指定量化配置；</li>
+<li>指定 LoRA 配置；</li>
+<li>配置训练参数；</li>
+<li>启动训练。</li>
+</ol>
+<p>例如常见的 QLoRA 配置思路：</p>
+<pre><code class="language-python">from transformers import BitsAndBytesConfig
+
+bnb_config = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_quant_type=&quot;nf4&quot;,
+    bnb_4bit_compute_dtype=torch.bfloat16,
+    bnb_4bit_use_double_quant=True,
+)
+</code></pre>
+<p>这里几个专业名词需要记住：</p>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>配置</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>load_in_4bit</code></td>
+<td>以 4-bit 方式加载权重</td>
+</tr>
+<tr>
+<td><code>NF4</code></td>
+<td>QLoRA 常用的 4-bit NormalFloat 数据类型</td>
+</tr>
+<tr>
+<td><code>compute_dtype</code></td>
+<td>实际计算时使用的精度，例如 BF16</td>
+</tr>
+<tr>
+<td><code>double_quant</code></td>
+<td>对量化相关的量化信息进一步压缩</td>
+</tr>
+</tbody></table>
+<p>所以：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>开发者通常定义“我要使用 NF4 + 4bit + BF16 计算”，而不是自己实现整个量化算法。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>6. 一个关键认知：4-bit 存储，不代表全程 4-bit 计算</h1>
+<p>这是理解量化的关键。</p>
+<p>很多人会误以为：</p>
+<pre><code class="language-text">INT4 权重
+×
+INT4 输入
+=
+INT4 计算
+</code></pre>
+<p>实际情况往往不是这么简单。</p>
+<p>可以粗略理解成：</p>
+<pre><code class="language-text">磁盘 / 显存
+      ↓
+4-bit Quantized Weight
+      ↓
+必要时解量化 / Kernel 内部处理
+      ↓
+BF16 / FP16 等计算
+      ↓
+结果
+</code></pre>
+<p>所以：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>量化主要首先解决的是“权重怎么存得更小”，并不等于整个模型运行过程都只有 4-bit。</strong></p>
+</blockquote>
+<p>具体计算路径取决于模型、量化格式和 GPU Kernel。</p>
+<hr class="markdown-hr">
+<h1>7. 两张 40G GPU 跑 70B INT4</h1>
+<p>假设：</p>
+<pre><code class="language-text">GPU 0：40GB
+GPU 1：40GB
+</code></pre>
+<p>不能简单理解成：</p>
+<pre><code class="language-text">40GB + 40GB = 一块 80GB GPU
+</code></pre>
+<p>正确理解是：</p>
+<pre><code class="language-text">GPU 0                    GPU 1
+40GB                     40GB
+┌──────────────┐         ┌──────────────┐
+│ 模型的一部分 │         │ 模型的一部分 │
+└──────────────┘         └──────────────┘
+        │                       │
+        └──── GPU Communication ┘
+</code></pre>
+<p>也就是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>两张卡各自拥有自己的显存，模型通过并行策略被拆开。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>8. 多卡最重要的几种并行方式</h1>
+<h2>8.1 Model / Layer Parallelism</h2>
+<p>最容易理解：</p>
+<pre><code class="language-text">GPU 0
+Layer 0~39
+
+GPU 1
+Layer 40~79
+</code></pre>
+<p>数据流：</p>
+<pre><code class="language-text">Input
+  ↓
+GPU 0
+Layer 0~39
+  ↓
+GPU 间通信
+  ↓
+GPU 1
+Layer 40~79
+  ↓
+Output
+</code></pre>
+<p>特点：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>按层拆模型。</strong></p>
+</blockquote>
+<p>优点：</p>
+<ul class="markdown-list">
+<li>简单；</li>
+<li>主要解决“模型放不下”的问题。</li>
+</ul>
+<p>缺点：</p>
+<ul class="markdown-list">
+<li>GPU 之间可能存在等待；</li>
+<li>GPU 利用率不一定高；</li>
+<li>通信和流水问题会影响性能。</li>
+</ul>
+<hr class="markdown-hr">
+<h1>9. Tensor Parallelism（TP）</h1>
+<p>这是大模型多卡推理非常重要的技术。</p>
+<p>它不是：</p>
+<pre><code class="language-text">GPU 0：前半层
+GPU 1：后半层
+</code></pre>
+<p>而是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>同一个 Transformer Layer 内部，就让多张 GPU 一起计算。</strong></p>
+</blockquote>
+<p>例如一个巨大矩阵：</p>
+<pre><code class="language-text">W
+</code></pre>
+<p>拆成：</p>
+<pre><code class="language-text">W = [W0 | W1]
+</code></pre>
+<p>然后：</p>
+<pre><code class="language-text">GPU 0 → W0
+GPU 1 → W1
+</code></pre>
+<p>计算：</p>
+<pre><code class="language-text">Y = XW
+</code></pre>
+<p>拆成：</p>
+<pre><code class="language-text">GPU 0：Y0 = XW0
+
+GPU 1：Y1 = XW1
+</code></pre>
+<p>然后通过 GPU 间通信组合结果。</p>
+<hr class="markdown-hr">
+<h1>10. TP 为什么比简单按层拆更适合高性能推理？</h1>
+<p>按层拆：</p>
+<pre><code class="language-text">GPU 0：██████████
+GPU 1：          ██████████
+</code></pre>
+<p>TP：</p>
+<pre><code class="language-text">GPU 0：████████████████
+GPU 1：████████████████
+</code></pre>
+<p>所以：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>TP 的目标不仅是“把模型塞进多张 GPU”，还要让多张 GPU 同时参与同一个 Layer 的计算。</strong></p>
+</blockquote>
+<p>但是代价是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>GPU 间通信更多。</strong></p>
+</blockquote>
+<p>因此存在：</p>
+<pre><code class="language-text">计算收益
+   VS
+通信成本
+</code></pre>
+<p>的权衡。</p>
+<hr class="markdown-hr">
+<h1>11. Attention 如何做 TP？</h1>
+<p>假设一个模型有：</p>
+<pre><code class="language-text">32 Attention Heads
+</code></pre>
+<p>两张 GPU 可以粗略理解为：</p>
+<pre><code class="language-text">GPU 0：
+Head 0~15
+
+GPU 1：
+Head 16~31
+</code></pre>
+<p>于是：</p>
+<pre><code class="language-text">               Hidden States
+                     │
+          ┌──────────┴──────────┐
+          ↓                     ↓
+       GPU 0                  GPU 1
+     Head 0~15              Head 16~31
+          │                     │
+          ↓                     ↓
+      Attention              Attention
+          │                     │
+          └──────────┬──────────┘
+                     ↓
+                  合并结果
+</code></pre>
+<p>实际框架会根据模型结构和 TP 实现选择具体切分方式，但核心思想就是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>把 Attention 的大计算拆给不同 GPU 并行完成。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>12. MLP / FFN 也可以做 TP</h1>
+<p>Transformer Layer 中：</p>
+<pre><code class="language-text">Attention
+   ↓
+MLP / FFN
+</code></pre>
+<p>MLP 通常也包含非常大的矩阵，因此可以进行 Tensor Parallel：</p>
+<pre><code class="language-text">                 X
+          ┌──────┴──────┐
+          ↓             ↓
+       GPU 0          GPU 1
+       MLP 0           MLP 1
+          │             │
+          └──────┬──────┘
+                 ↓
+             通信 / 合并
+                 ↓
+             Next Layer
+</code></pre>
+<hr class="markdown-hr">
+<h1>13. Pipeline Parallelism（PP）</h1>
+<p><strong>Pipeline Parallelism</strong> 可以理解成流水线。</p>
+<p>例如：</p>
+<pre><code class="language-text">GPU 0：
+Layer 0~19
+
+GPU 1：
+Layer 20~39
+</code></pre>
+<p>然后把多个 <strong>Micro-batch</strong> 依次送入：</p>
+<pre><code class="language-text">GPU 0
+  ↓
+GPU 1
+</code></pre>
+<p>当 GPU 0 开始处理下一个 Micro-batch 时：</p>
+<pre><code class="language-text">GPU 0：Batch B
+GPU 1：Batch A
+</code></pre>
+<p>这样可以提高流水线利用率。</p>
+<p>简单记：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>TP：一层拆给多张 GPU。</strong></p>
+<p><strong>PP：不同层放到不同 GPU，形成流水线。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>14. Data Parallelism（DP）</h1>
+<p>Data Parallelism 不主要解决“一个模型放不下”。</p>
+<p>它更像：</p>
+<pre><code class="language-text">GPU 0：
+完整模型
+
+GPU 1：
+完整模型
+</code></pre>
+<p>然后：</p>
+<pre><code class="language-text">数据 A → GPU 0
+数据 B → GPU 1
+</code></pre>
+<p>所以：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>DP 主要解决吞吐量问题，而 TP / PP / Model Parallel 更适合解决大模型规模问题。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>15. 多卡通信：PCIe / NVLink / NCCL</h1>
+<p>多张 GPU 并不是共享一个显存池。</p>
+<p>它们需要互相传数据：</p>
+<pre><code class="language-text">GPU 0
+  │
+  │ GPU Communication
+  ↓
+GPU 1
+</code></pre>
+<p>常见硬件通道：</p>
+<ul class="markdown-list">
+<li><strong>PCIe</strong></li>
+<li><strong>NVLink</strong></li>
+<li>更复杂服务器中的 <strong>NVSwitch</strong> 等。</li>
+</ul>
+<p>而 NVIDIA 软件层的重要组件：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>NCCL（NVIDIA Collective Communications Library）</strong></p>
+</blockquote>
+<p>可以理解成：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>GPU 之间的高速“通信系统”。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>16. NCCL 主要做什么？</h1>
+<p>常见 Collective Communication：</p>
+<ul class="markdown-list">
+<li><strong>AllReduce</strong></li>
+<li><strong>AllGather</strong></li>
+<li><strong>ReduceScatter</strong></li>
+<li><strong>Broadcast</strong></li>
+</ul>
+<h3>AllGather</h3>
+<p>GPU 0：</p>
+<pre><code class="language-text">[A B]
+</code></pre>
+<p>GPU 1：</p>
+<pre><code class="language-text">[C D]
+</code></pre>
+<p>AllGather 后：</p>
+<pre><code class="language-text">GPU 0 → [A B C D]
+GPU 1 → [A B C D]
+</code></pre>
+<p>即：</p>
+<blockquote class="markdown-blockquote">
+<p>大家把各自的数据收集起来，最后每个人都有完整数据。</p>
+</blockquote>
+<h3>AllReduce</h3>
+<p>GPU 0：</p>
+<pre><code class="language-text">[1,2,3]
+</code></pre>
+<p>GPU 1：</p>
+<pre><code class="language-text">[4,5,6]
+</code></pre>
+<p>AllReduce Sum：</p>
+<pre><code class="language-text">[5,7,9]
+</code></pre>
+<p>最后两张 GPU 都拿到：</p>
+<pre><code class="language-text">[5,7,9]
+</code></pre>
+<hr class="markdown-hr">
+<h1>17. TP 为什么需要 NCCL？</h1>
+<p>例如：</p>
+<pre><code class="language-text">GPU 0 → 局部计算结果 Y0
+
+GPU 1 → 局部计算结果 Y1
+</code></pre>
+<p>接下来需要：</p>
+<pre><code class="language-text">GPU 0 ↔ GPU 1
+</code></pre>
+<p>把结果进行：</p>
+<pre><code class="language-text">AllReduce
+或
+AllGather
+</code></pre>
+<p>于是：</p>
+<pre><code class="language-text">GPU 0
+  │
+  ├── 局部结果
+  │
+  └────────┐
+           │
+         NCCL
+           │
+  ┌────────┘
+  │
+GPU 1
+  │
+  └── 局部结果
+</code></pre>
+<p>因此：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>Tensor Parallelism = 计算拆分 + GPU 并行 + 集合通信。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>18. Rank / World Size</h1>
+<p>分布式系统中经常看到：</p>
+<pre><code class="language-text">Rank 0
+Rank 1
+</code></pre>
+<p>两张 GPU 时可以简单理解：</p>
+<pre><code class="language-text">Rank 0 → GPU 0
+Rank 1 → GPU 1
+</code></pre>
+<p>而：</p>
+<pre><code class="language-text">World Size = 2
+</code></pre>
+<p>表示总共有两个参与分布式计算的进程 / Rank。</p>
+<hr class="markdown-hr">
+<h1>19. 为什么两张 GPU 不一定等于两倍速度？</h1>
+<p>因为存在通信成本。</p>
+<p>例如：</p>
+<pre><code class="language-text">计算：10ms
+通信：1ms
+</code></pre>
+<p>还不错。</p>
+<p>但如果：</p>
+<pre><code class="language-text">计算：2ms
+通信：5ms
+</code></pre>
+<p>那么大量时间都花在：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>GPU 之间搬数据</strong></p>
+</blockquote>
+<p>而不是计算模型。</p>
+<p>因此：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>多卡的性能不仅取决于 GPU 性能，也取决于 GPU 间通信带宽和拓扑。</strong></p>
+</blockquote>
+<p>所以：</p>
+<pre><code class="language-text">2 × 40GB GPU
+</code></pre>
+<p>显存容量相同，并不代表：</p>
+<pre><code class="language-text">2 × 40GB GPU A
+=
+2 × 40GB GPU B
+</code></pre>
+<p>实际多卡性能。</p>
+<hr class="markdown-hr">
+<h1>20. vLLM 中的 TP</h1>
+<p>如果目标是正式部署 LLM 推理，可以使用 <strong>vLLM</strong>。</p>
+<p>典型思路：</p>
+<pre><code class="language-bash">vllm serve your-model \
+    --tensor-parallel-size 2
+</code></pre>
+<p>其中：</p>
+<pre><code class="language-text">--tensor-parallel-size 2
+</code></pre>
+<p>就是：</p>
+<blockquote class="markdown-blockquote">
+<p>使用 2 张 GPU 做 Tensor Parallel。</p>
+</blockquote>
+<p>可以理解成：</p>
+<pre><code class="language-text">                  vLLM
+                    │
+             Tensor Parallel
+               ┌────┴────┐
+               ↓         ↓
+             GPU 0     GPU 1
+               │         │
+               └─ NCCL ──┘
+</code></pre>
+<p>开发者一般不需要自己写：</p>
+<pre><code class="language-text">GPU 0 → GPU 1
+AllReduce
+AllGather
+</code></pre>
+<p>这些底层通信通常由：</p>
+<pre><code class="language-text">vLLM
+↓
+PyTorch / CUDA
+↓
+NCCL
+</code></pre>
+<p>等组件完成。</p>
+<hr class="markdown-hr">
+<h1>21. Transformers 中的 device_map</h1>
+<p>如果只是做开发、测试或简单的大模型加载，可以使用：</p>
+<pre><code class="language-python">model = AutoModelForCausalLM.from_pretrained(
+    model_name,
+    device_map=&quot;auto&quot;
+)
+</code></pre>
+<p>然后：</p>
+<pre><code class="language-python">print(model.hf_device_map)
+</code></pre>
+<p>查看模型实际被分配到了哪些 GPU。</p>
+<p>它更像：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>“帮我把模型合理地放进多张 GPU。”</strong></p>
+</blockquote>
+<p>而 vLLM 的 TP 更偏向：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>“让多张 GPU 协同完成高性能推理。”</strong></p>
+</blockquote>
+<p>二者不要混为一谈。</p>
+<hr class="markdown-hr">
+<h1>22. 70B INT4 + 2×40G 的完整理解</h1>
+<p>假设：</p>
+<pre><code class="language-text">GPU 0：40GB
+GPU 1：40GB
+
+Model：70B
+Quantization：INT4
+</code></pre>
+<p>粗略：</p>
+<pre><code class="language-text">70B × 4bit
+≈ 35GB 权重
+</code></pre>
+<p>如果使用 TP=2，可以把权重和计算拆到两张卡。</p>
+<p>概念上：</p>
+<pre><code class="language-text">                 70B INT4
+                     │
+              Tensor Parallel
+                     │
+           ┌─────────┴─────────┐
+           ↓                   ↓
+        GPU 0                GPU 1
+         40GB                  40GB
+           │                   │
+           │      NCCL         │
+           └─────────↔─────────┘
+                     │
+                  推理结果
+</code></pre>
+<p>注意：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>不是把 40GB + 40GB 变成一个物理 80GB 显存。</strong></p>
+</blockquote>
+<p>而是：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>模型被拆分并分布在两张 GPU 上。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h1>23. KV Cache：为什么模型权重不是全部显存？</h1>
+<p>LLM 推理还需要：</p>
+<blockquote class="markdown-blockquote">
+<p><strong>KV Cache</strong></p>
+</blockquote>
+<p>在 Transformer Attention 中，过去 Token 的：</p>
+<pre><code class="language-text">K（Key）
+V（Value）
+</code></pre>
+<p>可以缓存下来。</p>
+<p>这样生成下一个 Token 时，不需要把历史 Token 的相关计算全部重新做一遍。</p>
+<p>因此：</p>
+<pre><code class="language-text">显存需求
+=
+模型权重
++
+KV Cache
++
+Activation
++
+Runtime
++
+Temporary Buffer
++
+其他开销
+</code></pre>
+<p>而 KV Cache 通常会随着：</p>
+<pre><code class="language-text">Context Length ↑
+Batch Size ↑
+并发请求 ↑
+</code></pre>
+<p>而增加。</p>
+<p>所以：</p>
+<pre><code class="language-text">70B INT4 ≈ 35GB
+</code></pre>
+<p>不能直接推出：</p>
+<pre><code class="language-text">40GB GPU 一定可以无限上下文 + 高并发运行。
+</code></pre>
+<hr class="markdown-hr">
+<h1>24. 一次 Token 生成时发生了什么？</h1>
+<p>可以用一个简化流程理解：</p>
+<pre><code class="language-text">用户请求
+   ↓
+Tokenizer
+   ↓
+Token IDs
+   ↓
+Transformer Layer
+   │
+   ├── GPU 0：部分计算
+   │
+   ├── GPU 1：部分计算
+   │
+   └── NCCL：必要时进行 GPU 间通信
+   ↓
+下一层
+   ↓
+...
+   ↓
+LM Head
+   ↓
+Logits
+   ↓
+Sampling
+   ↓
+生成一个 Token
+   ↓
+KV Cache 更新
+   ↓
+继续生成下一个 Token
+</code></pre>
+<p>所以“输出一句话”其实是：</p>
+<pre><code class="language-text">Token 1
+ ↓
+Token 2
+ ↓
+Token 3
+ ↓
+...
+</code></pre>
+<p>不断重复推理过程。</p>
+<hr class="markdown-hr">
+<h1>25. 把整个知识体系串起来</h1>
+<p>现在可以形成一条完整的认知链：</p>
+<pre><code class="language-text">模型结构
+   │
+   ├── Dense
+   │
+   └── MoE
+   │
+   ↓
+参数量
+   │
+   ↓
+模型权重大小
+   │
+   ↓
+量化
+   │
+   ├── INT8
+   ├── INT4
+   └── NF4
+   │
+   ↓
+显存需求下降
+   │
+   ↓
+单卡可能运行更大模型
+   │
+   ↓
+如果仍然放不下
+   │
+   ↓
+多卡
+   │
+   ├── Layer / Model Parallel
+   ├── Tensor Parallel
+   ├── Pipeline Parallel
+   └── Data Parallel
+   │
+   ↓
+GPU Communication
+   │
+   ├── PCIe
+   ├── NVLink
+   └── NCCL
+   │
+   ↓
+LLM 推理框架
+   │
+   ├── Transformers
+   └── vLLM
+   │
+   ↓
+KV Cache
+   │
+   ↓
+最终影响吞吐量、延迟和并发
+</code></pre>
+<hr class="markdown-hr">
+<h1>26. 最重要的概念对照表</h1>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>名词</th>
+<th>一句话理解</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Dense</strong></td>
+<td>大部分参数每次都参与计算</td>
+</tr>
+<tr>
+<td><strong>MoE</strong></td>
+<td>参数很多，但每个 Token 只激活少数 Expert</td>
+</tr>
+<tr>
+<td><strong>Total Parameters</strong></td>
+<td>模型总参数量</td>
+</tr>
+<tr>
+<td><strong>Active Parameters</strong></td>
+<td>一次计算实际激活的参数量</td>
+</tr>
+<tr>
+<td><strong>Quantization</strong></td>
+<td>用更少的 bit 表示模型权重</td>
+</tr>
+<tr>
+<td><strong>INT4</strong></td>
+<td>用 4-bit 形式保存量化权重</td>
+</tr>
+<tr>
+<td><strong>NF4</strong></td>
+<td>QLoRA 中常见的 4-bit 数据类型</td>
+</tr>
+<tr>
+<td><strong>QLoRA</strong></td>
+<td>4-bit 量化基础模型 + LoRA 微调</td>
+</tr>
+<tr>
+<td><strong>LoRA</strong></td>
+<td>冻结原模型，只训练低秩 Adapter</td>
+</tr>
+<tr>
+<td><strong>TP</strong></td>
+<td>一个 Layer 内部拆给多张 GPU 一起算</td>
+</tr>
+<tr>
+<td><strong>PP</strong></td>
+<td>不同 Layer 放到不同 GPU，形成流水线</td>
+</tr>
+<tr>
+<td><strong>DP</strong></td>
+<td>每张 GPU 放模型副本，处理不同数据</td>
+</tr>
+<tr>
+<td><strong>NCCL</strong></td>
+<td>NVIDIA GPU 间集合通信库</td>
+</tr>
+<tr>
+<td><strong>AllReduce</strong></td>
+<td>多卡合并数据，并让各卡获得结果</td>
+</tr>
+<tr>
+<td><strong>AllGather</strong></td>
+<td>收集各卡数据，让每卡获得完整数据</td>
+</tr>
+<tr>
+<td><strong>Rank</strong></td>
+<td>分布式计算中的进程 / GPU 编号</td>
+</tr>
+<tr>
+<td><strong>World Size</strong></td>
+<td>参与分布式计算的总进程数</td>
+</tr>
+<tr>
+<td><strong>KV Cache</strong></td>
+<td>缓存历史 Token 的 K/V，避免重复计算</td>
+</tr>
+<tr>
+<td><strong>vLLM</strong></td>
+<td>面向 LLM 高性能推理的服务框架</td>
+</tr>
+<tr>
+<td><strong>device_map</strong></td>
+<td>将模型模块分配到不同设备</td>
+</tr>
+<tr>
+<td><strong>Tensor Parallel Size</strong></td>
+<td>TP 使用的 GPU 数量</td>
+</tr>
+</tbody></table>
+<hr class="markdown-hr">
+<h1>27. 最终形成一个工程视角</h1>
+<p>如果以后遇到：</p>
+<blockquote class="markdown-blockquote">
+<p>“70B 模型怎么部署？”</p>
+</blockquote>
+<p>不能只问：</p>
+<blockquote class="markdown-blockquote">
+<p>“我的显卡多少 G？”</p>
+</blockquote>
+<p>而应该按照下面顺序思考：</p>
+<h3>第一步：模型是什么？</h3>
+<pre><code class="language-text">Dense？
+MoE？
+70B 总参数？
+Active Parameters 多少？
+</code></pre>
+<h3>第二步：模型怎么存？</h3>
+<pre><code class="language-text">FP16？
+BF16？
+INT8？
+INT4？
+NF4？
+</code></pre>
+<h3>第三步：模型权重占多少显存？</h3>
+<pre><code class="language-text">Parameters × Bits / 8
+</code></pre>
+<p>再考虑额外量化开销。</p>
+<h3>第四步：推理还需要什么？</h3>
+<pre><code class="language-text">KV Cache
+Activation
+Runtime
+Temporary Buffer
+</code></pre>
+<h3>第五步：单卡放不下怎么办？</h3>
+<pre><code class="language-text">Model / Layer Parallel
+Tensor Parallel
+Pipeline Parallel
+</code></pre>
+<h3>第六步：多卡怎么通信？</h3>
+<pre><code class="language-text">PCIe
+NVLink
+NCCL
+</code></pre>
+<h3>第七步：用什么框架？</h3>
+<pre><code class="language-text">开发 / 测试：
+Transformers + Accelerate
+
+正式推理：
+vLLM + Tensor Parallel
+</code></pre>
+<hr class="markdown-hr">
+<h1>28. 对“两张 40G 跑 70B INT4”的最终结论</h1>
+<p>对于：</p>
+<pre><code class="language-text">2 × 40GB GPU
+70B INT4
+</code></pre>
+<p>可以这样理解：</p>
+<pre><code class="language-text">                 70B Model
+                     │
+                 INT4 Quant
+                     │
+              ≈ 35GB 权重
+                     │
+                     ↓
+              Tensor Parallel
+                ┌────┴────┐
+                ↓         ↓
+             GPU 0      GPU 1
+             40GB       40GB
+                │         │
+                └─ NCCL ──┘
+                     │
+                Transformer
+                     │
+                 KV Cache
+                     │
+                  Output
+</code></pre>
+<p><strong>结论：</strong></p>
+<ol class="markdown-ordered-list">
+<li><strong>70B INT4 的权重理论大小约 35GB</strong>，所以量化确实可以显著降低显存需求。</li>
+<li><strong>两张 40G 不等于一张物理 80G GPU</strong>，而是通过模型并行把工作分布到两张卡。</li>
+<li>如果只是想把模型放进去，可以考虑 <strong><code>device_map=&quot;auto&quot;</code></strong>。</li>
+<li>如果要做更正规的高性能推理，可以考虑 <strong>vLLM + Tensor Parallel（TP=2）</strong>。</li>
+<li><strong>NCCL</strong> 负责底层 GPU 集合通信。</li>
+<li>真正部署时不能只计算模型权重，还必须考虑 <strong>KV Cache、Runtime、Activation 和通信开销</strong>。</li>
+<li><strong>量化解决“模型太大”的问题，多卡解决“单卡放不下 / 需要并行计算”的问题；二者可以组合使用。</strong></li>
+<li><strong>TP 并不是简单把显存相加，而是把模型计算拆分，并通过 GPU 间通信协同完成。</strong></li>
+</ol>
+<hr class="markdown-hr">
+
+      </div>
+    </article>
+    
+    <div id="comments" style="max-width: 800px; margin: 3rem auto; padding: 0 1rem;">
+      <div style="width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin-bottom: 2rem;"></div>
+      <h3 style="margin-bottom: 1.5rem; color: var(--primary);">💬 评论区</h3>
+      <script src="https://giscus.app/client.js" 
+           data-repo="jonny-dr/jonny-dr.github.io" 
+           data-repo-id="R_kgDORKkzfg" 
+           data-category="Announcements" 
+           data-category-id="DIC_kwDORKkzfs4C2Wdq" 
+           data-mapping="pathname" 
+           data-strict="0" 
+           data-reactions-enabled="1" 
+           data-emit-metadata="0" 
+           data-input-position="bottom" 
+           data-theme="preferred_color_scheme" 
+           data-lang="zh-CN" 
+           crossorigin="anonymous" 
+           async> 
+     </script>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 北辰 · 保持好奇，持续成长</p>
+    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
+      源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
+    </p>
+  </footer>
+
+  <button class="back-to-top" id="backToTop" aria-label="回到顶部">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="m18 15-6-6-6 6"/>
+    </svg>
+  </button>
+
+  <script src="../../../js/theme.js"></script>
+</body>
+</html>
+  

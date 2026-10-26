@@ -1,0 +1,612 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>大模型 Prompt-Tuning 与 PEFT 参数高效微调 | 北辰</title>
+  <link rel="stylesheet" href="../../../css/common.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <style>
+    .post-content {
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+    .post-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    .post-meta {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .post-tag {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .post-tag.category {
+      background: rgba(72, 187, 120, 0.1);
+      color: #48bb78;
+    }
+    .post-tag.language {
+      background: rgba(237, 137, 54, 0.1);
+      color: #ed8936;
+    }
+    .post-body {
+      margin-bottom: 2rem;
+    }
+    .post-body h2 {
+      font-size: 1.8rem;
+      margin: 2rem 0 1rem;
+      color: var(--primary);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-body h3 {
+      font-size: 1.4rem;
+      margin: 1.5rem 0 0.8rem;
+      color: var(--primary);
+    }
+    .post-body h4 {
+      font-size: 1.2rem;
+      margin: 1.2rem 0 0.6rem;
+      color: var(--primary);
+    }
+    .post-body h5 {
+      font-size: 1.1rem;
+      margin: 1rem 0 0.5rem;
+      color: var(--text);
+    }
+    .post-body p {
+      margin-bottom: 1.2rem;
+    }
+    .post-body a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-body a:hover {
+      text-decoration: underline;
+    }
+    .post-body ul,
+    .post-body ol {
+      margin: 1rem 0 1.5rem 1.5rem;
+    }
+    .post-body li {
+      margin-bottom: 0.5rem;
+    }
+    .post-body pre {
+      background: #f8f9fa;
+      color: #333333;
+      padding: 1.5rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border);
+    }
+    .post-body code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.9rem;
+    }
+    .post-body pre code {
+      background: none;
+      padding: 0;
+    }
+    [data-theme="dark"] .post-body pre {
+      background: #1e1e1e;
+      color: #e6e6e6;
+    }
+    [data-theme="dark"] .post-body code {
+      color: #e6e6e6;
+    }
+    .post-body img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .post-original-link {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+      color: #6c757d;
+    }
+    .post-original-link a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-original-link a:hover {
+      text-decoration: underline;
+    }
+    .post-body table.markdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .post-body table.markdown-table thead {
+      background: linear-gradient(135deg, var(--primary), #3a0ca3);
+      color: white;
+    }
+    .post-body table.markdown-table th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      border: none;
+    }
+    .post-body table.markdown-table td {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .post-body table.markdown-table td:last-child {
+      border-right: none;
+    }
+    .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(67, 97, 238, 0.03);
+    }
+    .post-body table.markdown-table tbody tr:hover {
+      background: rgba(67, 97, 238, 0.08);
+    }
+    [data-theme="dark"] .post-body table.markdown-table {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .post-body blockquote.markdown-blockquote {
+      border-left: 4px solid var(--primary);
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      background: rgba(67, 97, 238, 0.05);
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #666;
+    }
+    [data-theme="dark"] .post-body blockquote.markdown-blockquote {
+      background: rgba(255, 255, 255, 0.05);
+      color: #aaa;
+    }
+    .post-body hr.markdown-hr {
+      border: none;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      margin: 2rem 0;
+    }
+    .post-body li.task-list-item {
+      list-style: none;
+      margin-left: -1.5rem;
+    }
+    .post-body li.task-list-item input[type="checkbox"] {
+      margin-right: 0.5rem;
+      cursor: default;
+    }
+    .post-body .image-placeholder {
+      transition: var(--transition);
+    }
+    .post-body .image-placeholder:hover {
+      border-color: var(--primary) !important;
+      background: rgba(67, 97, 238, 0.05) !important;
+    }
+    @media (max-width: 768px) {
+      .post-content {
+        padding: 0 1rem;
+      }
+      .post-header h1 {
+        font-size: 1.8rem;
+      }
+      .post-tags {
+        gap: 0.5rem;
+      }
+      .post-tag {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      .post-body pre {
+        padding: 1rem;
+      }
+      .post-body table.markdown-table {
+        font-size: 0.85rem;
+      }
+      .post-body table.markdown-table th,
+      .post-body table.markdown-table td {
+        padding: 0.6rem 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <button class="music-toggle" id="musicToggle" aria-label="控制音乐">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+  </button>
+
+  <header>
+    <h1>🌱 北辰的博客</h1>
+    <p class="subtitle">记录思考，分享成长 | 一个热爱技术的探索者</p>
+    <nav>
+  <a href="../../../index.html">首页</a>
+  <a href="../../../html/project/project.html">项目</a>
+  <a href="../../../html/skill/skill.html">技术</a>
+  <a href="../../../html/ai/ai.html">AI</a>
+  <a href="../../../html/daily/daily.html">日常</a>
+  <a href="../../../about.html">关于</a>
+  <a href="../../../archives.html">归档</a>
+  <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+</nav>
+  </header>
+
+  <main class="post-content">
+    <article>
+      <div class="post-header">
+        <h1>大模型 Prompt-Tuning 与 PEFT 参数高效微调</h1>
+        <div class="post-meta">发布日期：2026-10-18</div>
+        
+        <div class="post-tags">
+          <span class="post-tag category">AI 工程</span>
+          <span class="post-tag">Prompt-Tuning</span> <span class="post-tag">PEFT</span> <span class="post-tag">Prefix-Tuning</span> <span class="post-tag">LoRA</span> <span class="post-tag">模型微调</span>
+          <span class="post-tag language">Python</span>
+        </div>
+        
+      </div>
+      <div class="post-body">
+        <h1>大模型 Prompt-Tuning 与 PEFT 参数高效微调</h1>
+<blockquote class="markdown-blockquote">
+<p>本文覆盖「Prompt-Tuning 方法」「PEFT 分类」「Prefix-Tuning」「LoRA」等核心内容。</p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>一、超大规模参数模型的 Prompt-Tuning 方法</h2>
+<h3>1. 为什么 Prompt-Tuning 对大模型更有效？</h3>
+<p>近两年来，随着 Prompt-Tuning 技术的发展，对于超过 <strong>10 亿参数量</strong> 的模型来说，Prompt-Tuning 所带来的增益已可媲美甚至超过传统的 Fine-tuning。例如 <strong>GPT-3</strong>，只需要设计合适的模板或指令，即可实现<strong>免参数训练的零样本学习</strong>。</p>
+<p><strong>根本原因：</strong></p>
+<ul class="markdown-list">
+<li>模型参数量足够大；</li>
+<li>训练过程中使用了足够多的语料；</li>
+<li>设计的预训练任务足够有效。</li>
+</ul>
+<p><strong>具体展开（&quot;为什么对大模型更加有效&quot;）：</strong></p>
+<ol class="markdown-ordered-list">
+<li><strong>参数足够大</strong>：模型本身已经从&quot;小学生&quot;变成了&quot;教授&quot;，内部已经储存了海量的知识；</li>
+<li><strong>训练语料足够多</strong>：它&quot;阅读&quot;的文本极其丰富，见过各种各样的任务和表达方式；</li>
+<li><strong>预训练任务足够有效</strong>：最初的训练方式（如预测下一个词）让它具备了强大的通用推理能力。</li>
+</ol>
+<blockquote class="markdown-blockquote">
+<p><strong>意味着什么？</strong><br>不像以前那样，通过更新数百万或数十亿的参数&quot;教&quot;它一个新任务；只需要通过精心设计的&quot;提示&quot;，去&quot;唤醒&quot;和&quot;引导&quot;模型内部已有的能力，让它直接以<strong>零样本</strong>或<strong>少样本</strong>方式为该任务提供高质量的答案。这就是一种**&quot;零参数训练的高效方式&quot;**。</p>
+</blockquote>
+<hr class="markdown-hr">
+<h3>2. 面向超大规模模型的 Prompt-Tuning 三大方法</h3>
+<h4>① 上下文学习（In-Context Learning）</h4>
+<ul class="markdown-list">
+<li><strong>做法</strong>：直接挑选少量的样本作为该任务的提示（示例）。</li>
+<li><strong>示例：</strong><ul class="markdown-list">
+<li>苹果是水果</li>
+<li>桌子是家具</li>
+<li>汽车是什么？</li>
+</ul>
+</li>
+<li><strong>本质</strong>：不提供具体示例即可，直接给模型一个清晰、明确的&quot;任务指令&quot;（如&quot;请将以下英文翻译成中文&quot;），依赖模型对自然语言指令的理解能力；要求指令必须清晰、没有歧义，考验使用者的提问能力。</li>
+</ul>
+<h4>② 指令学习（Instruction-Tuning）</h4>
+<ul class="markdown-list">
+<li><strong>做法</strong>：构建任务指令集，促使模型根据任务指令做出反馈。</li>
+</ul>
+<h4>③ 思维链（Chain-of-Thought）</h4>
+<ul class="markdown-list">
+<li><strong>做法</strong>：给予或激发模型具有推理和解释的信息，通过链式的模式指导模型生成合理的结果。</li>
+</ul>
+<hr class="markdown-hr">
+<h2>二、Instruction-Tuning</h2>
+<p><strong>核心思想</strong>：Instruction-Tuning 和 Prompt-Tuning 的核心一样，都是去<strong>发掘语言模型本身具备的知识</strong>。</p>
+<h3>1. 以&quot;电影评论二分类&quot;为例</h3>
+<p>在对电影评论进行二分类时：</p>
+<ul class="markdown-list">
+<li><strong>最简单的提示模板（Prompt）</strong>：<code>{评论原文}. It was [mask].</code></li>
+<li><strong>进阶模板（加入 Instruction）</strong>：<code>The movie review is: {评论原文}. It was [mask].</code></li>
+</ul>
+<p>根据 mask 位置的输出结果，通过 <strong>Verbalizer</strong> 映射到具体的标签上。这一类<strong>具备任务特性的模板</strong>可以称之为&quot;指令（Instruction）&quot;。</p>
+<hr class="markdown-hr">
+<h3>2. 电影评论情感分类的三种方式</h3>
+<h4>基础方式：简单的提示模板</h4>
+<ul class="markdown-list">
+<li><strong>模板</strong>：<code>{评论原文}. it was [mask]</code></li>
+<li><strong>示例</strong>：<code>the movie has a great storyline and amazing acting, it was [mask]</code></li>
+<li><strong>问题</strong>：这个模板太模糊。[mask] 位置模型可以预测任何词，比如 great（正面）、boring（负面）、甚至是 long（中性），任务目标不清晰，模型容易&quot;跑偏&quot;。</li>
+</ul>
+<h4>进阶方法：加入明确的指令</h4>
+<ul class="markdown-list">
+<li><strong>模板</strong>：<code>the movie review is: {评论原文}. it was [mask]</code></li>
+<li><strong>示例</strong>：<code>the movie review is: the movie has a great storyline and amazing acting, it was [mask]</code></li>
+<li><strong>关键提升：</strong><ul class="markdown-list">
+<li><strong>任务界定</strong>：开头的 <code>the movie review is:</code> 就是一句明确的指令，直接告诉模型：你现在处理的是一个电影评论文本，相当于给模型划定了参考范围；</li>
+<li><strong>聚焦知识</strong>：该指令能瞬间激活模型在预训练阶段学习到的所有与&quot;电影评论&quot;相关的知识（如形容电影的常用词汇、情感倾向等），让它明白接下来的填空应该围绕影评的优劣展开。</li>
+</ul>
+</li>
+</ul>
+<h4>标签映射（Verbalizer）</h4>
+<p>无论使用哪种模板，得到 [mask] 位置的预测词（例如 great 或 terrible）后，还需要一个 <strong>Verbalizer（标签映射器）</strong>，将该词语映射到最终的分类标签上。</p>
+<hr class="markdown-hr">
+<h3>3. 推理类任务的模板设计（太空停留时长案例）</h3>
+<p><strong>前提（Premise）</strong>：俄罗斯宇航员瓦列里·波利亚科夫在 1994-1995 年间创造了连续在太空停留时间最长的纪录，长达 <strong>438 天</strong>。</p>
+<p><strong>假设（Hypothesis）</strong>：俄罗斯人保持着在太空停留时间最长的纪录。</p>
+<p><strong>目标（Target）</strong>：Entailment / Not entailment　选项：yes / no</p>
+<p>为这一任务设计了多种模板，例如：</p>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>模板</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Template 1</strong></td>
+<td><code>&lt;premise&gt;</code> Based on the paragraph above, can we conclude that <code>&lt;hypothesis&gt;</code>? <code>&lt;options&gt;</code></td>
+</tr>
+<tr>
+<td><strong>Template 2</strong></td>
+<td>Can we infer the following? <code>&lt;hypothesis&gt;</code> <code>&lt;options&gt;</code>　→　我们能否推断出以下结论？<code>&lt;假设&gt;</code> <code>&lt;选项&gt;</code></td>
+</tr>
+<tr>
+<td><strong>Template 3</strong></td>
+<td>Read the following and determine if the hypothesis can be inferred from the premise: Premise: <code>&lt;premise&gt;</code> Hypothesis: <code>&lt;hypothesis&gt;</code> <code>&lt;options&gt;</code>　→　阅读以下内容并判断假设是否能从前提中推断出来：前提：<code>&lt;前提&gt;</code> 假设：<code>&lt;假设&gt;</code> <code>&lt;选项&gt;</code></td>
+</tr>
+<tr>
+<td><strong>Template 4...</strong></td>
+<td>（以此类推）</td>
+</tr>
+</tbody></table>
+<blockquote class="markdown-blockquote">
+<p><strong>实践建议</strong>：为每个任务设计 <strong>10 个指令模板</strong>，测试时看<strong>平均表现</strong>。</p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>三、PEFT（参数高效微调）分类</h2>
+<h3>方法一：Prefix / Prompt-Tuning</h3>
+<ul class="markdown-list">
+<li><strong>做法</strong>：在模型的<strong>输入或隐层</strong>添加 k 个额外可训练的<strong>前缀伪 tokens</strong>，只训练这些前缀参数。</li>
+</ul>
+<h3>方法二：Adapter-Tuning</h3>
+<ul class="markdown-list">
+<li><strong>做法</strong>：将较小的神经网络层或模块插入预训练模型的<strong>每一层</strong>，这些新插入的神经模块称为 <strong>adapter（适配器）</strong>。下游任务微调时<strong>只训练这些适配器参数</strong>。</li>
+</ul>
+<h3>方法三：LoRA（低秩自适应）</h3>
+<ul class="markdown-list">
+<li><strong>做法</strong>：通过学习<strong>小参数的低秩矩阵</strong>来近似模型权重矩阵 W 的参数更新，训练时<strong>只优化低秩矩阵参数</strong>。</li>
+</ul>
+<hr class="markdown-hr">
+<h2>四、Prefix-Tuning 详解</h2>
+<h3>一：前缀/提示调优（Prefix/Prompt-Tuning）</h3>
+<ul class="markdown-list">
+<li><strong>核心思想</strong>：不修改模型内部结构，而是在模型的&quot;输入端&quot;或&quot;思考过程中&quot;动脑筋，相当于给模型一张详细的&quot;任务指令&quot;。</li>
+<li><strong>技术实现</strong>：在原始输入序列之前，添加一小段<strong>可以训练、连续的&quot;前缀&quot;</strong>（一组特定的向量参数）；微调时只优化这些前缀参数，<strong>模型自身的全部参数保持冻结</strong>。</li>
+<li><strong>工作方式：</strong><ol class="markdown-ordered-list">
+<li><strong>输入阶段</strong>：在输入文本的嵌入层前拼接可训练前缀；</li>
+<li><strong>隐层阶段</strong>：在模型每一层的激活（隐层状态）前添加可训练前缀。</li>
+</ol>
+</li>
+<li><strong>特点</strong>：非常轻量，几乎不增加模型的计算量，但需要精心设计或学习这些前缀。</li>
+<li><strong>比喻</strong>：就像给汽车的通用 GPS（模型）输入目的地（原始输入）前，给一段特定的路线指示码（前缀参数），让它能更好地导航到目的地。</li>
+</ul>
+<h3>二：适配器调优（Adapter-Tuning）</h3>
+<ul class="markdown-list">
+<li><strong>核心思想</strong>：在预训练模型的每个 Transformer 层内部，嵌入一个微型的、可调节的&quot;适配器&quot;。</li>
+<li><strong>技术实现</strong>：在预训练的每个 Transformer 层插入一个额外的小型神经网络模块（Adapter）；下游任务微调时，<strong>冻结原始模型所有参数，只训练新插入的 Adapter</strong>。</li>
+<li><strong>特点</strong>：Adapter 虽然增加了模型的计算量，但与模型结合更紧密，通常能取得优秀的性能，且模块化设计便于扩展和迁移。</li>
+<li><strong>比喻</strong>：像在汽车的每个气缸旁增加一个可调节的&quot;涡轮增压适配器&quot;，通过微调这些小型适配器改变发动机输出、适应不同赛道，而无需改动发动机本身。</li>
+</ul>
+<h3>三：LoRA（低秩自适应）</h3>
+<ul class="markdown-list">
+<li><strong>核心思想</strong>：模型在适应新任务时，其权重的改变具有&quot;简单&quot;的内在结构，可以用<strong>低维矩阵来近似表示</strong>。</li>
+</ul>
+<hr class="markdown-hr">
+<h2>五、Prefix-Tuning 数学表达与训练细节</h2>
+<ul class="markdown-list">
+<li><p><strong>数学表达</strong>：Prefix-Tuning 在输入前添加前缀，即 <code>z = [Prefix, x, y]</code>，<code>Pidx</code> 为前缀序列的索引，<code>|Pidx|</code> 为前缀的长度。前缀索引对应着由 θ 参数化的向量矩阵 <strong>Pθ</strong>，维度为 <code>|Pidx| × dim(hi)</code>。</p>
+</li>
+<li><p><strong>训练细节（重要）</strong>：直接更新 Prefix 的参数会导致<strong>训练不稳定</strong>。作者在 Prefix 层前面加了 <strong>MLP 结构</strong>（相当于将 Prefix 分解为更小维度的 Input 与 MLP 的组合后输出的结果）；<strong>训练完成后，只保留 Prefix 的参数</strong>。</p>
+</li>
+</ul>
+<h3>自回归模型（GPT）</h3>
+<ul class="markdown-list">
+<li><strong>工作模式</strong>：单向生成。只能从左到右&quot;阅读&quot;，任务是根据已有的上文预测下一个最可能的词，如此循环，直至生成完整文本。</li>
+<li><strong>前缀的作用</strong>：前缀和目标语句被放置在同一条连续的序列中；前缀像是给读者提供故事背景或核心关键词；生成过程中，模型会将前缀中的每个关键词都作为上文的一部分来参考。</li>
+<li><strong>应用场景</strong>：写作、对话生成、代码补全。</li>
+</ul>
+<h3>编码器-解码器模型（BERT、T5、BART）</h3>
+<ul class="markdown-list">
+<li><strong>工作模式</strong>：先编码，再解码。<ul class="markdown-list">
+<li><strong>编码阶段</strong>：编码器全面地、双向地阅读并理解整个输入信息（前缀），将其压缩成一个富含语义的&quot;上下文向量&quot;；</li>
+<li><strong>解码阶段</strong>：编码和解码分离，解码器拿到&quot;上下文向量&quot;后，开始自回归（一个个词地生成）地生成目标文本。</li>
+</ul>
+</li>
+<li><strong>应用场景</strong>：文本摘要、表格转文本。</li>
+</ul>
+<hr class="markdown-hr">
+<h2>六、Prefix-Tuning 与 P-Tuning、Prompt-Tuning 的对比</h2>
+<h3>Vs P-Tuning</h3>
+<p><strong>1. 嵌入位置和意图</strong></p>
+<ul class="markdown-list">
+<li><strong>Prefix-Tuning</strong>：将可训练的连续前缀<strong>固定添加到输入序列的最开头</strong>，模仿指令，让模型一开始就接受一个全局的、任务特定的&quot;指令信号&quot;，该信号会贯穿后续的所有计算过程。</li>
+<li><strong>P-Tuning</strong>：可训练参数（Prompt）的插入位置<strong>相对不固定</strong>，可以是开头、中间或结尾；思路更像是寻找输入序列的间隙并插入提示令牌，激发模型知识。</li>
+</ul>
+<p><strong>2. 作用的深度</strong></p>
+<ul class="markdown-list">
+<li><strong>Prefix-Tuning</strong>：在 Transformer 的<strong>每一层</strong>都添加了可训练前缀参数；</li>
+<li><strong>P-Tuning</strong>：通常只是<strong>在最开始的输入嵌入层</strong>加入可训练的 Prompt 参数。</li>
+</ul>
+<blockquote class="markdown-blockquote">
+<p>补充说明：Prefix-Tuning 将额外的 embedding 加在开头，看起来更像模仿 Instruction 指令；而 P-Tuning 位置不固定。Prefix-Tuning 通过<strong>每层添加可训练参数 + MLP 初始化</strong>；P-Tuning 只在输入时加入 embedding，通过 <strong>LSTM + MLP 初始化</strong>。</p>
+</blockquote>
+<h3>Vs Prompt-Tuning</h3>
+<p><strong>Prompt Tuning 可以看作是 Prefix-Tuning 的简化版。</strong></p>
+<p><strong>1. 参数作用范围</strong></p>
+<ul class="markdown-list">
+<li><strong>Prefix-Tuning</strong>：在每一层都添加前缀参数，参数量相对较多，<strong>效果强，但计算成本高</strong>；</li>
+<li><strong>Prompt Tuning</strong>：只在输入嵌入层（第一层）添加可训练的 Prompt Token，继承了&quot;在开头加连续提示&quot;的思想，<strong>放弃了每层都加的复杂设计</strong>。</li>
+</ul>
+<p><strong>2. 训练难度</strong></p>
+<ul class="markdown-list">
+<li><strong>Prefix-Tuning</strong>：因为参数深、复杂，需要 <strong>MLP 辅助初始化</strong>以保证训练稳定；</li>
+<li><strong>Prompt Tuning</strong>：结构简单，<strong>不需要 MLP 等辅助结构</strong>，直接训练 Prompt Token，降低了实现难度。</li>
+</ul>
+<hr class="markdown-hr">
+<h2>七、LoRA 技术三步拆解</h2>
+<blockquote class="markdown-blockquote">
+<p>配图示意：<code>h</code> 输入 → 预训练权重 <code>W ∈ R^{d×d}</code>（冻结），旁支矩阵 <code>A = 𝒩(0, σ²)</code>（随机初始化）、<code>B = 0</code>（零初始化），中间为秩 <code>r</code>。</p>
+</blockquote>
+<p><strong>LoRA 概述</strong>：冻结预训练模型的权重，并在每个 Transformer 块中注入可训练层（称为<strong>秩分解矩阵</strong>），即在模型的 Linear 层旁边增加一个&quot;旁支&quot;A 和 B。其中：</p>
+<ul class="markdown-list">
+<li><strong>A</strong> 将数据从 d 维降到 r 维（r 是 LoRA 的秩，是一个重要超参数）；</li>
+<li><strong>B</strong> 将数据从 r 维升到 d 维，<strong>B 部分参数初始为 0</strong>；</li>
+<li>训练结束后，需要将 A+B 部分的参数与原始大模型参数<strong>合并</strong>在一起使用。</li>
+</ul>
+<h3>第一步：冻结主体，注入旁支</h3>
+<ul class="markdown-list">
+<li><strong>核心操作</strong>：冻结预训练大模型的权重参数（图中蓝色），让它们在整个微调过程中保持不动；</li>
+<li><strong>关键创新</strong>：在模型原有的线性层旁边，并行增加一个&quot;旁支&quot;，由两个小矩阵 A 和 B 组成。</li>
+</ul>
+<h3>第二步：&quot;降维-升维&quot;的结构</h3>
+<ul class="markdown-list">
+<li><strong>矩阵 A（下投影）</strong><ul class="markdown-list">
+<li>作用：将输入数据由高维度 d 降维到很低的维度 r（r 即 LoRA 的秩，是一个超参数，通常远小于 d，例如 d=1024、r=8）；</li>
+<li>初始化：通常采用<strong>高斯随机初始化</strong>。</li>
+</ul>
+</li>
+<li><strong>矩阵 B（上投影）</strong><ul class="markdown-list">
+<li>作用：将经过 A 变换后的低维特征（维度 r）再升维回原始维度 d；</li>
+<li>初始化：B 的初始参数<strong>设置为 0</strong>——保证训练刚开始时整个旁支的输出为 0，模型行为与原始预训练模型完全一致，不会因新增结构而产生不稳定的初始输出，确保训练的平稳起点。</li>
+</ul>
+</li>
+</ul>
+<h3>第三步：训练与合并，实现零延迟</h3>
+<ul class="markdown-list">
+<li><strong>训练阶段</strong>：只训练旁支的两个小矩阵 A 和 B 的参数。由于 r 很小，A、B 的参数量极少，<strong>训练成本非常低</strong>；</li>
+<li><strong>推理阶段</strong>：<ul class="markdown-list">
+<li>操作：训练完成后，将旁支学到的&quot;知识&quot;与原始模型合并——将低秩更新矩阵 <strong>B×A 直接加到原始权重 W</strong> 上；</li>
+<li>优势：合并后，新模型 W 在结构上与原始模型没有任何区别，不会增加额外计算层，可以<strong>与原模型完全相同的速度进行推理，实现零推理延迟</strong>。</li>
+</ul>
+</li>
+</ul>
+<hr class="markdown-hr">
+<h2>八、总结</h2>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>方法</th>
+<th>可训练参数</th>
+<th>修改位置</th>
+<th>计算成本</th>
+<th>主要特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Prompt-Tuning</strong></td>
+<td>第一层输入嵌入的 Prompt Token</td>
+<td>输入嵌入层</td>
+<td>低</td>
+<td>简化版 Prefix-Tuning，无需辅助结构，实现简单</td>
+</tr>
+<tr>
+<td><strong>P-Tuning</strong></td>
+<td>输入嵌入处的 Prompt（位置不固定）</td>
+<td>输入嵌入层</td>
+<td>低</td>
+<td>LSTM+MLP 初始化，插入位置灵活</td>
+</tr>
+<tr>
+<td><strong>Prefix-Tuning</strong></td>
+<td>每层前缀参数</td>
+<td>每一层</td>
+<td>中高</td>
+<td>效果强，需 MLP 辅助初始化保证稳定</td>
+</tr>
+<tr>
+<td><strong>Adapter-Tuning</strong></td>
+<td>每层插入的 Adapter</td>
+<td>每层内部</td>
+<td>中</td>
+<td>与模型结合紧密，模块化、可迁移</td>
+</tr>
+<tr>
+<td><strong>LoRA</strong></td>
+<td>旁支低秩矩阵 A、B</td>
+<td>Linear 层旁支</td>
+<td>低</td>
+<td>冻结主体只训旁支，训练后合并零延迟</td>
+</tr>
+</tbody></table>
+<blockquote class="markdown-blockquote">
+<p><strong>核心思想一句话</strong>：与其费尽心力地&quot;教&quot;大模型新知识，不如通过提示/前缀/适配器/低秩旁支等轻量手段，去&quot;唤醒&quot;和&quot;引导&quot;模型内部早已具备的能力——这就是参数高效微调（PEFT）的精髓。</p>
+</blockquote>
+
+      </div>
+    </article>
+    
+    <div id="comments" style="max-width: 800px; margin: 3rem auto; padding: 0 1rem;">
+      <div style="width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin-bottom: 2rem;"></div>
+      <h3 style="margin-bottom: 1.5rem; color: var(--primary);">💬 评论区</h3>
+      <script src="https://giscus.app/client.js" 
+           data-repo="jonny-dr/jonny-dr.github.io" 
+           data-repo-id="R_kgDORKkzfg" 
+           data-category="Announcements" 
+           data-category-id="DIC_kwDORKkzfs4C2Wdq" 
+           data-mapping="pathname" 
+           data-strict="0" 
+           data-reactions-enabled="1" 
+           data-emit-metadata="0" 
+           data-input-position="bottom" 
+           data-theme="preferred_color_scheme" 
+           data-lang="zh-CN" 
+           crossorigin="anonymous" 
+           async> 
+     </script>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 北辰 · 保持好奇，持续成长</p>
+    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
+      源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
+    </p>
+  </footer>
+
+  <button class="back-to-top" id="backToTop" aria-label="回到顶部">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="m18 15-6-6-6 6"/>
+    </svg>
+  </button>
+
+  <script src="../../../js/theme.js"></script>
+</body>
+</html>
+  

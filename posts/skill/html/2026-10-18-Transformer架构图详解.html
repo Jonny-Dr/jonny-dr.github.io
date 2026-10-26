@@ -1,0 +1,614 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transformer 架构图详解 | 北辰</title>
+  <link rel="stylesheet" href="../../../css/common.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <style>
+    .post-content {
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+    .post-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    .post-meta {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .post-tag {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .post-tag.category {
+      background: rgba(72, 187, 120, 0.1);
+      color: #48bb78;
+    }
+    .post-tag.language {
+      background: rgba(237, 137, 54, 0.1);
+      color: #ed8936;
+    }
+    .post-body {
+      margin-bottom: 2rem;
+    }
+    .post-body h2 {
+      font-size: 1.8rem;
+      margin: 2rem 0 1rem;
+      color: var(--primary);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-body h3 {
+      font-size: 1.4rem;
+      margin: 1.5rem 0 0.8rem;
+      color: var(--primary);
+    }
+    .post-body h4 {
+      font-size: 1.2rem;
+      margin: 1.2rem 0 0.6rem;
+      color: var(--primary);
+    }
+    .post-body h5 {
+      font-size: 1.1rem;
+      margin: 1rem 0 0.5rem;
+      color: var(--text);
+    }
+    .post-body p {
+      margin-bottom: 1.2rem;
+    }
+    .post-body a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-body a:hover {
+      text-decoration: underline;
+    }
+    .post-body ul,
+    .post-body ol {
+      margin: 1rem 0 1.5rem 1.5rem;
+    }
+    .post-body li {
+      margin-bottom: 0.5rem;
+    }
+    .post-body pre {
+      background: #f8f9fa;
+      color: #333333;
+      padding: 1.5rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border);
+    }
+    .post-body code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.9rem;
+    }
+    .post-body pre code {
+      background: none;
+      padding: 0;
+    }
+    [data-theme="dark"] .post-body pre {
+      background: #1e1e1e;
+      color: #e6e6e6;
+    }
+    [data-theme="dark"] .post-body code {
+      color: #e6e6e6;
+    }
+    .post-body img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .post-original-link {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+      color: #6c757d;
+    }
+    .post-original-link a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .post-original-link a:hover {
+      text-decoration: underline;
+    }
+    .post-body table.markdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .post-body table.markdown-table thead {
+      background: linear-gradient(135deg, var(--primary), #3a0ca3);
+      color: white;
+    }
+    .post-body table.markdown-table th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      border: none;
+    }
+    .post-body table.markdown-table td {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .post-body table.markdown-table td:last-child {
+      border-right: none;
+    }
+    .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(67, 97, 238, 0.03);
+    }
+    .post-body table.markdown-table tbody tr:hover {
+      background: rgba(67, 97, 238, 0.08);
+    }
+    [data-theme="dark"] .post-body table.markdown-table {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    [data-theme="dark"] .post-body table.markdown-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .post-body blockquote.markdown-blockquote {
+      border-left: 4px solid var(--primary);
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      background: rgba(67, 97, 238, 0.05);
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #666;
+    }
+    [data-theme="dark"] .post-body blockquote.markdown-blockquote {
+      background: rgba(255, 255, 255, 0.05);
+      color: #aaa;
+    }
+    .post-body hr.markdown-hr {
+      border: none;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      margin: 2rem 0;
+    }
+    .post-body li.task-list-item {
+      list-style: none;
+      margin-left: -1.5rem;
+    }
+    .post-body li.task-list-item input[type="checkbox"] {
+      margin-right: 0.5rem;
+      cursor: default;
+    }
+    .post-body .image-placeholder {
+      transition: var(--transition);
+    }
+    .post-body .image-placeholder:hover {
+      border-color: var(--primary) !important;
+      background: rgba(67, 97, 238, 0.05) !important;
+    }
+    @media (max-width: 768px) {
+      .post-content {
+        padding: 0 1rem;
+      }
+      .post-header h1 {
+        font-size: 1.8rem;
+      }
+      .post-tags {
+        gap: 0.5rem;
+      }
+      .post-tag {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      .post-body pre {
+        padding: 1rem;
+      }
+      .post-body table.markdown-table {
+        font-size: 0.85rem;
+      }
+      .post-body table.markdown-table th,
+      .post-body table.markdown-table td {
+        padding: 0.6rem 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <button class="music-toggle" id="musicToggle" aria-label="控制音乐">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+  </button>
+
+  <header>
+    <h1>🌱 北辰的博客</h1>
+    <p class="subtitle">记录思考，分享成长 | 一个热爱技术的探索者</p>
+    <nav>
+  <a href="../../../index.html">首页</a>
+  <a href="../../../html/project/project.html">项目</a>
+  <a href="../../../html/skill/skill.html">技术</a>
+  <a href="../../../html/ai/ai.html">AI</a>
+  <a href="../../../html/daily/daily.html">日常</a>
+  <a href="../../../about.html">关于</a>
+  <a href="../../../archives.html">归档</a>
+  <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+</nav>
+  </header>
+
+  <main class="post-content">
+    <article>
+      <div class="post-header">
+        <h1>Transformer 架构图详解</h1>
+        <div class="post-meta">发布日期：2026-10-18</div>
+        
+        <div class="post-tags">
+          <span class="post-tag category">AI 工程</span>
+          <span class="post-tag">Transformer</span> <span class="post-tag">Attention</span> <span class="post-tag">位置编码</span> <span class="post-tag">Encoder-Decoder</span>
+          <span class="post-tag language">Python</span>
+        </div>
+        
+      </div>
+      <div class="post-body">
+        <h1>Transformer 架构详解</h1>
+<blockquote class="markdown-blockquote">
+<p>本文档基于 <strong>Transformer 整体架构流程</strong> 与 <strong>位置编码机制</strong> 两大部分，采用&quot;作用 + 白话解释&quot;的方式帮助理解核心原理。</p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>一、总体总结流程</h2>
+<p>Transformer 的完整处理链路如下：</p>
+<pre><code class="language-plaintext">输入文字 -&gt; 嵌入(Embedding) -&gt; 位置编码(Positional Encoding)
+  -&gt; 编码器多层加工(注意力 + 前馈)
+  -&gt; 解码器多层加工(掩码注意力 + 关联编码器 + 前馈)
+  -&gt; 线性层(Linear) -&gt; Softmax -&gt; 输出概率选词
+</code></pre>
+<p><strong>一句话概括</strong>：把文字变成向量，加上位置信息，经过编码器理解语义、解码器逐词生成，最后输出概率最高的词。</p>
+<hr class="markdown-hr">
+<h2>二、Transformer 整体架构</h2>
+<p>Transformer 由 <strong>四个部分</strong> 组成：输入部分、编码器部分、解码器部分、输出部分。</p>
+<pre><code class="language-plaintext">                Output（输出部分）
+                   │
+              Probabilities（概率）
+                   │
+                Softmax（激活层）
+                   │
+                 Linear（线性层）
+                   │
+        ┌───────────────────────┐
+        │      解码器部分         │
+        │   Add &amp; Norm          │
+        │   Feed Forward        │
+        │   Add &amp; Norm          │
+        │   Multi-Head Attention│  ← 关联编码器输出
+        │   Add &amp; Norm          │
+        │   Masked Multi-Head   │  ← 掩码多头注意力
+        │       Attention       │
+        └───────────────────────┘
+        ┌───────────────────────┐
+        │      编码器部分         │   Nx（重复堆叠，论文为6次）
+        │   Add &amp; Norm          │
+        │   Feed Forward        │
+        │   Add &amp; Norm          │
+        │   Multi-Head Attention│
+        └───────────────────────┘
+        ┌───────────────────────┐
+        │   Positional Encoding │
+        │   Input Embedding     │
+        │   Inputs（输入部分）    │
+        └───────────────────────┘
+</code></pre>
+<h3>🎯 整个架构的核心</h3>
+<blockquote class="markdown-blockquote">
+<p><strong>注意力机制抓关联，多层堆叠挖深度，残差归一化稳训练。</strong></p>
+</blockquote>
+<hr class="markdown-hr">
+<h2>三、各组件详细说明（作用 + 白话）</h2>
+<h3>1. Input Embedding —— 源文本嵌入层</h3>
+<ul class="markdown-list">
+<li><strong>作用</strong>：把输入的文字（例如 1 个单词）转成数值向量（词向量）。</li>
+<li><strong>白话</strong>：计算机看不懂文字，把文字转成能看懂的向量。例如 <code>&quot;你好&quot; -&gt; [0.1, -0.3 ...]</code>。</li>
+</ul>
+<h3>2. Positional Encoding —— 位置编码</h3>
+<ul class="markdown-list">
+<li><strong>作用</strong>：给词向量加&quot;位置信息&quot;。</li>
+<li><strong>白话</strong>：Transformer 本身不明白词的顺序，例如&quot;我打你&quot;和&quot;你打我&quot;顺序不同含义就不同，所以得额外给每个位置贴&quot;坐标标签&quot;，告诉模型谁前谁后。</li>
+</ul>
+<h3>3. Multi-Head Attention —— 多头注意力</h3>
+<ul class="markdown-list">
+<li><strong>作用</strong>：让模型<strong>同时从多个角度关注句子里的词</strong>。</li>
+<li><strong>白话</strong>：以&quot;猫追老鼠&quot;为例，既要关注&quot;猫&quot;和&quot;追&quot;的关系，也要关注&quot;猫&quot;和&quot;老鼠&quot;的关系，还能对比&quot;猫&quot;和&quot;老鼠&quot;之间的关联。</li>
+</ul>
+<h3>4. Add &amp; Norm —— 残差连接 + 层归一化</h3>
+<ul class="markdown-list">
+<li><strong>作用</strong>：让训练更稳、更高效。</li>
+<li><strong>白话</strong>：<ul class="markdown-list">
+<li><strong>Add（残差连接）</strong>：把注意力层的输入和输出加在一起，防止信息丢太多。</li>
+<li><strong>Norm（层归一化）</strong>：把数据归一化（数值限制在某个范围内），避免训练时跑偏，防止梯度消失 / 梯度爆炸。</li>
+</ul>
+</li>
+</ul>
+<h3>5. Feed Forward —— 前馈网络</h3>
+<ul class="markdown-list">
+<li><strong>作用</strong>：对每个位置的词向量<strong>单独强化特征</strong>。</li>
+<li><strong>白话</strong>：经过注意力层后，再用全连接网络加工一下，给每个词&quot;注入更多细节&quot;。例如：强化&quot;猫&quot;的动物属性、&quot;追&quot;的动作属性。</li>
+</ul>
+<h3>6. Nx —— 重复堆叠</h3>
+<ul class="markdown-list">
+<li><strong>作用</strong>：把上面的&quot;多头注意力 + Add&amp;Norm + 前馈网络&quot;重复 N 次（论文里是 6 次）。</li>
+<li><strong>白话</strong>：一层不够深，多堆几层，让模型&quot;层层递进&quot;理解文本，从表面语义 → 深层逻辑。</li>
+</ul>
+<h3>7. Masked Multi-Head Attention —— 掩码多头注意力（解码器）</h3>
+<ul class="markdown-list">
+<li><strong>作用</strong>：防止**&quot;偷看未来的词&quot;**。</li>
+<li><strong>白话</strong>：解码器是一步步生成输出的，只能用&quot;已生成的词&quot;，不能用未生成的词。</li>
+</ul>
+<h3>8. 解码器中的 Multi-Head Attention —— 关联编码器</h3>
+<ul class="markdown-list">
+<li><strong>作用</strong>：让解码器<strong>关注编码器输出的内容</strong>。</li>
+<li><strong>白话</strong>：例如翻译时，解码器要生成法语词，得盯着处理后的英文词义，确保翻译准确，找对应关系。</li>
+</ul>
+<h3>9. Output Embedding —— 目标文本嵌入层</h3>
+<ul class="markdown-list">
+<li><strong>作用</strong>：和源文本嵌入层类似，把输出的目标文字转成向量。</li>
+<li><strong>白话</strong>（英译法案例）：把法语单词转成数值向量，方便解码器处理。</li>
+</ul>
+<h3>10. Linear —— 线性层</h3>
+<ul class="markdown-list">
+<li><strong>作用</strong>：把解码器输出的向量，调整成 <strong>vocab_size（词汇表大小）</strong> 维度。</li>
+<li><strong>白话</strong>：例如词汇表有 1 万个词，就把向量变成 1 万维，每个维度对应 1 个词的概率分数。</li>
+</ul>
+<h3>11. Softmax —— 激活层</h3>
+<ul class="markdown-list">
+<li><strong>作用</strong>：把线性层输出的数值，转成<strong>概率</strong>，概率总和为 1，模型就知道该选哪个词输出。</li>
+</ul>
+<hr class="markdown-hr">
+<h2>四、位置编码公式介绍</h2>
+<p>Transformer 中直接采用 <strong>正弦函数（sin）和余弦函数（cos）</strong> 来编码位置信息。</p>
+<h3>4.1 公式</h3>
+<p><strong>偶数维度（2i）：</strong></p>
+<pre><code class="language-plaintext">                     pos
+PE(pos, 2i) = sin( ───────────── )
+                   2i
+                  ────
+                 d_model
+                10000
+</code></pre>
+<p><strong>奇数维度（2i+1）：</strong></p>
+<pre><code class="language-plaintext">                       pos
+PE(pos, 2i+1) = cos( ───────────── )
+                     2i
+                    ────
+                   d_model
+                  10000
+</code></pre>
+<h3>4.2 参数解释</h3>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>参数</th>
+<th>含义</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>pos</code></td>
+<td>词在句子里的位置（从 0 或 1 开始数）</td>
+<td><code>&quot;我爱吃西瓜&quot;</code>，<code>爱</code> 的 pos 从 0 数是 1</td>
+</tr>
+<tr>
+<td><code>i</code></td>
+<td>维度的索引</td>
+<td>512 维的词向量，i 就是 0 到 255（因为 2i 要覆盖 0-511 维）</td>
+</tr>
+<tr>
+<td><code>d_model</code></td>
+<td>词向量的维度</td>
+<td>例如 512</td>
+</tr>
+<tr>
+<td><code>10000^(2i/d_model)</code></td>
+<td>周期缩放因子</td>
+<td>不同的 i 会让周期不一样：<strong>i 越大，周期越长</strong></td>
+</tr>
+</tbody></table>
+<h3>4.3 三角函数的应用优势（重点）</h3>
+<p>三角函数应用在位置编码中的一个重要优点：<strong>对于任意的 PE(pos+k)，都可以表示为 PE(pos) 的线性函数</strong>，大大方便计算。</p>
+<p>使用到的和角公式：</p>
+<pre><code class="language-plaintext">sin(α + β) = sin(α)cos(β) + cos(α)sin(β)
+cos(α + β) = cos(α)cos(β) - sin(α)sin(β)
+</code></pre>
+<p>并且，<strong>周期性函数不受序列长度的限制</strong>，可以增强模型的泛化能力。</p>
+<hr class="markdown-hr">
+<h2>五、位置编码计算示例（逐步推导）</h2>
+<h3>假设条件</h3>
+<ul class="markdown-list">
+<li>句子位置：<code>pos = 2</code>（即第 2 个词）</li>
+<li>词向量维度：<code>d_model = 4</code>（这里简化处理，实际开发常用 512）</li>
+<li>因为 <code>2i</code> 要小于 4，即 <code>i &lt; 2</code>，所以 <strong>i 可以取 0、1</strong></li>
+</ul>
+<h3>Step 1：当 i = 0 时</h3>
+<p><strong>偶数维度</strong>（PE(2,0)）：</p>
+<pre><code class="language-plaintext">                        2
+PE(2,0) = sin( ──────────────── ) = sin(2) = 0.909
+                       0/4
+                  10000
+</code></pre>
+<ul class="markdown-list">
+<li><code>2i/d_model = 0/4 = 0</code></li>
+<li><code>10000^0 = 1</code></li>
+<li>即 <code>sin(2/1) = sin(2) ≈ 0.909</code></li>
+</ul>
+<p><strong>奇数维度</strong>（PE(2,1)）：</p>
+<pre><code class="language-plaintext">                        2
+PE(2,1) = cos( ──────────────── ) = cos(2) ≈ -0.416
+                       0/4
+                  10000
+</code></pre>
+<ul class="markdown-list">
+<li>即 <code>cos(2/1) = cos(2) ≈ -0.416</code></li>
+</ul>
+<h3>Step 2：当 i = 1 时</h3>
+<p><strong>偶数维度</strong>（PE(2,2)）：</p>
+<pre><code class="language-plaintext">                         2
+PE(2,2) = sin( ────────────────── ) = sin(2/100) = sin(0.02) ≈ 0.020
+                      2/4 = 1/2
+                  10000
+</code></pre>
+<ul class="markdown-list">
+<li><code>2i/d_model = 2/4 = 1/2</code></li>
+<li><code>10000^(1/2) = 100</code></li>
+<li>即 <code>sin(2/100) = sin(0.02) ≈ 0.020</code></li>
+</ul>
+<p><strong>奇数维度</strong>（PE(2,3)）：</p>
+<pre><code class="language-plaintext">                         2
+PE(2,3) = cos( ────────────────── ) = cos(2/100) = cos(0.02) ≈ 0.998
+                      2/4 = 1/2
+                  10000
+</code></pre>
+<ul class="markdown-list">
+<li>即 <code>cos(2/100) = cos(0.02) ≈ 0.998</code></li>
+</ul>
+<h3>最终位置编码向量</h3>
+<pre><code class="language-plaintext">PE(2) = [ 0.909   -0.416   0.020   0.998 ]
+        └────┘   └─────┘   └────┘  └────┘
+         PE(2,0) PE(2,1)  PE(2,2) PE(2,3)
+</code></pre>
+<hr class="markdown-hr">
+<h2>六、位置编码的好处</h2>
+<h3>6.1 直观理解</h3>
+<ul class="markdown-list">
+<li><strong>计算更快</strong>：尤其是句子很长时，不用每个位置都重新算三角函数。</li>
+<li><strong>可以推导</strong>：靠&quot;位置 pos&quot;的编码可以推导出来，看似复杂，其实简单。<ul class="markdown-list">
+<li>例如：<code>pos(5) -&gt; pos(2 + 3)</code></li>
+</ul>
+</li>
+</ul>
+<h3>6.2 好处总结</h3>
+<ol class="markdown-ordered-list">
+<li><strong>记住词的顺序</strong>：通过周期性函数，给每个位置贴独特的标签，让模型区分&quot;我爱你&quot;和&quot;你爱我&quot;。</li>
+<li><strong>计算高效</strong>：靠线性组合推导新位置编码，不用重复计算三角函数，省算力。</li>
+<li><strong>适应任意长度</strong>：不管句子多长，随时能算编码，泛化能力强。</li>
+<li><strong>模型处理语言时更聪明、更灵活</strong>。</li>
+</ol>
+<hr class="markdown-hr">
+<h2>七、核心要点速记（复习）</h2>
+<table class="markdown-table">
+<thead>
+<tr>
+<th>要点</th>
+<th>核心内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>架构流程</td>
+<td>嵌入 → 位置编码 → 编码器（注意力+前馈）→ 解码器（掩码注意力+关联编码器+前馈）→ 线性 → Softmax → 选词</td>
+</tr>
+<tr>
+<td>注意力</td>
+<td>多头注意力从多个角度抓词与词之间的关联</td>
+</tr>
+<tr>
+<td>掩码注意力</td>
+<td>解码器逐词生成，只能看已生成的词，不能偷看未来</td>
+</tr>
+<tr>
+<td>残差 + 归一化</td>
+<td>防止信息丢失、梯度消失/爆炸，让训练更稳</td>
+</tr>
+<tr>
+<td>前馈网络</td>
+<td>对每个词单独强化特征</td>
+</tr>
+<tr>
+<td>Nx 堆叠</td>
+<td>多层叠加，从表面语义理解到深层逻辑（论文用 6 层）</td>
+</tr>
+<tr>
+<td>位置编码</td>
+<td>用 sin/cos 给每个位置贴坐标标签，让模型懂语序</td>
+</tr>
+<tr>
+<td>位置编码三大优点</td>
+<td>记住顺序、计算高效、适应任意长度</td>
+</tr>
+<tr>
+<td>整个架构核心</td>
+<td>注意力机制抓关联，多层堆叠挖深度，残差归一化稳训练</td>
+</tr>
+</tbody></table>
+<h2>八、附件：经典Transformer架构图</h2>
+<p><img src="https://i-blog.csdnimg.cn/direct/09ed9aadca7d4da180c08ffccf6edd6a.png" alt="img"></p>
+
+      </div>
+    </article>
+    
+    <div id="comments" style="max-width: 800px; margin: 3rem auto; padding: 0 1rem;">
+      <div style="width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin-bottom: 2rem;"></div>
+      <h3 style="margin-bottom: 1.5rem; color: var(--primary);">💬 评论区</h3>
+      <script src="https://giscus.app/client.js" 
+           data-repo="jonny-dr/jonny-dr.github.io" 
+           data-repo-id="R_kgDORKkzfg" 
+           data-category="Announcements" 
+           data-category-id="DIC_kwDORKkzfs4C2Wdq" 
+           data-mapping="pathname" 
+           data-strict="0" 
+           data-reactions-enabled="1" 
+           data-emit-metadata="0" 
+           data-input-position="bottom" 
+           data-theme="preferred_color_scheme" 
+           data-lang="zh-CN" 
+           crossorigin="anonymous" 
+           async> 
+     </script>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 北辰 · 保持好奇，持续成长</p>
+    <p style="margin-top: 6px; font-size: 0.9rem; color: #aaa;">
+      本博客采用 <a href="https://creativecommons.org/licenses/by-nc/4.0/" style="color: var(--primary);">CC BY-NC 4.0</a> 许可 | 
+      源码托管于 <a href="https://github.com/" style="color: var(--primary);">GitHub</a>
+    </p>
+  </footer>
+
+  <button class="back-to-top" id="backToTop" aria-label="回到顶部">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="m18 15-6-6-6 6"/>
+    </svg>
+  </button>
+
+  <script src="../../../js/theme.js"></script>
+</body>
+</html>
+  
