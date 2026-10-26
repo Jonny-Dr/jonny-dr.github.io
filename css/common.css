@@ -430,6 +430,7 @@ header nav a:focus-visible { outline-color: white; }
   margin: 0 0 1.25rem;
 }
 .listing-page .skill-category-nav a {
+  border-radius: 8px;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;

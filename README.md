@@ -1,349 +1,255 @@
-# 🌱 北辰的博客
+# 北辰的博客
 
-> 用文字记录思考，用代码丈量世界 ✨  
-> *个人技术博客 | 分享成长、技术与生活点滴*
+记录后端开发、AI 工程、项目实践与日常思考的个人静态博客。
 
-[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Deployed-success?logo=github)](https://jonny-dr.github.io)
-[![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
+- 网站：[jonny-dr.github.io](https://jonny-dr.github.io)
+- 仓库：[Jonny-Dr/jonny-dr.github.io](https://github.com/Jonny-Dr/jonny-dr.github.io)
+- 操作速查：[use-flow.txt](use-flow.txt)
 
----
+## 项目概览
 
-## ✨ 特性
-- 🚀 **静态网站**: 基于原生 HTML、CSS 和 JavaScript 构建
-- 🌙 **暗色模式**: 支持深色/浅色主题无缝切换，自动保存用户偏好
-- 📱 **响应式设计**: 完美适配各种设备屏幕
-- ⚡ **高性能**: 静态生成，快速加载
-- 🎨 **优雅设计**: 精心设计的 UI，注重用户体验
-- 🎵 **背景音乐**: 内置背景音乐播放器，页面切换不中断
-- 📝 **Markdown 支持**: 使用 marked 库解析，支持完整 GFM 语法
-- 🔧 **自动分页**: 各栏目自动分页，归档按年/月分组
-- 💬 **评论系统**: 集成 Giscus 评论
-- 📁 **模块化结构**: 清晰的目录结构，易于维护
+项目使用原生 HTML、CSS、JavaScript 与 Node.js 自建生成脚本。文章以 Markdown 文件维护，生成后的 HTML 随源码一起提交，由 GitHub Actions 发布到 GitHub Pages。
 
----
-
-## 🛠 技术栈
-| 模块       | 工具/技术           |
-|------------|---------------------|
-| 前端技术   | HTML5, CSS3, JavaScript |
-| 部署方式   | GitHub Pages        |
-| 自动化部署 | GitHub Actions      |
-| Markdown 解析 | marked (npm 库)     |
-| 代码高亮   | highlight.js        |
-| 评论系统   | Giscus              |
-
----
-
-## 📁 项目结构
-
-```
-├── css/                   # 样式文件
-│   └── common.css         # 通用样式（含主题变量）
-├── images/                # 图片资源
-│   ├── days/              # 日常图片
-│   ├── head/              # 头部背景
-│   └── music/             # 背景音乐
-├── js/                    # JavaScript 文件
-│   ├── theme.js           # 主题切换、音乐控制、SPA 路由
-│   ├── generate-pagination.js # 页面生成脚本
-│   ├── markdown-parser.js # Markdown 解析模块（基于 marked）
-│   ├── transfer-images.js # 图片迁移工具
-│   └── update-about-nav.js # about.html 导航更新工具
-├── posts/                 # 按分类存放文章源文件和生成页面
-│   ├── ai/                # AI 文章
-│   ├── archives/          # 归档文章
-│   ├── daily/             # 日常文章
-│   ├── project/           # 项目文章
-│   └── skill/             # 技术文章
-│       ├── md/            # Markdown 源文件（所有分类都有）
-│       ├── html/          # 生成的文章页（所有分类都有）
-│       └── ppt/           # 部分技术文章的配套演示文稿
-├── templates/             # 页面模板
-│   ├── archives-template.html
-│   ├── daily-template.html
-│   ├── default-template.html
-│   ├── index-template.html
-│   ├── nav-template.html
-│   └── skill-template.html
-├── .github/workflows/     # GitHub Actions 配置
-│   └── pagination.yml     # 自动部署工作流
-├── .gitignore             # Git 忽略配置
-├── deploy.sh              # 一键部署脚本
-├── package.json           # npm 依赖配置
-├── package-lock.json      # 依赖版本锁定
-└── README.md              # 项目说明
+```text
+编写 Markdown / 修改模板、样式
+              ↓
+本地图片迁移（如需要）
+              ↓
+检查文章 → 生成页面 → 检查生成结果
+              ↓
+本地浏览 → 提交并推送
+              ↓
+GitHub Actions 构建 → 上传构建产物 → GitHub Pages 发布
 ```
 
----
+当前首页、关于、技术、AI、项目、日常和归档使用统一的横幅、内容宽度、卡片与按钮。技术和 AI 支持主分类导航；归档按年月分组。主题偏好保存在本地，站内链接通过 JavaScript 切换页面并更新导航状态。文章页集成 highlight.js 和 Giscus，相关资源需要联网加载。
 
-## 🚀 快速开始
+## 环境与本地运行
 
-### 本地开发
+需要 Node.js 20 或更高版本、npm 和 Git；`deploy.sh` 需要 Bash。以下本地预览方式还需要 Python 3。Windows 可在 Git Bash 或 WSL 中使用部署脚本。
 
-1. **克隆仓库**
 ```bash
-git clone https://github.com/jonny-dr/jonny-dr.github.io.git
+git clone https://github.com/Jonny-Dr/jonny-dr.github.io.git
 cd jonny-dr.github.io
-```
-
-2. **安装依赖**
-```bash
-npm install
-```
-
-3. **启动本地服务器**
-```bash
+npm ci
+npm run build:site
 python3 -m http.server 8000
 ```
 
-4. **访问网站**
-打开浏览器访问 `http://localhost:8000`
+打开 [本地首页](http://localhost:8000/)。预览服务器在前台运行，停止时按 `Ctrl+C`；也可以另开终端继续操作。修改文章或模板后需要重新构建，再刷新页面。请通过 HTTP 服务器预览，以便站内页面切换正常工作。
 
-### 发布新文章（推荐使用一键部署）
+npm 当前唯一直接依赖是 `marked`（`^18.0.7`），具体安装版本由 `package-lock.json` 锁定。
 
-**最简单的方式**：使用 `deploy.sh` 一键部署脚本
+## 目录与文件职责
 
-```bash
-# 给脚本添加执行权限（首次使用）
-chmod +x deploy.sh
-
-# 执行一键部署
-./deploy.sh
+```text
+.
+├── index.html                     # 生成的首页
+├── about.html                     # 手工维护介绍；构建同步导航、技术栈和资源版本
+├── archives.html                  # 生成的归档入口
+├── html/{skill,ai,project,daily}/  # 生成的栏目、分页和分类页面
+├── posts/
+│   ├── skill/                     # 技术文章
+│   ├── ai/                        # AI 文章
+│   ├── project/                   # 项目实践
+│   ├── daily/                     # 日常文章
+│   ├── archives/                  # 独立维护的归档文章
+│   └── index/                     # 可选首页来源，生成器会创建 md/html 目录
+│       # 各文章模块使用 md/*.md、md/assets/ 和 html/*.html
+├── templates/
+│   ├── index-template.html        # 首页布局
+│   ├── skill-template.html        # 技术栏目与分类页
+│   ├── ai-template.html           # AI 栏目与分类页
+│   ├── daily-template.html        # 日常栏目
+│   ├── archives-template.html     # 归档布局
+│   ├── default-template.html      # 项目栏目使用的回退模板
+│   ├── nav-template.html          # 公共导航
+│   └── skills-template.html       # 首页与关于页共享的技术栈内容
+├── css/common.css                 # 全站主题、卡片、按钮及响应式样式
+├── js/
+│   ├── generate-pagination.js     # 页面配置、文章汇总、卡片和分页生成
+│   ├── markdown-parser.js         # 头部信息解析、Markdown 转换、详情页及资源版本
+│   ├── check-content.js           # 内容、栏目分页和本地引用检查
+│   ├── theme.js                   # 主题、站内跳转、音乐、返回顶部及文章交互初始化
+│   ├── transfer-images.js         # 本地图片迁移工具
+│   └── update-about-nav.js        # 旧导航占位符工具，当前日常构建无需单独运行
+├── images/                        # 背景、头像、日常图片及音乐
+├── .github/workflows/pagination.yml
+├── deploy.sh
+├── package.json / package-lock.json
+├── use-flow.txt
+└── README.md
 ```
 
-**手动部署步骤**：
+`posts/` 中还保留了空目录、压缩包或配套资料；它们不等同于已配置的文章栏目。技术与 AI 的规范文档分别位于 [技术文章规范](posts/skill/CONTENT_GUIDE.md) 和 [AI 文章规范](posts/ai/CONTENT_GUIDE.md)。
 
-1. **在对应目录创建 Markdown 文件**
-   - 技术文章: `posts/skill/md/`
-   - 日常文章: `posts/daily/md/`
-   - 项目文章: `posts/project/md/`
-   - 归档文章: `posts/archives/md/`
+## 栏目、入口与分页
 
-2. **（可选）迁移本地图片**
-   
-   如果使用 Typora 等工具编辑，图片可能保存在本地绝对路径。运行图片迁移工具：
-   ```bash
-   # 预览模式（查看哪些图片会被迁移）
-   node js/transfer-images.js --dry-run
-   
-   # 实际执行迁移
-   node js/transfer-images.js
-   
-   # 只处理特定分类
-   node js/transfer-images.js --category=skill
-   ```
+| 页面 | Markdown 来源 | 生成入口 | 展示规则 |
+| --- | --- | --- | --- |
+| 首页 | project、daily、index、skill、ai | `index.html` | 按日期倒序，展示最新 5 篇 |
+| 技术 | `posts/skill/md/` | `html/skill/skill.html` | 每页 6 篇，另有 6 个分类页 |
+| AI | `posts/ai/md/` | `html/ai/ai.html` | 每页 6 篇，另有 5 个分类页 |
+| 项目 | `posts/project/md/` | `html/project/project.html` | 每页 6 篇 |
+| 日常 | `posts/daily/md/` | `html/daily/daily.html` | 每页 4 篇 |
+| 归档 | `posts/archives/md/` | `archives.html` | 每页 10 篇，页内按年月分组 |
+| 关于 | `about.html` | `about.html` | 介绍、共享技术栈、联系方式 |
 
-3. **检查内容并生成页面**
-```bash
-npm run build:site
-```
+第二页起使用 `skill-2.html`、`ai-2.html` 等名称；归档分页位于根目录，如 `archives-2.html`。技术和 AI 的分类页面位于各自栏目目录，名称为 `category-<分类标识>.html`，目前不分页。
 
-构建会先校验 Front Matter，再生成文章页和栏目分页，最后检查 HTML 中的本地链接与资源路径。发现孤立的旧 HTML 页面时只会提示，不会自动删除。
+归档只读取自己的源目录，不会自动汇总全站文章，也不参与首页最新文章列表。文章详情输出到 `posts/<模块>/html/<原文件名>.html`。
 
-4. **推送代码到 GitHub**
-```bash
-git add .
-git commit -m "Add new article"
-git push origin main
-```
+## 编写与整理文章
 
-5. **GitHub Actions 自动部署**
-   - 代码推送后，GitHub Actions 会自动运行部署流程
-   - 部署完成后，访问 `https://jonny-dr.github.io` 查看
+### 文件位置和头部信息
 
----
-
-## 🛠 工具脚本
-
-### deploy.sh - 一键部署脚本
-
-**功能**：一站式完成图片迁移、页面生成、代码提交和推送。
-
-**使用方法**：
-```bash
-# 给脚本添加执行权限（首次使用）
-chmod +x deploy.sh
-
-# 执行一键部署
-./deploy.sh
-
-# 自定义提交信息
-./deploy.sh "添加新文章：Redis 分布式锁详解"
-
-# 本地生成与检查（不提交、不推送）
-./deploy.sh --check
-```
-
-**工作流程**：
-1. 自动定位项目目录，检查必要工具；缺少依赖时使用 `npm ci` 按锁文件安装
-2. 迁移 Markdown 中引用的本地图片到项目目录
-3. 运行 `npm run build:site` 校验文章、生成页面并检查本地引用
-4. 自动添加、提交并推送到 GitHub；没有文件变更时，仍会推送已有提交
-5. 提示推送结果和 Actions 地址，线上发布结果以 Actions 为准
-
-`--check` 会预览图片迁移、更新生成 HTML 并执行检查，适合发布前检查页面。项目、日常、技术和 AI 复用相同文章卡片；归档保留年月分组，组内使用相同卡片。展示调整应修改模板、公共样式或生成脚本，避免仅修改生成 HTML。
-
-### transfer-images.js - 图片迁移工具
-
-**功能**：将 Markdown 文件中引用的本地绝对路径图片（如 Typora 生成的图片）迁移到项目对应的 assets 目录，并自动更新 Markdown 中的图片路径。
-
-**使用方法**：
-```bash
-# 预览模式（查看哪些图片会被迁移，不实际执行）
-node js/transfer-images.js --dry-run
-
-# 处理所有分类
-node js/transfer-images.js
-
-# 只处理指定分类
-node js/transfer-images.js --category=skill
-
-# 指定 Typora 图片路径
-node js/transfer-images.js --typora-path=~/Pictures/Typora
-
-# 显示帮助
-node js/transfer-images.js --help
-```
-
-**配置方式**（优先级从高到低）：
-1. 命令行参数: `--typora-path=/path/to/images`
-2. 环境变量: `TYPORA_IMAGE_PATH=/path/to/images`
-3. `.env` 文件: `TYPORA_IMAGE_PATH=/path/to/images`
-4. 自动检测（支持 macOS、Windows、Linux）
-
-### generate-pagination.js - 页面生成脚本
-
-**功能**：扫描所有 Markdown 文件，生成栏目分页页面和文章详情页面。
-
-**使用方法**：
-```bash
-node js/generate-pagination.js
-```
-
-日常使用请运行 `npm run build:site`，它会在生成页面前后执行内容校验。
-
-### check-content.js - 内容与生成结果检查
-
-```bash
-npm run check:content  # 检查文章元数据
-npm run build:site     # 完整构建，并检查生成 HTML 的本地链接与资源
-```
-
-Front Matter 可以省略以兼容现有文章；提供 `date` 时必须是有效的 `YYYY-MM-DD` 日期，`categories`、`languages` 和 `tags` 使用数组格式。数组支持行内写法和 YAML 列表写法。孤立的旧文章 HTML 只会提示，不会自动删除。
-
-技术文章的主分类和标签规范见 [posts/skill/CONTENT_GUIDE.md](posts/skill/CONTENT_GUIDE.md)。新技术文章须提供一个 `category` 主分类和至少一个 `tags` 标签。
-
-**生成内容**：
-- 首页: `index.html`
-- 技术栏目: `skill.html`, `skill-2.html`, ...
-- 日常栏目: `daily.html`, `daily-2.html`, ...
-- 项目栏目: `project.html`, `project-2.html`, ...
-- 归档栏目: `archives.html`, `archives-2.html`, ...
-- 文章详情: `posts/{category}/html/*.html`
-
----
-
-## 📝 文章格式
-
-### Markdown 文章结构
+文件名使用 `YYYY-MM-DD-标题.md`，直接放在对应模块的 `md/` 下。当前生成器不递归读取 Markdown 子目录；分类通过元信息表达。
 
 ```markdown
 ---
-title: 文章标题
-date: 2026-02-12
-categories: [分类1, 分类2]
-languages: [语言1, 语言2]
-originalLink: 原文链接（可选）
-excerpt: 文章摘要（可选）
+title: Redis 分布式锁实践
+date: 2026-10-26
+category: 缓存与中间件
+tags: [Redis, 分布式锁, 高可用]
+languages: [Java]
+excerpt: 说明锁的获取、续期、释放及故障处理方式。
 ---
 
-## 正文标题
+# Redis 分布式锁实践
 
-文章内容...
+正文内容。
 
-![图片描述](assets/image.png)
+![示意图](assets/redis-lock.png)
 ```
 
-### 命名规范
-- 文件名格式: `YYYY-MM-DD-文章标题.md`
-- 例如: `2026-02-12-壁纸分享.md`
+| 字段 | 用途 |
+| --- | --- |
+| `title` | 文章标题，新文章应显式填写 |
+| `date` | 显示和排序日期，使用有效的 `YYYY-MM-DD` |
+| `category` | 一个主分类，技术与 AI 必须使用对应规范中的名称 |
+| `tags` | 主题标签数组，至少 1 个，通常 2～5 个 |
+| `languages` | 可选的语言或技术数组 |
+| `excerpt` | 卡片摘要，建议填写简短纯文本 |
+| `categories` | 兼容旧文章的分类数组；展示优先使用 `category` |
+| `originalLink` | 可选的原文链接 |
 
-### 支持的 Markdown 特性
-- ✅ 标题层级（# - ######）
-- ✅ 代码块（带语法高亮）
-- ✅ 表格（GFM 语法）
-- ✅ 列表（有序/无序/任务列表）
-- ✅ 引用块
-- ✅ 加粗/斜体/删除线
-- ✅ 图片（支持本地 assets 路径）
-- ✅ 链接（自动添加 target="_blank"）
-- ✅ 水平分割线
-- ✅ YAML Front Matter
+新文章统一填写 `title`、`date`、`category`、`tags` 和 `excerpt`。AI 校验要求提供头部信息、合法主分类与非空标签；技术文章提供头部信息时也会检查主分类和标签。其他历史无头部文章仍兼容，标题和日期可从正文、文件名回退，摘要可从正文提取。
 
----
+头部信息是自定义解析器实现，并非完整 YAML。建议使用上述简单字段及行内数组；也支持缩进列表数组。摘要优先使用单行，避免复杂嵌套或多行结构造成校验不兼容。
 
-## 🎨 特色功能
+`date` 控制显示和排序，不会按日期延迟发布。文件名决定详情页地址；单独修改 `date` 不会重命名 URL。
 
-### 主题切换
-- 支持亮色/暗色模式
-- 自动检测系统偏好
-- 自动保存用户选择到 localStorage
-- 平滑过渡动画
+### 技术和 AI 主分类
 
-### 背景音乐
-- 内置背景音乐播放器
-- 页面切换时音乐不中断（SPA 效果）
-- 音乐播放状态自动保存
-- 支持暂停/播放控制
+- 技术：Java 与 JVM、数据库、缓存与中间件、分布式与微服务、架构与工程、AI 工程。
+- AI：深度学习基础、Transformer 与模型架构、提示学习与模型微调、推理与部署、RAG 与智能体。
 
-### SPA 路由
-- 页面切换无刷新
-- 保留音乐播放状态
-- 自动重新初始化 highlight.js 和 Giscus
+跨主题文章选择一个主要分类，其余主题放入标签。标签目前用于展示，不会自动生成标签检索页。
 
-### 评论系统
-- 集成 Giscus（基于 GitHub Discussions）
-- 支持表情反应
-- 支持深色/浅色主题适配
+仅调整分类时修改 `category`，文章留在原模块。要改变所属模块，需要移动 Markdown 和依赖的图片资源，再构建并检查引用。重命名或移动会改变文章 URL，应同时检查站内链接及旧地址的访问需求。
 
----
+### 本地图片
 
-## 🔧 环境配置
+推荐将图片保存在 `posts/<模块>/md/assets/`，正文使用 `assets/文件名.png`。使用 Typora 等编辑器产生本机绝对路径时，可先预览再迁移：
 
-### .gitignore
+```bash
+node js/transfer-images.js --dry-run --category=skill
+node js/transfer-images.js --category=skill
+# AI 文章改为 --category=ai；省略 --category 会扫描带 md 目录的模块
+```
 
-项目已配置 `.gitignore`，忽略以下文件：
-- `node_modules/` - npm 依赖目录
-- `.env` - 环境变量配置
-- `.DS_Store` - macOS 系统文件
-- `Thumbs.db` - Windows 系统文件
-- `*.log` - 日志文件
-- `*.tmp` - 临时文件
+工具复制图片、更新 Markdown 中的绝对路径，并按需同步图片到 `html/assets/`。迁移后检查缺失源文件提示及实际图片显示；`--dry-run` 不复制图片、不改写文章，但可能创建资产目录。
 
-### package.json
+如需指定 Typora 路径：
 
-项目依赖：
-- `marked`: Markdown 解析库（v18+）
+```bash
+node js/transfer-images.js --typora-path="/path/to/typora-images"
+```
+
+路径配置优先级为命令行参数、`TYPORA_IMAGE_PATH` 环境变量、根目录 `.env`、常见系统路径自动检测。`.env` 和 `node_modules/` 已被 Git 忽略。
+
+## 构建、检查与发布
+
+### 常用命令
+
+| 命令 | 行为 |
+| --- | --- |
+| `npm ci` | 按锁文件安装依赖，首次运行或依赖变更后使用 |
+| `npm run check:content` | 只检查文章元信息 |
+| `npm run build:site` | 校验文章 → 生成页面 → 检查本地引用和栏目分页 |
+| `node js/check-content.js --check-generated` | 检查已有生成结果，不重新生成 |
+| `./deploy.sh --check` | 图片迁移预览、构建和检查；不提交、不推送 |
+| `./deploy.sh` | 图片迁移、构建、暂存全部改动、提交并推送当前分支 |
+| `./deploy.sh "更新说明"` | 使用指定的提交信息完成发布流程 |
+
+`node js/generate-pagination.js` 只执行生成，日常应使用 `npm run build:site`，以包含生成前后的检查。`./deploy.sh --check` 会更新生成 HTML，不会实际迁移绝对路径图片；需要迁移时先单独运行图片工具，或在正式发布时由部署脚本执行。
+
+### 推荐发布流程
+
+```bash
+# 编写文章或修改页面源文件后
+./deploy.sh --check
+python3 -m http.server 8000
+
+# 在浏览器检查后，另开终端或停止服务器再发布
+git status --short
+./deploy.sh "更新文章与页面"
+```
+
+脚本会自动定位自身所在的项目目录，检查 Node.js、npm 和 Git；缺少 `node_modules/` 时使用 `npm ci`。构建失败会停止提交推送；没有文件改动时仍会尝试推送已有提交。脚本会暂存项目全部改动，发布前应确认 `git status` 中的内容。
+
+首次执行如遇权限问题，可运行 `chmod +x deploy.sh`，或使用 `bash deploy.sh`。脚本推送当前分支，自动部署只监听 `main` 和 `master`。
+
+### 手动提交与推送
+
+完成图片迁移、构建与预览后，也可以手动操作：
+
+```bash
+git add -A
+git commit -m "更新文章与页面"
+git push origin main
+```
+
+已经提交、仅需上传时直接执行 `git push origin main`。
 
 ### GitHub Actions
 
-自动部署工作流：
-- 触发条件: 推送到 main/master 分支，且修改了 posts/ 或相关脚本
-- 流程: Checkout → Setup Node.js → `npm ci` → `npm run build:site` → 提交生成文件 → 上传本次构建产物 → 部署该产物到 GitHub Pages
+工作流位于 [.github/workflows/pagination.yml](.github/workflows/pagination.yml)。推送到 `main` / `master` 且命中文章、模板、样式、脚本、资源或相关配置路径时触发，也支持 `workflow_dispatch` 手动运行。
 
----
+工作流使用 Node.js 20、`npm ci` 和完整构建命令；如生成文件有变化会提交回仓库，再从同一构建工作目录上传 Pages 产物，部署任务使用该产物发布。
 
-## 📄 许可
+推送成功代表代码已上传，线上是否发布成功以 [Actions 运行结果](https://github.com/Jonny-Dr/jonny-dr.github.io/actions) 为准。仅修改 `README.md` 或 `use-flow.txt` 不会触发当前路径过滤规则；需要重发网站时可在 Actions 手动运行工作流。
 
-本博客采用 [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) 许可协议。
+## 页面与样式维护
 
----
+| 调整内容 | 修改位置 |
+| --- | --- |
+| 首页布局 | `templates/index-template.html` |
+| 关于页介绍与联系方式 | `about.html` |
+| 公共导航 | `templates/nav-template.html` |
+| 首页与关于页技术栈 | `templates/skills-template.html` |
+| 技术、AI、项目、日常、归档布局 | 对应栏目模板；项目使用 `default-template.html` |
+| 卡片、分类导航、主题与移动布局 | `css/common.css` |
+| 卡片内容、分页数量与分类名称映射 | `js/generate-pagination.js` |
+| 文章详情布局及 Markdown 转换 | `js/markdown-parser.js` |
+| 跳转、主题及交互行为 | `js/theme.js` |
 
-## 🌐 访问地址
+构建会替换 `about.html` 中 `NAV_START/NAV_END` 和 `SKILLS_START/SKILLS_END` 标记内的共享内容，保留这些标记。旧的 `update-about-nav.js` 仅识别 `{{nav}}` 占位符，当前关于页的导航由正常构建同步。
 
-- **博客地址**: [https://jonny-dr.github.io](https://jonny-dr.github.io)
-- **GitHub 仓库**: [https://github.com/jonny-dr/jonny-dr.github.io](https://github.com/jonny-dr/jonny-dr.github.io)
+新增技术或 AI 主分类时，需要同时更新生成器中的分类映射、`check-content.js` 中的合法分类集合，以及对应 `CONTENT_GUIDE.md`，然后重新构建。
 
----
+修改公共 CSS 或交互脚本后也要构建：生成器会按照文件内容更新资源版本参数。大量 HTML 只因公共资源版本变化而一起更新，是正常现象。直接修改生成 HTML 会在下次构建时被覆盖；关于页手工维护区除外。
 
-> ✨ 感谢您的访问！希望我的博客能为您带来价值。
+## 常见问题与当前边界
+
+- 新文章未显示：检查模块、文件扩展名和目录层级；文章必须直接位于已配置模块的 `md/` 下，再运行完整构建。
+- 分类显示不正确：核对 `category` 的完整名称；模块归属由目录决定，分类页不支持把文章自动移到其他模块。
+- 图片缺失：先检查源图片和 `assets/` 引用，实际迁移后重新构建，并在文章详情页查看。
+- 构建通过但页面显示异常：本地检查主要覆盖元信息、栏目分页和 HTML 本地引用，不检测外链可用性、全部锚点或视觉与交互效果，仍需浏览器预览。
+- 删除或移动文章后有遗留提示：旧详情 HTML 和多余分页不会自动删除。确认旧链接是否需要保留或重定向后，再人工处理并重新检查。
+- 推送成功但网站没更新：查看 Actions 的触发条件与运行结果，再刷新浏览器缓存。远端新增了自动生成提交时，应先同步分支再继续修改。
+- Markdown 使用 marked 的 GFM 解析，支持表格、任务列表、代码块等；没有独立的 Mermaid 渲染流程，不应假定 Mermaid 代码块会显示为图形。
+
+## 许可
+
+博客内容采用 [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) 许可。

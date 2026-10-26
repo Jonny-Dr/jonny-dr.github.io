@@ -1,18 +1,106 @@
-# 1. 编写 Markdown 文件到对应目录
+# 1. 进入项目并准备环境（首次使用，或依赖发生变更时）
+# 需要 Node.js 20+、npm、Git；部署脚本使用 Bash，本地预览使用 Python 3。
+cd /Users/jonny/workspace/mine/jonny-dr.github.io
+npm ci
 
-# 2. 如果有本地图片，运行迁移工具
+# 2. 编写 Markdown 文件到对应模块的 md 目录
+# 技术：posts/skill/md/
+# AI：posts/ai/md/
+# 项目：posts/project/md/
+# 日常：posts/daily/md/
+# 归档：posts/archives/md/（独立维护，不是全站自动归档）
+# 文件名：YYYY-MM-DD-标题.md，例如 2026-10-26-Redis分布式锁实践.md。
+# Markdown 直接放在 md/ 下，不要为分类新建文章子目录。
+# 在文件最前面填写如下头部信息，再写正文（以下示例用于技术栏目）：
+# ---
+# title: Redis 分布式锁实践
+# date: 2026-10-26
+# category: 缓存与中间件
+# tags: [Redis, 分布式锁, 高可用]
+# languages: [Java]
+# excerpt: 说明锁的获取、续期、释放及故障处理方式。
+# ---
+# date 用于显示和倒序排列，不会延迟发布；文件名决定文章 URL。
+# 技术分类：Java 与 JVM、数据库、缓存与中间件、分布式与微服务、架构与工程、AI 工程。
+# AI 分类：深度学习基础、Transformer 与模型架构、提示学习与模型微调、推理与部署、RAG 与智能体。
+# 完整规范：posts/skill/CONTENT_GUIDE.md、posts/ai/CONTENT_GUIDE.md。
+
+# 3. 如果有本地绝对路径图片，先预览，再运行迁移工具
+# 将 skill 换成文章所在模块，如 ai、project、daily 或 archives。
+# 图片通常保存到 posts/<模块>/md/assets/，正文引用 assets/文件名.png。
+node js/transfer-images.js --dry-run --category=skill
 node js/transfer-images.js --category=skill
+# 处理所有模块时省略 --category；指定图片目录可使用：
+# node js/transfer-images.js --typora-path="/path/to/typora-images"
+# 迁移后核对源文件缺失提示和 assets 中的实际文件。
 
-# 3. 生成分页页面
-node js/generate-pagination.js
+# 4. 检查文章、生成页面，并检查生成结果
+npm run build:site
+# 此命令包含：元信息校验 → 生成详情/首页/栏目/分类页 → 本地引用和栏目分页检查。
+# 不建议仅运行 node js/generate-pagination.js，它会跳过生成前后的校验。
+# 只检查元信息：npm run check:content
+# 只检查已有 HTML：node js/check-content.js --check-generated
+# 一键预检查：./deploy.sh --check（会生成 HTML，但图片只预览，不提交、不推送）。
 
-# 4. 本地验证
+# 5. 本地预览（在项目根目录启动）
 python3 -m http.server 8000
+# 首页：http://localhost:8000/index.html
+# 关于：http://localhost:8000/about.html
+# 技术：http://localhost:8000/html/skill/skill.html
+# AI：http://localhost:8000/html/ai/ai.html
+# 项目：http://localhost:8000/html/project/project.html
+# 日常：http://localhost:8000/html/daily/daily.html
+# 归档：http://localhost:8000/archives.html
+# 核对文章日期、摘要、分类数量、图片、代码、分页及手机布局。
+# 在首页、关于、技术/AI 和文章页之间跳转，检查主题与导航状态。
+# 预览服务器会占用当前终端；后续操作请另开终端，或按 Ctrl+C 停止服务器。
+# 修改源文件后需要重新构建并刷新浏览器，服务器不会自动生成页面。
 
-# 5. 推送到 GitHub（自动部署）
-git add .
-git commit -m "Add new article"
-git push
+# 6. 发布前查看改动范围
+# 新终端请先进入项目目录。
+git status --short
+git diff --stat
+# 检查源文章、图片、模板和对应生成 HTML 是否齐全。
+# 构建发现孤立 HTML 或多余分页时会提示，不会自动删除。
 
-# 6. GitHub Actions 会自动完成部署
-# 访问 https://jonny-dr.github.io 查看
+# 7. 使用一键脚本提交并推送（推荐，与第 8 步二选一）
+./deploy.sh "更新文章与页面"
+# 首次没有执行权限时可运行 chmod +x deploy.sh，或改用 bash deploy.sh。
+# 脚本会迁移图片、完整构建、暂存项目全部改动，再提交并推送当前分支。
+# 没有文件变更时也会尝试推送已有提交；构建失败会停止提交推送。
+# 自动发布只监听 main/master；其他分支推送后不会触发这套 Pages 发布。
+
+# 8. 手动提交并推送（已完成迁移、构建与预览时使用）
+git add -A
+git commit -m "更新文章与页面"
+git push origin main
+# 如果已经完成提交，仅需推送：git push origin main。
+
+# 9. 查看 GitHub Actions 与线上结果
+# Actions：https://github.com/Jonny-Dr/jonny-dr.github.io/actions
+# 自动流程：npm ci → 完整构建 → 按需提交生成文件 → 上传本次产物 → Pages 发布。
+# 只有推送成功，还不代表网站已部署完成；请等待对应运行成功。
+# 网站：https://jonny-dr.github.io
+# 仅改 README.md 或 use-flow.txt 不会触发当前路径过滤，可在 Actions 手动运行。
+# 如远端出现自动生成的提交，继续修改前先确认并同步分支。
+
+# 10. 移动、重命名或删除文章时
+# 仅换分类：修改 category，不移动文件；模块归属由 posts/<模块>/md/ 决定。
+# 换模块：移动 Markdown 及依赖图片，检查 assets 路径，并重新构建。
+# 改文件名或换模块会改变文章 URL，要检查已有引用及旧地址的处理方式。
+# 删除源文件后，旧 HTML 和多余分页需要人工核对处理，不会自动清理。
+npm run build:site
+
+# 11. 调整页面和共享样式时
+# 首页：templates/index-template.html
+# 关于介绍/联系方式：about.html
+# 共享导航：templates/nav-template.html
+# 首页和关于的技术栈：templates/skills-template.html
+# 技术/AI/日常/归档布局：各自模板；项目使用 templates/default-template.html。
+# 公共卡片、圆角按钮、主题和响应式：css/common.css
+# 卡片内容、分类映射和分页：js/generate-pagination.js
+# 文章详情：js/markdown-parser.js；页面跳转与交互：js/theme.js。
+# 保留 about.html 中 NAV_START/NAV_END 和 SKILLS_START/SKILLS_END 标记。
+# 新增技术/AI 分类时同步生成器、js/check-content.js 和对应 CONTENT_GUIDE.md。
+# 修改 CSS/JS 后也要构建，以更新生成 HTML 的资源版本，避免只改生成页面。
+./deploy.sh --check
